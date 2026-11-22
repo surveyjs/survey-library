@@ -108,15 +108,6 @@ interface IRecordExpressionFields {
   built: Set<number>;
   scope?: IDynamicDataRecordScope;
 }
-// The members a records question and its record items call on each other, public for that only (not public API):
-// the inner question that writes a nesting panel's key in a write the item runs, and the template the records
-// are built from.
-export interface IRecordItemContainerWrite {
-  getContainerWriteQuestion(field: string): Question;
-}
-export interface IRecordsTemplateOwner {
-  getRecordSortTemplate(): PanelModelBase;
-}
 // The types of the removal flow keep importing these from here.
 export type { IRecordTarget, IRecordRemoval } from "./records/records-target-resolver";
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
@@ -143,7 +134,7 @@ const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "rad
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
  * @since 3.2.2
  */
-export abstract class QuestionRecordsModel extends Question implements IRecordsTemplateOwner, IDynamicDataFilterSource {
+export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -2651,7 +2642,8 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
     return !!template ? this.getTemplateSortFieldCandidates(template) : [];
   }
   /* The panel whose questions fill a record and are offered by the sort bar: the template of a dynamic
-     panel, the detail panel of a matrix. */
+     panel, the detail panel of a matrix. Public for the matrix row (getRecordKeyElements); name-scope.ts reads it
+     duck-typed. Not public API. */
   public getRecordSortTemplate(): PanelModelBase {
     return undefined;
   }
@@ -3419,8 +3411,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
     if (!item || !field) return undefined;
     const name = Helpers.getNameOfCommentKey(field) ?? field;
     // A nesting panel's key: the question inside it that writes.
-    const writer: IRecordItemContainerWrite = item;
-    return item.getQuestionsByValueName(name)[0] || writer.getContainerWriteQuestion(field) || undefined;
+    return item.getQuestionsByValueName(name)[0] || item.getContainerWriteQuestion(field) || undefined;
   }
   // The question's add: the records it inserts are touched as they enter the list. Nothing is created
   // for it: without a list there is no view to keep them in.
@@ -4428,7 +4419,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
   }
   // A nesting panel's key ({panel.address.street}, {row.address}): its scope answers the rest of the path.
   public findInnerContext(key: string): IValueGetterContext {
-    const scopes = this.item.getDataScopesByKey(key, true);
+    const scopes = this.item.getInner(key, true);
     if (scopes.length > 0) return new PanelDataScopeValueGetterContext(scopes);
     const levels = this.isMetadataStep ? this.getStepLevel().getInner(key, true) : [];
     return levels.length > 0 ? new RecordKeyLevelValueGetterContext(levels) : undefined;
@@ -4503,7 +4494,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
    PanelDataScope and no IDataScope: a question directly in a record has the survey as its value scope.
    A panel with valueName inside the record nests: its PanelDataScope has the item as its parent, the
    item's walk sees it as one key, and its questions' data paths start at the record. */
-export abstract class QuestionRecordItem extends ObjectDataScope implements ISurveyData, ISurveyImpl, IObjectValueContext, IRecordItemContainerWrite {
+export abstract class QuestionRecordItem extends ObjectDataScope implements ISurveyData, ISurveyImpl, IObjectValueContext {
 
   private settingValueScope: Scope = new Scope();
   protected get isSettingValue(): boolean {
@@ -4539,10 +4530,6 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   // (the panel's; a row's cells and detail panel).
   public getRecordKeyElements(): Array<IElement> {
     return this.getScopeElements();
-  }
-  // The record's nesting panels' scopes on a key.
-  public getDataScopesByKey(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {
-    return this.getDataKeyIndex().getScopes(name, caseInsensitive);
   }
   /* The survey's dataNesting changed: a panel with valueName inside the record turns on or off (RN3), and no
      panel inside a record is attached again. The record's instance and those of the panels inside it are built
@@ -4658,6 +4645,8 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   private getContainerWriter(scopes: Array<PanelDataScope>, writer: Question): Question {
     return !!writer && scopes.some(scope => scope.containsQuestion(writer)) ? writer : undefined;
   }
+  // The inner question that writes a nesting panel's key in a write the item runs. Public for the records
+  // question only (getRecordFieldQuestion), not public API.
   public getContainerWriteQuestion(name: string): Question {
     const write = this.containerWrite;
     return !!write && write.scopes[0].key === name ? write.writer : undefined;

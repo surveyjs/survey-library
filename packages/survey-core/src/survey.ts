@@ -104,9 +104,9 @@ import { getActiveDataScope } from "./panel-data-scope";
 import type { IDataScope, IDataKeyLevel } from "./data-key-index";
 import { forEachUnknownKey } from "./data-key-index";
 import { isContainerObjectKept, setValueByPath } from "./data-object-utils";
-import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
+import { SurveyRootDataScope, IValueWrite, updateQuestionsFromData } from "./survey-root-data-scope";
 import { ElementIndex } from "./element-index";
-import { INameScope, findElementInNameScope, getElementNamePath as getNameScopePath, getNameScopeOwner, isNameScopeMode } from "./name-scope";
+import { INameScope, findElementInNameScope, getElementNamePath as getNameScopePath, getNameScopeOwner, isNameScopeMode, isQuestionElement } from "./name-scope";
 import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
   findDataScopeValueContext } from "./data-scope-variables";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
@@ -138,8 +138,7 @@ function createHash(): HashTable<any> {
 }
 // The kinds the survey asks its element index for. A page is a PageModel of survey.pages, whatever its isPage
 // says: inside the single-page container a page has a parent and reports isPage: false. Only pages enter the
-// index as pages.
-function isQuestionKind(el: ISurveyElement): boolean { return el.isQuestion; }
+// index as pages. The question kind is name-scope's isQuestionElement.
 function isPageKind(el: ISurveyElement): boolean { return el instanceof PageModel; }
 function isPanelKind(el: ISurveyElement): boolean { return !el.isQuestion && !(el instanceof PageModel); }
 // Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
@@ -5267,7 +5266,7 @@ export class SurveyModel extends SurveyElementCore
     return this.ensureUniqueElementName(
       element,
       (name: string): ISurveyElement => {
-        return this.elementIndex.find(name, isQuestionKind, false, true);
+        return this.elementIndex.find(name, isQuestionElement, false, true);
       }
     );
   }
@@ -7167,7 +7166,7 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByValueName
    */
   public getQuestionByName(name: string, caseInsensitive: boolean = false): Question {
-    return this.findElementByName(name, isQuestionKind, caseInsensitive, true);
+    return this.findElementByName(name, isQuestionElement, caseInsensitive, true);
   }
   // A lookup from the survey. In "none" the flat structure answers, as before. In a nesting mode a name is unique in
   // its name scope (name-scope.ts): a bare name finds only the survey's own elements (O1), and an element inside
@@ -7606,16 +7605,7 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   private updateAllQuestionsValue(clearData: boolean) {
-    var questions = this.getAllQuestions();
-    for (var i: number = 0; i < questions.length; i++) {
-      var q = <Question>questions[i];
-      const data = q.getValueScope();
-      var valName = q.getValueName();
-      q.updateValueFromSurvey(data.getValue(valName), clearData);
-      if (q.requireUpdateCommentValue) {
-        q.updateCommentFromSurvey(data.getComment(valName));
-      }
-    }
+    updateQuestionsFromData(this.getAllQuestions(), clearData);
   }
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();

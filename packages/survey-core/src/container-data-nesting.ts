@@ -7,8 +7,8 @@ import { PanelDataScope, getDataScopeHost, getRecordDataScope } from "./panel-da
 
 // Where a container is for nested data: "survey" - on the survey's data, the dataNesting table applies;
 // "record" - inside a dynamic panel's or a detail panel's record, at any depth; "template" - inside such a record's
-// template, where the key applies to the records built from it; "" - never: a record panel itself (it is the
-// record), a composite's content panel and the panels in it (the component's author owns its value's shape).
+// template, where the key applies to the records built from it; "" - never: a record panel or a template itself (it
+// is the record, or the records' shape), a composite's content panel and the panels in it (the component's author owns its value's shape).
 type DataNestingPlace = "survey" | "record" | "template" | "";
 
 // A record item (a dynamic panel's item, a matrix row), told by a member only QuestionRecordItem has: an
@@ -47,11 +47,12 @@ export class ContainerDataNesting {
     const container = this.container;
     return getDataScopeHost(container.survey || ContainerDataNesting.getTemplateOwnerSurvey(container))?.dataNesting;
   }
-  // The one key rule. A by-name mode never changes a record's shape.
+  // The one key rule (getDataNestingKey); the place gives the kind. Inside a record or a template the kind is
+  // "record", which no by-name mode lists: a by-name mode never changes a record's shape. A container that never
+  // nests (place "") asks with the kind "".
   private getKeyAt(place: DataNestingPlace, valueName: string, name: string): string {
-    const mode = this.getMode();
-    if (place === "survey") return getDataNestingKey(mode, this.getContainerKind(), valueName, name);
-    return !!place && mode !== "none" ? valueName : "";
+    const kind = place === "survey" ? this.getContainerKind() : !!place ? "record" : "";
+    return getDataNestingKey(this.getMode(), kind, valueName, name);
   }
   public getKey(): string {
     return this.isUsed ? this.getKeyAt(this.place, this.container.valueName, this.container.name) : "";

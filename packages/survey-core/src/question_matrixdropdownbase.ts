@@ -29,7 +29,7 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, IRecordsTemplateOwner, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
@@ -38,7 +38,7 @@ import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-record
 import type { QuestionExpressionModel } from "./question_expression";
 import { PanelDataScope, getActiveDataScope } from "./panel-data-scope";
 import { getElementDataScope } from "./data-key-index";
-import { asScopeObject, deleteObjectPaths } from "./data-object-utils";
+import { asScopeObject, deleteObjectPaths, setObjectKey } from "./data-object-utils";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
@@ -663,16 +663,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
      its whole object. A handler's object is written, and the panel's questions read it after the write. The
      question inside the panel that wrote is validated, the others are not. */
   private prepareContainerWrite(name: string, newValue: any, writer: Question): IRecordItemWrite {
-    const rowValue = this.value;
-    const setKey = (val: any): void => {
-      if (Helpers.isValueEmpty(val)) {
-        delete rowValue[name];
-      } else {
-        rowValue[name] = Helpers.getUnbindValue(val);
-      }
-    };
-    setKey(newValue);
-    setKey(this.data.onRowChanging(this, name, rowValue));
+    let rowValue = setObjectKey(this.value, name, newValue);
+    rowValue = setObjectKey(rowValue, name, this.data.onRowChanging(this, name, rowValue));
     if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(writer)) return undefined;
     return { fieldValue: rowValue[name], ownerValue: rowValue, isDeleting: Helpers.isValueEmpty(rowValue[name]) };
   }
@@ -799,8 +791,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   }
   // A row whose detail panel is not built has the keys of the matrix's detail panel template (the design row).
   public getRecordKeyElements(): Array<IElement> {
-    const owner: IRecordsTemplateOwner = this.data;
-    const template = !this.detailPanel && !!owner ? owner.getRecordSortTemplate() : undefined;
+    const template = !this.detailPanel && !!this.data ? this.data.getRecordSortTemplate() : undefined;
     return !!template ? (<Array<IElement>>this.getCellQuestions()).concat(template.elements) : super.getRecordKeyElements();
   }
   // A cell is no element of the row's name scope: its name is a column's (O9 makes the detail panel the scope).

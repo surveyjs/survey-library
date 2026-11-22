@@ -23,6 +23,17 @@ export interface IValueWrite {
   questionName?: string;
   writer?: Question;
 }
+// Each question reads its value, and its comment, again from the data scope that holds it.
+export function updateQuestionsFromData(questions: Array<Question>, clearData: boolean): void {
+  questions.forEach(q => {
+    const data = q.getValueScope();
+    const valueName = q.getValueName();
+    q.updateValueFromSurvey(data.getValue(valueName), clearData);
+    if (q.requireUpdateCommentValue) {
+      q.updateCommentFromSurvey(data.getComment(valueName));
+    }
+  });
+}
 
 // The survey's part of nested data: the root's keys (top-level questions and root containers), the root
 // containers by key and by path, and the keys a write of a container key changes for triggers and
@@ -191,15 +202,7 @@ export class SurveyRootDataScope extends DataKeysScope {
       this.dataScopeKeysChanged(panel);
     }
     if (!this.isUsedValue || this.host.isLoadingFromJson) return;
-    const questions = !!panel ? panel.questions : this.host.getAllQuestions();
-    questions.forEach(q => {
-      const data = q.getValueScope();
-      const valueName = q.getValueName();
-      q.updateValueFromSurvey(data.getValue(valueName), false);
-      if (q.requireUpdateCommentValue) {
-        q.updateCommentFromSurvey(data.getComment(valueName));
-      }
-    });
+    updateQuestionsFromData(!!panel ? panel.questions : this.host.getAllQuestions(), false);
   }
   private updateDataScopeAttachments(): void {
     this.forEachPagePanel(panel => panel.updateDataScopeAttachment());

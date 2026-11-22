@@ -530,7 +530,7 @@ export class PanelModelBase extends SurveyElement<Question>
         this.resetHasTextInTitle();
       }
       if (this.isDesignMode)this.onVisibleChanged();
-      const elementsImpl = this.updateDataScope(value);
+      const elementsImpl = this.containerNesting.attach(value);
       for (var i = 0; i < this.elements.length; i++) {
         this.elements[i].setSurveyImpl(elementsImpl, isLight);
       }
@@ -622,9 +622,6 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected getElementsSurveyImpl(): ISurveyImpl {
     return this.getDataScope() || this.surveyImpl;
-  }
-  private updateDataScope(value: ISurveyImpl): ISurveyImpl {
-    return this.containerNesting.attach(value);
   }
   // A dynamic panel's template, or a matrix's detail panel template: the panel the records are built from.
   public isRecordTemplatePanel(): boolean {
@@ -1065,7 +1062,7 @@ export class PanelModelBase extends SurveyElement<Question>
     // docs/design-survey-nested-data.md).
     if (this.isDataNesting) {
       const val = this.getDataScope().getObjectValue();
-      return Helpers.isValueObject(val, true) && !Array.isArray(val) ? Helpers.getUnbindValue(val) : {};
+      return Helpers.isValueObject(val, true) ? Helpers.getUnbindValue(val) : {};
     }
     var data: any = {};
     this.collectValues(data, 0);

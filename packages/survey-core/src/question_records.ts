@@ -38,7 +38,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
 import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
 import { isNameScopeMode } from "./name-scope";
-import { getElementDataScope } from "./data-key-index";
+import { getElementDataScope, getInnerLevels } from "./data-key-index";
 import { RecordKeyLevel, hasRecordDataNesting, isInRecordNestingPanel } from "./record-key-level";
 import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext, updateValueByDataLevel } from "./data-scope-contexts";
 import type { IDataLevelFinder } from "./data-scope-contexts";
@@ -981,7 +981,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   // The keys inside the nesting panels' objects of a record that no question stores.
   public getRecordNestedUnknownPaths(record: any): Array<Array<string>> {
     const level = this.getRecordKeyLevel();
-    return !!level ? level.getNestedUnknownPaths(record) : [];
+    return !!level ? level.getNestedUnknownKeys(record).map(item => item.path) : [];
   }
   /* The template's questions whose values are keys of the record itself: a question inside a nesting panel
      is a key of the panel's object, no field of the record ("Limitations" in
@@ -1078,7 +1078,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
      renamed to the title. Returns the record. A nesting panel's key (level) keeps its key, and its
      object is formatted by the questions of the panel, at any depth. */
   protected formatRecordDisplayValue(keysAsText: boolean, record: any, getQuestion: (key: string) => Question, level?: RecordKeyLevel): any {
-    return this.formatObjectDisplayValue(keysAsText, record, getQuestion, (key: string): Array<RecordKeyLevel> => !!level ? level.getLevels(key) : []);
+    return this.formatObjectDisplayValue(keysAsText, record, getQuestion, (key: string): Array<RecordKeyLevel> => !!level ? level.getInner(key) : []);
   }
   /* One object of a display value, key by key in place: the record, or a copy of a nesting panel's object. A
      key with a question is formatted, and renamed to the question's title with keysAsText. A key of nesting
@@ -1103,7 +1103,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
       if (levels.length > 0 && !!asScopeObject(obj[key])) {
         obj[key] = this.formatObjectDisplayValue(keysAsText, Object.assign({}, obj[key]),
           (inner: string): Question => RecordKeyLevel.getQuestionOf(levels, inner),
-          (inner: string): Array<RecordKeyLevel> => RecordKeyLevel.getLevelsOf(levels, inner));
+          (inner: string): Array<RecordKeyLevel> => getInnerLevels(levels, inner));
       }
     }
     return obj;
@@ -4430,7 +4430,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
   public findInnerContext(key: string): IValueGetterContext {
     const scopes = this.item.getDataScopesByKey(key, true);
     if (scopes.length > 0) return new PanelDataScopeValueGetterContext(scopes);
-    const levels = this.isMetadataStep ? this.getStepLevel().getLevels(key, true) : [];
+    const levels = this.isMetadataStep ? this.getStepLevel().getInner(key, true) : [];
     return levels.length > 0 ? new RecordKeyLevelValueGetterContext(levels) : undefined;
   }
   /* The neighbour comes from the view, not from the objects that exist: the first panel or row of a

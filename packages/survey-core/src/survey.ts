@@ -101,7 +101,8 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { getActiveDataScope } from "./panel-data-scope";
-import type { IDataScope } from "./data-key-index";
+import type { IDataScope, IDataKeyLevel } from "./data-key-index";
+import { forEachUnknownKey } from "./data-key-index";
 import { isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { ElementIndex } from "./element-index";
@@ -2253,7 +2254,7 @@ export class SurveyModel extends SurveyElementCore
     if (!removeNonExistingRootKeys) return;
     const data = this.data;
     // The same rule setData() reports by, so the two never disagree.
-    if (this.checkUnknownDataKeys([this], data)) {
+    if (this.checkUnknownDataKeys(data)) {
       /* bypass the data setter: this only filters incorrect keys out of the current state
       and should not mark pages as shown the way an external data assignment does */
       this.resetValuesHash();
@@ -5131,7 +5132,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private verifyDataCore(context: IVerifyDataContext): void {
     if (context.checks.reportUnknownProperties) {
-      this.checkUnknownDataKeys([this], this.data, context);
+      this.checkUnknownDataKeys(this.data, context);
     }
     this.pages.forEach(page => page.verifyDataCore(context));
   }
@@ -5142,35 +5143,35 @@ export class SurveyModel extends SurveyElementCore
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }
-  // The keys of obj that no element of the scopes owns, and in the objects of the containers inside them
-  // (scopes that share one key share its object). With a context setData() reports them by path; without one
-  // clearIncorrectValues(true) removes them from obj (a copy), and an object that becomes empty goes too.
-  // isCopy: obj's objects are copies already (below the root call).
-  private checkUnknownDataKeys(scopes: Array<IDataScope>, obj: any, context?: IVerifyDataContext, isCopy?: boolean): boolean {
-    if (!Helpers.isValueObject(obj, true) || Array.isArray(obj)) return false;
-    let res = false;
-    // Read once: every key reads them.
-    const indexes = scopes.map(scope => scope.getDataKeyIndex());
-    Object.keys(obj).forEach(key => {
-      const inner: Array<IDataScope> = [];
-      indexes.forEach(index => inner.push(...index.getScopes(key)));
-      if (inner.length > 0) {
-        if (!context && !isCopy) obj[key] = Helpers.getUnbindValue(obj[key]);
-        context?.pushSegment(key);
-        const isChanged = this.checkUnknownDataKeys(inner, obj[key], context, true);
-        context?.popSegment();
-        if (isChanged && !context && Helpers.isValueEmpty(obj[key])) delete obj[key];
-        res = res || isChanged;
-      } else if (!scopes.some(scope => scope.isKnownKey(key))) {
-        res = true;
-        if (!!context) {
-          context.addIssue("unknownProperty", key, obj[key], undefined);
-        } else {
-          delete obj[key];
-        }
+  // The keys of obj (the survey data) that no element of the survey knows, at the top and in the objects of its
+  // containers, at any depth (containers that share one key share its object). With a context setData() reports them by path;
+  // without one clearIncorrectValues(true) removes them from obj, in a copy of each top-level container's object,
+  // and an object that becomes empty goes too.
+  private checkUnknownDataKeys(obj: any, context?: IVerifyDataContext): boolean {
+    // The survey's own keys: its index, and its isKnownKey with the calculated values. Below them the scopes
+    // are the levels.
+    const index = this.getDataKeyIndex();
+    const top: IDataKeyLevel = { getInner: (key: string) => index.getScopes(key), isKnownKey: (key: string) => this.isKnownKey(key) };
+    const onUnknown = (path: Array<string>, value: any, owner: any): void => {
+      const key = path[path.length - 1];
+      if (!!context) {
+        context.addIssue("unknownProperty", key, value, undefined);
+      } else {
+        delete owner[key];
       }
+    };
+    return forEachUnknownKey([top], obj, [], onUnknown, (path: Array<string>, owner: any, walkInner: () => boolean): boolean => {
+      const key = path[path.length - 1];
+      if (!context && path.length === 1) owner[key] = Helpers.getUnbindValue(owner[key]);
+      // getUnbindValue above copies only what Helpers.isValueObject accepts. A null-prototype object, or one from
+      // another window, is still the caller's own, so the survey doesn't go into it, as it never did.
+      if (!Helpers.isValueObject(owner[key], true)) return false;
+      context?.pushSegment(key);
+      const isChanged = walkInner();
+      context?.popSegment();
+      if (isChanged && !context && Helpers.isValueEmpty(owner[key])) delete owner[key];
+      return isChanged;
     });
-    return res;
   }
   // The expressionResultMismatch diagnostic. Despite the name it is not limited to expressions:
   // every difference between the response and survey.data after loading is something the model did

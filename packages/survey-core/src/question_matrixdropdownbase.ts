@@ -2025,7 +2025,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1) return true;
     // A nesting panel's key of the detail panel.
     const level = this.getRecordKeyLevel();
-    return !!level && level.getLevels(key).length > 0;
+    return !!level && level.getInner(key).length > 0;
   }
   protected getRecordKeyValueName(key: string): string {
     return Helpers.getNameOfCommentKey(key) ?? key;

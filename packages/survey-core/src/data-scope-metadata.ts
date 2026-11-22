@@ -1,5 +1,6 @@
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { RecordKeyLevel } from "./record-key-level";
+import { getInnerLevels } from "./data-key-index";
 import { RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
 import { getRecordTemplatePanel, isTemplatePanel } from "./name-scope";
 
@@ -57,7 +58,7 @@ function getRecordTemplateKeyLevels(el: any, template: any): Array<Array<RecordK
   for (let i = 0; i < panels.length && levels.length > 0; i++) {
     const key = panels[i].getRecordDataNestingKey();
     if (!key) continue;
-    levels = RecordKeyLevel.getLevelsOf(levels, key);
+    levels = getInnerLevels(levels, key);
     if (levels.length > 0) res.unshift(levels);
   }
   return res;

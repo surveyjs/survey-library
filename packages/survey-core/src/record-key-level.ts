@@ -1,13 +1,14 @@
 import type { IElement, ISurveyDataElement } from "./base-interfaces";
 import type { Question } from "./question";
 import type { PanelModelBase } from "./panel";
-import { isKnownDataKey } from "./data-key-index";
+import type { IDataKeyLevel } from "./data-key-index";
+import { isKnownDataKey, forEachUnknownKey } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { asScopeObject } from "./data-object-utils";
 
 // A key inside a nesting panel's object of a record that no element of the levels knows, by its path from the
 // record (["address", "foo"]), with the key's value.
-export interface IRecordNestedKey {
+interface IRecordNestedKey {
   path: Array<string>;
   value: any;
 }
@@ -16,7 +17,7 @@ export interface IRecordNestedKey {
 // nesting panels under their keys (PanelModelBase.getRecordDataNestingKey), each with the level of its own
 // keys. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
 // panel template, or the panel of one record. The owner-level rules of the records read it.
-export class RecordKeyLevel {
+export class RecordKeyLevel implements IDataKeyLevel {
   // Its keys only: no lookup of a level goes by name.
   public readonly index = new ElementIndex();
   private levels = new Map<ISurveyDataElement, RecordKeyLevel>();
@@ -39,7 +40,7 @@ export class RecordKeyLevel {
     });
   }
   // The levels of the nesting panels on a key: panels sharing a key share its object.
-  public getLevels(key: string, caseInsensitive?: boolean): Array<RecordKeyLevel> {
+  public getInner(key: string, caseInsensitive?: boolean): Array<RecordKeyLevel> {
     return this.index.getElements(key, caseInsensitive).filter(el => !el.isQuestion).map(el => this.levels.get(el));
   }
   public getQuestion(key: string, caseInsensitive?: boolean): Question {
@@ -48,8 +49,8 @@ export class RecordKeyLevel {
   public isKnownKey(key: string): boolean {
     return isKnownDataKey(this.index, key);
   }
-  // The levels that share one key read as one: the question of the first level that has one, and the
-  // levels on a key of all of them.
+  // The levels that share one key read as one: the question of the first level that has one. Their levels on a
+  // key are getInnerLevels.
   public static getQuestionOf(levels: Array<RecordKeyLevel>, key: string, caseInsensitive?: boolean): Question {
     for (let i = 0; i < levels.length; i++) {
       const res = levels[i].getQuestion(key, caseInsensitive);
@@ -57,39 +58,20 @@ export class RecordKeyLevel {
     }
     return undefined;
   }
-  public static getLevelsOf(levels: Array<RecordKeyLevel>, key: string, caseInsensitive?: boolean): Array<RecordKeyLevel> {
-    const res: Array<RecordKeyLevel> = [];
-    levels.forEach(level => res.push(...level.getLevels(key, caseInsensitive)));
-    return res;
-  }
   // The keys no element of the levels knows inside the objects of obj's nesting keys, with their values.
   // obj's own keys are the owner's rule (isRecordKeyUnknown).
   public getNestedUnknownKeys(obj: any): Array<IRecordNestedKey> {
     const res: Array<IRecordNestedKey> = [];
-    const collect = (levels: Array<RecordKeyLevel>, val: any, path: Array<string>): void => {
-      const inner = asScopeObject(val);
-      if (!inner) return;
-      Object.keys(inner).forEach(key => {
-        const next = RecordKeyLevel.getLevelsOf(levels, key);
-        if (next.length > 0) {
-          collect(next, inner[key], path.concat([key]));
-        } else if (!levels.some(level => level.isKnownKey(key))) {
-          res.push({ path: path.concat([key]), value: inner[key] });
-        }
-      });
-    };
     const record = asScopeObject(obj);
     if (!!record) {
       Object.keys(record).forEach(key => {
-        const levels = this.getLevels(key);
-        if (levels.length > 0) collect(levels, record[key], [key]);
+        const levels = this.getInner(key);
+        if (levels.length > 0) {
+          forEachUnknownKey(levels, record[key], [key], (path: Array<string>, value: any): void => { res.push({ path, value }); });
+        }
       });
     }
     return res;
-  }
-  // The paths of getNestedUnknownKeys: [["address", "foo"]].
-  public getNestedUnknownPaths(obj: any): Array<Array<string>> {
-    return this.getNestedUnknownKeys(obj).map(item => item.path);
   }
 }
 // Whether a panel among the elements, at any depth, nests in the records built from them.

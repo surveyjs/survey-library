@@ -4,7 +4,7 @@ import type { SurveyModel } from "./survey";
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
-import { IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { IDataScope, IDataKeyLevel, getElementDataScope, isKnownDataKey } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
@@ -69,7 +69,7 @@ export function getEmptyValuesSurvey(data: any, survey: ISurvey): ISurvey {
 // The instance half of a data scope: the index of its keys (ElementIndex), built on the first read. ObjectDataScope
 // adds the object half: the values as keys of one object. The survey's root (SurveyRootDataScope) keeps the root's
 // keys, and the survey stays the root IDataScope.
-export abstract class DataKeysScope {
+export abstract class DataKeysScope implements IDataKeyLevel {
   // The elements the index walk starts from.
   protected abstract getScopeElements(): Array<IElement>;
   // Whether the scope holds this question's value (the walk reached it through panels that do not nest).
@@ -102,6 +102,10 @@ export abstract class DataKeysScope {
   // The unknown-key rule (IDataScope): an element's key, a question's comment or totals key.
   public isKnownKey(key: string): boolean {
     return isKnownDataKey(this.getDataKeyIndex(), key);
+  }
+  // The active containers on a key (getInnerLevels, forEachUnknownKey).
+  public getInner(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
+    return this.getDataKeyIndex().getScopes(key, caseInsensitive);
   }
   // The questions whose values this scope holds (directly, or through panels that do not nest) and the active
   // containers directly inside it: the one walk of a container's elements (and of the pages for the root), in

@@ -4,6 +4,7 @@ import type { PanelDataScope } from "./panel-data-scope";
 import { PropertyGetterContext, ValueGetterContextCore, stripUnwrapPostfix } from "./conditions/conditionProcessValue";
 import { Helpers } from "./helpers";
 import { RecordKeyLevel } from "./record-key-level";
+import { getInnerLevels } from "./data-key-index";
 
 // What one data level answers a name with (updateValueByDataLevel). getCommentValue: the comment a question
 // of the level stores; without it a comment key answers in the metadata mode only.
@@ -98,8 +99,7 @@ export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContex
     return null;
   }
   public findInnerContext(name: string): IValueGetterContext {
-    const inner: Array<PanelDataScope> = [];
-    this.scopes.forEach(scope => inner.push(...scope.getDataKeyIndex().getScopes(name, true)));
+    const inner = getInnerLevels(this.scopes, name, true);
     return inner.length > 0 ? new PanelDataScopeValueGetterContext(inner) : undefined;
   }
   public getCommentValue(owner: Question): any {
@@ -124,7 +124,7 @@ export class RecordKeyLevelValueGetterContext extends DataLevelValueGetterContex
     return RecordKeyLevel.getQuestionOf(this.levels, name, true) || null;
   }
   public findInnerContext(name: string): IValueGetterContext {
-    const inner = RecordKeyLevel.getLevelsOf(this.levels, name, true);
+    const inner = getInnerLevels(this.levels, name, true);
     return inner.length > 0 ? new RecordKeyLevelValueGetterContext(inner) : undefined;
   }
   public getCommentValue(owner: Question): any {

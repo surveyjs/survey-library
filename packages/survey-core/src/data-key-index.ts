@@ -5,6 +5,7 @@ import type { PanelModelBase } from "./panel";
 import type { ElementIndex } from "./element-index";
 import { HashTable } from "./helpers";
 import { settings } from "./settings";
+import { asScopeObject } from "./data-object-utils";
 
 // A data scope: the survey, the root, or an active PanelDataScope. Its elements' values are
 // keys of its data, found through its index; getDataPath() gives the keys from the survey data down to it.
@@ -25,6 +26,42 @@ export function isKnownDataKey(index: ElementIndex, key: string): boolean {
   if (index.getElements(key).length > 0) return true;
   return [settings.commentSuffix, settings.matrix.totalsSuffix].some(suffix =>
     !!suffix && key.endsWith(suffix) && index.getQuestions(key.substring(0, key.length - suffix.length)).length > 0);
+}
+// One level of the keys of an object: a data scope (PanelDataScope, or the survey's own keys) or a records level
+// (RecordKeyLevel). getInner gives the levels of a key that names inner levels: the containers on the key.
+export interface IDataKeyLevel {
+  getInner(key: string, caseInsensitive?: boolean): Array<IDataKeyLevel>;
+  isKnownKey(key: string): boolean;
+}
+// The levels that share one key read as one: the inner levels on the key of all of them.
+export function getInnerLevels<T>(levels: Array<{ getInner(key: string, caseInsensitive?: boolean): Array<T> }>, key: string, caseInsensitive?: boolean): Array<T> {
+  const res: Array<T> = [];
+  levels.forEach(level => res.push(...level.getInner(key, caseInsensitive)));
+  return res;
+}
+// The keys of obj that no level knows, and inside the objects of the keys that name inner levels, at any depth.
+// path: the keys from where the caller starts to obj; onUnknown gets the key's path, its value and the object
+// that holds it. onInner, when given, goes down a key's object itself (walkInner) and may do something around
+// it; the key's object is read when walkInner runs. Returns whether a key was unknown.
+export function forEachUnknownKey(levels: Array<IDataKeyLevel>, obj: any, path: Array<string>,
+  onUnknown: (path: Array<string>, value: any, owner: any) => void,
+  onInner?: (path: Array<string>, owner: any, walkInner: () => boolean) => boolean): boolean {
+  const owner = asScopeObject(obj);
+  if (!owner) return false;
+  let res = false;
+  Object.keys(owner).forEach(key => {
+    const inner = getInnerLevels(levels, key);
+    if (inner.length > 0) {
+      const keyPath = path.concat([key]);
+      const walkInner = (): boolean => forEachUnknownKey(inner, owner[key], keyPath, onUnknown, onInner);
+      const isChanged = !!onInner ? onInner(keyPath, owner, walkInner) : walkInner();
+      res = res || isChanged;
+    } else if (!levels.some(level => level.isKnownKey(key))) {
+      res = true;
+      onUnknown(path.concat([key]), owner[key], owner);
+    }
+  });
+  return res;
 }
 // The scope of an index entry that is a container; null for a question.
 export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {

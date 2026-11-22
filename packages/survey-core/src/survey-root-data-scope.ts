@@ -6,7 +6,7 @@ import { Helpers, HashTable } from "./helpers";
 import type { PanelDataScope } from "./panel-data-scope";
 import { DataKeysScope, getRecordDataScope, getKeyHolderScope, forEachChoicePanel } from "./panel-data-scope";
 import type { ISurveyDataElement, IElement } from "./base-interfaces";
-import { IDataScope, getElementDataScope } from "./data-key-index";
+import { IDataScope, getElementDataScope, getInnerLevels } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
 
 // One write of a survey data key, created where the value is written and passed down the write's steps
@@ -229,11 +229,11 @@ export class SurveyRootDataScope extends DataKeysScope {
   // the key "address", ["page1", "address"] the containers with the key "address" inside them (each may
   // be more than one).
   public getScopesByPath(path: Array<string>): Array<IDataScope> {
-    let res: Array<IDataScope> = [this.host];
-    for (let i = 0; i < path.length && res.length > 0; i++) {
-      const next: Array<IDataScope> = [];
-      res.forEach(scope => next.push(...scope.getDataKeyIndex().getScopes(path[i])));
-      res = next;
+    if (path.length === 0) return [this.host];
+    // The survey's keys are the root's (SurveyModel.getDataKeyIndex).
+    let res = this.getInner(path[0]);
+    for (let i = 1; i < path.length && res.length > 0; i++) {
+      res = getInnerLevels(res, path[i]);
     }
     return res;
   }

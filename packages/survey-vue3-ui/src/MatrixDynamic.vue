@@ -6,16 +6,18 @@
     <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
       <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
     </div>
-    <SvComponent
-      :is="'survey-matrixtable'"
-      v-if="question.renderedTable.showTable"
-      :question="question"
-    />
-    <SvComponent
-      :is="'survey-placeholder-matrixdynamic'"
-      v-else
-      :question="question"
-    />
+    <SvComponent :is="'sv-records-content'" :question="question">
+      <SvComponent
+        :is="'survey-matrixtable'"
+        v-if="question.renderedTable.showTable"
+        :question="question"
+      />
+      <SvComponent
+        :is="'survey-placeholder-matrixdynamic'"
+        v-else-if="question.showNoRowsPlaceholder"
+        :question="question"
+      />
+    </SvComponent>
     <div v-if="question.showPager || question.getShowToolbar('bottom')" :class="question.cssClasses.footerBar">
       <SvComponent v-if="question.getShowToolbar('bottom')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
       <SvComponent v-if="question.showPager" :is="'sv-action-bar'" :model="question.recordsBar.pagerActions"></SvComponent>

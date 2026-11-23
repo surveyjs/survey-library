@@ -123,6 +123,8 @@ import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
 import LoadingIndicator from "./components/LoadingIndicator.vue";
+import RecordsLoadingOverlay from "./components/records/RecordsLoadingOverlay.vue";
+import RecordsContent from "./components/records/RecordsContent.vue";
 
 import Header from "./components/header/Header.vue";
 import HeaderCell from "./components/header/HeaderCell.vue";
@@ -310,6 +312,8 @@ function registerComponents(
   registerComponent("survey-custom", Custom);
   registerComponent("sv-timerpanel", TimerPanel);
   registerComponent("sv-loading-indicator", LoadingIndicator);
+  registerComponent("sv-records-loading-overlay", RecordsLoadingOverlay);
+  registerComponent("sv-records-content", RecordsContent);
   registerComponent("sv-header", Header);
   registerComponent("sv-header-cell", HeaderCell);
   registerComponent("sv-header-mobile", HeaderMobile);

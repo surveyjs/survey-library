@@ -9,46 +9,48 @@
     <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
       <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
     </div>
-    <SvComponent
-      v-if="question.getShowNoEntriesPlaceholder()"
-      
-      :is="'survey-placeholder-paneldynamic'"
-      :question="question"
-    />
-    <div
-      :class="question.cssClasses.progress"
-      v-if="question.isProgressTopShowing && question.isRangeShowing"
-    >
+    <SvComponent :is="'sv-records-content'" :question="question">
+      <SvComponent
+        v-if="question.getShowNoEntriesPlaceholder()"
+
+        :is="'survey-placeholder-paneldynamic'"
+        :question="question"
+      />
       <div
-        :class="question.cssClasses.progressBar"
-        :style="{ width: question.progress }"
-        role="progressbar"
-        :aria-label="question.progressBarAriaLabel"
-      ></div>
-    </div>
-    <div :class="question.cssClasses.panelsContainer">
-      <template
-        v-for="(panel, index) in question.renderedPanels"
-        :key="panel.id"
+        :class="question.cssClasses.progress"
+        v-if="question.isProgressTopShowing && question.isRangeShowing"
       >
-        <div :class="question.getPanelWrapperCss(panel)">
-          <SvComponent
-            :is="getPanelComponentName(panel)"
-            v-bind="getPanelComponentData(panel)"
-          ></SvComponent>
-          <SvComponent
-            :is="'sv-action'"
-            v-if="question.canRenderRemovePanelOnRight(panel)"
-            :item="question.getRemovePanelAction(panel)"
+        <div
+          :class="question.cssClasses.progressBar"
+          :style="{ width: question.progress }"
+          role="progressbar"
+          :aria-label="question.progressBarAriaLabel"
+        ></div>
+      </div>
+      <div :class="question.cssClasses.panelsContainer">
+        <template
+          v-for="(panel, index) in question.renderedPanels"
+          :key="panel.id"
+        >
+          <div :class="question.getPanelWrapperCss(panel)">
+            <SvComponent
+              :is="getPanelComponentName(panel)"
+              v-bind="getPanelComponentData(panel)"
+            ></SvComponent>
+            <SvComponent
+              :is="'sv-action'"
+              v-if="question.canRenderRemovePanelOnRight(panel)"
+              :item="question.getRemovePanelAction(panel)"
+            />
+          </div>
+          <hr
+            :class="question.cssClasses.separator"
+            v-if="question.showSeparator(index)"
+            :key="'separator' + panel.id"
           />
-        </div>
-        <hr
-          :class="question.cssClasses.separator"
-          v-if="question.showSeparator(index)"
-          :key="'separator' + panel.id"
-        />
-      </template>
-    </div>
+        </template>
+      </div>
+    </SvComponent>
     <SvComponent
       :is="'survey-paneldynamicprogress'"
       v-if="question.showFooter"

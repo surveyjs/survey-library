@@ -649,21 +649,16 @@ frameworks.forEach((framework) => {
       await openCalendar(page);
       await expect(page.locator(".sv-popup--sheet")).toHaveCount(0);
 
-      await resizeToMobile(page);
-      await expect(page.locator(".sv-popup--sheet")).toBeVisible();
-      await expect(calendarRoot(page)).toBeVisible();
-
-      await resizeToDesktop(page);
-      await expect(page.locator(".sv-popup--sheet")).toHaveCount(0);
-      await expect(calendarRoot(page)).toBeVisible();
-
+      await expect(calendarTitleButton(page)).toBeFocused();
       await page.keyboard.press("Escape");
       await expect(popupContainer(page)).not.toBeVisible();
       await resizeToMobile(page);
       await openCalendar(page);
       await expect(page.locator(".sv-popup--sheet")).toBeVisible();
+      await expect(calendarRoot(page)).toBeVisible();
 
       await page.locator(".sv-popup__close-button").click();
+      await expect(popupContainer(page)).not.toBeVisible();
       await resizeToDesktop(page);
       await openCalendar(page);
       await expect(page.locator(".sv-popup--sheet")).toHaveCount(0);

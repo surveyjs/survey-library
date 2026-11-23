@@ -1,4 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText, resetFocusToBody, loadSurveyLocales } from "../helper";
+import { assignDeferredSource, answerReads } from "../remoteSourceHelper";
 
 const title = "matrixdynamic";
 
@@ -2099,6 +2100,46 @@ frameworks.forEach((framework) => {
       expect(Math.abs(gaps.dynamic.textLeft - gaps.dynamic.titleLeft)).toBeLessThan(1);
       expect(Math.abs(gaps.dynamic.textLeft - gaps.matrix.textLeft)).toBeLessThan(1);
       expect(Math.abs(gaps.dynamic.textBottom - gaps.matrix.textBottom)).toBeLessThan(1);
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} loading overlay`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    test("a page read shows the loading overlay and disables the pager and Add Row", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 2, columns: [{ name: "col1", cellType: "text" }] }]
+      });
+      await assignDeferredSource(page, "matrix", 6, { canInsert: true });
+      const content = page.locator(".sd-records__content");
+      const body = content.locator(".sd-records__body");
+      const overlay = content.locator(".sd-records__loading-overlay");
+      await expect(overlay, "#1: the first read").toBeVisible();
+      await expect(overlay).toHaveAttribute("role", "status");
+      await expect(body).toHaveAttribute("inert", "");
+      // Reduced motion is on in the e2e survey: the overlay is opaque at once.
+      await expect.poll(() => overlay.evaluate(el => getComputedStyle(el).opacity), { message: "#2" }).toBe("1");
+      await answerReads(page);
+      await expect(overlay).toHaveCount(0);
+      const firstInput = body.locator("td[title='col1'] input").first();
+      await expect(firstInput).toHaveValue("v0");
+      const pager = page.locator(".sd-pager");
+      await pager.locator("button[title='Next']").click();
+      await expect(overlay, "#3: the next page").toBeVisible();
+      await expect(firstInput, "#4: the previous rows stay under the overlay").toHaveValue("v0");
+      await expect(body).toHaveAttribute("aria-busy", "true");
+      await expect(pager.locator("button[title='Next']")).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Add Row" })).toBeDisabled();
+      await firstInput.focus();
+      await expect(firstInput, "#5: an inert cell takes no focus").not.toBeFocused();
+      await answerReads(page);
+      await expect(overlay).toHaveCount(0);
+      await expect(firstInput).toHaveValue("v2");
+      await expect(body).not.toHaveAttribute("inert");
     });
   });
 });

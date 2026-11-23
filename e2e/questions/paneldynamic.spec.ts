@@ -1,4 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getVisibleListItemByText, test, expect, getButtonByText } from "../helper";
+import { assignDeferredSource, answerReads } from "../remoteSourceHelper";
 
 const title = "paneldynamic";
 
@@ -913,6 +914,58 @@ frameworks.forEach((framework) => {
       await expect.poll(shownProducts).toEqual(["c", "d"]);
       await pager.locator("button[title='Previous']").click();
       await expect.poll(shownProducts).toEqual(["a", "b"]);
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} loading overlay`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    test("the first read shows the loading overlay instead of the No entries placeholder", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 2, templateElements: [{ type: "text", name: "col1" }] }]
+      });
+      await assignDeferredSource(page, "panel", 0, { canInsert: true });
+      const overlay = page.locator(".sd-records__loading-overlay");
+      await expect(overlay).toBeVisible();
+      await expect(page.locator(".sd-paneldynamic__placeholder")).toHaveCount(0);
+      await answerReads(page);
+      await expect(overlay).toHaveCount(0);
+      await expect(page.locator(".sd-paneldynamic__placeholder")).toBeVisible();
+    });
+    test("a page read disables Add new", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 2, templateElements: [{ type: "text", name: "col1" }] }]
+      });
+      await assignDeferredSource(page, "panel", 6, { canInsert: true });
+      await answerReads(page);
+      await page.locator(".sd-pager button[title='Next']").click();
+      await expect(page.locator(".sd-records__loading-overlay")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Add new" })).toBeDisabled();
+      await answerReads(page);
+      await expect(page.getByRole("button", { name: "Add new" })).toBeEnabled();
+    });
+    test("a nested records question hides its overlay while the outer one loads", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{ type: "paneldynamic", name: "outer", panelCount: 0, pageSize: 1,
+          templateElements: [{ type: "matrixdynamic", name: "inner", rowCount: 0, columns: [{ name: "c", cellType: "text" }] }] }]
+      });
+      await assignDeferredSource(page, "outer", 3);
+      await answerReads(page);
+      await page.evaluate(() => {
+        const outer = (window as any).survey.getQuestionByName("outer");
+        outer.panels[0].getQuestionByName("inner").dataSource = { read: () => new Promise(() => { }) };
+      });
+      const visibleOverlays = page.locator(".sd-records__loading-overlay").filter({ visible: true });
+      const innerOverlay = page.locator(".sd-records__content .sd-records__content .sd-records__loading-overlay");
+      await expect(innerOverlay, "#1: only the inner question loads").toBeVisible();
+      // A read without a page move: a move validates the page first, and it waits for the inner read forever.
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("outer").refreshDataSource(); });
+      await expect(innerOverlay, "#2: hidden under the outer one").toBeHidden();
+      await expect(visibleOverlays, "#3: one overlay, the outer one").toHaveCount(1);
     });
   });
 });

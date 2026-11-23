@@ -1,6 +1,8 @@
 import { frameworks, url, initSurvey, axeTags, axeContext, axeOptions, baseTest as test } from "./helper";
 import { injectAxe, checkA11y } from "axe-playwright";
 import { RunOptions } from "axe-core";
+import { expect } from "@playwright/test";
+import { assignDeferredSource } from "../e2e/remoteSourceHelper";
 const title = "matrices";
 
 frameworks.forEach((framework) => {
@@ -463,6 +465,23 @@ frameworks.forEach((framework) => {
         (window as any).survey.getQuestionByName("quality").visibleRows[0].showHideDetailPanelClick();
       });
       await checkA11y(page, axeContext, { axeOptions: axeOptions });
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} a11y:${title} loading overlay`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await injectAxe(page);
+    });
+    test("axe check matrixdynamic while its data loads", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 2, columns: [{ name: "col1", cellType: "text" }] }]
+      });
+      await assignDeferredSource(page, "matrix", 6);
+      await expect(page.locator(".sd-records__loading-overlay")).toBeVisible();
+      await checkA11y(page, ".sd-question", { axeOptions });
     });
   });
 });

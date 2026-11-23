@@ -1,5 +1,6 @@
 import { frameworks, url, initSurvey, test, expect } from "../helper";
 import type { Locator, Page } from "@playwright/test";
+import { assignDeferredSource, getReadRequests } from "../remoteSourceHelper";
 
 const title = "Filter";
 
@@ -535,6 +536,31 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Escape");
       await expect(dialog).toBeHidden();
       await expect(filters, "Escape gives the focus back to the Filters chip").toBeFocused();
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} loading overlay`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1000, height: 800 });
+    });
+    test("typing into the search while the matrix loads is not interrupted, and the search is read once", async ({ page }) => {
+      await initSurvey(page, framework, { elements: [
+        { type: "filter", name: "f1", source: "m", showSearch: true, searchFields: ["col1"] },
+        { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 5, columns: [{ name: "col1", cellType: "text" }] }
+      ] });
+      await assignDeferredSource(page, "m", 12);
+      // The first read stays unanswered: the matrix loads while the respondent types.
+      await expect(page.locator(".sd-records__loading-overlay")).toBeVisible();
+      const input = page.locator(".sd-filter .sd-filter__search input");
+      await input.pressSequentially("v1", { delay: 30 });
+      await expect(input).toHaveValue("v1");
+      await expect(input).toBeFocused();
+      await expect.poll(async () => { const r = await getReadRequests(page); return r[r.length - 1].filter; },
+        { message: "the search reached the source" }).toContain("v1");
+      expect((await getReadRequests(page)).length, "the first read and one read for the whole search").toBe(2);
     });
   });
 });

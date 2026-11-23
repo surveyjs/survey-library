@@ -44,7 +44,7 @@ export interface PanelDynamicQuestionEventMixin {
 }
 export interface MatrixDropdownQuestionEventMixin {
   /**
-   * A Multi-Select Matrix question instance for which the event is raised.
+   * The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
    */
   question: QuestionMatrixDropdownModelBase;
 }
@@ -729,22 +729,23 @@ export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
 
    `question` (from MatrixDropdownQuestionEventMixin) is the matrix the cell or row belongs to. */
 export interface UpdateMatrixRowCssEvent extends MatrixDropdownQuestionEventMixin {
-  /* The matrix row. To read the row's whole record, including fields that have no column:
-     options.question.value[options.row.getIndex()] in a Dynamic Matrix (also correct on page 2, after a
-     sort or a filter, and with a server dataSource), and options.question.value[options.row.rowName] in a
-     Multi-Select Matrix. row.value holds the column values only. */
+  /**
+   * The matrix row being styled or the row that contains the cell.
+   */
   row: MatrixDropdownRowModelBase;
-  /* A string of CSS classes separated by a space character, applied to the <td> or <tr>. It holds the
-     default classes when the handler is called; modify or replace it. Each run starts from the default
-     classes again, so a class added for an old value goes away when the value changes. */
+  /**
+   * A space-separated string of default CSS classes for the cell or row. You can modify this string to apply custom CSS classes.
+   */
   css: string;
 }
-// The options of SurveyModel.onUpdateMatrixCellCss: see UpdateMatrixRowCssEvent; `row` is the cell's row.
 export interface UpdateMatrixCellCssEvent extends UpdateMatrixRowCssEvent {
-  // The column of the cell.
+  /**
+   * The matrix column that contains the cell.
+   */
   column: MatrixDropdownColumn;
-  /* The question that edits the cell's value (options.cellQuestion.value is the cell value). In a column
-     with showInMultipleColumns, each choice has its own cell, and all of them get the same cellQuestion. */
+  /**
+   * The question instance for the cell. Use `options.cellQuestion.value` to read the cell's value.
+   */
   cellQuestion: Question;
 }
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {

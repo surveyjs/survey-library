@@ -18,11 +18,17 @@ export class PageComponent extends BaseAngular<PageModel> {
   }
   protected override onModelChanged(): void {
     if (!!this.pageContainerRef && this.pageContainerRef.nativeElement) {
-      this.model.survey.afterRenderPage(this.pageContainerRef.nativeElement);
+      this.model.afterRender(this.pageContainerRef.nativeElement);
     }
   }
   protected override afterViewInit(): void {
-    this.model.survey?.afterRenderPage(this.pageContainerRef?.nativeElement);
+    if (this.model.survey) {
+      this.model.afterRender(this.pageContainerRef?.nativeElement);
+    }
+  }
+  override ngOnDestroy() {
+    super.ngOnDestroy();
+    this.model.beforeDestroy();
   }
 }
 

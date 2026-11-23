@@ -1276,7 +1276,7 @@ describe("Panel", () => {
         row.setRootElement(div);
         return div;
       });
-      survey.afterRenderPage(document.createElement("div"));
+      survey.activePage.afterRender(document.createElement("div"));
       return divs;
     }
     test("the page creates one observer after it renders and it watches the lazy rows", () => {
@@ -1288,13 +1288,13 @@ describe("Panel", () => {
         rows.forEach((row, index) => row.setRootElement(divs[index]));
         expect(MockIntersectionObserver.instances.length, "no observer before the page renders").toBe(0);
 
-        survey.afterRenderPage(document.createElement("div"));
+        survey.activePage.afterRender(document.createElement("div"));
         expect(MockIntersectionObserver.instances.length, "the page creates the observer").toBe(1);
         const observer = MockIntersectionObserver.instances[0];
         expect(observer.targets, "the observer watches the lazy rows").toEqual([divs[1], divs[2], divs[3]]);
         expect(observer.options.rootMargin, "the root is extended horizontally").toBe("50px 100000px");
 
-        survey.afterRenderPage(document.createElement("div"));
+        survey.activePage.afterRender(document.createElement("div"));
         expect(MockIntersectionObserver.instances.length, "the page creates the observer once").toBe(1);
         survey.dispose();
         expect(observer.isDisconnected, "dispose disconnects the observer").toBe(true);
@@ -1320,7 +1320,7 @@ describe("Panel", () => {
       runWithObserver(() => {
         const survey = createSurvey();
         const rows = survey.currentPage.rows;
-        survey.afterRenderPage(document.createElement("div"));
+        survey.activePage.afterRender(document.createElement("div"));
         const observer = MockIntersectionObserver.instances[0];
         expect(observer.targets.length, "no row has a root element yet").toBe(0);
 
@@ -1473,7 +1473,7 @@ describe("Panel", () => {
         const rows = survey.currentPage.rows;
         rows[1].setRootElement(document.createElement("div"));
         expect(rows[1].isNeedRender, "waits for the page to render").toBe(false);
-        survey.afterRenderPage(document.createElement("div"));
+        survey.activePage.afterRender(document.createElement("div"));
         expect(rows[1].isNeedRender, "rendered after the page renders").toBe(true);
         expect(rows[2].isNeedRender, "a row without a root element waits").toBe(false);
         rows[2].setRootElement(document.createElement("div"));

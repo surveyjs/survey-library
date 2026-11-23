@@ -6365,7 +6365,6 @@ export class SurveyModel extends SurveyElementCore
     }
     this.focusQuestionInfo();
     this.isCurrentPageRendered = true;
-    this.activePage?.startLazyRendering();
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.activePage,

@@ -2316,13 +2316,16 @@ export class PanelModelBase extends SurveyElement<Question>
   public unobserveLazyRow(row: QuestionRowModel): void {
     this.lazyRowsObserver?.unobserve(row);
   }
-  public dispose(): void {
-    super.dispose();
+  private destroyLazyRowsObserver() {
     if (!!this.lazyRowsObserver) {
       this.lazyRowsObserver.dispose();
       this.lazyRowsObserver = undefined;
     }
     this.isLazyRenderingStarted = false;
+  }
+  public dispose(): void {
+    super.dispose();
+    this.destroyLazyRowsObserver();
     if (this.rows) {
       for (let i = 0; i < this.rows.length; i++) {
         this.rows[i].dispose();
@@ -2336,6 +2339,16 @@ export class PanelModelBase extends SurveyElement<Question>
     for (let i = 0; i < this.elements.length; i++) {
       this.elements[i].dispose();
     }
+  }
+  protected doAfterRender(element: HTMLElement) {}
+  public beforeDestroy(): void {
+    super.beforeDestroy();
+    this.destroyLazyRowsObserver();
+  }
+  public afterRenderCore(element: HTMLElement): void {
+    super.afterRenderCore(element);
+    this.startLazyRendering();
+    this.doAfterRender(element);
   }
 }
 
@@ -2719,12 +2732,8 @@ export class PanelModel extends PanelModelBase implements IElement {
   public getContainerCss(): string {
     return this.getCssRoot(this.cssClasses.panel);
   }
-  public afterRenderCore(element: HTMLElement): void {
-    super.afterRenderCore(element);
-    this.startLazyRendering();
-    if (this.isPanel) {
-      this.survey?.afterRenderPanel(this, element);
-    }
+  protected doAfterRender(element: HTMLElement) {
+    this.survey?.afterRenderPanel(this, element);
   }
 }
 

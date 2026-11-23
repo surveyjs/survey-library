@@ -423,6 +423,9 @@ export class PageModel extends PanelModel implements IPage {
     super.disableOnElementRerenderedEvent();
     this.isReadyForClean = true;
   }
+  protected doAfterRender(el: HTMLElement): void {
+    this.survey?.afterRenderPage(el);
+  }
 }
 
 Serializer.addClass(

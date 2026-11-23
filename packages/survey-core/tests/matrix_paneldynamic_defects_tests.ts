@@ -853,8 +853,8 @@ describe("Bug#12147 a Dynamic Matrix keeps its empty rows in the value, as a Dyn
     m.addRow();
     p.addPanel();
     expect(survey.data, "#1").toEqual({});
-    expect(mSource.count, "#2: m source").toBe(2);
-    expect(pSource.count, "#2: p source").toBe(2);
+    expect(mSource.recordCount, "#2: m source").toBe(2);
+    expect(pSource.recordCount, "#2: p source").toBe(2);
   });
   test("a detail panel question set and cleared keeps the empty records", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, detailPanelMode: "underRow",

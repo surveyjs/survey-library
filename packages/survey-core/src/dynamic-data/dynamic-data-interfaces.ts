@@ -9,6 +9,8 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //   assigned again;
 // - the write capabilities by the presence of the matching method: a source that has "remove" can
 //   delete a record, one without it cannot, and so on.
+// One read-side method is optional: count(filter), how many records a filter matches, for a source
+// that can count without reading the records. Without it the list counts through read.
 // A missing flag means false. The list falls back to a local implementation for every capability
 // the source does not declare, except a sort a paging source leaves out (see below).
 //
@@ -32,8 +34,6 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     //                  pattern-match it - and expect more requests: every change a control
 //     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
-//     //   request.isCount true when the list only wants "total" (the "Show N items" count of a
-//     //                  Filter Control's dialog); answer { records: [], total }
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
 //     // "hasMore", or from a window that came back shorter than "take".
@@ -41,6 +41,10 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
 //         .then(r => r.json())
 //         .then(r => ({ records: r.items, total: r.total })),
+//     // Optional: how many records a filter matches, without the records - the "Show N items" count
+//     // of a Filter Control's dialog. Without it the list reads { skip: 0, take: 1, filter, sort: [] }
+//     // and keeps the answer's "total".
+//     count: (filter) => fetch(`/api/orders/count?where=${translate(filter)}`).then(r => r.json()),
 //     // The record field that identifies a record: every write below receives record[keyField] as
 //     // its key. Required for writing: a source without it is read-only, whatever methods it has.
 //     keyField: "id",
@@ -105,8 +109,8 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 // reports the operation "read".
 //
 // Every method may return a value or a Promise. A rejected promise is reported through
-// survey.onDynamicDataError with the operation name; the records the question shows are kept as
-// they are. While a source is attached the question is excluded from survey.data - the records are
+// survey.onDynamicDataError with the operation name, except count's (no count, no error); the
+// records the question shows are kept as they are. While a source is attached the question is excluded from survey.data - the records are
 // the source's, not an answer - and question.isReady is false while a page is being read.
 
 export type SortDirection = "asc" | "desc";
@@ -137,11 +141,6 @@ export interface IDynamicDataReadRequest {
      sends has a direction, "asc" or "desc", although the type says it is optional: the source shares
      ISortCriterion with the question's sortCriteria, where a missing direction is ascending. */
   sort: Array<ISortCriterion>;
-  // True only on a count read, where the list wants the total for the filter, not records. The range
-  // stays skip: 0, take: 1 and the sort stays [], so a source that ignores the field still answers
-  // cheaply; a source that knows it may answer { records: [], total }. Window reads leave the key out:
-  // they never carry isCount: false.
-  isCount?: boolean;
 }
 export interface IDynamicDataReadResult {
   records: Array<any>;
@@ -168,6 +167,13 @@ export interface IDynamicDataSource {
   // { records: array }. Synchronous for in-memory sources, a Promise for a remote one.
   read(request: IDynamicDataReadRequest):
     Array<any> | IDynamicDataReadResult | Promise<Array<any> | IDynamicDataReadResult>;
+  /* Optional: how many records the filter matches - the filter is expression text, as in
+     IDynamicDataReadRequest.filter -, or undefined when that is not known. The list asks it only for
+     a source that pages and filters, for the "Show N items" count of a Filter Control's dialog: the
+     other sources are counted from the records the list holds. Absent -> the list reads
+     { skip: 0, take: 1, filter, sort: [] } and takes the answer's total. A throw or a rejection gives
+     no count, and no error is reported. */
+  count?(filter: string): number | undefined | Promise<number | undefined>;
   // Present -> the record field that identifies a record in the source, and every write below
   // receives record[keyField] as its key. Absent -> the source is read-only (see the header), except
   // for the in-memory sources, which are written by storage index.

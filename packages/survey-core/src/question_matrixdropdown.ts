@@ -357,7 +357,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      remap has already renumbered the built rows when a detail panel holds a paged question. */
   private tryRemoveSingleRow(removedIndexes: Array<number>): boolean {
     const rows = this.generatedVisibleRows;
-    if (removedIndexes.length !== 1 || rows.length !== this.rowsSource.count + 1) return false;
+    if (removedIndexes.length !== 1 || rows.length !== this.rowsSource.recordCount + 1) return false;
     const removeIndex = removedIndexes[0];
     const removedRow = rows[removeIndex];
     if (!this.isDisposed) {

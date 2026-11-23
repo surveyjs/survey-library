@@ -53,7 +53,7 @@ describe("Local sources: the class hierarchy", () => {
       expect(stored(), "#2: move").toEqual([{ a: 3 }, { a: 2 }, { a: 1 }].concat(padding));
       source.remove(1);
       expect(stored(), "#3: remove").toEqual([{ a: 3 }, { a: 1 }].concat(padding));
-      expect(source.count, "#4").toBe(2 + padding.length);
+      expect(source.recordCount, "#4").toBe(2 + padding.length);
       source.batch((): void => {
         source.insert({ a: 4 }, 0);
         source.remove(2);
@@ -64,21 +64,21 @@ describe("Local sources: the class hierarchy", () => {
   });
   test("count and readAt, inside and outside a batch, for both local sources", () => {
     const array = createArraySource([{ a: 1 }], 3);
-    expect([array.source.count, array.source.readAt(0), array.source.readAt(2), array.source.readAt(3)], "#1: array, outside").toEqual([3, { a: 1 }, { d: 1 }, undefined]);
+    expect([array.source.recordCount, array.source.readAt(0), array.source.readAt(2), array.source.readAt(3)], "#1: array, outside").toEqual([3, { a: 1 }, { d: 1 }, undefined]);
     const insideArray: Array<any> = [];
     array.source.batch((): void => {
       array.source.remove(2);
       array.source.update(0, { a: 10 });
-      insideArray.push(array.source.count, array.source.readAt(0), array.source.readAt(2));
+      insideArray.push(array.source.recordCount, array.source.readAt(0), array.source.readAt(2));
       expect(array.stored(), "#2: not stored yet").toEqual([{ a: 1 }]);
     });
     expect(insideArray, "#2: array, inside: the array being built, not padded again").toEqual([2, { a: 10 }, undefined]);
     const rows = createRowsSource(["a", "", "b"], { a: { x: 1 } });
-    expect([rows.source.count, rows.source.readAt(0), rows.source.readAt(1), rows.source.readAt(2)], "#3: rows, outside").toEqual([2, { x: 1 }, undefined, undefined]);
+    expect([rows.source.recordCount, rows.source.readAt(0), rows.source.readAt(1), rows.source.readAt(2)], "#3: rows, outside").toEqual([2, { x: 1 }, undefined, undefined]);
     const insideRows: Array<any> = [];
     rows.source.batch((): void => {
       rows.source.update(1, { x: 2 });
-      insideRows.push(rows.source.count, rows.source.readAt(1));
+      insideRows.push(rows.source.recordCount, rows.source.readAt(1));
       expect(rows.stored(), "#4: not stored yet").toEqual({ a: { x: 1 } });
     });
     expect(insideRows, "#4: rows, inside: the array being built").toEqual([2, { x: 2 }]);
@@ -184,7 +184,7 @@ describe("Local sources: the membership of each records question follows from it
     const source = q["recordsSource"];
     expect(source instanceof ArrayDynamicDataSource, "#1: an array source").toBe(true);
     expect(q.value, "#2: the stored value is not padded").toEqual([{ a: 1 }]);
-    expect(source.count, "#3: counted padded").toBe(3);
+    expect(source.recordCount, "#3: counted padded").toBe(3);
     expect(q["dataList"].count, "#3: the list").toBe(3);
     expect(source.readAt(0), "#4").toEqual({ a: 1 });
     expect(source.readAt(2), "#4: a padded record").toEqual({});
@@ -202,7 +202,7 @@ describe("Local sources: the membership of each records question follows from it
     const q = new QuestionMatrixDropdownModelBase("base");
     const list: DynamicDataList = q["dataList"];
     expect(q["recordsSource"] instanceof RowsDynamicDataSource, "#1: a rows source").toBe(true);
-    expect([q["recordsSource"].count, list.count, list.loadedCount], "#2: no record").toEqual([0, 0, 0]);
+    expect([q["recordsSource"].recordCount, list.count, list.loadedCount], "#2: no record").toEqual([0, 0, 0]);
     expect(list.add({ a: 1 }), "#3: add").toBe(-1);
     list.remove(0);
     list.move(0, 1);

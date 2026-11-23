@@ -105,6 +105,7 @@ export interface ISurveyMatrixCallbacks {
   matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
+  updateMatrixCellCss(question: IQuestion, options: any): void;
   matrixAfterCellRender(options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;
   matrixCellValueChanging(question: IQuestion, options: any): any;

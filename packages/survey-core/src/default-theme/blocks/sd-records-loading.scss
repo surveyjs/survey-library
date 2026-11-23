@@ -1,0 +1,54 @@
+@use "../variables.scss" as *;
+
+/* The loading state of a records question that reads its records from a data source. The content keeps its
+   place; while a page is read an overlay covers it, catches the pointer at once and shows itself after
+   --sd-records-loading-delay, so a fast answer does not flash. Without animations (reduced motion, animations
+   disabled) the global rules zero the delay and the duration, and the overlay shows at once. */
+@keyframes sd-records-loading-appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Positioned only while loading: otherwise an absolutely positioned .sd-progress inside (the carousel's
+   progress bar) would take the container as its containing block and change its width. */
+.sd-records__content--loading {
+  position: relative;
+  min-height: var(--sd-records-loading-min-height, calc(2 * var(--sjs2-size-x600)));
+}
+
+.sd-records__loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation-name: sd-records-loading-appear;
+  animation-duration: 150ms;
+  animation-delay: var(--sd-records-loading-delay, 300ms);
+  animation-fill-mode: forwards;
+
+  // The veil that dims the content; the spinner above it keeps its color.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--sjs2-color-bg-basic-primary);
+    opacity: 0.6;
+  }
+
+  .sd-loading-indicator {
+    position: relative;
+  }
+}
+
+// A records question nested in one that is loading: the outer overlay covers it, its own is not drawn.
+.sd-records__content--loading .sd-records__content .sd-records__loading-overlay {
+  display: none;
+}

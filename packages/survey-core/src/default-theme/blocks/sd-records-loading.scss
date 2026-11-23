@@ -18,7 +18,7 @@
    progress bar) would take the container as its containing block and change its width. */
 .sd-records__content--loading {
   position: relative;
-  min-height: var(--sd-records-loading-min-height, calc(2 * var(--sjs2-size-x600)));
+  min-height: var(--sd-records-loading-min-height, calc(3 * var(--sjs2-size-x600)));
 }
 
 .sd-records__loading-overlay {

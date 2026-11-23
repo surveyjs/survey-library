@@ -4,6 +4,7 @@ import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdown
 import { QuestionMatrixDynamicModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
+import { renderRecordsContent } from "./components/records-loading-overlay";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {
@@ -17,16 +18,15 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     this.matrix.addRowUI();
   }
   protected renderElement(): React.JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    var showTable = this.question.renderedTable.showTable;
-    var mainDiv = showTable
+    const cssClasses = this.question.cssClasses;
+    const mainDiv = this.question.renderedTable.showTable
       ? this.renderTableDiv()
-      : this.renderNoRowsContent(cssClasses);
+      : (this.matrix.showNoRowsPlaceholder ? this.renderNoRowsContent(cssClasses) : null);
     return (
       <div>
         {this.renderHeaderBar()}
         {this.renderSortBar()}
-        {mainDiv}
+        {renderRecordsContent(this.matrix, mainDiv)}
         {this.renderFooterBar()}
       </div>
     );

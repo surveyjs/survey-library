@@ -285,6 +285,28 @@ registerMarkupTests(
       isCorrectEvent: (options) => {
         return options.question.name == "matrix";
       }
+    },
+    {
+      name: "Test matrixdynamic markup while its data source reads the first page",
+      json: { elements: [{ type: "matrixdynamic", name: "m", titleLocation: "hidden", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] }] },
+      initSurvey: survey => {
+        (<any>survey.getQuestionByName("m")).dataSource = { read: () => new Promise(() => { }) };
+      },
+      snapshot: "matrixdynamic-data-loading",
+      isCorrectEvent: (options) => {
+        return options.question.name == "m";
+      }
+    },
+    {
+      name: "Test matrixdynamic markup with a data source that has answered",
+      json: { elements: [{ type: "matrixdynamic", name: "m", titleLocation: "hidden", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] }] },
+      initSurvey: survey => {
+        (<any>survey.getQuestionByName("m")).dataSource = { read: () => [{ col1: "a" }] };
+      },
+      snapshot: "matrixdynamic-data-loaded",
+      isCorrectEvent: (options) => {
+        return options.question.name == "m";
+      }
     }
   ]
 );

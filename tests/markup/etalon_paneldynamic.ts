@@ -351,6 +351,28 @@ registerMarkupTests(
     isCorrectEvent: (options) => {
       return options.question.name == "pd";
     }
+  },
+  {
+    name: "Test paneldynamic markup while its data source reads the first page",
+    json: { elements: [{ type: "paneldynamic", name: "pd", titleLocation: "hidden", panelCount: 0, templateElements: [{ type: "text", name: "q1" }] }] },
+    initSurvey: survey => {
+      (<any>survey.getQuestionByName("pd")).dataSource = { read: () => new Promise(() => { }) };
+    },
+    snapshot: "paneldynamic-data-loading",
+    isCorrectEvent: (options) => {
+      return options.question.name == "pd";
+    }
+  },
+  {
+    name: "Test paneldynamic markup with a data source that has answered",
+    json: { elements: [{ type: "paneldynamic", name: "pd", titleLocation: "hidden", panelCount: 0, templateElements: [{ type: "text", name: "q1" }] }] },
+    initSurvey: survey => {
+      (<any>survey.getQuestionByName("pd")).dataSource = { read: () => [{ q1: "a" }] };
+    },
+    snapshot: "paneldynamic-data-loaded",
+    isCorrectEvent: (options) => {
+      return options.question.name == "pd";
+    }
   }
   ]
 );

@@ -123,6 +123,7 @@ export * from "../src/components/header";
 export { SurveyLocStringViewer } from "../src/string-viewer";
 export { SurveyLocStringEditor } from "../src/string-editor";
 export { LoadingIndicatorComponent } from "../src/components/loading-indicator";
+export { RecordsLoadingOverlay, renderRecordsContent } from "../src/components/records-loading-overlay";
 
 export { SvgBundleComponent } from "../src/svgbundle";
 export { PopupModal } from "../src/components/popup/popup-modal";

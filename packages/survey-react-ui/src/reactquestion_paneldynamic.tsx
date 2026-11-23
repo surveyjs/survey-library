@@ -8,6 +8,7 @@ import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
 import { ISurveyCreator } from "./reactquestion";
+import { renderRecordsContent } from "./components/records-loading-overlay";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -67,11 +68,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
         {this.renderSortBar()}
-        {noEntriesPlaceholder}
-        {rangeTop}
-        <div className={this.question.cssClasses.panelsContainer}>
-          {panels}
-        </div>
+        {renderRecordsContent(this.question, <>
+          {noEntriesPlaceholder}
+          {rangeTop}
+          <div className={this.question.cssClasses.panelsContainer}>
+            {panels}
+          </div>
+        </>)}
         {navigation}
       </div>
     );

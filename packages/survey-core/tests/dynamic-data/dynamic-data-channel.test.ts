@@ -426,3 +426,45 @@ describe("DynamicDataSourceChannel: an error listener that throws", () => {
     expect(host.commits.length, "#5").toBe(1);
   });
 });
+
+describe("DynamicDataSourceChannel: the host hears when a read is queued and when it leaves the queue", () => {
+  // FakeHost has no onPendingReadChanged; these tests count the calls.
+  function countNotifications(host: FakeHost): { count: number } {
+    const state = { count: 0 };
+    (<any>host).onPendingReadChanged = (): void => { state.count++; };
+    return state;
+  }
+  test("a read queued behind a pending write is pending from the moment it is requested", async () => {
+    const { source, host, channel } = createPaged(2);
+    const heard = countNotifications(host);
+    pushUpdate(channel, 1);
+    channel.startRead(false);
+    expect(source.ops, "#1: only the write is out").toEqual(["update:1"]);
+    expect([channel.hasPendingRead, heard.count], "#2: queued, and the host heard it").toEqual([true, 1]);
+    source.answer(0);
+    await flush();
+    expect(source.ops, "#3: the read is sent once the write settles").toEqual(["update:1", "read"]);
+    expect([channel.hasPendingRead, heard.count], "#4: in flight, and the host heard it leave the queue").toEqual([true, 2]);
+    source.answer(1, { records: [{ id: 0 }], total: 1 });
+    await flush();
+    expect(channel.hasPendingRead, "#5").toBe(false);
+  });
+  test("a queued read that finds no source when it starts is no longer pending, and the host hears it", async () => {
+    const { source, host, channel } = createPaged(2);
+    const heard = countNotifications(host);
+    pushUpdate(channel, 1);
+    channel.startRead(false);
+    host.source = undefined;
+    source.answer(0);
+    await flush();
+    expect([channel.hasPendingRead, heard.count], "#1").toEqual([false, 2]);
+  });
+  test("a queued read dropped by a source change: the host hears it", () => {
+    const { host, channel } = createPaged(2);
+    const heard = countNotifications(host);
+    pushUpdate(channel, 1);
+    channel.startRead(false);
+    channel.detach();
+    expect([channel.hasPendingRead, heard.count], "#1").toEqual([false, 2]);
+  });
+});

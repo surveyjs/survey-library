@@ -238,6 +238,9 @@ export interface IDynamicDataOwner {
   onWritesStarted?(): void;
   // Another list took the claim on the in-memory source this list wrote (DynamicDataList.assignSource): it only reads it now.
   onSourceWriterChanged?(): void;
+  /* A read entered the queue behind the pending writes, or left it: hasPendingRead may have changed while
+     isLoading (the read in flight) did not. */
+  onPendingReadChanged?(): void;
   /* A read or a write of the source failed. The owner hears it from the list's construction on: the
      first load of a read-through list runs before anyone could assign the list's onError. */
   onDataError?(error: any, operation: DynamicDataErrorOperation): void;

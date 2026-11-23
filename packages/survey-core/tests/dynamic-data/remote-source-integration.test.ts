@@ -201,6 +201,52 @@ describe("Remote data source: paging", () => {
     expect(source.records[0].col1, "#3: the write was not lost").toBe("edited");
     expect(rowValues(question), "#4: the new page is shown").toEqual(["v5", "v6", "v7", "v8", "v9"]);
   });
+  test("a page read queued behind a pending write shows as loading", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createMatrix(source);
+    source.auto = false;
+    question.visibleRows[0].getQuestionByName("col1").value = "edited";
+    question.nextPage();
+    expect(source.pending.map(call => call.op), "#1: only the write is out").toEqual(["update"]);
+    expect(question.isDataLoading, "#2: the read waits, and it is loading").toBe(true);
+    expect(question.isReady, "#3").toBe(false);
+    source.settleAll();
+    await flush();
+    expect(question.isDataLoading, "#4: the read is in flight").toBe(true);
+    source.settleAll();
+    await flush();
+    expect(question.isDataLoading, "#5").toBe(false);
+    expect(rowValues(question), "#6").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("removing the source while a write is pending: the read of the question's own records waits for it, as loading", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createMatrix(source);
+    source.auto = false;
+    question.visibleRows[0].getQuestionByName("col1").value = "edited";
+    question.nextPage();
+    expect(question.isDataLoading, "#1").toBe(true);
+    question.dataSource = undefined;
+    expect(question.isDataLoading, "#2: the old write may still change the storage").toBe(true);
+    source.settleAll();
+    await flush();
+    expect(question.isDataLoading, "#3: it landed, the read ran").toBe(false);
+  });
+  test("a superseded read keeps the loading state until the read that replaced it answers", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const { question } = await createMatrix(source);
+    source.auto = false;
+    question.pageIndex = 1;
+    question.pageIndex = 2;
+    const reads = source.pending.slice();
+    expect(reads.length, "#1").toBe(2);
+    reads[0].settle();
+    await flush();
+    expect(question.isDataLoading, "#2: the first answer is discarded").toBe(true);
+    reads[1].settle();
+    await flush();
+    expect(question.isDataLoading, "#3").toBe(false);
+    expect(rowValues(question), "#4").toEqual(["v10", "v11", "v12", "v13", "v14"]);
+  });
   test("two edits of one cell reach the source in order", async () => {
     const source = new FakeServerSource(serverRecords(6));
     const { question } = await createMatrix(source);

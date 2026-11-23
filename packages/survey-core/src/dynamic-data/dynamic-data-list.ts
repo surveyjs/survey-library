@@ -1084,7 +1084,8 @@ export class DynamicDataList {
       onPushFailed: (operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void => this.onPushFailed(operation, isAsyncLocalWrite),
       getSurvey: (): ISurvey => !!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined,
       onSettled: (): void => { if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled(); },
-      onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); }
+      onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); },
+      onPendingReadChanged: (): void => { this.owner?.onPendingReadChanged?.(); }
     };
   }
   // The range of the next read (see DynamicDataReadState.getReadRange).

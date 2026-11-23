@@ -69,6 +69,9 @@ export interface IDynamicDataChannelHost {
   onSettled(): void;
   // The first push the source has not answered was sent: hasPendingWrites has become true.
   onWritesStarted(): void;
+  /* A read entered the queue behind the pending writes, or left it (it was issued, or dropped): hasPendingRead
+     may have changed while isLoading did not, as isLoading covers the read in flight only. */
+  onPendingReadChanged?(): void;
 }
 /* What runPush answers: the promise of an asynchronous push, or how a synchronous one ended. Private
    to the channel. */
@@ -264,6 +267,7 @@ export class DynamicDataSourceChannel {
       let resolve: (value?: any) => void;
       const promise = new Promise<void>((res: (value?: any) => void): void => { resolve = res; });
       this.queuedReadWaiter = { promise: promise, resolve: resolve };
+      this.host.onPendingReadChanged?.();
     }
     return this.queuedReadWaiter.promise;
   }
@@ -283,12 +287,17 @@ export class DynamicDataSourceChannel {
     } finally {
       // The callers awaiting load() and refresh() are released also when the commit's user code throws.
       if (!!waiter) waiter.resolve(res);
+      // The read left the queue: it is in flight now, or it is over.
+      this.host.onPendingReadChanged?.();
     }
   }
   private dropQueuedRead(): void {
     const waiter = this.queuedReadWaiter;
     this.queuedReadWaiter = undefined;
-    if (!!waiter) waiter.resolve();
+    if (!!waiter) {
+      waiter.resolve();
+      this.host.onPendingReadChanged?.();
+    }
   }
   private doRead(useWindowOffset: boolean): void | Promise<void> {
     const host = this.host;

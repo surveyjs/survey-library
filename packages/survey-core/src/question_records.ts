@@ -153,6 +153,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       onDataSettled: (): void => { question.onDataSettled(); },
       onWritesStarted: (): void => { question.dataWaits.onWritesStarted(); },
       onSourceWriterChanged: (): void => { question.onSourceCapabilitiesChanged(); },
+      onPendingReadChanged: (): void => { question.updateIsDataLoading(); },
       onDataError: (error: any, operation: DynamicDataErrorOperation): void => { question.onSourceError(error, operation); },
       getSurvey: (): ISurvey => question.survey,
       // IRecordsPageValidationOwner: the rules every records question shares; the rest is the question's.
@@ -400,7 +401,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     // The reset the list raises while it is being created.
     if (!list) return;
     if (change.type === "loading") {
-      this.isDataLoading = change.isLoading;
+      this.updateIsDataLoading();
       return;
     }
     if (change.type === "recordAdded" || change.type === "recordRemoved" || change.type === "reset") {
@@ -3155,9 +3156,15 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       this.survey.dynamicDataError(this, operation, error);
     }
   }
-  // True while the data source is reading a page. The UI shows a loading state from it, and
-  // question.isReady is false for exactly as long.
+  // True while a page is asked for and not committed: read by the data source, or waiting for the pending
+  // writes (updateIsDataLoading). The UI shows a loading state from it, and question.isReady is false for exactly as long.
   @property({ defaultValue: false, onSet: (val: boolean, q: QuestionRecordsModel): void => { q.updateIsReady(); } }) isDataLoading: boolean;
+  /* A read is asked for and not committed yet: in flight (list.isLoading), or waiting in the queue behind the
+     pending writes (list.hasPendingRead). The respondent waits for both, so both show as loading. */
+  private updateIsDataLoading(): void {
+    const list = this._dataList;
+    this.isDataLoading = !!list && (list.isLoading || list.hasPendingRead);
+  }
   /* Read by SurveyModel.getRunningAsyncOperations(). Is the model still waiting for this source? A
      page that has not arrived, a page that is about to be read again once the pending edits are
      acknowledged, and an edit that has not been acknowledged are all asynchronous operations the

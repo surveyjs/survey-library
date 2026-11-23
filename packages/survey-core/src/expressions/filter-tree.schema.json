@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SurveyJS filter tree",
+  "description": "The tree toFilterTree() builds from a data source's request.filter. A const node only ever is the whole tree.",
+  "$ref": "#/$defs/node",
+  "$defs": {
+    "node": {
+      "oneOf": [
+        { "$ref": "#/$defs/and" },
+        { "$ref": "#/$defs/or" },
+        { "$ref": "#/$defs/not" },
+        { "$ref": "#/$defs/const" },
+        { "$ref": "#/$defs/condition" }
+      ]
+    },
+    "and": {
+      "type": "object",
+      "properties": {
+        "and": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/node" } }
+      },
+      "required": ["and"],
+      "additionalProperties": false
+    },
+    "or": {
+      "type": "object",
+      "properties": {
+        "or": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/node" } }
+      },
+      "required": ["or"],
+      "additionalProperties": false
+    },
+    "not": {
+      "type": "object",
+      "properties": {
+        "not": { "$ref": "#/$defs/node" }
+      },
+      "required": ["not"],
+      "additionalProperties": false
+    },
+    "const": {
+      "type": "object",
+      "properties": {
+        "const": { "type": "boolean" }
+      },
+      "required": ["const"],
+      "additionalProperties": false
+    },
+    "scalar": {
+      "type": ["string", "number", "boolean"]
+    },
+    "condition": {
+      "type": "object",
+      "properties": {
+        "field": { "type": "string", "minLength": 1 },
+        "op": {
+          "enum": ["equal", "notequal", "greater", "less", "greaterorequal", "lessorequal",
+            "contains", "notcontains", "anyof", "noneof", "allof", "empty", "notempty"]
+        },
+        "value": true
+      },
+      "required": ["field", "op"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "op": { "enum": ["empty", "notempty"] } } },
+          "then": { "not": { "required": ["value"] } }
+        },
+        {
+          "if": { "properties": { "op": { "enum": ["anyof", "noneof", "allof"] } } },
+          "then": {
+            "required": ["value"],
+            "properties": { "value": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scalar" } } }
+          }
+        },
+        {
+          "if": { "properties": { "op": { "enum": ["equal", "notequal", "greater", "less", "greaterorequal", "lessorequal", "contains", "notcontains"] } } },
+          "then": {
+            "required": ["value"],
+            "properties": { "value": { "$ref": "#/$defs/scalar" } }
+          }
+        }
+      ]
+    }
+  }
+}

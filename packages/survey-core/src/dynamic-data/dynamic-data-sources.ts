@@ -28,8 +28,9 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
      an owner whose value has a shape rule per kind of write can apply it. */
   constructor(private getArray: () => Array<any> | undefined,
     private setArray: (arr: Array<any>, operations?: Array<DynamicDataSourceMethod>) => void) { }
-  // The length read() would return, without composing the array. Inside a batch the array being built.
-  public get count(): number {
+  /* The length read() would return, without composing the array. Inside a batch the array being built.
+     Not "count": that name is the optional IDynamicDataSource.count(filter). */
+  public get recordCount(): number {
     if (this.isBatching) return this.batchArray.length;
     return this.getStoredCount();
   }

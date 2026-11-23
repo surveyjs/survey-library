@@ -4167,7 +4167,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   protected storeRecordsToCountCore(): void { }
   // The count of the question's own records, as the records source reads it, without composing the array.
   protected getListRecordCount(): number {
-    return this.recordsSource.count;
+    return this.recordsSource.recordCount;
   }
   /* The record counts a read needs, peeked - a read never creates the list. A remote source is counted
      through the list; the question's own source through recordsSource, which has one count for both.

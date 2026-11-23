@@ -345,10 +345,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const insertIndex = this.rowsSource.items.indexOf(item);
     if (insertIndex < 0 || addedIndexes.length !== 1 || addedIndexes[0] !== insertIndex) return false;
     const val = this.value || {};
-    const newRow = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
-    newRow.visibleIndex = insertIndex;
     // The records are the rows items with a value: the row's position is its record index.
-    this.addRowForRecord(newRow, insertIndex, insertIndex);
+    const newRow = this.addRowForRecord((): MatrixDropdownRowModel => {
+      const row = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
+      row.visibleIndex = insertIndex;
+      return row;
+    }, insertIndex, insertIndex);
     this.finishIncrementalRowChange((table) => table.onAddedRow(newRow, insertIndex));
     return true;
   }

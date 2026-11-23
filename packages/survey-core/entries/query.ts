@@ -7,3 +7,5 @@
 export type { IQueryField, IQueryOptions } from "../src/query/query-common";
 export type { ISqlQueryOptions, ISqlQuery } from "../src/query/query-sql";
 export { toSqlQuery } from "../src/query/query-sql";
+export type { IMongoQuery } from "../src/query/query-mongo";
+export { toMongoQuery } from "../src/query/query-mongo";

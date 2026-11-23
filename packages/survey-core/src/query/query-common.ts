@@ -50,8 +50,9 @@ export interface IPreparedCondition {
   condition: FilterTreeCondition;
   op: FilterTreeOperator;
   // the coerced scalar of the scalar operators; the text of contains/notcontains
+  // (an array field in the "native" mode: the item as the tree holds it)
   value?: any;
-  // the coerced items of anyof/noneof; the texts of allof
+  // the coerced items of anyof/noneof; the texts of allof (an array field in the "native" mode: the tree's items)
   values?: Array<any>;
 }
 export interface IQuerySortItem {
@@ -250,14 +251,53 @@ function coerceValue(info: IQueryFieldInfo, value: any): any {
   return String(value);
 }
 
+// "render": an array field needs its render (SQL has no array column type of its own).
+// "native": the storage reads arrays (MongoDB), see prepareArrayCondition.
+export type QueryArrayMode = "render" | "native";
+
+function arrayNeedsRender(res: IPreparedCondition): never {
+  return queryError("the field \"" + res.info.name + "\" is an array: it needs render for " + res.op);
+}
+// Ours on an array: contains/notcontains/anyof/noneof/allof look for an element equal to the item (by our
+// comparator, so 1 and "1" are equal), = compares the whole array and ordering means nothing. The items keep the
+// tree's types and the scalar folds do not apply: [0] contains 0, [""] allof [''] and ["x"] notcontains '' are true.
+function prepareArrayCondition(res: IPreparedCondition): IPreparedCondition | boolean {
+  const value = res.condition.value;
+  switch(res.op) {
+    case "empty":
+    case "notempty":
+      return res;
+    case "equal":
+    case "notequal":
+      if (value !== "") return arrayNeedsRender(res);
+      res.op = res.op === "equal" ? "empty" : "notempty";
+      return res;
+    case "contains":
+      // false, as toFilterTree builds it from the text (ours finds '' in [""]: a documented difference)
+      if (value === "") return false;
+      res.value = value;
+      return res;
+    case "notcontains":
+      res.value = value;
+      return res;
+    case "anyof":
+    case "noneof":
+    case "allof":
+      res.values = (<Array<any>>value).slice();
+      return res;
+  }
+  return arrayNeedsRender(res);
+}
+
 // The field lookup and the coercion of one condition, with the shapes ours answers alike for every value folded:
 // true or false for the whole condition. The tree builder already folds them; a client's tree may hold them too.
-export function prepareCondition(options: IQueryOptions, condition: FilterTreeCondition): IPreparedCondition | boolean {
+export function prepareCondition(options: IQueryOptions, condition: FilterTreeCondition,
+  arrays: QueryArrayMode = "render"): IPreparedCondition | boolean {
   const info = getFilterField(options, condition.field);
   const res: IPreparedCondition = { info: info, condition: condition, op: condition.op };
   if (info.field.render) return res;
   if (info.type === "array") {
-    return queryError("the field \"" + info.name + "\" is an array: it needs render for " + condition.op);
+    return arrays === "native" ? prepareArrayCondition(res) : arrayNeedsRender(res);
   }
   const value = condition.value;
   switch(condition.op) {

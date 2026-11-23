@@ -902,7 +902,7 @@ export class DynamicDataList {
         resolve(typeof total === "number" ? total : undefined);
       };
       try {
-        Promise.resolve(this._source.read({ skip: 0, take: 1, filter: filter, sort: [] }))
+        Promise.resolve(this._source.read({ skip: 0, take: 1, filter: filter, sort: [], isCount: true }))
           .then(answer, (): void => { resolve(undefined); });
       } catch(e) {
         resolve(undefined);

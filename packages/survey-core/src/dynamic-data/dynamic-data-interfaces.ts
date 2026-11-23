@@ -32,6 +32,8 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     //                  pattern-match it - and expect more requests: every change a control
 //     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
+//     //   request.isCount true when the list only wants "total" (the "Show N items" count of a
+//     //                  Filter Control's dialog); answer { records: [], total }
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
 //     // "hasMore", or from a window that came back shorter than "take".
@@ -135,6 +137,11 @@ export interface IDynamicDataReadRequest {
      sends has a direction, "asc" or "desc", although the type says it is optional: the source shares
      ISortCriterion with the question's sortCriteria, where a missing direction is ascending. */
   sort: Array<ISortCriterion>;
+  // True only on a count read, where the list wants the total for the filter, not records. The range
+  // stays skip: 0, take: 1 and the sort stays [], so a source that ignores the field still answers
+  // cheaply; a source that knows it may answer { records: [], total }. Window reads leave the key out:
+  // they never carry isCount: false.
+  isCount?: boolean;
 }
 export interface IDynamicDataReadResult {
   records: Array<any>;

@@ -76,7 +76,7 @@ describe("DynamicDataList.countControlFilter", () => {
     list.load();
     const reads = source.requests.length;
     expect(await list.countControlFilter("{n} > 1"), "#1").toBe(2);
-    expect(source.requests[reads], "#2").toEqual({ skip: 0, take: 1, filter: "{n} > 1", sort: [] });
+    expect(source.requests[reads], "#2").toEqual({ skip: 0, take: 1, filter: "{n} > 1", sort: [], isCount: true });
     list.filter = "{n} > 2";
     await list.countControlFilter("{n} > 1");
     expect(source.requests[source.requests.length - 1].filter, "#3").toBe("({n} > 2) and ({n} > 1)");

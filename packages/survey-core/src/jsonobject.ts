@@ -221,7 +221,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     const dValue = this.getDefaultValue(obj);
     if (dValue !== undefined) {
       if (typeof dValue !== "object") return dValue === value;
-      return Helpers.isTwoValueEquals(value, dValue, false, true, false);
+      return Helpers.checkIfValuesEqual(value, dValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
     }
     return (
       (value === false && this.isBooleanType && !this.defaultValueFunc) ||
@@ -310,6 +310,16 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public getObjType(objType: string) {
     if (!this.classNamePart) return objType;
     return objType.replace(this.classNamePart, "");
+  }
+  // The class the deserializer builds for an item of this property whose JSON "type" is objType:
+  // the property's className wins over the JSON type, and classNamePart completes a short name
+  // unless the name already contains it ("setvalue" -> "setvaluetrigger"). Lower-cased.
+  public getObjClassName(objType: string): string {
+    const res: any = this.className || objType;
+    if (typeof res !== "string" || !res) return res;
+    const className = res.toLowerCase();
+    const part = this.classNamePart;
+    return !!part && className.indexOf(part) < 0 ? className + part : className;
   }
   /**
    * Depricated, please use getChoices
@@ -1194,18 +1204,24 @@ export class JsonMetadata {
   }
   public createClass(name: string, json: any = undefined): any {
     name = name.toLowerCase();
-    var metaDataClass = this.findClass(name);
-    if (!metaDataClass) return null;
-    if (metaDataClass.creator) return metaDataClass.creator(json);
-    var parentName = metaDataClass.parentName;
-    while(parentName) {
-      metaDataClass = this.findClass(parentName);
-      if (!metaDataClass) return null;
-      parentName = metaDataClass.parentName;
-      if (metaDataClass.creator)
-        return this.createCustomType(name, metaDataClass.creator, json);
+    const metaDataClass = this.findClass(name);
+    const creatorClass = this.findCreatorClass(metaDataClass);
+    if (!creatorClass) return null;
+    if (creatorClass === metaDataClass) return creatorClass.creator(json);
+    return this.createCustomType(name, creatorClass.creator, json);
+  }
+  // Whether createClass builds an object for this name: the class or one of its ancestors has a creator.
+  public isCreatableClass(name: string): boolean {
+    if (typeof name !== "string" || !name) return false;
+    return !!this.findCreatorClass(this.findClass(name));
+  }
+  // The class whose creator builds metaDataClass: the class itself or its nearest ancestor with a creator.
+  private findCreatorClass(metaDataClass: JsonMetadataClass): JsonMetadataClass {
+    while(!!metaDataClass) {
+      if (metaDataClass.creator) return metaDataClass;
+      metaDataClass = metaDataClass.parentName ? this.findClass(metaDataClass.parentName) : undefined;
     }
-    return null;
+    return undefined;
   }
   private createCustomType(
     name: string,
@@ -1957,23 +1973,12 @@ export class JsonObject {
   // Items of an unregistered class, such as string[], are kept as they were.
   private isEmptyItemFatal(property: JsonObjectProperty): boolean {
     if (!property || !property.className) return true;
-    let className = property.className.toLowerCase();
-    const classNamePart = property.classNamePart;
-    if (classNamePart && className.indexOf(classNamePart) < 0) className += classNamePart;
-    return !!Serializer.findClass(className);
+    return !!Serializer.findClass(property.getObjClassName(property.className));
   }
   private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
-    var res = property != null && property.className ? property.className : undefined;
-    if (!res) {
-      res = value[JsonObject.typePropertyName];
-    }
-    if (!res) return res;
-    res = res.toLowerCase();
-    const classNamePart = property.classNamePart;
-    if (classNamePart && res.indexOf(classNamePart) < 0) {
-      res += classNamePart;
-    }
-    return res;
+    // The value is not read when the property names the class: a null item of such an array gets here too.
+    const objType = !property || !property.className ? value[JsonObject.typePropertyName] : undefined;
+    return !!property ? property.getObjClassName(objType) : objType;
   }
   private checkNewObjectOnErrors(
     newObj: any,

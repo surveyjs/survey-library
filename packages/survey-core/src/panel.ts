@@ -15,7 +15,8 @@ import {
   IProgressInfo,
   ISurvey,
   IFindElement,
-  ISurveyValidation
+  ISurveyValidation,
+  IElementUIState
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
 import { Question } from "./question";
@@ -1220,7 +1221,34 @@ export class PanelModelBase extends SurveyElement<Question>
     const q = this.getFirstQuestionToFocus();
     if (!!q) {
       q.focus();
+      return;
     }
+    // No question to focus: a page that holds only a collapsed panel. Focus its collapse/expand button.
+    const panel = this.getFirstCollapsedPanelToFocus();
+    if (!!panel) {
+      panel.focusCollapseExpandButton();
+    }
+  }
+  private getFirstCollapsedPanelToFocus(): PanelModelBase {
+    const elements = this.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if (!el.isVisible || !el.isPanel) continue;
+      const panel = <PanelModelBase><any>el;
+      if (panel.isCollapsed) {
+        if (panel.hasTitle) return panel;
+        continue;
+      }
+      const nested = panel.getFirstCollapsedPanelToFocus();
+      if (!!nested) return nested;
+    }
+    return null;
+  }
+  public focusCollapseExpandButton(): void {
+    const survey = this.survey as SurveyModel;
+    if (!survey || !this.hasTitle || this.isPage || this.isDesignMode) return;
+    // The page is already rendered when focus runs. A deferred attempt leaves focus on Next and then jumps.
+    SurveyElement.FocusElement(this.ariaTitleId, false, survey.rootElement);
   }
   /**
    * Focuses the first question with a validation error in this panel/page.
@@ -2656,14 +2684,25 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.forcusFirstQuestionOnExpand = focusFirstQuestion;
     super.expand();
   }
+  protected setUIState(data: IElementUIState): void {
+    if (data && data.collapsed !== undefined) {
+      if (data.collapsed) {
+        this.collapse();
+      } else {
+        this.expand(false);
+      }
+    }
+  }
   protected onElementExpanded(elementIsRendered: boolean): void {
     super.onElementExpanded(elementIsRendered);
-    if (!this.forcusFirstQuestionOnExpand) { return; }
+    if (!this.forcusFirstQuestionOnExpand || this.isDesignMode) { return; }
     if (this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
+            // Scroll only. q.focus() runs for Creator property-grid categories too:
+            // it moves the spinedit caret and paints a focus ring on those screenshots.
             this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: getScrollBehavior() } });
           }
         }, elementIsRendered ? 0 : 15);

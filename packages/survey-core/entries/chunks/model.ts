@@ -263,6 +263,8 @@ export { QuestionDateTimePickerModel } from "../../src/question_datetimepicker";
 export { QuestionExpressionModel } from "../../src/question_expression";
 export { QuestionTextBase, CharacterCounter, ICharacterCounterAction } from "../../src/question_textbase";
 export { QuestionTextModel } from "../../src/question_text";
+export { getInputValueType, getQuestionValueTypeInfo } from "../../src/questionValueTypes";
+export type { QuestionValueShape, IQuestionValueTypeInfo } from "../../src/questionValueTypes";
 export { QuestionBooleanModel } from "../../src/question_boolean";
 export {
   QuestionImagePickerModel,

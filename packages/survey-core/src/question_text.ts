@@ -10,6 +10,7 @@ import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { QuestionValueType, IVerifyDataContext } from "./question";
+import { getInputValueType } from "./questionValueTypes";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
@@ -225,7 +226,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this.isLoadingFromJson && !isMinMaxCompatible(prevType, this.inputType)) {
       this.resetMinMaxValues();
       // min/maxValueExpression are supported for the "text" inputType as well, clear them only if they came from a min/max inputType
-      if (minMaxTypes.indexOf(prevType) > -1) {
+      if (isMinMaxInputType(prevType)) {
         this.minValueExpression = undefined;
         this.maxValueExpression = undefined;
       }
@@ -244,7 +245,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.resetMinMaxValues();
       return;
     }
-    const isNumeric = numberTypes.indexOf(this.inputType) > -1;
+    const isNumeric = isNumberInputType(this.inputType);
     ["min", "max"].forEach(name => {
       const val = this.getPropertyValue(name);
       if (!this.isValueEmpty(val) && Helpers.isNumber(val) !== isNumeric) {
@@ -262,9 +263,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.getMaxLength();
   }
   public getValueType(): QuestionValueType {
-    if (numberTypes.indexOf(this.inputType) > -1) return "number";
-    // What is left of the inputTypes that carry min/max are the date and time ones.
-    return isMinMaxType(this) ? "date" : "string";
+    return getInputValueType(this.inputType);
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
@@ -275,15 +274,17 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public getSupportedValidators(): Array<string> {
     const supportedHash: HashTable<Array<string>> = {};
+    // A free-text-editing rule, not a value type: it differs from isTextInput on purpose ("search").
     const textTypes = ["text", "email", "tel", "password", "url"];
     supportedHash["text"] = textTypes;
     supportedHash["regex"] = textTypes;
     supportedHash["email"] = ["email"];
-    supportedHash["numeric"] = ["number", "range"];
     const res = super.getSupportedValidators();
     for (let i = res.length - 1; i >= 0; i--) {
       const v = res[i];
-      if (supportedHash[v] && supportedHash[v].indexOf(this.inputType) < 0) {
+      const isSupported = v === "numeric" ? isNumberInputType(this.inputType) :
+        (!supportedHash[v] || supportedHash[v].indexOf(this.inputType) > -1);
+      if (!isSupported) {
         res.splice(i, 1);
       }
     }
@@ -321,6 +322,7 @@ export class QuestionTextModel extends QuestionTextBase {
   public set size(val: number) {
     this.inputSize = val;
   }
+  // A free-text-editing rule (maxLength, input size), not a value type: see getInputValueType.
   public get isTextInput(): boolean {
     return (
       ["text", "search", "tel", "url", "email", "password"].indexOf(
@@ -471,7 +473,7 @@ export class QuestionTextModel extends QuestionTextBase {
       }
     }
     this._inputValue = _inputValue;
-    if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
+    if (!Helpers.checkIfValuesEqual(this.value, value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
       this.doNotUpdateInputValue = keepEnteredText;
       this.value = value;
       this.doNotUpdateInputValue = false;
@@ -970,7 +972,7 @@ export class QuestionTextModel extends QuestionTextBase {
   // inputValue because value holds a masked text unmasked, and the way the inputValue setter compares:
   // a number input holds a string.
   private hasUncommittedInput(event: any): boolean {
-    return !Helpers.isTwoValueEquals(this.inputValue, event.target?.value, false, true, false);
+    return !Helpers.checkIfValuesEqual(this.inputValue, event.target?.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
   }
   private shouldPreventNumberInput(event: any): boolean {
     const key = event.key;
@@ -1033,28 +1035,21 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 }
 
-// The inputTypes whose value is a number rather than a string; the rest of minMaxTypes are dates.
-const numberTypes = ["number", "range"];
-
-const minMaxTypes = [
-  "number",
-  "range",
-  "date",
-  "datetime-local",
-  "month",
-  "time",
-  "week",
-];
+// The number and date inputTypes are the ones that carry min/max/step (getInputValueType).
+function isNumberInputType(inputType: string): boolean {
+  return getInputValueType(inputType) === "number";
+}
+function isMinMaxInputType(inputType: string): boolean {
+  return getInputValueType(inputType) !== "string";
+}
 
 // min/max/step can be kept on changing inputType only if both types use the same value format (number <-> range).
 function isMinMaxCompatible(prevType: string, newType: string): boolean {
   if (prevType === newType) return true;
-  return numberTypes.indexOf(prevType) > -1 && numberTypes.indexOf(newType) > -1;
+  return isNumberInputType(prevType) && isNumberInputType(newType);
 }
 export function isMinMaxType(obj: any): boolean {
-  const t = !!obj ? obj.inputType : "";
-  if (!t) return false;
-  return minMaxTypes.indexOf(t) > -1;
+  return !!obj && isMinMaxInputType(obj.inputType);
 }
 function getWeekTimeNumber(str: string, delimiter: string): number {
   const strs = str.split(delimiter);

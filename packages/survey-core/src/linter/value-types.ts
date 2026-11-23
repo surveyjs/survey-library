@@ -1,6 +1,6 @@
-import { getLocaleString } from "survey-core";
+import { getInputValueType, getLocaleString } from "survey-core";
 import { getPropertyOnKey, isPropertyOn, isSelectBase } from "./metadata";
-import { ChoicesInfo, getEffectiveType, ValueTypeInfo, ScalarType } from "./symbols";
+import { ChoicesInfo, getEffectiveType } from "./symbols";
 import { ILintResolvedSettings } from "./lint-settings";
 
 // The class registering the built-in item toggles and their legacy aliases (hasOther, hasNone).
@@ -49,26 +49,19 @@ export function hasOtherItem(json: any): boolean {
   return isSpecialItemOn(json, "other");
 }
 
-const NUMERIC_INPUT_TYPES: { [inputType: string]: boolean } = { number: true, range: true };
-const DATE_INPUT_TYPES: { [inputType: string]: boolean } = {
-  date: true, "datetime-local": true, month: true, time: true, week: true,
-};
-
-// time and week are excluded on purpose: the runtime compares them with its own arithmetic
-// (getWeekTimeNumber in question_text.ts), which a plain operator call does not reproduce.
-const COMPARABLE_RANGE_INPUT_TYPES: { [inputType: string]: boolean } = {
-  number: true, range: true, date: true, "datetime-local": true, month: true,
-};
-
-// Mirrors isMinMaxType (question_text.ts): the inputTypes whose editor offers min/max, and the
-// only ones whose min/max/step properties the runtime applies at all.
+// The inputTypes whose editor offers min/max, and the only ones whose min/max/step properties
+// the runtime applies at all (isMinMaxType in question_text.ts): the number and date kinds.
 export function isMinMaxInputType(inputType: string): boolean {
-  return !!NUMERIC_INPUT_TYPES[inputType] || !!DATE_INPUT_TYPES[inputType];
+  return getInputValueType(inputType) !== "string";
 }
 
-// The min/max bounds a plain operator compares the way the runtime does.
+// The min/max bounds a plain operator compares the way the runtime does. time and week are
+// excluded on purpose: the runtime compares them with its own arithmetic (getWeekTimeNumber in
+// question_text.ts), which a plain operator call does not reproduce.
 export function isComparableRangeInputType(inputType: string): boolean {
-  return !!COMPARABLE_RANGE_INPUT_TYPES[inputType];
+  const kind = getInputValueType(inputType);
+  if (kind === "number") return true;
+  return kind === "date" && inputType !== "time" && inputType !== "week";
 }
 
 export function getItemValueRaw(item: any): any {
@@ -85,19 +78,6 @@ export function getStaticChoiceValues(arr: any): Array<any> {
     if (value !== undefined && value !== null) res.push(value);
   });
   return res;
-}
-
-function inferScalarFromValues(values: Array<any>): ScalarType {
-  if (!values.length) return "any";
-  let allNumbers = true;
-  let allStrings = true;
-  values.forEach(value => {
-    if (typeof value !== "number") allNumbers = false;
-    if (typeof value !== "string") allStrings = false;
-  });
-  if (allNumbers) return "number";
-  if (allStrings) return "string";
-  return "any";
 }
 
 export function getChoicesInfo(json: any, type: string): ChoicesInfo | undefined {
@@ -142,59 +122,6 @@ export function getInputType(json: any): string {
   return ((json ? json.inputType : undefined) || "text").toLowerCase();
 }
 
-export function getValueTypeInfo(type: string, json: any): ValueTypeInfo {
-  switch(type) {
-    case "text": {
-      const inputType = getInputType(json);
-      if (NUMERIC_INPUT_TYPES[inputType]) return { shape: "scalar", scalarType: "number" };
-      if (DATE_INPUT_TYPES[inputType]) return { shape: "scalar", scalarType: "date" };
-      return { shape: "scalar", scalarType: "string" };
-    }
-    case "comment":
-    case "signaturepad":
-      return { shape: "scalar", scalarType: "string" };
-    case "boolean":
-      if (json.valueTrue !== undefined || json.valueFalse !== undefined) {
-        return { shape: "scalar", scalarType: "any" };
-      }
-      return { shape: "scalar", scalarType: "boolean" };
-    case "radiogroup":
-    case "dropdown":
-    case "buttongroup":
-      return { shape: "scalar", scalarType: inferScalarFromValues(getStaticChoiceValues(json.choices)) };
-    case "imagepicker":
-      if (json.multiSelect === true) return { shape: "array" };
-      return { shape: "scalar", scalarType: inferScalarFromValues(getStaticChoiceValues(json.choices)) };
-    case "checkbox":
-    case "tagbox":
-    case "ranking":
-    case "file":
-      return { shape: "array" };
-    case "rating": {
-      const rateValues = getStaticChoiceValues(json.rateValues);
-      if (rateValues.length > 0) return { shape: "scalar", scalarType: inferScalarFromValues(rateValues) };
-      return { shape: "scalar", scalarType: "number" };
-    }
-    case "slider":
-      if (json.sliderType === "range") return { shape: "array" };
-      return { shape: "scalar", scalarType: "number" };
-    case "matrix":
-    case "matrixdropdown":
-    case "multipletext":
-      return { shape: "object" };
-    case "matrixdynamic":
-    case "paneldynamic":
-      return { shape: "array" };
-    case "html":
-    case "image":
-      return { shape: "none" };
-    case "expression":
-      return { shape: "unknown" };
-    default:
-      return { shape: "unknown" };
-  }
-}
-
 // How many choices can be selected at once, or undefined when the JSON does not list them all.
 // The None/Refuse/Don't know items are exclusive - selecting one clears the rest - and so is a
 // choice marked isExclusive; Other is an ordinary selection.
@@ -217,6 +144,5 @@ export function isTextInputQuestion(record: { type: string, effectiveType?: stri
   const type = getEffectiveType(record);
   if (type === "comment") return true;
   if (type !== "text") return false;
-  const inputType = getInputType(record.json);
-  return !NUMERIC_INPUT_TYPES[inputType] && !DATE_INPUT_TYPES[inputType];
+  return getInputValueType(getInputType(record.json)) === "string";
 }

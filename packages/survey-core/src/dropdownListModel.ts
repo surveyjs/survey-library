@@ -129,7 +129,7 @@ export class DropdownListModel extends Base {
 
     const value = newValue || this.filterString;
     const surveySettings = this.getQuestionSurveySettings();
-    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false, undefined, surveySettings))[0];
+    const item = this.listModel.getVisibleActions().filter(action => Helpers.checkIfValuesEqual(action.text, value, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {

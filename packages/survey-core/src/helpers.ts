@@ -52,6 +52,13 @@ export function normalizeTextForSearch(text: string, reason: string = "filter"):
     .toLowerCase();
 }
 
+// The value name a key made of a name and a suffix (comment, totals) belongs to; undefined when the
+// key does not end with the suffix. A key that is only the suffix belongs to no name. Case-sensitive.
+export function getNameOfSuffixedKey(key: string, suffix: string): string {
+  if (!key || key.length <= suffix.length || !key.endsWith(suffix)) return undefined;
+  return key.substring(0, key.length - suffix.length);
+}
+
 export class Helpers {
   public static getCommentKey(name: string): string {
     return name + settings.commentSuffix;
@@ -59,9 +66,7 @@ export class Helpers {
   // The value name a comment key belongs to; undefined when the key is not a comment key.
   // A key that is only the suffix is not a comment key.
   public static getNameOfCommentKey(key: string): string {
-    const suffix = settings.commentSuffix;
-    if (!key || key.length <= suffix.length || !key.endsWith(suffix)) return undefined;
-    return key.substring(0, key.length - suffix.length);
+    return getNameOfSuffixedKey(key, settings.commentSuffix);
   }
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.
@@ -125,7 +130,7 @@ export class Helpers {
     for (var i = 0; i < x.length; i++) {
       var j = 0;
       for (; j < y.length; j++) {
-        if (Helpers.isTwoValueEquals(x[i], y[j], false, undefined, undefined, surveySettings)) break;
+        if (Helpers.checkIfValuesEqual(x[i], y[j], { ignoreOrder: false, settings: surveySettings })) break;
       }
       if (j === y.length) return false;
     }
@@ -330,7 +335,7 @@ export class Helpers {
     const res: any = {};
     if (typeof changedObj !== "object" || typeof originalObject !== "object") return res;
     for (const key in changedObj) {
-      if (!Helpers.isTwoValueEquals(changedObj[key], originalObject[key], false, undefined, undefined, surveySettings)) {
+      if (!Helpers.checkIfValuesEqual(changedObj[key], originalObject[key], { ignoreOrder: false, settings: surveySettings })) {
         res[key] = changedObj[key];
       }
     }

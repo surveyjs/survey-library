@@ -111,16 +111,12 @@ function ownerOf(json: any, className: string, parentOwner: PropertyOwner): Prop
   return parentOwner;
 }
 
-// Serializer.getClassNameForNewObj: the property names the class, or the value's own "type"
-// does, and the array's classNamePart completes a short name ("setvalue" -> "setvaluetrigger").
+// The class the deserializer builds for the value: JsonObjectProperty.getObjClassName - the
+// property names the class, or the value's own "type" does, completed by classNamePart.
 function resolveClassName(value: any, prop: JsonObjectProperty): string | undefined {
-  let res: any = !!prop && !!prop.className ? prop.className : undefined;
-  if (!res && isPlainObject(value)) res = value[TYPE_KEY];
-  if (typeof res !== "string" || !res) return undefined;
-  res = res.toLowerCase();
-  const part = !!prop ? prop.classNamePart : undefined;
-  if (!!part && res.indexOf(part) < 0) res += part;
-  return res;
+  const objType = isPlainObject(value) ? value[TYPE_KEY] : undefined;
+  const res: any = !!prop ? prop.getObjClassName(objType) : objType;
+  return typeof res === "string" && !!res ? res.toLowerCase() : undefined;
 }
 
 // The cell type a column's dynamic properties come from, defaulted the way the model defaults

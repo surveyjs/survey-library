@@ -221,7 +221,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     const dValue = this.getDefaultValue(obj);
     if (dValue !== undefined) {
       if (typeof dValue !== "object") return dValue === value;
-      return Helpers.isTwoValueEquals(value, dValue, false, true, false);
+      return Helpers.checkIfValuesEqual(value, dValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
     }
     return (
       (value === false && this.isBooleanType && !this.defaultValueFunc) ||

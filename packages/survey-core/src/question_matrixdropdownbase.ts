@@ -913,7 +913,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     });
   }
   protected isTwoValueEquals(val1: any, val2: any): boolean {
-    return Helpers.isTwoValueEquals(val1, val2, false, true, false);
+    return Helpers.checkIfValuesEqual(val1, val2, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
   }
   // A row that edits a survey element reads the element's property, not the record.
   protected getRecordFieldValue(record: any, name: string): any {

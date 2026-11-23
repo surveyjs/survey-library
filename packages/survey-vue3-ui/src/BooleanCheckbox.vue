@@ -1,11 +1,12 @@
 <template>
-  <div v-if="question.isCheckboxView && question.booleanValue !== true" :class="question.viewModeCssClass" :id="question.inputId">
+  <div v-if="question.isCheckboxView && question.booleanValue !== true && !question.isLabelRendered" :class="question.viewModeCssClass" :id="question.inputId">
     {{ question.checkboxViewText }}
   </div>
   <div v-else :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
     <div :class="question.getCheckboxItemCss()">
       <label :class="question.cssClasses.checkboxLabel">
         <input
+          v-if="!(question.isCheckboxView && question.booleanValue !== true)"
           type="checkbox"
           :name="question.name"
           :value="question.booleanValue ?? ''"
@@ -23,7 +24,10 @@
           :aria-invalid="question.a11y_input_ariaInvalid"
           :aria-errormessage="question.a11y_input_ariaErrormessage"
         />
-        <span :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
+        <span v-if="question.isCheckboxView && question.booleanValue !== true" :class="question.viewModeCssClass" :id="question.inputId">
+          {{ question.checkboxViewText }}
+        </span>
+        <span v-else :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
           <svg
             v-if="question.svgIcon"
             :class="question.cssClasses.checkboxItemDecorator"
@@ -33,7 +37,7 @@
           <span class="check"></span>
         </span>
         <span
-          v-if="question.isLabelRendered && !question.isCheckboxView"
+          v-if="question.isLabelRendered"
           :id="question.labelRenderedAriaID"
           :class="question.cssClasses.checkboxControlLabel"
         >
@@ -52,7 +56,7 @@
         </span>
       </label>
       <div
-        v-if="question.canRenderLabelDescription && !question.isCheckboxView"
+        v-if="question.canRenderLabelDescription"
         :class="question.cssDescription"
         :id="question.ariaDescriptionId"
       >

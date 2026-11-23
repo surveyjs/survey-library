@@ -406,9 +406,11 @@ describe("readOnlyMode", () => {
     const empty = <QuestionBooleanModel>survey.getQuestionByName("empty");
     const segmented = <QuestionBooleanModel>survey.getQuestionByName("segmented");
     expect(yes.isCheckboxView).toBe(true);
+    expect(yes.isLabelRendered).toBe(true);
     expect(yes.booleanValue).toBe(true);
     expect(yes.getComponentName()).not.toBe("sv-question-view");
     expect(yes.getCheckboxItemCss()).toContain("sd-checkbox--view");
+    expect(yes.getCheckboxItemCss()).toContain("sd-checkbox--label-rendered");
     expect(yes.getCheckboxItemCss()).toContain("sd-checkbox--preview");
     expect(yes.getCheckboxItemCss()).toContain("sd-checkbox--checked");
     expect(yes.getCheckboxItemCss()).not.toContain("sd-checkbox--readonly");
@@ -431,6 +433,21 @@ describe("readOnlyMode", () => {
     expect(box.isCheckboxView).toBe(false);
     expect(box.getCheckboxItemCss()).toContain("sd-checkbox--readonly");
     expect(box.getCheckboxItemCss()).not.toContain("sd-checkbox--preview");
+
+    const matrixSurvey = new SurveyModel({
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [{
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "boolean", displayMode: "checkbox" }],
+        rows: ["row1"]
+      }]
+    });
+    const cell = <QuestionBooleanModel>(<QuestionMatrixDropdownModel>matrixSurvey.getQuestionByName("matrix")).visibleRows[0].cells[0].question;
+    expect(cell.isCheckboxView).toBe(true);
+    expect(cell.isLabelRendered).toBe(false);
+    expect(cell.getCheckboxItemCss()).not.toContain("sd-checkbox--label-rendered");
   });
 
   test("single-select matrix uses preview checkmarks in view mode", () => {

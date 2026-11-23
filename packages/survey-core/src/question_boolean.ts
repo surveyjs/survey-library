@@ -348,7 +348,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
       view && css.checkboxItemView,
       !!this.booleanValue && css.checkboxItemChecked,
       !view && !this.isDeterminated && css.checkboxItemIndeterminate,
-      !view && !!this.isLabelRendered && css.checkboxIsLabelRendered
+      !!this.isLabelRendered && css.checkboxIsLabelRendered
     );
   }
 

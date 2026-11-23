@@ -849,7 +849,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * > This event is raised only in the horizontal layout, where each rendered matrix row represents one record. When [`transposeData`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#transposeData) switches the matrix to the vertical layout, each rendered row represents a matrix column. Use [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss) to style individual data cells in that layout.
+   * > This event is raised only in the horizontal layout, where each rendered matrix row represents one record. When [`transposeData`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#transposeData) switches the matrix to the vertical layout, each rendered row represents a matrix column. Use [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss) to style individual matrix cells in that layout.
    * @see css
    * @see onUpdateMatrixCellCss
    */

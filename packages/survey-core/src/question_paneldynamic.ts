@@ -389,7 +389,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return null;
   }
   protected getFirstInputElementId(): string | (() => HTMLElement) {
-    if (this.getFirstQuestionToFocus(false) === this) return () => this.addPanelAction.getInputElement();
+    if (this.getFirstQuestionToFocus(false) === this) return () => this.addPanelAction?.getInputElement();
     return super.getFirstInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {

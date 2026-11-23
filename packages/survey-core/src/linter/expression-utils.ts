@@ -10,7 +10,7 @@ import {
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord,
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
-import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
+import { getDataKey, getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
 import { getNestedScope, getOwnerDataScope, isInNestedObject } from "./data-nesting";
 import { findDefinitionFieldByKey, getDefinitionFieldPaths, isUnknownDefinitionPath } from "./definition-variables";
 import { isMatrixDropdown } from "./metadata";
@@ -116,6 +116,8 @@ function findFrame<T extends ScopeFrame>(scope: Array<ScopeFrame>, kind: T["kind
 }
 
 function getStaticPanelAncestor(owner: ElementRecord): ElementRecord | undefined {
+  // a multiple text item's expressions run in the survey data, outside every panel (walkMultipleTextItems)
+  if (!!owner && owner.kind === "multipletextitem") return undefined;
   let current = owner ? owner.parent : undefined;
   while(current) {
     if (current.kind === "panel") return current;
@@ -959,6 +961,23 @@ function resolveInSiteDataScopes(ref: ParsedRef, site: { owner?: ElementRecord }
   return false;
 }
 
+// A multiple text item's expressions run in the survey data (walkMultipleTextItems), so a key of the objects
+// around its question is read there by its data path: {address.z} for {z}. Inside a record that path would need
+// the record's index, so there is none.
+function getItemDataPath(root: string, owner: ElementRecord | undefined, index: SurveyIndex): string | undefined {
+  if (!owner || owner.kind !== "multipletextitem") return undefined;
+  let res: string;
+  let scope = getOwnerDataScope(owner.parent, index);
+  while(scope.kind === "object") {
+    const question = scope.questions.get(root)[0];
+    const child = scope.children.get(root)[0];
+    const key = !!question ? getDataKey(question) : (!!child ? child.key : "");
+    if (!res && !!key) res = scope.path.concat([key]).join(".");
+    scope = scope.parent;
+  }
+  return scope.kind === "survey" ? res : undefined;
+}
+
 // The hint for a name that is a valueName of a container that stores nothing under it.
 function setNonNestingHint(ref: ParsedRef, root: string, index: SurveyIndex): void {
   const key = index.nonNestingKeys.first(root);
@@ -1091,8 +1110,11 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     ref.hintReason = SurveyLintHintReasons.panelQuestion;
     ref.hintName = root;
   } else {
+    const itemPath = getItemDataPath(root, site.owner, index);
     const field = !nameOnly && ref.segments.length === 1 ? findDefinitionFieldByKey(root, index) : undefined;
-    if (!!field) {
+    if (!!itemPath) {
+      setSuggestion(ref, { name: itemPath, end: 0 });
+    } else if (!!field) {
       setSuggestion(ref, { name: field, end: 0 });
     } else {
       const pool = nameCandidates(index, options, { accepts: record => isRootRecordVisible(record, nameOnly), values: true });

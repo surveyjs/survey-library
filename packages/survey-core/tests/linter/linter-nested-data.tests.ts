@@ -1355,7 +1355,6 @@ describe("linter nested data: the second oracle at a choice, a validator and a t
   };
   const templateRg = (s: SurveyModel): any => (<any>s.getQuestionByName("dp")).template.getQuestionByName("rg");
   const ITEM_VARIABLE = "a choice's own {item}: it names no question";
-  const ITEM_VALIDATOR = "a multiple text item's validator runs in the survey data, until a later linter fix";
   const ROW_CELL = "a matrix cell: getQuestionByVariable answers element questions only";
   const COLUMN_ITEM = "a column's own {item} ({item} = 'a' fails at runtime), not the root question";
   const sites: Array<{ name: string, path: string, context: (s: SurveyModel) => Base, known: { [ref: string]: string } }> = [
@@ -1373,7 +1372,7 @@ describe("linter nested data: the second oracle at a choice, a validator and a t
       context: s => templateRg(s).validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
     { name: "a trigger's expression", path: "triggers[0].expression", context: s => s.triggers[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
     { name: "a multiple text item's validator", path: "elements[2].elements[3].items[0].validators[0].expression",
-      context: s => (<any>s.getQuestionByName("panel1.mt")).items[0].validators[0], known: knownAs(["street", "z", "mt.i1"], ITEM_VALIDATOR) },
+      context: s => (<any>s.getQuestionByName("panel1.mt")).items[0].validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
     { name: "a matrix column's choice", path: "elements[4].columns[0].choices[0].visibleIf",
       context: s => (<any>s.getQuestionByName("md")).columns[0].templateQuestion.choices[0],
       known: knownAs(["item"], ITEM_VARIABLE, knownAs(["row.c2"], ROW_CELL, knownAs(["street", "mt.i1"], UNTIL_STEP_07))) },
@@ -1422,5 +1421,103 @@ describe("linter nested data: the second oracle at a choice, a validator and a t
     };
     expect(valid("{z} = 1"), "{z}: reads nothing").toBe(false);
     expect(valid("{address.z} = 1"), "{address.z}").toBe(true);
+  });
+});
+
+// Review 04, prompt 08: a multiple text item has no context of its own, so its validators, its expressions and its
+// piped title run in the survey data wherever its question is (the runtime probe of report-08). Each placement: what
+// the linter reports for the item's reference, next to what the runtime reads for it.
+describe("linter nested data: a multiple text item's sites run in the survey data, as at runtime", () => {
+  const zip = (name = "zip"): any => ({ type: "text", name: name, valueName: "z" });
+  const mtOf = (item: any): any => ({ type: "multipletext", name: "mt", items: [Object.assign({ name: "i1" }, item)] });
+  const validated = (ref: string, value: number): any => mtOf({ validators: [{ type: "expression", expression: "{" + ref + "} = " + value }] });
+  const VALIDATOR_PATH = /items\[0\]\.validators\[0\]\.expression$/;
+  const itemFindings = (elements: Array<any>, path: RegExp): Array<ILintFinding> =>
+    refFindings(auto({ elements: elements })).filter(f => path.test(f.path));
+  type Placement = { elements: (mt: any) => Array<any>, data: any, mt: (s: SurveyModel) => any };
+  const isValid = (placement: Placement, ref: string, value: number): boolean => {
+    const survey = new SurveyModel(auto({ elements: placement.elements(validated(ref, value)) }));
+    survey.data = placement.data;
+    const question = placement.mt(survey);
+    question.value = { i1: "v" };
+    return question.validate(false);
+  };
+  const expectItemRef = (placement: Placement, ref: string, value: number, known: boolean): void => {
+    expect(itemFindings(placement.elements(validated(ref, value)), VALIDATOR_PATH).length, "{" + ref + "}: the linter's finding").toBe(known ? 0 : 1);
+    expect(isValid(placement, ref, value), "{" + ref + "} = " + value + ": the runtime").toBe(known);
+  };
+  const nestingPanel: Placement = {
+    elements: mt => [{ type: "panel", name: "p", valueName: "address", elements: [zip(), mt] }],
+    data: { address: { z: 1 } }, mt: s => s.getQuestionByName("p.mt"),
+  };
+  // a record holds z = 1 at the paths the survey data holds z = 2 at: the item reads 2
+  const recordElements = (mt: any): Array<any> => [zip("rz"), { type: "panel", name: "p", valueName: "address", elements: [zip(), mt] }];
+  const surveyAddress = { type: "panel", name: "ap", valueName: "address", elements: [zip("topZip")] };
+
+  test("at the root: {z} is a key of the survey data", () => {
+    const root: Placement = { elements: mt => [zip(), mt], data: { z: 1 }, mt: s => s.getQuestionByName("mt") };
+    expectItemRef(root, "z", 1, true);
+    expectItemRef(root, "address.z", 1, false);
+  });
+  test("in a nesting panel: {z} is a key of the panel's object, which the item does not read", () => {
+    expectItemRef(nestingPanel, "z", 1, false);
+    expectItemRef(nestingPanel, "address.z", 1, true);
+    // the suggestion is the data path the runtime reads, as getQuestionVariableName gives it
+    const finding = itemFindings(nestingPanel.elements(validated("z", 1)), VALIDATOR_PATH)[0];
+    const survey = new SurveyModel(auto({ elements: nestingPanel.elements(validated("z", 1)) }));
+    expect(finding.suggestion).toBe(survey.getQuestionVariableName(survey.getQuestionByName("p.zip")));
+    expect(finding.suggestion).toBe("address.z");
+    expect(finding.fix.edits[0].value).toBe("{address.z} = 1");
+  });
+  test("in a nesting panel: the item's title and its defaultValueExpression read the survey data too", () => {
+    const item = (ref: string): any => mtOf({ title: "T {" + ref + "}", defaultValueExpression: "{" + ref + "}" });
+    const findings = (ref: string): Array<string> =>
+      itemFindings(nestingPanel.elements(item(ref)), /items\[0\]\./).map(f => f.path.replace(/^.*items\[0\]\./, "") + ":" + f.suggestion);
+    expect(findings("z")).toEqual(["defaultValueExpression:address.z", "title:address.z"]);
+    expect(findings("address.z")).toEqual([]);
+    const read = (ref: string): Array<any> => {
+      const survey = new SurveyModel(auto({ elements: nestingPanel.elements(item(ref)) }));
+      survey.data = nestingPanel.data;
+      const question: any = survey.getQuestionByName("p.mt");
+      return [question.items[0].locTitle.renderedHtml, question.items[0].editor.value];
+    };
+    expect(read("z"), "{z}").toEqual(["T {z}", null]);
+    expect(read("address.z"), "{address.z}").toEqual(["T 1", 1]);
+  });
+  test("in a static panel: {panel.x} names nothing for the item", () => {
+    const staticPanel: Placement = {
+      elements: mt => [{ type: "panel", name: "p", elements: [{ type: "text", name: "x" }, mt] }], data: { x: 1 }, mt: s => s.getQuestionByName("mt"),
+    };
+    expectItemRef(staticPanel, "x", 1, true);
+    expectItemRef(staticPanel, "panel.x", 1, false);
+  });
+  test("in a dynamic panel's record: the item reads the survey data, not the record", () => {
+    const record: Placement = {
+      elements: mt => [surveyAddress, { type: "paneldynamic", name: "dp", templateElements: recordElements(mt) }],
+      data: { address: { z: 2 }, dp: [{ z: 1, address: { z: 1 } }] },
+      mt: s => (<any>s.getQuestionByName("dp")).panels[0].getQuestionByName("mt"),
+    };
+    expectItemRef(record, "address.z", 2, true);
+    expect(isValid(record, "address.z", 1), "{address.z} = 1: not the record's object").toBe(false);
+    expectItemRef(record, "z", 1, false);
+    expectItemRef(record, "panel.z", 1, false);
+    // no data path from the survey reaches a record's key without the record's index
+    expect(itemFindings(record.elements(validated("z", 1)), VALIDATOR_PATH)[0].suggestion).toBeUndefined();
+  });
+  test("in a matrix's detail panel: the item reads the survey data, not the row", () => {
+    const row: Placement = {
+      elements: mt => [surveyAddress, { type: "matrixdynamic", name: "md", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "c1" }], detailElements: recordElements(mt) }],
+      data: { address: { z: 2 }, md: [{ z: 1, address: { z: 1 } }] },
+      mt: s => {
+        const matrixRow = (<any>s.getQuestionByName("md")).visibleRows[0];
+        matrixRow.showDetailPanel();
+        return matrixRow.detailPanel.getQuestionByName("mt");
+      },
+    };
+    expectItemRef(row, "address.z", 2, true);
+    expect(isValid(row, "address.z", 1), "{address.z} = 1: not the row's object").toBe(false);
+    expectItemRef(row, "z", 1, false);
+    expectItemRef(row, "row.z", 1, false);
   });
 });

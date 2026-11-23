@@ -365,8 +365,11 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
   return rowScope;
 }
 
-function walkMultipleTextItems(state: WalkState, json: any, path: string, record: ElementRecord,
-  scope: Array<ScopeFrame>): void {
+// An item's expressions, its validators and its piped texts run in the survey data, wherever its question is:
+// the item is no element, and its context is the survey's (MultipleTextItemModel has no getValueGetterContext).
+// So no {row.x} frame and no nesting container's object reaches them, as for a choice panel's question, and no
+// {panel.x} either: a choice panel's question has its choice panel there, the item has no panel at all.
+function walkMultipleTextItems(state: WalkState, json: any, path: string, record: ElementRecord): void {
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
   // item names are unique per question, the way matrix column names are per matrix
@@ -381,17 +384,17 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
     const itemPath = path + ".items[" + i + "]";
     const itemRecord: ElementRecord = {
       name: nameOf(item.name), type: "multipletextitem", kind: "multipletextitem",
-      path: itemPath, json: item, parent: record, scope: scope.slice(),
-      isUnknownType: false, valueType: getQuestionValueTypeInfo("text", item),
+      path: itemPath, json: item, parent: record, scope: [],
+      isUnknownType: false, valueType: getQuestionValueTypeInfo("text", item), dataScope: state.index.rootScope,
     };
     state.index.allElements.push(itemRecord);
     if (itemRecord.name) {
       record.multipleTextItems.set(itemRecord.name, itemRecord);
       itemNames.add(itemRecord.name, itemRecord);
     }
-    addSitesFromProps(state, item, itemPath, itemProps, itemRecord, scope);
-    addTextRefsFromProps(state, item, itemPath, locProps, itemRecord, scope);
-    addValidatorSites(state, item, itemPath, itemRecord, scope);
+    addSitesFromProps(state, item, itemPath, itemProps, itemRecord, []);
+    addTextRefsFromProps(state, item, itemPath, locProps, itemRecord, []);
+    addValidatorSites(state, item, itemPath, itemRecord, []);
   });
 }
 
@@ -487,7 +490,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     addItemValueSites(state, json, "customLabels", type, path, record, scope);
   }
   if (type === "multipletext") {
-    walkMultipleTextItems(state, json, path, record, scope);
+    walkMultipleTextItems(state, json, path, record);
   }
   if (!!templateScope) {
     const template = getArrayByKeys(json, state.metadata.getTemplateElementsKeys());

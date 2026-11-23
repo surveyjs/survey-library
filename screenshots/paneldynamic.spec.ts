@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, baseTest as test } from "../e2e/helper";
+import { assignDeferredSource, answerReads, stopLoadingSpinners } from "../e2e/remoteSourceHelper";
 
 const title = "Paneldynamic Screenshot";
 
@@ -687,6 +688,48 @@ frameworks.forEach(framework => {
       expect(await bar.evaluate((el: HTMLElement) => el.scrollLeft)).toBe(0);
       await page.mouse.move(0, 0);
       await compareScreenshot(page, undefined, "paneldynamic-sort-bar-levels-mobile.png");
+    });
+  });
+});
+
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} loading overlay`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    test("Paneldynamic loading overlay, first read", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [{ type: "paneldynamic", name: "panel", title: "Question title", panelCount: 0, pageSize: 1,
+          templateElements: [{ type: "text", name: "col1", title: "Name" }] }]
+      });
+      await assignDeferredSource(page, "panel", 3);
+      await expect(page.locator(".sd-records__loading-overlay")).toBeVisible();
+      await stopLoadingSpinners(page);
+      await compareScreenshot(page, page.locator(".sd-question--paneldynamic"), "paneldynamic-loading-first.png");
+    });
+    test("Paneldynamic loading overlay over a nested one", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [{ type: "paneldynamic", name: "outer", title: "Question title", panelCount: 0, pageSize: 1,
+          templateElements: [{ type: "matrixdynamic", name: "inner", title: "Inner", rowCount: 0, columns: [{ name: "c", cellType: "text" }] }] }]
+      });
+      await assignDeferredSource(page, "outer", 3);
+      await answerReads(page);
+      await page.evaluate(() => {
+        const outer = (window as any).survey.getQuestionByName("outer");
+        outer.panels[0].getQuestionByName("inner").dataSource = { read: () => new Promise(() => { }) };
+      });
+      const innerOverlay = page.locator(".sd-records__content .sd-records__content .sd-records__loading-overlay");
+      await expect(innerOverlay).toBeVisible();
+      // A read without a page move: a move validates the page first, and it waits for the inner read forever.
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("outer").refreshDataSource(); });
+      await expect(innerOverlay).toBeHidden();
+      await stopLoadingSpinners(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question--paneldynamic").first(), "paneldynamic-loading-nested.png");
     });
   });
 });

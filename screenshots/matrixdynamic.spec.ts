@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, doDrag, setData, doDragDrop, baseTest as test } from "../e2e/helper";
+import { assignDeferredSource, answerReads, stopLoadingSpinners } from "../e2e/remoteSourceHelper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -739,6 +740,36 @@ frameworks.forEach(framework => {
       await expect(page.locator(".sv-matrixdynamic-dragged-row")).toBeVisible();
       await compareScreenshot(page, ".sv-popup--records-sort .sv-popup__container", "matrixdynamic-sort-dialog-drag.png");
       await page.mouse.up();
+    });
+  });
+});
+
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} loading overlay`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    test("Matrixdynamic loading overlay", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        width: "900px",
+        elements: [{ type: "matrixdynamic", name: "matrix", title: "Question title", rowCount: 0, pageSize: 3,
+          columns: [{ name: "col1", cellType: "text" }] }]
+      });
+      await assignDeferredSource(page, "matrix", 9);
+      const root = page.locator(".sd-question");
+      const overlay = page.locator(".sd-records__loading-overlay");
+      await expect(overlay).toBeVisible();
+      await stopLoadingSpinners(page);
+      await compareScreenshot(page, root, "matrixdynamic-loading-first.png");
+      await answerReads(page);
+      await expect(overlay).toHaveCount(0);
+      await page.locator(".sd-pager button[title='Next']").click();
+      await expect(overlay).toBeVisible();
+      await stopLoadingSpinners(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, root, "matrixdynamic-loading-next-page.png");
     });
   });
 });

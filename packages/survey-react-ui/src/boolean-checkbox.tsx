@@ -9,7 +9,15 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
     super(props);
   }
-  protected renderElement(): React.JSX.Element {
+  protected renderElement(): React.JSX.Element | null {
+    if (this.question.isCheckboxView && this.question.booleanValue !== true && !this.question.isLabelRendered) {
+      return (
+        <div className={this.question.viewModeCssClass} id={this.question.inputId}>
+          {this.question.checkboxViewText}
+        </div>
+      );
+    }
+    const showDash = this.question.isCheckboxView && this.question.booleanValue !== true;
     const cssClasses = this.question.cssClasses;
     const itemClass = this.question.getCheckboxItemCss();
     const description = this.question.canRenderLabelDescription ?
@@ -18,7 +26,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
       <div className={cssClasses.rootCheckbox} onKeyDown={(event) => this.question.onKeyDown(event.nativeEvent ?? event)}>
         <div className={itemClass}>
           <label className={cssClasses.checkboxLabel}>
-            <input
+            {showDash ? null : <input
               ref={this.checkRef}
               type="checkbox"
               name={this.question.name}
@@ -32,6 +40,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               disabled={this.question.isDisabledAttr}
               readOnly={this.question.isReadOnlyAttr}
               checked={this.question.booleanValue || false}
+              tabIndex={this.question.isCheckboxView ? -1 : undefined}
               onChange={this.handleOnChange}
               aria-required={this.question.a11y_input_ariaRequired}
               aria-label={this.question.a11y_input_ariaLabel}
@@ -39,17 +48,23 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               aria-describedby={this.question.a11y_input_ariaDescribedBy}
               aria-invalid={this.question.a11y_input_ariaInvalid}
               aria-errormessage={this.question.a11y_input_ariaErrormessage}
-            />
-            <span className={cssClasses.checkboxMaterialDecorator} aria-hidden="true">
-              {this.question.svgIcon ?
-                <svg
-                  className={cssClasses.checkboxItemDecorator}
-                >
-                  <use xlinkHref={this.question.svgIcon}></use>
-                </svg> : null
-              }
-              <span className="check" />
-            </span>
+            />}
+            {showDash ? (
+              <span className={this.question.viewModeCssClass} id={this.question.inputId}>
+                {this.question.checkboxViewText}
+              </span>
+            ) : (
+              <span className={cssClasses.checkboxMaterialDecorator} aria-hidden="true">
+                {this.question.svgIcon ?
+                  <svg
+                    className={cssClasses.checkboxItemDecorator}
+                  >
+                    <use xlinkHref={this.question.svgIcon}></use>
+                  </svg> : null
+                }
+                <span className="check" />
+              </span>
+            )}
             {this.question.isLabelRendered && (
               <span className={cssClasses.checkboxControlLabel} id={this.question.labelRenderedAriaID}>
                 <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>

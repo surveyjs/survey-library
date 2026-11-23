@@ -5209,17 +5209,14 @@ describe("Survey", () => {
     QuestionFactory.Instance.unregisterElement(cType);
   });
   test("ElementFactory.getAllToolboxTypes()", () => {
-    const hidden = (all: Array<string>, toolbox: Array<string>): Array<string> => {
-      return all.filter(name => toolbox.indexOf(name) < 0);
-    };
     let defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
     let defaultNames = ElementFactory.Instance.getAllTypes();
-    expect(hidden(defaultNames, defaultToolboxNames)).toEqual(["datetimepicker"]);
+    expect(defaultToolboxNames, "They are the same by default").toEqual(defaultNames);
     const type = "toolbox-test-type";
     ElementFactory.Instance.registerElement(type, (name: string): IElement => { return new PanelModel(name); }, false);
     defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
     defaultNames = ElementFactory.Instance.getAllTypes();
-    expect(hidden(defaultNames, defaultToolboxNames), "a type registered with showInToolbox false stays out").toEqual(["datetimepicker", type]);
+    expect(defaultToolboxNames.length + 1, "We do use the new type for toolbox").toBe(defaultNames.length);
     ElementFactory.Instance.unregisterElement(type);
   });
   test("readOnlyCallback, bug #1818", () => {

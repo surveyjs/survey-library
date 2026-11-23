@@ -130,7 +130,7 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
     return <div className={css.modalSection}>
       <div className={searchCss.root}>
         <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
-        <input type="text" className={searchCss.control} value={modal.filterText} placeholder={modal.searchPlaceholder}
+        <input type="text" autoComplete="off" className={searchCss.control} value={modal.filterText} placeholder={modal.searchPlaceholder}
           aria-label={modal.searchPlaceholder} onChange={(e) => { modal.filterText = e.target.value; }} />
         {modal.showSearchClear ? <SurveyActionBarItem item={modal.searchClearAction} /> : null}
       </div>
@@ -234,7 +234,7 @@ export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEd
     const css = popup.cssClasses;
     return <div className={css.popupSearch}>
       <SvgIcon className={css.popupSearchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
-      <input type="text" className={css.popupSearchInput} value={list.filterString || ""}
+      <input type="text" autoComplete="off" className={css.popupSearchInput} value={list.filterString || ""}
         placeholder={list.filterStringPlaceholder} aria-label={list.filterStringPlaceholder}
         onChange={(e) => { list.filterString = e.target.value; }}
         onKeyDown={(e) => { popup.onSearchKeyDown(e.nativeEvent); }} />
@@ -372,7 +372,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     return <div className={css.searchRow}>
       <div className={q.searchRootCss}>
         <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
-        <input type="text" className={searchCss.control} value={q.searchString} placeholder={q.searchPlaceholder}
+        <input type="text" autoComplete="off" className={searchCss.control} value={q.searchString} placeholder={q.searchPlaceholder}
           aria-label={q.searchLabel} disabled={q.isSearchDisabled}
           onChange={(e) => { q.searchString = e.target.value; }} />
         {q.showSearchClear ? <SurveyActionBarItem item={q.searchClearAction} /> : null}

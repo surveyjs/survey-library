@@ -2,7 +2,7 @@
   <div *ngIf="!!popup" [class]="popup.cssClasses.popup">
     <div *ngIf="!!popup.list && popup.showSearch" [class]="popup.cssClasses.popupSearch">
       <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="popup.cssClasses.popupSearchIcon" sv-ng-svg-icon></svg>
-      <input type="text" [class]="popup.cssClasses.popupSearchInput" [value]="popup.list.filterString || ''"
+      <input type="text" autocomplete="off" [class]="popup.cssClasses.popupSearchInput" [value]="popup.list.filterString || ''"
         [attr.placeholder]="popup.list.filterStringPlaceholder" [attr.aria-label]="popup.list.filterStringPlaceholder"
         (input)="onSearchInput($event)" (keydown)="popup.onSearchKeyDown($event)" />
     </div>

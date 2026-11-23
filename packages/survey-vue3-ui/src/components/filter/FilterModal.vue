@@ -3,7 +3,7 @@
     <div :class="modal().cssClasses.modalSection">
       <div :class="modal().searchCss.root">
         <SvComponent :is="'sv-svg-icon'" :className="modal().cssClasses.searchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
-        <input type="text" :class="modal().searchCss.control" :value="modal().filterText" :placeholder="modal().searchPlaceholder"
+        <input type="text" autocomplete="off" :class="modal().searchCss.control" :value="modal().filterText" :placeholder="modal().searchPlaceholder"
           :aria-label="modal().searchPlaceholder" @input="onSearchInput" />
         <SvComponent v-if="modal().showSearchClear" :is="'sv-action-bar-item'" :item="modal().searchClearAction"></SvComponent>
       </div>

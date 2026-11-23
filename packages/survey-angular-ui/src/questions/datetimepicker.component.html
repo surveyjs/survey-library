@@ -1,6 +1,5 @@
 <div #contentElement [class]="model.getRootClass()">
-  <div [class]="model.cssClasses.fields">
-    <ng-container *ngIf="!model.range">
+  <ng-container *ngIf="!model.range">
       <div [class]="model.getFieldClass()">
         <input #input type="text" autocomplete="off" [class]="model.getControlClass()" [id]="model.inputId"
           [placeholder]="model.renderedPlaceholder" [disabled]="model.isDisabledAttr" [readOnly]="model.isReadOnlyAttr"
@@ -10,8 +9,8 @@
           [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" />
         <sv-ng-action-bar [model]="model.getEditorButtons(0)"></sv-ng-action-bar>
       </div>
-    </ng-container>
-    <ng-container *ngIf="model.range">
+  </ng-container>
+  <div *ngIf="model.range" [class]="model.cssClasses.fields">
       <div [class]="model.getFieldClass()">
         <input #input type="text" autocomplete="off" [class]="model.getControlClass()" [id]="model.startInputId"
           [placeholder]="model.renderedStartPlaceholder" [disabled]="model.isDisabledAttr" [readOnly]="model.isReadOnlyAttr"
@@ -31,7 +30,6 @@
           [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" />
         <sv-ng-action-bar [model]="model.getEditorButtons(1)"></sv-ng-action-bar>
       </div>
-    </ng-container>
   </div>
   <sv-ng-popup *ngIf="!model.isInputReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
 </div>

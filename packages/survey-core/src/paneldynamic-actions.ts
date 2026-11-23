@@ -79,6 +79,7 @@ export class PanelDynamicActions {
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
       locTitle: question.locPrevPanelText,
+      enabled: <any>new ComputedUpdater(() => !question.isDataLoading),
       action: () => {
         question.goToPrevPanel();
       }
@@ -86,6 +87,7 @@ export class PanelDynamicActions {
     const nextTextBtn = new Action({
       id: "sv-pd-next-btn",
       locTitle: question.locNextPanelText,
+      enabled: <any>new ComputedUpdater(() => !question.isDataLoading),
       action: () => {
         question.goToNextPanel();
       }
@@ -97,7 +99,12 @@ export class PanelDynamicActions {
     });
     const addBtn = new Action({
       id: "sv-pd-add-btn",
-      enabled: <any>new ComputedUpdater(() => question.enableAddPanel !== false),
+      // Both inputs are read before they are combined: a ComputedUpdater collects its dependencies on its first run only.
+      enabled: <any>new ComputedUpdater(() => {
+        const isEnabled = question.enableAddPanel !== false;
+        const isLoading = question.isDataLoading;
+        return isEnabled && !isLoading;
+      }),
       action: () => {
         question.addPanelUI();
       },
@@ -239,6 +246,7 @@ export class PanelDynamicActions {
     const newItem = new PanelDynamicTabbedMenuItem({
       id: `${question.id}_tab_${panelId}`,
       active: <any>new ComputedUpdater<boolean>(isActive),
+      enabled: <any>new ComputedUpdater<boolean>(() => !question.isDataLoading),
       locTitle: locTitle,
       disableHide: <any>new ComputedUpdater<boolean>(isActive),
       action: () => {

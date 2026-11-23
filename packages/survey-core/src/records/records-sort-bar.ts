@@ -248,6 +248,8 @@ class RecordsSortBar implements IRecordsSortActions {
         const isMobile = owner.isMobile;
         return showSort && !isMobile;
       }),
+      // The dialog it opens applies a sort: it opens while one can be made, as the rest of the bar.
+      enabled: <any>new ComputedUpdater(() => getSortBarState(owner, view).canSort),
       action: (): void => { this.showDialog(); }
     });
     // Its visibility and state are set in update(): they depend on the sort's levels and the offered fields.

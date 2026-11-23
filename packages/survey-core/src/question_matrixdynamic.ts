@@ -1777,6 +1777,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const addBtnAction = new Action({
       locTitle: this.locAddRowText,
       visible: new ComputedUpdater(() => this.canAddRow),
+      enabled: <any>new ComputedUpdater(() => !this.isDataLoading),
       action: () => {
         this.addRowUI();
       },

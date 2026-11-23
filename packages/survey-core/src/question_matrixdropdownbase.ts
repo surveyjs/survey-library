@@ -1702,7 +1702,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
   }
-  // A row's record changed: the table the renderers show, if one is built, runs onUpdateMatrixCellCss for the row again.
+  // A row's record changed: the table the renderers show, if one is built, runs onUpdateMatrixCellCss and onUpdateMatrixRowCss for the row again.
   onRowRecordChanged(row: MatrixDropdownRowModelBase): void {
     const table = <QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable");
     if (!!table && !table.isDisposed) table.updateCustomCss(row);

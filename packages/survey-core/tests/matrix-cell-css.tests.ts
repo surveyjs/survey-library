@@ -5,11 +5,11 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
-import { UpdateMatrixCellCssEvent } from "../src/survey-events-api";
+import { UpdateMatrixRowCssEvent } from "../src/survey-events-api";
 import { FakeServerSource, createMatrix as createRemoteMatrix, flush, serverRecords } from "./dynamic-data/remote-source-integration-helpers";
 
-/* onUpdateMatrixCellCss: the classes of a matrix data cell's <td> and a data row's <tr>, computed from the
-   row's record when the table is built and again when the record changes. */
+/* onUpdateMatrixCellCss / onUpdateMatrixRowCss: the classes of a matrix data cell's <td> and a data row's
+   <tr>, computed from the row's record when the table is built and again when the record changes. */
 
 function createSurvey(json: any, data?: any): SurveyModel {
   const survey = new SurveyModel({ elements: [Object.assign({ name: "m" }, json)] });
@@ -20,16 +20,20 @@ function matrixOf(survey: SurveyModel): QuestionMatrixDynamicModel {
   return <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
 }
 // The full stored record of a row, fields without a column too: no new API needed.
-function recordOf(options: UpdateMatrixCellCssEvent): any {
+function recordOf(options: UpdateMatrixRowCssEvent): any {
   return (options.question.value || [])[options.row.getIndex()] || {};
 }
 // A status cell is "failed" when its record says so; a row is "draft" by a field without a column.
 function addStatusHandler(survey: SurveyModel, log?: Array<string>): void {
   survey.onUpdateMatrixCellCss.add((_, options) => {
     const record = recordOf(options);
-    if (!!log) log.push((options.column ? options.column.name : "row") + ":" + record.id);
-    if (!!options.column && options.column.name === "status" && record.status === "failed") options.css += " failed";
-    if (!options.column && record.draft) options.css += " draft";
+    if (!!log) log.push(options.column.name + ":" + record.id);
+    if (options.column.name === "status" && record.status === "failed") options.css += " failed";
+  });
+  survey.onUpdateMatrixRowCss.add((_, options) => {
+    const record = recordOf(options);
+    if (!!log) log.push("row:" + record.id);
+    if (record.draft) options.css += " draft";
   });
 }
 function dataRows(matrix: QuestionMatrixDropdownModelBase): Array<QuestionMatrixDropdownRenderedRow> {
@@ -56,7 +60,7 @@ const records = [
   { id: 5, status: "ok" }
 ];
 
-describe("onUpdateMatrixCellCss", () => {
+describe("onUpdateMatrixCellCss / onUpdateMatrixRowCss", () => {
   test("a cell takes a class by its record's value, a row by a field without a column", () => {
     const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records);
     addStatusHandler(survey);
@@ -65,24 +69,42 @@ describe("onUpdateMatrixCellCss", () => {
     expect(rowsDraft(matrix), "#2: rows by the column-less draft flag").toEqual([false, true, false, true, false]);
     expect(hasClass(cellOf(dataRows(matrix)[1], "id").className, "failed"), "#3: the other cell of the row").toBe(false);
   });
-  test("the handler gets the matrix, the row, the column and the cell question; a row gets no column", () => {
+  test("the cell handler gets the matrix, the row, the column and the cell question; the row handler the matrix and the row", () => {
     const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 1));
-    const calls: Array<any> = [];
+    const cellCalls: Array<any> = [];
+    const rowCalls: Array<any> = [];
     survey.onUpdateMatrixCellCss.add((_, options) => {
-      calls.push({ question: options.question, row: options.row, column: options.column?.name,
+      cellCalls.push({ question: options.question, row: options.row, column: options.column.name,
         cellQuestion: options.cellQuestion, css: options.css });
+    });
+    survey.onUpdateMatrixRowCss.add((_, options) => {
+      rowCalls.push({ question: options.question, row: options.row, css: options.css, keys: Object.keys(options).sort() });
     });
     const matrix = matrixOf(survey);
     const renderedRow = dataRows(matrix)[0];
     const row = matrix.visibleRows[0];
-    expect(calls.length, "#1: two cells and the row").toBe(3);
-    expect(calls.every((call) => call.question === matrix && call.row === row), "#2").toBe(true);
-    expect(calls[0].column, "#3").toBe("id");
-    expect(calls[0].cellQuestion, "#4").toBe(row.getQuestionByColumnName("id"));
-    expect(calls[0].css, "#5: the cell's default classes").toBe(cellOf(renderedRow, "id").defaultClassName);
-    expect(calls[2].column, "#6").toBeUndefined();
-    expect(calls[2].cellQuestion, "#7").toBeUndefined();
-    expect(calls[2].css, "#8: the row's default classes").toBe(renderedRow.defaultCss);
+    expect(cellCalls.length, "#1: two cells").toBe(2);
+    expect(cellCalls.every((call) => call.question === matrix && call.row === row), "#2").toBe(true);
+    expect(cellCalls.map((call) => call.column), "#3").toEqual(["id", "status"]);
+    expect(cellCalls[0].cellQuestion, "#4").toBe(row.getQuestionByColumnName("id"));
+    expect(cellCalls[0].css, "#5: the cell's default classes").toBe(cellOf(renderedRow, "id").defaultClassName);
+    expect(rowCalls.length, "#6: the row").toBe(1);
+    expect(rowCalls[0].question === matrix && rowCalls[0].row === row, "#7").toBe(true);
+    expect(rowCalls[0].css, "#8: the row's default classes").toBe(renderedRow.defaultCss);
+    expect(rowCalls[0].keys, "#9: no cell options for a row").toEqual(["css", "question", "row"]);
+  });
+  test("each event alone: a cell handler leaves the rows alone, a row handler the cells", () => {
+    const plain = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 2));
+    const cellOnly = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 2));
+    cellOnly.onUpdateMatrixCellCss.add((_, options) => { options.css += " cell-custom"; });
+    const rowOnly = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 2));
+    rowOnly.onUpdateMatrixRowCss.add((_, options) => { options.css += " row-custom"; });
+    const rowClasses = (survey: SurveyModel): Array<string> => dataRows(matrixOf(survey)).map((row) => row.className);
+    const cellClasses = (survey: SurveyModel): Array<string> => dataRows(matrixOf(survey)).map((row) => cellOf(row, "status").className);
+    expect(cellClasses(cellOnly).every((css) => hasClass(css, "cell-custom")), "#1: cells").toBe(true);
+    expect(rowClasses(cellOnly), "#2: rows as without a handler").toEqual(rowClasses(plain));
+    expect(rowClasses(rowOnly).every((css) => hasClass(css, "row-custom")), "#3: rows").toBe(true);
+    expect(cellClasses(rowOnly), "#4: cells as without a handler").toEqual(cellClasses(plain));
   });
   test("the classes follow a value assignment and an edit", () => {
     const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 3));
@@ -146,10 +168,9 @@ describe("onUpdateMatrixCellCss", () => {
     const res = await createRemoteMatrix(source);
     const log: Array<string> = [];
     res.survey.onUpdateMatrixCellCss.add((_, options) => {
-      const record = recordOf(options);
-      if (!!options.column && options.column.name === "col1" && record.status === "failed") options.css += " failed";
-      if (!options.column) log.push(record.id);
+      if (options.column.name === "col1" && recordOf(options).status === "failed") options.css += " failed";
     });
+    res.survey.onUpdateMatrixRowCss.add((_, options) => { log.push(recordOf(options).id); });
     const matrix = res.question;
     const failed = (): Array<boolean> => dataRows(matrix).map((row) => hasClass(cellOf(row, "col1").className, "failed"));
     expect(failed(), "#1: ids 0..4").toEqual([true, false, false, true, false]);
@@ -163,6 +184,7 @@ describe("onUpdateMatrixCellCss", () => {
       detailPanelMode: "underRow", detailElements: [{ type: "text", name: "note" }],
       columns: [{ name: "id", cellType: "text", totalType: "sum" }, { name: "status", cellType: "text" }] }, records.slice(0, 2));
     survey.onUpdateMatrixCellCss.add((_, options) => { options.css += " custom"; });
+    survey.onUpdateMatrixRowCss.add((_, options) => { options.css += " custom"; });
     const matrix = matrixOf(survey);
     matrix.visibleRows[0].showDetailPanel();
     const table = matrix.renderedTable;
@@ -187,7 +209,7 @@ describe("onUpdateMatrixCellCss", () => {
       columns: [{ name: "id", cellType: "text" }, { name: "c", cellType: "checkbox", choices: [1, 2], showInMultipleColumns: true }] },
     [{ id: 1, c: [2] }]);
     survey.onUpdateMatrixCellCss.add((_, options) => {
-      if (options.column?.name === "c" && (recordOf(options).c || []).indexOf(2) > -1) options.css += " picked";
+      if (options.column.name === "c" && (recordOf(options).c || []).indexOf(2) > -1) options.css += " picked";
     });
     const choiceCells = dataRows(matrixOf(survey))[0].cells.filter((cell) => cell.isChoice && cell.hasQuestion);
     expect(choiceCells.length, "#1").toBe(2);
@@ -196,10 +218,12 @@ describe("onUpdateMatrixCellCss", () => {
   });
   test("a matrixdropdown: the record by the row name", () => {
     const survey = createSurvey({ type: "matrixdropdown", rows: ["a", "b"], columns: columns }, { b: { status: "failed", draft: true } });
+    const recordByName = (options: UpdateMatrixRowCssEvent): any => ((<QuestionMatrixDropdownModel>options.question).value || {})[options.row.rowName] || {};
     survey.onUpdateMatrixCellCss.add((_, options) => {
-      const record = ((<QuestionMatrixDropdownModel>options.question).value || {})[options.row.rowName] || {};
-      if (!!options.column && options.column.name === "status" && record.status === "failed") options.css += " failed";
-      if (!options.column && record.draft) options.css += " draft";
+      if (options.column.name === "status" && recordByName(options).status === "failed") options.css += " failed";
+    });
+    survey.onUpdateMatrixRowCss.add((_, options) => {
+      if (recordByName(options).draft) options.css += " draft";
     });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     expect(statusFailed(matrix), "#1").toEqual([false, true]);
@@ -210,15 +234,17 @@ describe("onUpdateMatrixCellCss", () => {
   });
   test("the vertical layout: the data cells take classes, its rows (columns) take none", () => {
     const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, transposeData: true, columns: columns }, records.slice(0, 2));
+    let rowCalls = 0;
+    survey.onUpdateMatrixRowCss.add((_, options) => { rowCalls++; options.css += " row-css"; });
     survey.onUpdateMatrixCellCss.add((_, options) => {
-      if (!options.column) options.css += " row-css";
-      else if (recordOf(options).status === "failed") options.css += " failed";
+      if (recordOf(options).status === "failed") options.css += " failed";
     });
     const matrix = matrixOf(survey);
     const statusRow = matrix.renderedTable.rows.filter((row) => !row.isErrorsRow && row.cells.some((cell) => cell.column?.name === "status" && cell.hasQuestion))[0];
     const cells = statusRow.cells.filter((cell) => cell.hasQuestion);
     expect(cells.map((cell) => hasClass(cell.className, "failed")), "#1").toEqual([false, true]);
     expect(matrix.renderedTable.rows.some((row) => hasClass(row.className, "row-css")), "#2").toBe(false);
+    expect(rowCalls, "#3: onUpdateMatrixRowCss is not raised").toBe(0);
   });
   test("pinning: without a handler, or with one that changes nothing, every class string is the same", () => {
     const json = { type: "matrixdynamic", rowCount: 0, allowRemoveRows: true, detailPanelMode: "underRow",
@@ -232,9 +258,12 @@ describe("onUpdateMatrixCellCss", () => {
     const plain = createSurvey(json, records.slice(0, 2));
     const handled = createSurvey(json, records.slice(0, 2));
     let calls = 0;
+    let rowCalls = 0;
     handled.onUpdateMatrixCellCss.add(() => { calls++; });
+    handled.onUpdateMatrixRowCss.add(() => { rowCalls++; });
     expect(classes(handled), "#1").toEqual(classes(plain));
-    expect(calls > 0, "#2: the handler ran").toBe(true);
+    expect(calls > 0, "#2: the cell handler ran").toBe(true);
+    expect(rowCalls > 0, "#3: the row handler ran").toBe(true);
   });
   test("pinning: onUpdateQuestionCssClasses for a cell question behaves as before", () => {
     const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 1));

@@ -358,7 +358,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     cell.cssKey = "cellCss" + this.customCssCells.length;
     this.customCssCells.push(cell);
   }
-  // A horizontal data row: it takes the classes of an onUpdateMatrixCellCss handler too.
+  // A horizontal data row: it takes the classes of an onUpdateMatrixRowCss handler.
   public get isCustomCssRow(): boolean {
     return !!this.row && !this.isErrorsRow && !this.isDetailRow;
   }
@@ -370,7 +370,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public setCustomCss(key: string, css: string): void {
     this.setPropertyValue(key, css);
   }
-  // The classes of a data row a handler starts from: className adds what changes while the row is shown.
+  // The classes of a data row an onUpdateMatrixRowCss handler starts from: className adds what changes while the row is shown.
   public get defaultCss(): string {
     return toCssClasses(
       this.cssClasses.row,
@@ -1283,37 +1283,43 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       rRow.cells.push(rCell);
     }
   }
-  /* onUpdateMatrixCellCss: a horizontal data row and the data cells take the classes a handler computes
-     from their row's record - when they are built, and again when the record of a row changes (row
-     given: the matrix's onRowRecordChanged). Every run starts from the default classes. Header, footer,
-     error, actions, row-text and detail cells, the detail row and the vertical layout's rows take none:
-     a detail panel has onUpdatePanelCssClasses. */
+  /* onUpdateMatrixCellCss / onUpdateMatrixRowCss: the data cells and a horizontal data row take the
+     classes a handler computes from their row's record - when they are built, and again when the record
+     of a row changes (row given: the matrix's onRowRecordChanged). Every run starts from the default
+     classes. Header, footer, error, actions, row-text and detail cells, the detail row and the vertical
+     layout's rows take none: a detail panel has onUpdatePanelCssClasses. */
   public updateCustomCss(row: MatrixDropdownRowModelBase): void {
-    if (!this.hasCustomCssHandler()) return;
+    if (!this.hasCellCssHandler() && !this.hasRowCssHandler()) return;
     this.rows.forEach((renderedRow: QuestionMatrixDropdownRenderedRow): void => { this.updateRowCustomCss(renderedRow, row); });
   }
-  private hasCustomCssHandler(): boolean {
+  private hasSurveyEventHandler(name: string): boolean {
     const survey: any = this.matrix.survey;
-    return !!survey && !!survey.onUpdateMatrixCellCss && !survey.onUpdateMatrixCellCss.isEmpty;
+    return !!survey && !!survey[name] && !survey[name].isEmpty;
+  }
+  private hasCellCssHandler(): boolean {
+    return this.hasSurveyEventHandler("onUpdateMatrixCellCss");
+  }
+  private hasRowCssHandler(): boolean {
+    return this.hasSurveyEventHandler("onUpdateMatrixRowCss");
   }
   private updateRowCustomCss(renderedRow: QuestionMatrixDropdownRenderedRow, row?: MatrixDropdownRowModelBase): void {
-    if (!this.hasCustomCssHandler()) return;
     // A horizontal row holds the cells of its own row only; a vertical one has no row and holds a cell of each.
     if (!!row && !!renderedRow.row && renderedRow.row !== row) return;
-    renderedRow.customCssCells.forEach((cell: QuestionMatrixDropdownRenderedCell): void => {
-      if (!row || cell.row === row) {
-        this.runCustomCss(renderedRow, cell.cssKey, cell.defaultClassName, cell.row, cell.column, cell.question);
-      }
-    });
-    if (renderedRow.isCustomCssRow && (!row || renderedRow.row === row)) {
-      this.runCustomCss(renderedRow, "rowCss", renderedRow.defaultCss, renderedRow.row, undefined, undefined);
+    if (this.hasCellCssHandler()) {
+      renderedRow.customCssCells.forEach((cell: QuestionMatrixDropdownRenderedCell): void => {
+        if (!row || cell.row === row) {
+          const options = { row: cell.row, column: cell.column, cellQuestion: cell.question, css: cell.defaultClassName };
+          this.matrix.matrixCallbacks.updateMatrixCellCss(this.matrix, options);
+          renderedRow.setCustomCss(cell.cssKey, options.css !== cell.defaultClassName ? options.css : undefined);
+        }
+      });
     }
-  }
-  private runCustomCss(renderedRow: QuestionMatrixDropdownRenderedRow, key: string, defaultCss: string,
-    row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn, cellQuestion: Question): void {
-    const options = { row: row, column: column, cellQuestion: cellQuestion, css: defaultCss };
-    this.matrix.matrixCallbacks.updateMatrixCellCss(this.matrix, options);
-    renderedRow.setCustomCss(key, options.css !== defaultCss ? options.css : undefined);
+    if (renderedRow.isCustomCssRow && (!row || renderedRow.row === row) && this.hasRowCssHandler()) {
+      const defaultCss = renderedRow.defaultCss;
+      const options = { row: renderedRow.row, css: defaultCss };
+      this.matrix.matrixCallbacks.updateMatrixRowCss(this.matrix, options);
+      renderedRow.setCustomCss("rowCss", options.css !== defaultCss ? options.css : undefined);
+    }
   }
   private setItemCellCssClasses(cell: QuestionMatrixDropdownRenderedCell) {
     cell.className = toCssClasses(

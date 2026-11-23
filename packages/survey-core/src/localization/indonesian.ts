@@ -207,8 +207,8 @@ export var indonesianStrings = {
   showDetails: "Tampilkan Detail",
   // [Auto-translated] "Hide Details"
   hideDetails: "Sembunyikan Detail",
-  // "item"
-  choices_Item: "item",
+  // [Auto-translated] "item"
+  choices_Item: "barang",
   // [Auto-translated] "Choice option"
   choices_Choice: "Opsi pilihan",
   // "Column"

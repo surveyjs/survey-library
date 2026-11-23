@@ -228,7 +228,7 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       const newArr = [];
       const surveySettings = this.getSurveySettings();
       value.forEach(v => {
-        const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, v, false, false, undefined, surveySettings))[0];
+        const item = items.filter(ch => Helpers.checkIfValuesEqual(ch.id, v, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
         if (!item) {
           newArr.push(new ItemValue(v));
         }

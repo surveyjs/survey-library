@@ -4612,7 +4612,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     if (questions.length > 1) {
       const surveySettings = getSettingsOfSurvey(this.getSurvey());
       for (let i = 0; i < questions.length; i ++) {
-        if (!Helpers.isTwoValueEquals(questions[i].value, value, false, undefined, undefined, surveySettings)) {
+        if (!Helpers.checkIfValuesEqual(questions[i].value, value, { ignoreOrder: false, settings: surveySettings })) {
           this.runSettingValue((): void => questions[i].updateValueFromSurvey(value));
         }
       }

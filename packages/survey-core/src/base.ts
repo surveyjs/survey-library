@@ -405,7 +405,7 @@ export class Base implements IObjectValueContext {
   }
   protected equalsCore(obj: Base): boolean {
     if ((<any>this).name !== (<any>obj).name) return false;
-    return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
+    return Helpers.checkIfValuesEqual(this.toJSON(), obj.toJSON(), { ignoreOrder: false, caseSensitive: true, trimStrings: false });
   }
   protected trimValue(value: any): any {
     return Helpers.trimValue(value);
@@ -1921,7 +1921,7 @@ export class Base implements IObjectValueContext {
     const tX = typeof x;
     const tY = typeof y;
     const mayCompareStrings = tX === "string" && tY === "string" || tX === "object" && tY === "object" && x !== null && y !== null;
-    return Helpers.isTwoValueEquals(x, y, false, undefined, undefined, mayCompareStrings ? this.getSurveySettings() : undefined);
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, settings: mayCompareStrings ? this.getSurveySettings() : undefined });
   }
   // The settings of the survey this object belongs to; undefined (the global settings) without one
   protected getSurveySettings(): ISurveySettings {

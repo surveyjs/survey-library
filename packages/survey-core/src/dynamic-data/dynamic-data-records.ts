@@ -9,7 +9,7 @@ import { IDynamicDataReadResult } from "./dynamic-data-interfaces";
    changed (DynamicDataList.isValueChanged) and which of its fields did (getChangedFields), so a
    record never changes with no field listed. */
 export function isRecordValueChanged(newValue: any, oldValue: any): boolean {
-  return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
+  return !Helpers.checkIfValuesEqual(newValue, oldValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
 }
 export function getChangedFields(oldRecord: any, newRecord: any): Array<string> {
   const res: Array<string> = [];

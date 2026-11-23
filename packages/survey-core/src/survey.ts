@@ -7303,7 +7303,7 @@ export class SurveyModel extends SurveyElementCore
     return options.value;
   }
   private getLocNotification(loc: boolean | "text", value: any, oldValue: any): boolean | "text" {
-    if (loc === false && Helpers.isTwoValueEquals(value, oldValue, false, true, false)) return true;
+    if (loc === false && Helpers.checkIfValuesEqual(value, oldValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return true;
     return loc;
   }
   protected updateQuestionValue(valueName: string, newValue: any) {

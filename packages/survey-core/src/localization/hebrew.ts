@@ -338,10 +338,6 @@ export var hebrewSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "שמור",
   // [Auto-translated] "Filters"
-  filterFilters: "מסננים",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "מסננים: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "מסננים",
   // [Auto-translated] "Search"
   filterSearchLabel: "חיפוש",
@@ -355,16 +351,12 @@ export var hebrewSurveyStrings = {
   filterClearAll: "נקה הכל",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "נקה {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "פריסט",
   // [Auto-translated] "Save as..."
   filterSaveAs: "חסוך כ...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "שמור",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "הוסף \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "פריסטים",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "הצג פריטים {0}",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var hebrewSurveyStrings = {
   filterShowResults: "הצג תוצאות",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "פריסט חדש",
-  // [Auto-translated] "Name"
-  filterPresetName: "שם",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "מכיל",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "פריסט בשם זה כבר קיים.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var hebrewSurveyStrings = {
   filterPresetNoExpression: "הזן ביטוי.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "הביטוי אינו תקף.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "ערוך כביטוי",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "ערוך כתיבת תגיות",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "הקלד כאן ביטוי...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var hebrewSurveyStrings = {
   filterPresetExpression: "ביטוי {0}",
   // [Auto-translated] "Edit..."
   filterEditExpression: "עריכה...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "חיפוש במסננים",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "לא נמצא כלום, נסה מילות מפתח שונות",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "צור פריסט עם בינה מלאכותית",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "ערוך פריסט עם בינה מלאכותית",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "לדוגמה, \"קפה ותה מגרמניה\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "צור",
   // [Auto-translated] "Edit"
   filterAiEdit: "עריכה",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "יוצר...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "עריכה...",
   // [Auto-translated] "AI could not make a filter. Try again."

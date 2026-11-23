@@ -338,10 +338,6 @@ export var macedonianSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Зачувај",
   // [Auto-translated] "Filters"
-  filterFilters: "Филтри",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Филтри: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Филтри",
   // [Auto-translated] "Search"
   filterSearchLabel: "Пребарување",
@@ -355,16 +351,12 @@ export var macedonianSurveyStrings = {
   filterClearAll: "Избриши сѐ",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Чисто {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Претходно поставено",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Зачувај како...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Зачувај",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Додај \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Претходно поставени",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Прикажи {0} ставки",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var macedonianSurveyStrings = {
   filterShowResults: "Прикажи резултати",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Нова претходно поставена",
-  // [Auto-translated] "Name"
-  filterPresetName: "Име",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Содржи",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Претходно поставена конфигурација со ова име веќе постои.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var macedonianSurveyStrings = {
   filterPresetNoExpression: "Внесете израз.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Изразот не е валиден.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Уреди како израз",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Уреди како Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Внесете израз тука...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var macedonianSurveyStrings = {
   filterPresetExpression: "{0} Израз",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Уредување...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Пребарување во филтри",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ништо не најде, пробај различни клучни зборови",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Креирајте претходно поставени поставки со AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Уреди претходно поставена конфигурација со вештачка интелигенција",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "На пример, \"Кафе и чај од Германија\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Креирај",
   // [Auto-translated] "Edit"
   filterAiEdit: "Уреди",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Создавање...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Монтажа...",
   // [Auto-translated] "AI could not make a filter. Try again."

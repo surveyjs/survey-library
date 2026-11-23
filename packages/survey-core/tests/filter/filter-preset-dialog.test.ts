@@ -34,15 +34,15 @@ describe("FilterPresetDialog: what it opens with", () => {
     expect(dialog.editor.fieldNames, "#3").toEqual(["country", "age"]);
     expect(dialog.editor.getConditions(), "#4").toEqual([{ field: "country", operator: "anyof", value: ["de"] },
       { field: "age", operator: "greater", value: 18 }]);
-    expect(dialog.form.getPanelByName("presetName").title, "#5").toBe("Name");
-    expect(panel(dialog).title, "#6").toBe("Contains");
+    expect(dialog.form.getPanelByName("presetName").title, "#5").toBe("Preset name");
+    expect(panel(dialog).title, "#6").toBe("Fields to filter by");
     dialog.dispose();
   });
   test("the tagbox offers every field by its title; its hidden title is its accessible name", () => {
     const dialog = control().createAddPresetDialog([]);
     const q = tagbox(dialog);
     expect([q.getType(), q.parent.name, q.titleLocation, q.title, q.placeholder], "#1")
-      .toEqual(["tagbox", "contains", "hidden", "Contains", "Select..."]);
+      .toEqual(["tagbox", "contains", "hidden", "Fields to filter by", "Select..."]);
     expect(q.choices.map((c: any) => [c.value, c.text]), "#2").toEqual([["name", "name"], ["country", "country"], ["age", "age"]]);
     dialog.dispose();
   });

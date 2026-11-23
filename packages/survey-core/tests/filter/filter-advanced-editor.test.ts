@@ -58,7 +58,7 @@ describe("Advanced mode editor: the editor survey", () => {
     let editor = q.createAdvancedModeEditor();
     expect(editor.survey.getPanelByName("f0").title, "#1").toBe("Country");
     expect(editor.survey.getPanelByName("f1").title, "#2: a field with no title is named by its name").toBe("age");
-    expect(searchQ(editor).placeholder, "#3").toBe("Search by Country, age");
+    expect(searchQ(editor).placeholder, "#3").toBe("Search by Country or age");
     editor.dispose();
     survey.locale = "de";
     editor = q.createAdvancedModeEditor();

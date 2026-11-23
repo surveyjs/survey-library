@@ -338,10 +338,6 @@ export var indonesianStrings = {
   // [Auto-translated] "Save"
   filterSave: "Simpan",
   // [Auto-translated] "Filters"
-  filterFilters: "Filter",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filter: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filter",
   // [Auto-translated] "Search"
   filterSearchLabel: "Cari",
@@ -355,16 +351,12 @@ export var indonesianStrings = {
   filterClearAll: "Bersihkan Semua",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Bersihkan {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Preset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Simpan sebagai...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Simpan",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Tambahkan \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Preset",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Tampilkan item {0}",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var indonesianStrings = {
   filterShowResults: "Tampilkan hasil",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Preset Baru",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nama",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Berisi",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Preset dengan nama ini sudah ada.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var indonesianStrings = {
   filterPresetNoExpression: "Masukkan sebuah ekspresi.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Ekspresi tersebut tidak valid.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Edit sebagai Ekspresi",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Edit sebagai Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Ketik ekspresi di sini...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var indonesianStrings = {
   filterPresetExpression: "{0} Ekspresi",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Cari di Filter",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Tidak ada yang ditemukan, coba kata kunci yang berbeda",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Buat preset dengan AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Edit preset dengan AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Misalnya, \"Kopi & Teh dari Jerman\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Buat",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Menciptakan...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editing...",
   // [Auto-translated] "AI could not make a filter. Try again."

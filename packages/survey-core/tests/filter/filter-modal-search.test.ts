@@ -38,7 +38,7 @@ describe("FilterModal: Search in Filters", () => {
   test("is the dialog's search box: always there, and not the records' search", () => {
     const q = control({ showSearch: false });
     const modal = q.createFilterModal();
-    expect([modal.filterText, modal.searchPlaceholder, modal.isNothingFound], "#1").toEqual(["", "Search in Filters", false]);
+    expect([modal.filterText, modal.searchPlaceholder, modal.isNothingFound], "#1").toEqual(["", "Search in filters and presets", false]);
     modal.dispose();
     const searched = control({ showSearch: true });
     searched.searchString = "an";

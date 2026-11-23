@@ -35,12 +35,12 @@ describe("New Preset: the AI description before the first answer", () => {
   test("the description and the request button", () => {
     const { dialog } = open();
     const prompt = dialog.aiPrompt;
-    expect([prompt.isModify, prompt.promptTitle], "#1").toEqual([false, "Create preset with AI"]);
+    expect([prompt.isModify, prompt.promptTitle], "#1").toEqual([false, "Generate a filter with AI"]);
     expect([prompt.requestAction.title, prompt.requestAction.enabled, prompt.requestAction.iconName], "#2")
-      .toEqual(["Create", false, "icon-sparkle-24x24"]);
+      .toEqual(["Generate Filter", false, "icon-sparkle-24x24"]);
     const question = dialog.survey.getQuestionByName("prompt");
     expect([question.getType(), question.maxLength, question.placeholder], "#3")
-      .toEqual(["comment", 500, "For example, \u201cCoffee & Tea from Germany\u201d"]);
+      .toEqual(["comment", 500, "Describe the filter you want..."]);
     prompt.prompt = "adults";
     expect(prompt.requestAction.enabled, "#4").toBe(true);
     prompt.prompt = "   ";
@@ -61,7 +61,7 @@ describe("New Preset: the AI description before the first answer", () => {
     const panel = prompt.panel;
     const question = dialog.survey.getQuestionByName("prompt");
     expect([panel.title, question.title, question.titleLocation], "#1: the hidden title is the accessible name")
-      .toEqual(["Create preset with AI", "Create preset with AI", "hidden"]);
+      .toEqual(["Generate a filter with AI", "Generate a filter with AI", "hidden"]);
     const footer = panel.getFooterToolbar();
     expect([footer.actions.length, footer.actions[0] === prompt.requestAction, panel.allowAdaptiveActions], "#2").toEqual([1, true, false]);
     expect(footer.containerCss.split(" ").indexOf(q.cssClasses.aiPromptRequest) > -1, "#3").toBe(true);
@@ -99,7 +99,7 @@ describe("New Preset: the answer", () => {
     prompt.request();
     expect([calls.length, calls[0].action, calls[0].userPrompt, calls[0].expression, prompt.isBusy, dialog.canApply], "#1")
       .toEqual([1, "generate", "adults", "", true, false]);
-    expect(prompt.requestAction.title, "#1a: the button says it is busy").toBe("Creating...");
+    expect(prompt.requestAction.title, "#1a: the button says it is busy").toBe("Generating...");
     calls[0].callback(answer("{age} > 18 and {country} anyof ['de']", "German adults"));
     expect([picked(dialog), dialog.editor.getConditions(), name(dialog)], "#2").toEqual([["country", "age"],
       [{ field: "country", operator: "anyof", value: ["de"] }, { field: "age", operator: "greater", value: 18 }], "German adults"]);

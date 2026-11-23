@@ -338,10 +338,6 @@ export var vietnameseSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Lưu",
   // [Auto-translated] "Filters"
-  filterFilters: "Bộ lọc",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Bộ lọc: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Bộ lọc",
   // [Auto-translated] "Search"
   filterSearchLabel: "Tìm kiếm",
@@ -355,16 +351,12 @@ export var vietnameseSurveyStrings = {
   filterClearAll: "Xóa tất cả",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Dọn {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Cài đặt sẵn",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Lưu thành...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Lưu",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Thêm \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Cài đặt sẵn",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Hiển thị {0} mặt hàng",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var vietnameseSurveyStrings = {
   filterShowResults: "Xem kết quả",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Cài đặt sẵn mới",
-  // [Auto-translated] "Name"
-  filterPresetName: "Tên gọi",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Chứa",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Một thiết lập sẵn với tên này đã tồn tại.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var vietnameseSurveyStrings = {
   filterPresetNoExpression: "Nhập một biểu thức.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Biểu thức này không hợp lệ.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Chỉnh sửa dưới dạng biểu thức",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Chỉnh sửa dưới dạng Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Gõ một biểu thức tại đây...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var vietnameseSurveyStrings = {
   filterPresetExpression: "{0} Biểu đạt",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Chỉnh sửa...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Tìm kiếm trong bộ lọc",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Không tìm thấy gì, hãy thử các từ khóa khác nhau",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Tạo cài đặt sẵn bằng AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Chỉnh sửa cài đặt sẵn bằng AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Ví dụ, \"Cà phê & Trà từ Đức\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Tạo",
   // [Auto-translated] "Edit"
   filterAiEdit: "Chỉnh sửa",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Sáng tạo...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Đang chỉnh sửa...",
   // [Auto-translated] "AI could not make a filter. Try again."

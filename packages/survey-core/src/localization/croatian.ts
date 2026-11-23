@@ -338,10 +338,6 @@ export var croatianStrings = {
   // [Auto-translated] "Save"
   filterSave: "Spremi",
   // [Auto-translated] "Filters"
-  filterFilters: "Filteri",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filteri: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filteri",
   // [Auto-translated] "Search"
   filterSearchLabel: "Pretraži",
@@ -355,16 +351,12 @@ export var croatianStrings = {
   filterClearAll: "Očisti sve",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Očisti {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Predložak",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Spremi kao...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Spremi",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Dodaj \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Predlošci",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Prikaži {0} stavke",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var croatianStrings = {
   filterShowResults: "Prikaži rezultate",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Novi predložak",
-  // [Auto-translated] "Name"
-  filterPresetName: "Naziv",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Sadrži",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Predložak s ovim imenom već postoji.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var croatianStrings = {
   filterPresetNoExpression: "Unesite izraz.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Izraz nije valjan.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Uredi kao izraz",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Uredi kao okvir za oznake",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Ovdje upišite izraz...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var croatianStrings = {
   filterPresetExpression: "{0} Izraz",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Uređivanje...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Pretraži u filterima",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ništa nije pronađeno, pokušajte s različitim ključnim riječima",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Kreirajte unaprijed postavljene postavke pomoću AI-a",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Uređivanje unaprijed postavljenih postavki pomoću AI-ja",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Na primjer, \"Kava i čaj iz Njemačke\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Kreiraj",
   // [Auto-translated] "Edit"
   filterAiEdit: "Uredi",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Stvarajući...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Uređivanje...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -106,7 +106,7 @@ describe("SurveyQuestionFilter", () => {
       ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
     });
     const input = container.querySelector(".sd-filter-modal__section input") as HTMLInputElement;
-    expect(input.getAttribute("placeholder"), "#0").toBe("Search in Filters");
+    expect(input.getAttribute("placeholder"), "#0").toBe("Search in filters and presets");
     act(() => {
       input.value = "zzz";
       Simulate.change(input);
@@ -137,13 +137,13 @@ describe("SurveyQuestionFilter", () => {
       // eslint-disable-next-line react/no-deprecated
       ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
     });
-    expect(container.querySelector(".sd-filter-modal__section-title").textContent, "#1").toBe("Presets");
+    expect(container.querySelector(".sd-filter-modal__section-title").textContent, "#1").toBe("Filter Presets");
     expect(container.textContent, "#2").toContain("Adults");
     expect(!!container.querySelector(".sd-filter-modal__section input"), "#3: the search box").toBe(true);
     expect(!!container.querySelector(".sd-filter-modal__editor"), "#4: the fields").toBe(true);
     expect([container.textContent.indexOf("Add New...") > -1, container.textContent.indexOf("Edit Selected...") > -1], "#4a").toEqual([true, false]);
     const section = container.querySelector(".sd-filter-modal__section[role='group']");
-    expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4b: the section is named by its title").toBe("Presets");
+    expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4b: the section is named by its title").toBe("Filter Presets");
     // A drawn action bar shows a change of its actions' visibility in a microtask (initResponsivityManager).
     await act(async () => { holder.modal.togglePreset(q.getItemByName("raw")); });
     const expression = container.querySelector(".sd-filter-modal__expression");
@@ -448,8 +448,8 @@ describe("The AI description of the preset dialogs", () => {
     const prompt = (): Element => page().querySelector(".sd-panel.sd-filter-ai-prompt");
     const fields = (): Array<string> => Array.from(page().querySelectorAll(".sd-filter-preset-dialog__fields .sd-panel__title"))
       .map((el: Element): string => el.textContent);
-    expect(prompt().querySelector(".sd-panel__title").textContent, "#1").toContain("Create preset with AI");
-    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#2").toContain("Create");
+    expect(prompt().querySelector(".sd-panel__title").textContent, "#1").toContain("Generate a filter with AI");
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#2").toContain("Generate Filter");
     expect(fields(), "#3: no fields yet").toEqual([]);
     act(() => {
       dialog.aiPrompt.prompt = "adults";

@@ -338,10 +338,6 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Сохранить",
   // [Auto-translated] "Filters"
-  filterFilters: "Фильтры",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Фильтры: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Фильтры",
   // [Auto-translated] "Search"
   filterSearchLabel: "Поиск",
@@ -355,16 +351,12 @@ export var russianSurveyStrings = {
   filterClearAll: "Очистить всё",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Очистить {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Пресет",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Сохранить как...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Сохранить",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Добавьте «{0}»...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Пресеты",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Показать {0} элементы",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var russianSurveyStrings = {
   filterShowResults: "Показать результаты",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Новый пресет",
-  // [Auto-translated] "Name"
-  filterPresetName: "Название",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Содержит",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Пресет с таким именем уже существует.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var russianSurveyStrings = {
   filterPresetNoExpression: "Вводите выражение.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Это выражение недействительно.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Редактировать как выражение",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Редактировать как Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Введите здесь выражение...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var russianSurveyStrings = {
   filterPresetExpression: "{0} Выражение",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Редактирование...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Поиск в фильтрах",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ничего не нашли, попробуй разные ключевые слова",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Создание пресета с помощью ИИ",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Редактирование пресета с помощью ИИ",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Например, «Кофе и чай из Германии»",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Создать",
   // [Auto-translated] "Edit"
   filterAiEdit: "Редактировать",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Создавая...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Монтаж...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -340,10 +340,6 @@ export var portugueseBrSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Salvar",
   // [Auto-translated] "Filters"
-  filterFilters: "Filtros",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtros: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filtros",
   // [Auto-translated] "Search"
   filterSearchLabel: "Buscar",
@@ -357,16 +353,12 @@ export var portugueseBrSurveyStrings = {
   filterClearAll: "Limpar tudo",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clare {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Preset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Salve como...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Salvar",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Adicione \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Mostrar {0} itens",
   // [Auto-translated] "Show 1 item"
@@ -375,10 +367,6 @@ export var portugueseBrSurveyStrings = {
   filterShowResults: "Mostrar resultados",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Novo preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nome",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Contém",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Um preset com esse nome já existe.",
   // [Auto-translated] "Add at least one condition."
@@ -387,10 +375,6 @@ export var portugueseBrSurveyStrings = {
   filterPresetNoExpression: "Insira uma expressão.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "A expressão não é válida.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Editar como Expressão",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Editar como Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Digite uma expressão aqui...",
   // [Auto-translated] "Edit Preset"
@@ -405,22 +389,12 @@ export var portugueseBrSurveyStrings = {
   filterPresetExpression: "{0} Expressão",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Pesquisar em Filtros",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nada encontrado, tente palavras-chave diferentes",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Crie predefinição com IA",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Editar predefinição com IA",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Por exemplo, \"Coffee & Tea from Germany\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Criar",
   // [Auto-translated] "Edit"
   filterAiEdit: "Editar",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Criando...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editando...",
   // [Auto-translated] "AI could not make a filter. Try again."

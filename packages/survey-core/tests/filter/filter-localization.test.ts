@@ -23,6 +23,8 @@ const xx = {
   filterDialogTitle: "Filterdialog",
   filterSearchLabel: "Suche",
   filterSearchPlaceholder: "Suche nach {0}",
+  filterSearchFieldsOr: "{0} oder {1}",
+  filterSearchFieldsOrLast: "{0} oder {1}",
   filterShowMore: "Mehr",
   filterShowLess: "Weniger",
   filterClearAll: "Alles leeren",
@@ -37,7 +39,8 @@ const xx = {
   filterShowResults: "Zeilen zeigen",
   filterAddPresetTitle: "Neue Vorlage",
   filterPresetName: "Bezeichnung",
-  filterPresetContains: "Enthaelt",
+  filterPresetFieldsLabel: "Felder",
+  filterPresetExpressionLabel: "Filterausdruck",
   filterPresetTitleExists: "Die gibt es schon.",
   filterPresetNoConditions: "Keine Bedingung.",
   filterPresetNoExpression: "Kein Ausdruck.",
@@ -121,21 +124,29 @@ describe("Filter localization: the rows", () => {
   });
   test("follow a locale change of the survey", () => {
     const q = control("");
-    expect(rowCaptions(q), "#1").toEqual(["Filters", "Filters", "Show More", "Save", "Save as...", "Clear All", "Preset"]);
+    expect(rowCaptions(q), "#1").toEqual(["All Filters", "All Filters", "Show More", "Save", "Save as...", "Clear All", "Filter Presets"]);
     (<SurveyModel>q.survey).locale = "filterxx";
     expect(rowCaptions(q), "#2").toEqual(["Filtern", "Filtern", "Mehr", "Speichern", "Speichern als...", "Alles leeren", "Vorlage"]);
     (<SurveyModel>q.survey).locale = "";
-    expect(rowCaptions(q), "#3").toEqual(["Filters", "Filters", "Show More", "Save", "Save as...", "Clear All", "Preset"]);
+    expect(rowCaptions(q), "#3").toEqual(["All Filters", "All Filters", "Show More", "Save", "Save as...", "Clear All", "Filter Presets"]);
   });
   test("a locale that does not translate them shows them in English", () => {
     const q = control("filteryy");
-    expect(rowCaptions(q)).toEqual(["Filters", "Filters", "Show More", "Save", "Save as...", "Clear All", "Preset"]);
+    expect(rowCaptions(q)).toEqual(["All Filters", "All Filters", "Show More", "Save", "Save as...", "Clear All", "Filter Presets"]);
   });
   test("the search box: its placeholder names the fields it searches, and its accessible name", () => {
     const q = control("filterxx", { showSearch: true, searchFields: ["age"] });
     expect([q.searchPlaceholder, q.searchLabel], "#1").toEqual(["Suche nach Alter", "Suche"]);
     (<SurveyModel>q.survey).locale = "";
     expect([q.searchPlaceholder, q.searchLabel], "#2").toEqual(["Search by Alter", "Search"]);
+  });
+  test("the search box's placeholder joins the fields with the locale's \"or\"", () => {
+    const q = control("filterxx", { showSearch: true, searchFields: ["country", "age"] });
+    expect(q.searchPlaceholder, "#1: two fields").toBe("Suche nach Land oder Alter");
+    q.searchFields = ["country", "category", "age"];
+    expect(q.searchPlaceholder, "#2: three fields").toBe("Suche nach Land, category oder Alter");
+    (<SurveyModel>q.survey).locale = "filteryy";
+    expect(q.searchPlaceholder, "#3: no translation").toBe("Search by Land, category, or Alter");
   });
 });
 
@@ -198,12 +209,12 @@ describe("Filter localization: the Filters dialog", () => {
 });
 
 describe("Filter localization: the preset dialogs", () => {
-  test("New Preset: its title, the form's panels, Edit as Expression and the checks", () => {
+  test("New Preset: its title, the form's panels, Switch to Expression and the checks", () => {
     const q = control("filterxx");
     const dialog = q.createAddPresetDialog([]);
     const contains = <PanelModel>dialog.form.getPanelByName("contains");
     expect([dialog.title, (<PanelModel>dialog.form.getPanelByName("presetName")).title, contains.title], "#1")
-      .toEqual(["Neue Vorlage", "Bezeichnung", "Enthaelt"]);
+      .toEqual(["Neue Vorlage", "Bezeichnung", "Felder"]);
     const toText = (<Array<Action>>contains.getTitleActions()).filter((a: Action) => a.id === "sv-filter-preset-edit-as-text")[0];
     expect(toText.title, "#2").toBe("Als Ausdruck");
     dialog.form.validate();
@@ -211,7 +222,8 @@ describe("Filter localization: the preset dialogs", () => {
     toText.action();
     const expression = <PanelModel>dialog.form.getPanelByName("expression");
     const toFields = (<Array<Action>>expression.getTitleActions()).filter((a: Action) => a.id === "sv-filter-preset-edit-as-fields")[0];
-    expect([toFields.title, dialog.form.getQuestionByName("expression").placeholder], "#4").toEqual(["Als Tagbox", "Ausdruck..."]);
+    expect([expression.title, toFields.title, dialog.form.getQuestionByName("expression").placeholder], "#4")
+      .toEqual(["Filterausdruck", "Als Tagbox", "Ausdruck..."]);
     dialog.dispose();
   });
   test("Edit Preset: its title and Delete", () => {

@@ -338,10 +338,6 @@ export var hungarianSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Mentés",
   // [Auto-translated] "Filters"
-  filterFilters: "Szűrők",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Szűrők: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Szűrők",
   // [Auto-translated] "Search"
   filterSearchLabel: "Keresés",
@@ -355,16 +351,12 @@ export var hungarianSurveyStrings = {
   filterClearAll: "Összes törlése",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Tiszta {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Előbeállítás",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Mentsd el...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Mentés",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Adj hozzá \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Előbeállítások",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Elem {0} megjelenítése",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var hungarianSurveyStrings = {
   filterShowResults: "Eredmények megjelenítése",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Új előbeállítás",
-  // [Auto-translated] "Name"
-  filterPresetName: "Név",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Tartalmazza",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Ezzel a nevével már létezik egy előbeállítás.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var hungarianSurveyStrings = {
   filterPresetNoExpression: "Adjon meg egy kifejezést.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "A kifejezés nem érvényes.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Szerkesztés kifejezésként",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Szerkesztés Tagboxként",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Írjon be ide egy kifejezést...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var hungarianSurveyStrings = {
   filterPresetExpression: "{0} kifejezés",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Szerkesztés...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Keresés a szűrőkben",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Semmit sem találtam, próbálj ki más kulcsszavakat",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Előbeállítás létrehozása AI-val",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Előbeállítás szerkesztése AI-val",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Például a \"Kávé és Tea Németországból\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Létrehozás",
   // [Auto-translated] "Edit"
   filterAiEdit: "Szerkesztés",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Alkotni...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Szerkesztés...",
   // [Auto-translated] "AI could not make a filter. Try again."

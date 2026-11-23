@@ -338,10 +338,6 @@ export var japaneseSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "保存",
   // [Auto-translated] "Filters"
-  filterFilters: "フィルター",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "フィルター:{0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "フィルター",
   // [Auto-translated] "Search"
   filterSearchLabel: "検索",
@@ -355,16 +351,12 @@ export var japaneseSurveyStrings = {
   filterClearAll: "すべてクリア",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "クリア{0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "プリセット",
   // [Auto-translated] "Save as..."
   filterSaveAs: "名前を付けて保存...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "保存",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "「{0}」を加えて...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "プリセット",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0}アイテムを表示",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var japaneseSurveyStrings = {
   filterShowResults: "結果を表示",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "新しいプリセット",
-  // [Auto-translated] "Name"
-  filterPresetName: "名称",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "含まれる",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "この名前のプリセットはすでに存在します。",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var japaneseSurveyStrings = {
   filterPresetNoExpression: "式を入力してください。",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "この式は有効ではありません。",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "式として編集",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "タグボックスとして編集",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "ここに式を入力してください...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var japaneseSurveyStrings = {
   filterPresetExpression: "{0}表現",
   // [Auto-translated] "Edit..."
   filterEditExpression: "編集...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "フィルターで検索",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "何も見つからない。別のキーワードを試してみてください。",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "AIでプリセットを作成",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AIでプリセットを編集",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "例えば、「ドイツ産のコーヒー&紅茶」など",
-  // [Auto-translated] "Create"
-  filterAiCreate: "作成",
   // [Auto-translated] "Edit"
   filterAiEdit: "編集",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "創造...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "編集中...",
   // [Auto-translated] "AI could not make a filter. Try again."

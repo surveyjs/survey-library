@@ -338,10 +338,6 @@ export var latvianSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Saglabāt",
   // [Auto-translated] "Filters"
-  filterFilters: "Filtri",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtri: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filtri",
   // [Auto-translated] "Search"
   filterSearchLabel: "Meklēšana",
@@ -355,16 +351,12 @@ export var latvianSurveyStrings = {
   filterClearAll: "Notīrīt visus",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Skaidrs {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Iepriekš iestatīts",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Izņemot kā...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Saglabāt",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Pievieno \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Iepriekšējie iestatījumi",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Rādīt {0} priekšmetus",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var latvianSurveyStrings = {
   filterShowResults: "Izstādes rezultāti",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Jauns priekšiestatījums",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nosaukums",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Satur",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Jau pastāv presets ar šo nosaukumu.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var latvianSurveyStrings = {
   filterPresetNoExpression: "Ienāk izteiciens.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Šis izteiciens nav derīgs.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Rediģēt kā izteiksmi",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Rediģēt kā tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Uzraksti izteiksmi šeit...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var latvianSurveyStrings = {
   filterPresetExpression: "{0} Izteiksme",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Rediģēt...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Meklēšana filtros",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nekas nav atrasts, izmēģini dažādus atslēgvārdus",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Izveido presetu ar mākslīgo intelektu",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Rediģēt iepriekš iestatītu ar AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Piemēram, \"Kafija un tēja no Vācijas\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Izveidot",
   // [Auto-translated] "Edit"
   filterAiEdit: "Rediģēt",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Radīju...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Montāža...",
   // [Auto-translated] "AI could not make a filter. Try again."

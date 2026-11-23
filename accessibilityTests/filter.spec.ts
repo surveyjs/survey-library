@@ -68,21 +68,21 @@ frameworks.forEach((framework) => {
     });
     test("the Filters dialog", async ({ page }) => {
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await page.locator(".sd-filter button[title='All Filters']").click();
       await expect(visiblePopup(page, ".sd-filter-modal__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-modal"), { axeOptions });
     });
     test("the Filters dialog: nothing found", async ({ page }) => {
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await page.locator(".sd-filter button[title='All Filters']").click();
       const dialog = visiblePopup(page, ".sd-filter-modal__content");
-      await dialog.getByRole("textbox", { name: "Search in Filters" }).fill("zzz");
+      await dialog.getByRole("textbox", { name: "Search in filters and presets" }).fill("zzz");
       await expect(dialog.locator(".sd-filter-modal__nothing-found")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-modal"), { axeOptions });
     });
     test("New Preset", async ({ page }) => {
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await page.locator(".sd-filter button[title='All Filters']").click();
       await visiblePopup(page, ".sd-filter-modal__content").getByRole("button", { name: "Add New..." }).click();
       await expect(visiblePopup(page, ".sd-filter-preset-dialog__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-preset-dialog"), { axeOptions });
@@ -90,7 +90,7 @@ frameworks.forEach((framework) => {
     test("Edit Preset", async ({ page }) => {
       // Adults is on, so its pill is picked: Edit Selected... opens it.
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await page.locator(".sd-filter button[title='All Filters']").click();
       await visiblePopup(page, ".sd-filter-modal__content").getByRole("button", { name: "Edit Selected..." }).click();
       await expect(visiblePopup(page, ".sd-filter-preset-dialog__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-preset-dialog"), { axeOptions });

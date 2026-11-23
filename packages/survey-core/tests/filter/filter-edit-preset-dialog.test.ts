@@ -206,11 +206,11 @@ describe("FilterEditPresetDialog: editing with AI", () => {
       .toEqual([{ filter: 0, uiState: 0 }, [{ field: "age", operator: "greater", value: 18 }], false]);
     dialog.dispose();
   });
-  test("with every field taken out there is nothing to change: Create asks for a new one", () => {
+  test("with every field taken out there is nothing to change: Generate asks for a new one", () => {
     const { dialog, calls } = open();
     pick(dialog, []);
     expect([picked(dialog), dialog.editor, dialog.aiPrompt.isModify, dialog.aiPrompt.requestAction.title, dialog.aiPrompt.promptTitle], "#1")
-      .toEqual([[], undefined, false, "Create", "Create preset with AI"]);
+      .toEqual([[], undefined, false, "Generate Filter", "Generate a filter with AI"]);
     dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     expect([calls[0].action, calls[0].userPrompt], "#2").toEqual(["generate", "adults"]);

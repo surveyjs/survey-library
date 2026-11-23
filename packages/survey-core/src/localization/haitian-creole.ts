@@ -340,10 +340,6 @@ export var haitianCreoleStrings = {
   // [Auto-translated] "Save"
   filterSave: "Sove",
   // [Auto-translated] "Filters"
-  filterFilters: "Filtè",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtè: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filtè",
   // [Auto-translated] "Search"
   filterSearchLabel: "Rechèch",
@@ -357,16 +353,12 @@ export var haitianCreoleStrings = {
   filterClearAll: "Efase Tout",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Klè {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Predefini",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Sove kòm...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Sove",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Ajoute \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Predefini",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Montre {0} atik yo",
   // [Auto-translated] "Show 1 item"
@@ -375,10 +367,6 @@ export var haitianCreoleStrings = {
   filterShowResults: "Montre rezilta yo",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nouvo Preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Fe-apel",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Gen ladan",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Yon preset ak non sa a deja egziste.",
   // [Auto-translated] "Add at least one condition."
@@ -387,10 +375,6 @@ export var haitianCreoleStrings = {
   filterPresetNoExpression: "Antre yon ekspresyon.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Ekspresyon an pa valab.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Modifye kòm Ekspresyon",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Modifye kòm Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Tape yon ekspresyon isit la...",
   // [Auto-translated] "Edit Preset"
@@ -405,22 +389,12 @@ export var haitianCreoleStrings = {
   filterPresetExpression: "{0} Ekspresyon",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Chèche nan Filtè yo",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Pa jwenn anyen, eseye diferan mo kle",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Kreye preset ak AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Modifye preset ak AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Pa egzanp, \"Kafe & Te soti Almay\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Kreye",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Kreyasyon...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Edite...",
   // [Auto-translated] "AI could not make a filter. Try again."

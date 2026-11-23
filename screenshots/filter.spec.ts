@@ -33,11 +33,20 @@ const longColumns = (): Array<any> => {
 function chip(page: Page, text: string): Locator {
   return page.locator(".sd-filter__chip").filter({ hasText: text });
 }
+// On a phone the chips row scrolls sideways, and a click scrolls a chip out of sight into it first. The
+// row's scroll event comes a frame later and would close the popup the click has just opened: a dropdown
+// hides on a scroll where the device has no touch (PopupDropdownViewModel). The row is scrolled before
+// the click, and its event let pass.
+async function clickChipOnPhone(page: Page, text: string): Promise<void> {
+  await chip(page, text).scrollIntoViewIfNeeded();
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await chip(page, text).click();
+}
 function popupWith(page: Page, selector: string): Locator {
   return page.locator(".sv-popup__container").filter({ visible: true }).filter({ has: page.locator(selector) });
 }
 async function openFilters(page: Page): Promise<void> {
-  await page.locator(".sd-filter button[title='Filters']").click();
+  await page.locator(".sd-filter button[title='All Filters']").click();
   await popupWith(page, ".sd-filter-modal__content").waitFor({ state: "visible" });
 }
 // The pill of a preset in the Filters dialog, then Edit Selected...: Edit Preset of that preset.
@@ -219,10 +228,10 @@ frameworks.forEach(framework => {
       await openFilters(page);
       const modal = popupWith(page, ".sd-filter-modal__content");
       await waitForInputFocus(modal);
-      await modal.getByRole("textbox", { name: "Search in Filters" }).fill("germ");
+      await modal.getByRole("textbox", { name: "Search in filters and presets" }).fill("germ");
       await settle(page);
       await compareScreenshot(page, modal, "filter-modal-search.png");
-      await modal.getByRole("textbox", { name: "Search in Filters" }).fill("zzz");
+      await modal.getByRole("textbox", { name: "Search in filters and presets" }).fill("zzz");
       await modal.locator(".sd-filter-modal__nothing-found").waitFor({ state: "visible" });
       await settle(page);
       await compareScreenshot(page, modal, "filter-modal-search-empty.png");
@@ -265,7 +274,7 @@ frameworks.forEach(framework => {
     });
     test("on a phone: a chip's popup", async ({ page }) => {
       await initPhone(page);
-      await chip(page, "Country").click();
+      await clickChipOnPhone(page, "Country");
       await settle(page);
       await compareScreenshot(page, popupWith(page, ".sd-filter-popup"), "filter-popup-mobile.png");
     });

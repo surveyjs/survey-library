@@ -969,7 +969,16 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get searchPlaceholder(): string {
     const titles = this.getSearchFields().map(getFilterFieldTitle);
     if (titles.length === 0) return this.getLocalizationString("filterStringPlaceholder");
-    return this.getLocalizationString("filterSearchPlaceholder").replace("{0}", titles.join(", "));
+    return this.getLocalizationFormatString("filterSearchPlaceholder", this.joinSearchTitles(titles));
+  }
+  // "A", "A or B", "A, B, or C": the dictionary joins the last title, so a locale puts its own
+  // punctuation before "or". format() fills the placeholders in one pass: a "{1}" or "$&" in a title
+  // stays as it is.
+  private joinSearchTitles(titles: Array<string>): string {
+    if (titles.length === 1) return titles[0];
+    const last = titles[titles.length - 1];
+    if (titles.length === 2) return this.getLocalizationFormatString("filterSearchFieldsOr", titles[0], last);
+    return this.getLocalizationFormatString("filterSearchFieldsOrLast", titles.slice(0, -1).join(", "), last);
   }
   // The advanced editor as a dialog; with no dialog host (no survey rendered) this opens nothing.
   public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }

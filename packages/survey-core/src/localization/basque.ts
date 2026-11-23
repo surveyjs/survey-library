@@ -338,10 +338,6 @@ export var basqueSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Gorde",
   // [Auto-translated] "Filters"
-  filterFilters: "Iragazkiak",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Iragazkiak: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Iragazkiak",
   // [Auto-translated] "Search"
   filterSearchLabel: "Bilatu",
@@ -355,16 +351,12 @@ export var basqueSurveyStrings = {
   filterClearAll: "Denak garbitu",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Garbi {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Aurrez ezarrita",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Gorde gisa...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Gorde",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Gehitu \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Aurrezarpenak",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Erakutsi {0} elementuak",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var basqueSurveyStrings = {
   filterShowResults: "Emaitzak erakutsi",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Aurrezarpen berria",
-  // [Auto-translated] "Name"
-  filterPresetName: "Izena",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Dauka",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Izen horrekin aurrezarpen bat dagoeneko existitzen da.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var basqueSurveyStrings = {
   filterPresetNoExpression: "Sartu adierazpen bat.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Adierazpena ez da baliozkoa.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Adierazpen gisa editatu",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Editatu Tagbox gisa",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Idatzi adierazpen bat hemen...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var basqueSurveyStrings = {
   filterPresetExpression: "{0} Adierazpena",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Editatu...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Bilatu iragazkietan",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ez da ezer aurkitu, saiatu gako-hitz desberdinak",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Sortu aurrezarpena AI-rekin",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Editatu aurrezarpena AI-rekin",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Adibidez, \"Alemaniako Kafea eta Tea\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Sortu",
   // [Auto-translated] "Edit"
   filterAiEdit: "Editatu",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Sortzen...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editatzen...",
   // [Auto-translated] "AI could not make a filter. Try again."

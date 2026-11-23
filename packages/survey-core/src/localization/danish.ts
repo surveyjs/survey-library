@@ -338,10 +338,6 @@ export var danishSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Gem",
   // [Auto-translated] "Filters"
-  filterFilters: "Filtre",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtre: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"
   filterSearchLabel: "Søg",
@@ -355,16 +351,12 @@ export var danishSurveyStrings = {
   filterClearAll: "Ryd alt",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clear {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Forudindstilling",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Gem som...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Gem",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Tilføj \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Vis {0} elementer",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var danishSurveyStrings = {
   filterShowResults: "Vis resultater",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nyt forudindstilling",
-  // [Auto-translated] "Name"
-  filterPresetName: "Navn",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Indeholder",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Et preset med dette navn eksisterer allerede.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var danishSurveyStrings = {
   filterPresetNoExpression: "Indtast et udtryk.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Udtrykket er ikke gyldigt.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Rediger som udtryk",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Rediger som Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Skriv et udtryk her...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var danishSurveyStrings = {
   filterPresetExpression: "{0} Udtryk",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Rediger...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Søg i filtre",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Intet fundet, prøv forskellige søgeord",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Opret forudindstilling med AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Rediger forudindstilling med AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "For eksempel \"Kaffe & Te fra Tyskland\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Opret",
   // [Auto-translated] "Edit"
   filterAiEdit: "Rediger",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "At skabe...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redigering...",
   // [Auto-translated] "AI could not make a filter. Try again."

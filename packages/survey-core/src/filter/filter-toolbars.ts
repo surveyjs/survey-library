@@ -124,8 +124,8 @@ export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 //   row;
 // - the search row: Filters, next to the search box.
 // A badge with a condition has a cross that clears it (FilterChip), one without has the chevron of
-// its popup. The presets are one chip that opens their list: "Preset" while none is on, the active
-// preset's title and a cross that turns it off otherwise. The badges show the active preset's
+// its popup. The presets are one chip that opens their list: "Filter Presets" while none is on, the
+// active preset's title and a cross that turns it off otherwise. The badges show the active preset's
 // conditions and stay editable: an edit - a cross too - turns the preset off and keeps them
 // (QuestionFilterModel.editConditions). Only a preset with no conditions to show locks the badges
 // (QuestionFilterModel.isLocked): no chevron or cross, no popup, and a click turns the preset off.
@@ -614,8 +614,8 @@ export class FilterToolbars {
     }
     return this.filtersAction;
   }
-  // "Filters", or "Filters: 3" with conditions; a phone's search row has room for the icon and the
-  // number only.
+  // "All Filters", or "All Filters: 3" with conditions; a phone's search row has room for the icon
+  // and the number only.
   private updateFiltersAction(): void {
     const action = this.filtersAction;
     if (!action) return;

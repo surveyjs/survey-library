@@ -338,10 +338,6 @@ export var czechSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Uložit",
   // [Auto-translated] "Filters"
-  filterFilters: "Filtry",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtry: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filtry",
   // [Auto-translated] "Search"
   filterSearchLabel: "Hledat",
@@ -355,16 +351,12 @@ export var czechSurveyStrings = {
   filterClearAll: "Vymazat vše",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Vyčistit {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Přednastavení",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Uložit jako...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Uložit",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Přidejte \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Přednastavení",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Zobrazit {0} položky",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var czechSurveyStrings = {
   filterShowResults: "Zobrazit výsledky",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nové přednastavení",
-  // [Auto-translated] "Name"
-  filterPresetName: "Jméno",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Obsahuje",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Přednastavení s tímto názvem již existuje.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var czechSurveyStrings = {
   filterPresetNoExpression: "Zadejte výraz.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Tento výraz není platný.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Upravit jako výraz",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Upravit jako tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Zadejte zde výraz...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var czechSurveyStrings = {
   filterPresetExpression: "{0} Výraz",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Hledat ve filtrech",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nic nenalezeno, zkuste různá klíčová slova",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Vytvořte přednastavení pomocí AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Úprava přednastavení pomocí AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Například \"Káva a čaj z Německa\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Vytvořit",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Tvořící...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Úpravy...",
   // [Auto-translated] "AI could not make a filter. Try again."

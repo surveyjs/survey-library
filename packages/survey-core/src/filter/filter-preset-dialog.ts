@@ -65,7 +65,7 @@ export interface IFilterPresetBuffer {
 // The New Preset dialog: the preset's name and what it contains - a tagbox of the fields, in the order
 // they were picked - and the fields' editors under it, in the form of their kinds as in the Filters
 // dialog - or, for a preset edited as text, the text in place of the tagbox (FilterExpressionPanel),
-// "Edit as Expression" and "Edit as Tagbox" in the titles switching between the two. Two surveys: the
+// "Switch to Expression" and "Switch to Fields" in the titles switching between the two. Two surveys: the
 // form (the name and the tagbox or the text), made anew for every preset shown, and the dialog's
 // survey (survey), which lives as long as the dialog: the fields' FilterConditionsEditor adds its
 // panels to its "fields" panel - the frame - and is made anew whenever the set of fields changes,
@@ -214,7 +214,7 @@ export class FilterPresetDialog extends Base {
   // Called after every change the respondent makes in the form or the editors, and after an AI answer.
   protected onChanged(): void { }
 
-  // The tagbox of Contains; none while the preset is edited as text.
+  // The fields' tagbox; none while the preset is edited as text.
   private get fieldsQuestion(): Question { return !!this.form ? this.form.getQuestionByName("presetFields") : undefined; }
   // The fields the tagbox picks, in the order they were picked.
   private getPickedKeys(): Array<string> {
@@ -268,14 +268,14 @@ export class FilterPresetDialog extends Base {
     }
   }
   private createForm(): SurveyModel {
-    // The title in a panel of its own, as Contains is: a question that is not in a panel gets a frame,
-    // and the mockup has none.
+    // The title in a panel of its own, as the fields' tagbox is: a question that is not in a panel gets
+    // a frame, and the mockup has none.
     const elements: Array<any> = [{ type: "panel", name: "presetName", title: this.getString("filterPresetName"), elements: [
       { type: "text", name: "presetTitle", titleLocation: "hidden", maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }];
     if (this.buffer.conditions !== null) {
       // The tagbox's hidden title is its accessible name.
-      elements.push({ type: "panel", name: "contains", title: this.getString("filterPresetContains"), elements: [
-        { type: "tagbox", name: "presetFields", title: this.getString("filterPresetContains"), titleLocation: "hidden",
+      elements.push({ type: "panel", name: "contains", title: this.getString("filterPresetFieldsLabel"), elements: [
+        { type: "tagbox", name: "presetFields", title: this.getString("filterPresetFieldsLabel"), titleLocation: "hidden",
           choices: this.getFieldChoices() }] });
     }
     // Before the elements exist: a panel asks for its title actions when it is first drawn.
@@ -290,7 +290,7 @@ export class FilterPresetDialog extends Base {
     }
     form.setValue("presetTitle", this.buffer.title);
     if (this.buffer.conditions === null) {
-      this.expressionPanel = new FilterExpressionPanel(form, this.buffer.expression || "", { title: this.getString("filterPresetContains"),
+      this.expressionPanel = new FilterExpressionPanel(form, this.buffer.expression || "", { title: this.getString("filterPresetExpressionLabel"),
         readOnly: this.isReadOnly, index: form.pages[0].elements.length, onChanged: (): void => { this.updateCanEditAsFields(); } });
     }
     if (this.buffer.conditions !== null) {
@@ -307,8 +307,8 @@ export class FilterPresetDialog extends Base {
     });
     return form;
   }
-  // "Edit as Expression" in the title of Contains, "Edit as Tagbox" in the title of the text - a link,
-  // as Show More is - where the preset may be changed. One of each per form: a panel's title toolbar
+  // "Switch to Expression" in the title of the tagbox, "Switch to Fields" in the title of the text - a
+  // link, as Show More is - where the preset may be changed. One of each per form: a panel's title toolbar
   // disposes its actions with the form.
   private addModeAction(options: any): void {
     if (this.isReadOnly) return;

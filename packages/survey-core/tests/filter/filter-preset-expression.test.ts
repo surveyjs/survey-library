@@ -7,7 +7,7 @@ import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 
 // New Preset and Edit Preset: a preset that does not decompose is edited as text, and any other
-// may be ("Edit as Expression"); a text of the fields' kind goes back to the tagbox ("Edit as Tagbox").
+// may be ("Switch to Expression"); a text of the fields' kind goes back to the tagbox ("Switch to Fields").
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" },
@@ -43,21 +43,21 @@ function trackEvents(q: QuestionFilterModel): { filter: number, uiState: number 
 }
 
 describe("New Preset: a preset as text", () => {
-  test("a text that does not decompose opens in place of Contains", () => {
+  test("a text that does not decompose opens in place of the tagbox", () => {
     const dialog = control().createAddPresetDialog([], "{age} < 5 or {age} > 90");
     expect([panels(dialog), text(dialog), dialog.isTextMode, dialog.editor, dialog.canEditAsFields], "#1")
       .toEqual([["presetName", "expression"], "{age} < 5 or {age} > 90", true, undefined, false]);
-    expect((<PanelModel>dialog.form.getPanelByName("expression")).title, "#2").toBe("Contains");
+    expect((<PanelModel>dialog.form.getPanelByName("expression")).title, "#2").toBe("Filter expression");
     dialog.dispose();
   });
-  test("Edit as Expression shows the fields' conditions as text; Edit as Tagbox takes a text of their kind back", () => {
+  test("Switch to Expression shows the fields' conditions as text; Switch to Fields takes a text of their kind back", () => {
     const dialog = control().createAddPresetDialog([{ field: "age", operator: "greater", value: 18 }]);
     const toText = titleActions(dialog, "contains").filter((a: Action): boolean => a.id === "sv-filter-preset-edit-as-text")[0];
-    expect([toText.title, toText.enabled !== false], "#1").toEqual(["Edit as Expression", true]);
+    expect([toText.title, toText.enabled !== false], "#1").toEqual(["Switch to Expression", true]);
     toText.action();
     expect([panels(dialog), text(dialog), dialog.canEditAsFields], "#2").toEqual([["presetName", "expression"], "{age} > 18", true]);
     const toFields = titleActions(dialog, "expression").filter((a: Action): boolean => a.id === "sv-filter-preset-edit-as-fields")[0];
-    expect(toFields.title, "#2a").toBe("Edit as Tagbox");
+    expect(toFields.title, "#2a").toBe("Switch to Fields");
     setText(dialog, "{age} > 1 or {age} < 0");
     expect([dialog.canEditAsFields, toFields.enabled], "#3: not while the text is no list of the fields' conditions").toEqual([false, false]);
     dialog.editAsFields();

@@ -338,10 +338,6 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Save"
   filterSave: "Kaydet",
   // [Auto-translated] "Filters"
-  filterFilters: "Filtreler",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtreler: {0}",
-  // [Auto-translated] "Filters"
   filterDialogTitle: "Filtreler",
   // [Auto-translated] "Search"
   filterSearchLabel: "Ara",
@@ -355,16 +351,12 @@ export var turkishSurveyStrings = {
   filterClearAll: "Tümünü Temizle",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Temiz {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Ön ayar",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Kaydet...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Kaydet",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\" ekle...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Ön ayarlar",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} öğeleri göster",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +365,6 @@ export var turkishSurveyStrings = {
   filterShowResults: "Sonuçları göster",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Yeni Ön Ayar",
-  // [Auto-translated] "Name"
-  filterPresetName: "İsim",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "İçeriği",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Bu isimde bir ön ayar zaten mevcut.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +373,6 @@ export var turkishSurveyStrings = {
   filterPresetNoExpression: "Bir ifade girin.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "İfade geçerli değil.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "İfade olarak düzenle",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Etiket kutusu olarak düzenle",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Buraya bir ifade yazın...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +387,12 @@ export var turkishSurveyStrings = {
   filterPresetExpression: "{0} İfadesi",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Düzenleme...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Filtrelerde Arama",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Hiçbir şey bulunamadı, farklı anahtar kelimeler deneyin",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Yapay zeka ile ön ayar oluşturun",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Yapay zeka ile ön ayarı düzenleyin",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Örneğin, \"Almanya'dan Kahve ve Çay\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Oluştur",
   // [Auto-translated] "Edit"
   filterAiEdit: "Düzenle",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Yaratmak...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Düzenleme...",
   // [Auto-translated] "AI could not make a filter. Try again."

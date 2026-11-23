@@ -46,18 +46,18 @@ describe("FilterToolbars: the chips row", () => {
     q.clearFieldCondition("age");
     expect([age.title, !!age.active], "#5").toEqual(["age", false]);
   });
-  test("the presets' chip: Preset with a star and a chevron; the active preset's title with a cross", () => {
+  test("the presets' chip: Filter Presets with a star and a chevron; the active preset's title with a cross", () => {
     const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }] });
     const chip = action(q.chipsToolbar, "sv-filter-preset");
     expect([chip.title, chip.iconName, chip.markerIconName, !!chip.active, chip.isClearable, chip.component], "#1")
-      .toEqual(["Preset", "icon-star-16x16", "icon-chevrondown-16x16", false, false, "sv-filter-chip"]);
+      .toEqual(["Filter Presets", "icon-star-16x16", "icon-chevrondown-16x16", false, false, "sv-filter-chip"]);
     q.toggleItem("adults");
     expect([chip.title, chip.markerIconName, chip.active, chip.isClearable], "#2").toEqual(["adults", undefined, true, true]);
     expect([chip.clearAction.id, chip.clearAction.ariaLabel], "#3").toEqual(["sv-filter-preset-clear", "Clear adults"]);
     q.items[0].title = "Adults";
     expect(chip.title, "#4: the active preset's title").toBe("Adults");
     chip.clearAction.action();
-    expect([q.activeItemName, chip.title, !!chip.active, chip.isClearable], "#5: the cross turns it off").toEqual(["", "Preset", false, false]);
+    expect([q.activeItemName, chip.title, !!chip.active, chip.isClearable], "#5: the cross turns it off").toEqual(["", "Filter Presets", false, false]);
   });
   test("the presets' list: a row per preset, the active one selected; a pick turns it on and closes the list", () => {
     const q = createFilter();
@@ -368,18 +368,18 @@ describe("FilterToolbars: Filters, Clear All and Save", () => {
   test("Filters counts the conditions the filter is made of", () => {
     const q = createFilter({ items: [{ name: "two", expression: "{age} > 18 and {country} = 'de'" }] });
     const filters = action(q.chipsToolbar, "sv-filter-filters");
-    expect([filters.title, filters.iconName], "#1").toEqual(["Filters", "icon-filter-16x16"]);
+    expect([filters.title, filters.iconName], "#1").toEqual(["All Filters", "icon-filter-16x16"]);
     q.toggleItem("two");
-    expect(filters.title, "#2").toBe("Filters: 2");
+    expect(filters.title, "#2").toBe("All Filters: 2");
     q.clearActiveItem();
     q.setFieldCondition("name", "contains", "an");
-    expect(filters.title, "#3").toBe("Filters: 1");
+    expect(filters.title, "#3").toBe("All Filters: 1");
   });
   test("on a phone without a search box Filters keeps its caption in the chips row", () => {
     const q = createFilter();
     q.isMobile = true;
     q.setFieldCondition("name", "contains", "an");
-    expect(action(q.chipsToolbar, "sv-filter-filters").title).toBe("Filters: 1");
+    expect(action(q.chipsToolbar, "sv-filter-filters").title).toBe("All Filters: 1");
   });
   test("on a phone the search row's Filters shows the icon and the number only", () => {
     const q = createFilter({ showSearch: true });
@@ -641,11 +641,17 @@ describe("QuestionFilterModel: what the renderer shows besides the toolbars", ()
   test("the search box's placeholder names the fields it searches", () => {
     const q = createFilter({ showSearch: true, fields: [{ name: "name", title: "Product" },
       { name: "country", title: "Country", fieldType: "dropdown", choices: ["de"] }, { name: "age", fieldType: "text", inputType: "number" }] });
-    expect(q.searchPlaceholder, "#1: every field").toBe("Search by Product, Country, age");
+    expect(q.searchPlaceholder, "#1: every field").toBe("Search by Product, Country, or age");
     q.searchFields = ["country", "name"];
-    expect(q.searchPlaceholder, "#2: the searchFields, in their order").toBe("Search by Country, Product");
+    expect(q.searchPlaceholder, "#2: the searchFields, in their order").toBe("Search by Country or Product");
+    q.searchFields = ["country"];
+    expect(q.searchPlaceholder, "#3: one field").toBe("Search by Country");
     q.searchFields = ["nosuchfield"];
-    expect(q.searchPlaceholder, "#3: no field to name, the library's own").toBe("Type to search...");
+    expect(q.searchPlaceholder, "#4: no field to name, the library's own").toBe("Type to search...");
+  });
+  test("the search box's placeholder keeps the fields' titles as they are", () => {
+    const q = createFilter({ showSearch: true, fields: [{ name: "size", title: "Size {1}" }, { name: "cost", title: "Cost $&" }] });
+    expect(q.searchPlaceholder).toBe("Search by Size {1} or Cost $&");
   });
   test("a locale change retitles the presets and the badges", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1",

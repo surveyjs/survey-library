@@ -1,16 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
-import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
+import { DEFINITION_PATH, definitionRelated } from "./variable-preset";
 
 const reasons = SurveyLintReasons["variable/dotted-key"];
-
-// The definition is addressed coarsely, as variable/collision addresses it: the path names the
-// definition, elementName the element in it.
-const DEFINITION_PATH = "variablePresets.definition";
-
-function definitionRelated(elementName: string): Array<ILintRelated> {
-  return [{ path: DEFINITION_PATH, elementName: elementName }];
-}
 
 // A variable key holds no dot: a host variable works like a JavaScript variable or property, and a
 // path such as {users.tier} is then always one key per segment. The companion does not declare a

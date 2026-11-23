@@ -11,14 +11,19 @@ const reasons = SurveyLintReasons["variable/preset"];
 // them rather than at "pages[...]". A finding's own path always addresses the linted document
 // everywhere else; here the linted document is not where the defect is.
 const ROOT_PATH = "variablePresets";
-const DEFINITION_PATH = ROOT_PATH + ".definition";
+// The definition is a document of its own, and the companion holds it as a model rather than as
+// JSON paths, so a finding addresses it coarsely: the path names the definition, elementName the
+// element in it. Computing "pages[i].elements[j]" out of the model's structure is not worth the
+// code for a pointer a UI resolves by name anyway - and a host that handed in a model has no JSON
+// document for such a path to address in the first place.
+export const DEFINITION_PATH = ROOT_PATH + ".definition";
 
 function presetPath(index: number): string {
   return ROOT_PATH + ".presets[" + index + "]";
 }
 
-function definitionRelated(questionName: string): Array<ILintRelated> {
-  return [{ path: DEFINITION_PATH, elementName: questionName }];
+export function definitionRelated(elementName: string): Array<ILintRelated> {
+  return [{ path: DEFINITION_PATH, elementName: elementName }];
 }
 
 // The same notion of "an object" the core companion applies: a dictionary built with

@@ -1,4 +1,4 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionFactory, FunctionOperand, getBuiltInVariableNames, IExpressionError, IQuestionValueTypeInfo, isReturnColumnParam, Operand, parseValuePath, UnaryOperand, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionFactory, FunctionOperand, getBuiltInVariableNames, getNameOfSuffixedKey, IExpressionError, IQuestionValueTypeInfo, isReturnColumnParam, Operand, parseValuePath, UnaryOperand, Variable } from "survey-core";
 import { FUNCTION_NAME_ARGS, FunctionArgNameScope } from "./catalog";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
@@ -132,21 +132,12 @@ export function equalsCI(a: string, b: string): boolean {
   return !!a && !!b && a.toLowerCase() === b.toLowerCase();
 }
 
-// The comment and totals keys are matched case-insensitively, the way an expression resolves a
-// name, so stripCommentSuffix / stripTotalsSuffix do not call the core's case-sensitive
-// Helpers.getNameOfCommentKey. The rest of the rule is the core's: a name that is only the
-// suffix is not a key.
-function endsWithCI(text: string, suffix: string): boolean {
-  return !!suffix && text.length > suffix.length && text.toLowerCase().endsWith(suffix.toLowerCase());
-}
-
 // The runtime stores a question's comment under name + settings.commentSuffix and
 // exposes that key next to the value - in the survey data, in a matrix row and in a
 // dynamic-panel value alike. Returns the base name, or undefined when the suffix is absent.
+// Matched case-insensitively, the way an expression resolves a name.
 export function stripCommentSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
-  const suffix = lintSettings.commentSuffix;
-  if (!endsWithCI(name, suffix)) return undefined;
-  return name.substring(0, name.length - suffix.length);
+  return getNameOfSuffixedKey(name, lintSettings.commentSuffix, true);
 }
 
 // Whether a name is the comment key of an element of a row/panel object. The comment lives next
@@ -159,11 +150,9 @@ export function isCommentKeyOf(name: string, map: CIMultiMap<ElementRecord>, lin
 
 // A matrix writes its total row next to its value under getValueName() +
 // settings.matrix.totalsSuffix (onTotalValueChanged). Returns the base name, or undefined when
-// the suffix is absent.
+// the suffix is absent. Matched case-insensitively, the way an expression resolves a name.
 export function stripTotalsSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
-  const suffix = lintSettings.matrixTotalsSuffix;
-  if (!endsWithCI(name, suffix)) return undefined;
-  return name.substring(0, name.length - suffix.length);
+  return getNameOfSuffixedKey(name, lintSettings.matrixTotalsSuffix, true);
 }
 
 // The element of a row/panel object a totals key names ({panel.matrix1-total.col1}). The record

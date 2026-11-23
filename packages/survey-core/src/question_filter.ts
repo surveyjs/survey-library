@@ -1553,7 +1553,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.cancelScheduledApply();
     this.applyTimer = setTimeout((): void => {
       this.applyTimer = undefined;
-      if (this.isDisposed || this.attachedTarget !== target) return;
+      // A disposed target has no list left to write into (see detachFromTarget).
+      if (this.isDisposed || this.attachedTarget !== target || target.isDisposed === true) return;
       if (this.combinedExpression === this.lastAppliedExpression) return;
       this.applyToTarget();
     }, delay);
@@ -1704,7 +1705,7 @@ export class QuestionFilterModel extends QuestionNonValue {
         this.searchFields = [].concat(filter.searchFields);
       }
       this.dropUnresolvedSelection();
-    });
+    }, false, true);
     // Presets the respondent added or deleted change the chips with no property of the control
     // changing - the expression may read the same - so nothing else would redraw the row. A restore
     // still waiting for the bound target is redrawn as the target attaches (updateFilterTarget).
@@ -1875,7 +1876,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   // reported once; with raiseUIState, onUIStateChanged is raised once if anything in fn would have
   // raised it. A restore passes no raiseUIState; an editor that applies several edits as one does.
   // A nested call runs inside the outer batch and leaves the single write to it.
-  private runBatch(fn: () => void, raiseUIState?: boolean): void {
+  // applyAtOnce: a restore is not the respondent's change - its write is not debounced (scheduleApplyToTarget).
+  private runBatch(fn: () => void, raiseUIState?: boolean, applyAtOnce?: boolean): void {
     if (this.batchLevel > 0) {
       fn();
       return;
@@ -1892,7 +1894,11 @@ export class QuestionFilterModel extends QuestionNonValue {
     // own, before the write below - two writes and two events for one batch.
     this.updateFilterExpression(true);
     if (this.combinedExpression !== oldExpression) {
-      this.scheduleApplyToTarget();
+      if (applyAtOnce) {
+        this.applyToTarget();
+      } else {
+        this.scheduleApplyToTarget();
+      }
     }
     if (raiseUIState && isUIStateChanged) {
       this.raiseUIStateChanged();

@@ -90,6 +90,18 @@ describe("Filter Control over a remote source: every write is debounced", () => 
     vi.advanceTimersByTime(300);
     expect(writes.m, "#1: only the detach").toEqual([""]);
   });
+  test("a pending write is dropped when the source question is disposed", async () => {
+    const { survey, control, writes } = await setUp();
+    control.searchString = "v1";
+    survey.getQuestionByName("m").dispose();
+    vi.advanceTimersByTime(300);
+    expect(writes.m, "#1: nothing is written into a disposed question").toEqual([]);
+  });
+  test("restoring the saved state writes at once: it is not a respondent's change", async () => {
+    const { survey, writes } = await setUp();
+    survey.uiState = { questions: { f: { filter: { selectedPreset: "small" } } } };
+    expect(writes.m, "#1").toEqual(["{col2} < 3"]);
+  });
   test("settings.filterApplyDelay = 0 writes at once", async () => {
     settings.filterApplyDelay = 0;
     const { control, writes } = await setUp();

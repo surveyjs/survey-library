@@ -6,8 +6,17 @@
     <div *ngIf="model.sortBarLocation === 'top'" [class]="model.cssClasses.sortBarTop">
       <sv-ng-action-bar [model]="model.recordsBar.sortActions"></sv-ng-action-bar>
     </div>
-    <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
-    <sv-ng-placeholder-matrixdynamic *ngIf="!model.renderedTable.showTable" [question]="model"></sv-ng-placeholder-matrixdynamic>
+    <ng-template #recordsContent>
+      <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
+      <sv-ng-placeholder-matrixdynamic *ngIf="model.showNoRowsPlaceholder" [question]="model"></sv-ng-placeholder-matrixdynamic>
+    </ng-template>
+    <div *ngIf="model.isDataSourceAssigned" [class]="model.getRecordsContentCss()">
+      <div [class]="model.cssClasses.recordsBody" [attr.aria-busy]="model.isDataLoading ? 'true' : null" [attr.inert]="model.isDataLoading ? '' : null">
+        <ng-container [ngTemplateOutlet]="recordsContent"></ng-container>
+      </div>
+      <sv-ng-records-loading-overlay *ngIf="model.isDataLoading" [question]="model"></sv-ng-records-loading-overlay>
+    </div>
+    <ng-container *ngIf="!model.isDataSourceAssigned" [ngTemplateOutlet]="recordsContent"></ng-container>
     <div *ngIf="model.showPager || model.getShowToolbar('bottom')" [class]="model.cssClasses.footerBar">
       <sv-ng-action-bar *ngIf="model.getShowToolbar('bottom')" [model]="model.toolbar"></sv-ng-action-bar>
       <sv-ng-action-bar *ngIf="model.showPager" [model]="model.recordsBar.pagerActions"></sv-ng-action-bar>

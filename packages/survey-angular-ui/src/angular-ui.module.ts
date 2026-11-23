@@ -134,6 +134,7 @@ import { NotifierComponent } from "./components/notifier/notifier.component";
 import { ComponentsContainerComponent } from "./components-container.component";
 import { MultipleTextRowComponent } from "./questions/multipletextrow.component";
 import { LoadingIndicatorComponent } from "./components/loading-indicator/loading-indicator.component";
+import { RecordsLoadingOverlayComponent } from "./components/records-loading-overlay/records-loading-overlay.component";
 import { HeaderComponent } from "./components/header/header.component";
 import { HeaderCellComponent } from "./components/header/header-cell.component";
 import { HeaderMobileComponent } from "./components/header/header-mobile.component";
@@ -168,7 +169,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, MatrixHeaderSortButtonComponent, ExpressionComponent, QuestionViewComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent, QuestionHintComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, RecordsLoadingOverlayComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
     BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent, ImageMapQuestionComponent, SvgIconRegisteredComponent
   ],
   imports: [
@@ -195,7 +196,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, MatrixHeaderSortButtonComponent, ExpressionComponent, QuestionViewComponent, SafeResourceUrlPipe,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, RecordsLoadingOverlayComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
     BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent, ImageMapQuestionComponent, SvgIconRegisteredComponent
   ],
   providers: [PopupService],

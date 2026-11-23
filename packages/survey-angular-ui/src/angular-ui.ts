@@ -132,6 +132,7 @@ export * from "./questions/composite.component";
 export * from "./base-angular";
 export * from "./component-depth";
 export * from "./components/loading-indicator/loading-indicator.component";
+export * from "./components/records-loading-overlay/records-loading-overlay.component";
 export * from "./components/header/header.component";
 export * from "./components/header/header-cell.component";
 export * from "./components/header/header-mobile.component";

@@ -6,25 +6,34 @@
     <div *ngIf="model.sortBarLocation === 'top'" [class]="model.cssClasses.sortBarTop">
       <sv-ng-action-bar [model]="model.recordsBar.sortActions"></sv-ng-action-bar>
     </div>
-    <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
-    <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
-      <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"
-      role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
-      ></div>
-    </div>
-    <div [class]="model.cssClasses.panelsContainer">
-      <ng-container *ngFor="let panel of model.renderedPanels; index as index; trackBy: trackPanelBy">
-        <div [class]="model.getPanelWrapperCss(panel)">
-          <ng-template
-            [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
-          <ng-container *ngIf="model.canRenderRemovePanelOnRight(panel)">
+    <ng-template #recordsContent>
+      <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
+      <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
+        <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"
+        role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
+        ></div>
+      </div>
+      <div [class]="model.cssClasses.panelsContainer">
+        <ng-container *ngFor="let panel of model.renderedPanels; index as index; trackBy: trackPanelBy">
+          <div [class]="model.getPanelWrapperCss(panel)">
             <ng-template
-              [component]="{ name: 'sv-action', data: { model: model.getRemovePanelAction(panel)}}"></ng-template>
-          </ng-container>
-        </div>
-        <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
-      </ng-container>
+              [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
+            <ng-container *ngIf="model.canRenderRemovePanelOnRight(panel)">
+              <ng-template
+                [component]="{ name: 'sv-action', data: { model: model.getRemovePanelAction(panel)}}"></ng-template>
+            </ng-container>
+          </div>
+          <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
+        </ng-container>
+      </div>
+    </ng-template>
+    <div *ngIf="model.isDataSourceAssigned" [class]="model.getRecordsContentCss()">
+      <div [class]="model.cssClasses.recordsBody" [attr.aria-busy]="model.isDataLoading ? 'true' : null" [attr.inert]="model.isDataLoading ? '' : null">
+        <ng-container [ngTemplateOutlet]="recordsContent"></ng-container>
+      </div>
+      <sv-ng-records-loading-overlay *ngIf="model.isDataLoading" [question]="model"></sv-ng-records-loading-overlay>
     </div>
+    <ng-container *ngIf="!model.isDataSourceAssigned" [ngTemplateOutlet]="recordsContent"></ng-container>
     <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showFooter"></ng-container>
   </div>
 </ng-template>

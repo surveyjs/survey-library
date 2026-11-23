@@ -1,8 +1,12 @@
 <template>
-  <div :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
+  <div v-if="question.isCheckboxView && question.booleanValue !== true && !question.isLabelRendered" :class="question.viewModeCssClass" :id="question.inputId">
+    {{ question.checkboxViewText }}
+  </div>
+  <div v-else :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
     <div :class="question.getCheckboxItemCss()">
       <label :class="question.cssClasses.checkboxLabel">
         <input
+          v-if="!(question.isCheckboxView && question.booleanValue !== true)"
           type="checkbox"
           :name="question.name"
           :value="question.booleanValue ?? ''"
@@ -12,6 +16,7 @@
           :indeterminate.prop="question.isIndeterminate"
           :disabled="question.isDisabledAttr"
           :readonly="question.isReadOnlyAttr"
+          :tabindex="question.isCheckboxView ? -1 : undefined"
           :aria-required="question.a11y_input_ariaRequired"
           :aria-label="question.a11y_input_ariaLabel"
           :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -19,7 +24,10 @@
           :aria-invalid="question.a11y_input_ariaInvalid"
           :aria-errormessage="question.a11y_input_ariaErrormessage"
         />
-        <span :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
+        <span v-if="question.isCheckboxView && question.booleanValue !== true" :class="question.viewModeCssClass" :id="question.inputId">
+          {{ question.checkboxViewText }}
+        </span>
+        <span v-else :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
           <svg
             v-if="question.svgIcon"
             :class="question.cssClasses.checkboxItemDecorator"

@@ -13,6 +13,9 @@ export interface SampleDriver {
   sample(): Promise<Sample>;
   // One extra untimed run with the funnels installed.
   counterRun(): Promise<Counters>;
+  // Untimed, after the warm-ups and after the last sample (the page's leak snapshots); not in the log.
+  beforeSamples?(): Promise<void>;
+  afterSamples?(): Promise<void>;
 }
 
 export interface SampleOptions {
@@ -43,6 +46,7 @@ export async function sampleLoop(driver: SampleDriver, options: SampleOptions): 
   }
   const samples: Array<number> = [];
   let phases: { [phase: string]: Array<number> } | undefined;
+  if (driver.beforeSamples) await driver.beforeSamples();
   while(samples.length < options.samples) {
     // maxMs is wall time from the first warm-up, setup and teardown included; at least minSamples are kept.
     if (samples.length >= options.minSamples && options.now() - start >= options.maxMs) break;
@@ -55,6 +59,7 @@ export async function sampleLoop(driver: SampleDriver, options: SampleOptions): 
     log.push("sample");
   }
   const wallMs = options.now() - start;
+  if (driver.afterSamples) await driver.afterSamples();
   const counters = await driver.counterRun();
   log.push("counters");
   return { samples: samples, phases: phases, warmups: warmups, counters: counters, wallMs: wallMs, log: log };
@@ -68,6 +73,10 @@ export interface ScenarioDriverOptions {
   afterRun?(t0: number, t1: number): void | Promise<void>;
   // Untimed, after the teardown of every sample and of the counter run (the page settles here).
   afterSample?(): void | Promise<void>;
+  // Around the runs of the counter run only, not its setup or check (the page's CDP snapshots); the counters
+  // afterCounterRun returns join the counter run's.
+  beforeCounterRun?(): void | Promise<void>;
+  afterCounterRun?(): Counters | Promise<Counters>;
 }
 
 // The driver of a scenario that runs where the survey lives (a core process, or the page for browser actions):
@@ -106,15 +115,19 @@ export function scenarioDriver(scenario: PerfScenario, ctx: PerfContext, options
       const state = await scenario.setup(ctx);
       const funnels = options.installFunnels();
       let read: { [name: string]: number | null };
+      let hooked: Counters | undefined;
       try {
         funnels.reset();
+        if (options.beforeCounterRun) await options.beforeCounterRun();
         for (let i = 0; i < repeat; i++) await scenario.run(ctx, state);
         read = funnels.read();
+        if (options.afterCounterRun) hooked = await options.afterCounterRun();
       } finally {
         funnels.uninstall();
       }
       const counters: Counters = {};
       for (const key in read) counters[key] = work(read[key]);
+      if (hooked) Object.assign(counters, hooked);
       if (scenario.counters) Object.assign(counters, scenario.counters(ctx, state));
       if (scenario.record) await scenario.record(ctx, state);
       await scenario.check(ctx, state);

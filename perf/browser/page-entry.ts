@@ -2,6 +2,8 @@ import { scenarioById } from "../scenarios/index.ts";
 import { sampleLoop, scenarioDriver } from "../harness/sample.ts";
 import { installFunnels, dom } from "../harness/counters.ts";
 import { median, round2 } from "../harness/stats.ts";
+import { renderCounters, durationInfo, leakCounters, heapGrowthCounters, heapInfo, untilQuiet } from "../harness/cdp.ts";
+import type { CdpSnapshot } from "../harness/cdp.ts";
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { missingRequirement } from "../harness/scenario.ts";
 import { page, updated, settle, frame, delay, rootElement } from "./page-helpers.ts";
@@ -52,10 +54,45 @@ function gc(): void {
   if (typeof W.gc === "function") W.gc();
 }
 
-function heapMB(): number | null {
-  gc();
-  const mem = (performance as any).memory;
-  return mem ? round2(mem.usedJSHeapSize / 1048576) : null;
+// A CDP snapshot through the spec's bridge (cdp-metrics.ts); null without it.
+async function metrics(): Promise<CdpSnapshot> {
+  return typeof W.__perfMetrics === "function" ? await W.__perfMetrics() : null;
+}
+
+// Twice, a task apart: what the first collection frees through finalizers goes in the second. Through the spec's
+// bridge when there is one (cdp-metrics.ts: no JS on the stack), else gc().
+async function fullGc(): Promise<void> {
+  const collect = typeof W.__perfCollectGarbage === "function" ? (): Promise<void> => W.__perfCollectGarbage() : async(): Promise<void> => gc();
+  await collect();
+  await delay(0);
+  await collect();
+}
+
+// The end of the counter run's CDP window: after the runs, frame after frame (a frame and a task each) until the
+// rendering is quiet (harness/cdp.ts, untilQuiet), so the ResizeObserver -> rAF -> layout work an action starts counts
+// whole; the settle's timers do not.
+async function afterRunMetrics(): Promise<CdpSnapshot> {
+  const res = await untilQuiet(metrics, async(): Promise<void> => { await frame(); await delay(0); }, { quietFrames: 2, maxFrames: 60 });
+  return res.snapshot;
+}
+
+// The V8 and Blink heaps through the spec's bridge (Runtime.getHeapUsage); null without it.
+async function heapUsage(): Promise<CdpSnapshot> {
+  return typeof W.__perfHeapUsage === "function" ? await W.__perfHeapUsage() : null;
+}
+
+// A leak snapshot: the metrics and the heaps, after a full collection.
+async function leakSnapshot(): Promise<CdpSnapshot> {
+  await fullGc();
+  const m = await metrics();
+  const h = await heapUsage();
+  return m || h ? Object.assign({}, m, h) : null;
+}
+
+// info.jsHeapMB and info.blinkHeapMB after a full collection; none without the bridge.
+async function heapNow(): Promise<{ [name: string]: number }> {
+  await fullGc();
+  return heapInfo(await heapUsage());
 }
 
 function applyBrowser(scenario: PerfScenario): PerfScenario {
@@ -93,6 +130,8 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
   if (skip) return { skipped: skip };
   const ctx = context(scenario, fixture);
   const frames: Array<number> = [];
+  let runBefore: CdpSnapshot = null;
+  let durations: { [name: string]: number } = {};
   const driver = scenarioDriver(scenario, ctx, {
     now: now, gc: gc,
     installFunnels: () => installFunnels(W.Survey),
@@ -102,15 +141,37 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
       await delay(0);
       frames.push(now() - t0);
     },
-    afterSample: settle
+    afterSample: settle,
+    beforeCounterRun: async(): Promise<void> => { runBefore = await metrics(); },
+    afterCounterRun: async(): Promise<any> => {
+      const after = await afterRunMetrics();
+      durations = durationInfo(runBefore, after);
+      return renderCounters(runBefore, after);
+    }
   });
+  // The leak snapshots: after the first sample (not the warm-ups: harness/cdp.ts, leakCounters) and after the last one,
+  // each after a full gc.
+  let samplesBefore: CdpSnapshot = null;
+  let samplesAfter: CdpSnapshot = null;
+  let measured = -1;
+  const takeSample = driver.sample;
+  driver.sample = async(): Promise<any> => {
+    const s = await takeSample();
+    if (measured > -1 && ++measured === 1) samplesBefore = await leakSnapshot();
+    return s;
+  };
+  driver.beforeSamples = async(): Promise<void> => { measured = 0; };
+  driver.afterSamples = async(): Promise<void> => { samplesAfter = await leakSnapshot(); };
   const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 1 : scenario.warmup, samples: scenario.samples || 7,
     maxMs: scenario.maxMs || options.maxMs, minSamples: 5, now: now });
   res.counters.domNodes = dom(rootElement().querySelectorAll("*").length);
+  Object.assign(res.counters, leakCounters(samplesBefore, samplesAfter, res.samples.length - 1),
+    heapGrowthCounters(samplesBefore, samplesAfter, res.samples.length - 1));
+  const heap = await heapNow();
   return {
     samples: res.samples, phases: res.phases, counters: res.counters,
-    info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), frameMs: round2(median(frames)),
-      longTaskMs: longTaskMsPerSample(), heapMB: heapMB() },
+    info: Object.assign({ kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), frameMs: round2(median(frames)),
+      longTaskMs: longTaskMsPerSample() }, heap, durations),
     jsonErrors: ctx.cache.jsonErrors || 0, repeat: scenario.repeat, counterOnly: scenario.counterOnly, tolerance: scenario.tolerance, rev: scenario.rev
   };
 }
@@ -144,15 +205,18 @@ async function loadCounters(id: string, fixture: any): Promise<any> {
   const state = await scenario.setup(ctx);
   const funnels = installFunnels(W.Survey);
   funnels.reset();
+  const before = await metrics();
   await scenario.run(ctx, state);
   const read = funnels.read();
+  const after = await afterRunMetrics();
   funnels.uninstall();
   await settle();
   const counters: any = {};
   for (const key in read) counters[key] = { value: read[key], kind: "work" };
   counters.domNodes = dom(rootElement().querySelectorAll("*").length);
+  Object.assign(counters, renderCounters(before, after));
   await scenario.check(ctx, state);
-  return { counters: counters, heapMB: heapMB() };
+  return { counters: counters, durations: durationInfo(before, after), heap: await heapNow() };
 }
 
 // Shows the fixture before an action scenario starts: untimed.

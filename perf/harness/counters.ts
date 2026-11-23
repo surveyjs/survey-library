@@ -2,7 +2,10 @@
 // wrapped; a funnel the build lacks gives null, not 0. On master element conditions (visibleIf, enableIf, ...) run
 // through ExpressionRunner, so expressionRuns counts them; conditionRuns counts ConditionRunner runs (filters of the
 // array functions, triggers and the callers that still use it).
-export type CounterKind = "work" | "dom";
+// What a counter is, not how to judge it (the caller decides): work: calls through the funnels; dom: elements under
+// #root; render: layouts and style recalcs; leak: growth of listeners and nodes; heap: growth of a heap in KB (CDP,
+// browser suites only, cdp.ts).
+export type CounterKind = "work" | "dom" | "render" | "leak" | "heap";
 
 export interface CounterValue {
   value: number | null;
@@ -67,4 +70,16 @@ export function work(value: number | null): CounterValue {
 
 export function dom(value: number | null): CounterValue {
   return { value: value, kind: "dom" };
+}
+
+export function render(value: number | null): CounterValue {
+  return { value: value, kind: "render" };
+}
+
+export function leak(value: number | null): CounterValue {
+  return { value: value, kind: "leak" };
+}
+
+export function heap(value: number | null): CounterValue {
+  return { value: value, kind: "heap" };
 }

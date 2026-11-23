@@ -134,6 +134,23 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
 
+  // The space the visible actions take in their large modes, the gaps between them included.
+  private getLargeSize(gap: number): number {
+    let size = -gap;
+    this.visibleActions.forEach((action) => {
+      size += action.maxDimension + gap;
+    });
+    return size;
+  }
+  // Whether fit() needs no size but the large ones: the large size of every visible action is known and they fit.
+  // The manager renders the small modes and the dots item to measure them only when this is false. A container with
+  // its own fit() may read other sizes (Creator shrinks its adorner bars on a phone even when they fit), so it gets all
+  // of them unless it overrides this method too.
+  public fitsWithLargeSizes(options: { availableSpace: number, gap?: number }): boolean {
+    if (this.fit !== AdaptiveActionContainer.prototype.fit || options.availableSpace <= 0) return false;
+    if (this.visibleActions.some((action) => action.needUpdateMaxDimension || action.maxDimension === undefined)) return false;
+    return options.availableSpace >= this.getLargeSize(options.gap ?? 0);
+  }
   public fit(options: { availableSpace: number, gap?: number }): void {
     if (options.availableSpace <= 0) return;
     options.gap = options.gap ?? 0;
@@ -142,11 +159,10 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     this.dotsItem.visible = false;
     const actions = this.visibleActions;
     let minSize = - 1 * options.gap;
-    let maxSize = - 1 * options.gap;
     actions.forEach((action) => {
       minSize += this.getActionMinDimension(action) + gap;
-      maxSize += action.maxDimension + gap;
     });
+    const maxSize = this.getLargeSize(gap);
     if (availableSpace >= maxSize) {
       this.setActionsMode("large");
     } else if (availableSpace < minSize) {

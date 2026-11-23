@@ -65,10 +65,8 @@ describe("linter reads the serializer registry", () => {
 
   test("class-name suffixes come from the serializer", () => {
     const metadata = new LintMetadata();
-    expect(metadata.getClassNamePart("survey", "triggers", "fallback")).toBe("trigger");
-    expect(metadata.getClassNamePart("question", "validators", "fallback")).toBe("validator");
-    // an unregistered property falls back, so the walker keeps working
-    expect(metadata.getClassNamePart("survey", "nosuchprop", "fallback")).toBe("fallback");
+    expect(metadata.getClassNamePart("survey", "triggers")).toBe("trigger");
+    expect(metadata.getClassNamePart("question", "validators")).toBe("validator");
     expect(metadata.normalizeTriggerType("SetValueTrigger")).toBe("setvalue");
     expect(metadata.normalizeTriggerType("setvalue")).toBe("setvalue");
   });
@@ -78,6 +76,22 @@ describe("linter reads the serializer registry", () => {
     const props = (type: string) => metadata.getValidatorExpressionProps(type).map(p => p.name);
     expect(props("expression")).toContain("expression");
     expect(props("expressionvalidator")).toContain("expression");
+  });
+
+  // The forward direction is the core's JsonObjectProperty.getObjClassName; stripping keeps an end-only match.
+  test("a validator or trigger type resolves to the class the deserializer builds", () => {
+    const metadata = new LintMetadata();
+    expect(["Expression", "expressionvalidator", "", undefined].map(t => metadata.getValidatorClassName(t)))
+      .toEqual(["expressionvalidator", "expressionvalidator", "", ""]);
+    expect(metadata.getValidatorClass("nosuch"), "no such validator").toBeUndefined();
+    expect(metadata.normalizeValidatorType("ExpressionValidator")).toBe("expression");
+    expect(metadata.normalizeTriggerType("triggerxtrigger"), "only the suffix at the end is stripped").toBe("triggerx");
+  });
+
+  test("an element type the Creator toolbox does not offer is still a known element type", () => {
+    const metadata = new LintMetadata();
+    expect(["buttongroup", "flowpanel", "imagemap"].map(t => metadata.isKnownElementType(t))).toEqual([true, true, true]);
+    expect(metadata.isKnownElementType("nosuchtype")).toBe(false);
   });
 
   test("a text column still picks up min/maxValueExpression", () => {

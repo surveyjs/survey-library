@@ -29,11 +29,17 @@ ReactElementFactory.Instance.registerElement("sv-records-loading-overlay", (prop
 export function renderRecordsContent(question: QuestionRecordsModel, content: React.ReactNode): React.ReactNode {
   if (!question.isDataSourceAssigned) return content;
   const isLoading = question.isDataLoading;
-  // React 17 knows neither attribute: an unknown attribute is passed through with a string value.
-  const busyAttributes: any = isLoading ? { "aria-busy": "true", inert: "" } : {};
+  /* inert is set on the element, not passed as a prop: React 17 passes an unknown attribute through only with a
+     string value, React 19 takes it as a boolean (an empty string is false, with a warning), and preact assigns
+     the DOM property. The attribute itself means the same everywhere. */
+  const setInert = (el: HTMLElement | null): void => {
+    if (!!el) {
+      el.toggleAttribute("inert", isLoading);
+    }
+  };
   return (
     <div className={question.getRecordsContentCss()}>
-      <div className={question.cssClasses.recordsBody} {...busyAttributes}>{content}</div>
+      <div className={question.cssClasses.recordsBody} aria-busy={isLoading ? "true" : undefined} ref={setInert}>{content}</div>
       {isLoading ? ReactElementFactory.Instance.createElement("sv-records-loading-overlay", { question: question }) : null}
     </div>
   );

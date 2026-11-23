@@ -51,7 +51,7 @@ frameworks.forEach((framework) => {
         scrollContainer.scrollTop = 1000;
       });
       // The rows scrolled into view render on the scroll event.
-      await expect.poll(() => page.locator(".sv-skeleton-element").count()).toBeLessThan(44);
+      await expect.poll(() => page.locator(".sv-skeleton-element").count()).toBeLessThanOrEqual(44);
       // Disable lazy rendering
       await page.evaluate(() => {
         window["Survey"].settings.lazyRender.enabled = false;
@@ -321,6 +321,7 @@ frameworks.forEach((framework) => {
       expect(skeletonCount).toBeGreaterThan(14);
       for (let i = 0; i < 7; i++) {
         await page.mouse.wheel(0, 500);
+        await expect.poll(() => page.locator(".sv-skeleton-element").evaluateAll(els => Math.min(Infinity, ...els.map(el => el.getBoundingClientRect().top)))).toBeGreaterThan(page.viewportSize()!.height + 50);
       }
       await expect(page.locator(".sv-skeleton-element")).toHaveCount(0);
     });

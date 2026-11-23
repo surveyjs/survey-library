@@ -800,9 +800,6 @@ export abstract class QuestionCustomModelBase extends Question
   indexOf(el: IElement): number {
     return -1;
   }
-  ensureRowsVisibility(): void {
-    // do nothing
-  }
   validateContainerOnly(): void {
     // do nothing
   }

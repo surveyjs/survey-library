@@ -25,7 +25,7 @@ import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { settings } from "./settings";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
-import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/dom-utils";
+import { getElementWidth } from "./utils/dom-utils";
 import { floorTo2Decimals } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -40,132 +40,108 @@ import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
 import { Scope } from "./utils/scope";
 
-// The lazily rendered rows waiting on one scroll container share a single "scroll" listener and a single
-// pending timer, instead of a listener and a timer per row: a survey can have thousands of such rows.
-class LazyRenderingContainer {
-  private static containers = new WeakMap<any, LazyRenderingContainer>();
-  public static register(target: any, row: QuestionRowModel): LazyRenderingContainer {
-    let res = LazyRenderingContainer.containers.get(target);
-    if (!res) {
-      res = new LazyRenderingContainer(target);
-      LazyRenderingContainer.containers.set(target, res);
-    }
-    res.addRow(row);
-    return res;
-  }
-  // Rows wait in pendingRows until the timer checks them, then move to rows, which the listener checks.
-  // Both sets keep the registration order.
+class LazyRowsObserver {
+  private observer: IntersectionObserver;
+  private rowsByElement = new Map<Element, QuestionRowModel>();
   private pendingRows = new Set<QuestionRowModel>();
-  private rows = new Set<QuestionRowModel>();
-  private timer: ReturnType<typeof setTimeout>;
-  private isListening = false;
-  private constructor(private target: any) {}
-  private onScroll = (): void => {
-    this.checkRows(Array.from(this.rows));
-  };
-  private addRow(row: QuestionRowModel): void {
-    this.pendingRows.add(row);
-    if (this.timer === undefined) {
-      this.timer = setTimeout(() => this.onTimer(), 10);
+  private seenRows = new Set<QuestionRowModel>();
+  private isWaitingForRelease = false;
+  private isDisposed = false;
+  constructor(private survey: SurveyModel) {
+    this.observer = new IntersectionObserver(entries => this.onIntersect(entries), { rootMargin: "50px 100000px" });
+  }
+  public observe(row: QuestionRowModel): void {
+    const el = row.getRootElement();
+    const isObserved = this.rowsByElement.has(el);
+    this.rowsByElement.set(el, row);
+    if (!isObserved) {
+      this.observer.observe(el);
     }
   }
-  public removeRow(row: QuestionRowModel): void {
+  public unobserve(row: QuestionRowModel): void {
     this.pendingRows.delete(row);
-    this.rows.delete(row);
-    if (this.pendingRows.size === 0 && this.timer !== undefined) {
-      clearTimeout(this.timer);
-      this.timer = undefined;
-    }
-    this.updateListener();
-    if (this.pendingRows.size === 0 && this.rows.size === 0) {
-      LazyRenderingContainer.containers.delete(this.target);
-    }
+    this.seenRows.delete(row);
+    const el = row.getRootElement();
+    if (!el || this.rowsByElement.get(el) !== row) return;
+    this.rowsByElement.delete(el);
+    this.observer.unobserve(el);
   }
-  private onTimer(): void {
-    this.timer = undefined;
-    const rows = Array.from(this.pendingRows);
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      if (!this.pendingRows.has(row)) continue;
-      this.pendingRows.delete(row);
-      this.rows.add(row);
-      row.ensureVisibility();
-      if (!this.rows.has(row) && this.pendingRows.size > 0) {
-        // The row has rendered. Vue, Angular and Preact update the DOM in a microtask, so check the next rows
-        // in a new task, when their positions are up to date, as each row's own timer did before.
-        this.timer = setTimeout(() => this.onTimer(), 0);
-        break;
+  public dispose(): void {
+    this.isDisposed = true;
+    this.observer.disconnect();
+    this.rowsByElement.clear();
+    this.pendingRows.clear();
+    this.seenRows.clear();
+  }
+  private get isSuspended(): boolean {
+    return this.survey.isLazyRenderingSuspended;
+  }
+  private onIntersect(entries: Array<IntersectionObserverEntry>): void {
+    const visibleEntries: Array<IntersectionObserverEntry> = [];
+    entries.forEach(entry => {
+      const row = this.rowsByElement.get(entry.target);
+      if (!row) return;
+      if (!entry.isIntersecting) {
+        this.pendingRows.delete(row);
+        if (this.seenRows.has(row) && !this.isSuspended && this.isAboveRoot(entry)) {
+          this.renderRow(row);
+        }
+        this.seenRows.delete(row);
+      } else if (this.isSuspended) {
+        this.pendingRows.add(row);
+      } else {
+        visibleEntries.push(entry);
       }
+    });
+    this.waitForRelease();
+    if (visibleEntries.length === 0) return;
+    visibleEntries.sort((a, b) => (a.boundingClientRect?.top ?? 0) - (b.boundingClientRect?.top ?? 0));
+    this.renderRow(this.rowsByElement.get(visibleEntries.shift().target));
+    for (const entry of visibleEntries) {
+      this.seenRows.add(this.rowsByElement.get(entry.target));
+      this.recheck(entry.target);
     }
-    this.updateListener();
   }
-  // Synchronous and in registration order, as the listeners of all rows ran in one event dispatch before.
-  // A row that renders (or stops) during the pass is skipped.
-  private checkRows(rows: Array<QuestionRowModel>): void {
-    rows.forEach(row => {
-      if (this.rows.has(row)) {
-        row.ensureVisibility();
+  private recheck(el: Element): void {
+    if (!this.rowsByElement.has(el)) return;
+    this.observer.unobserve(el);
+    this.observer.observe(el);
+  }
+  private waitForRelease(): void {
+    if (this.isWaitingForRelease || this.pendingRows.size === 0) return;
+    this.isWaitingForRelease = true;
+    this.survey.addLazyRenderingReleaseCallback(() => {
+      this.isWaitingForRelease = false;
+      if (this.isDisposed) return;
+      const rows = Array.from(this.pendingRows);
+      this.pendingRows.clear();
+      for (const row of rows) {
+        const el = row.getRootElement();
+        if (this.rowsByElement.get(el) === row) {
+          this.recheck(el);
+        }
       }
     });
   }
-  private updateListener(): void {
-    const needListen = this.rows.size > 0;
-    if (needListen === this.isListening) return;
-    if (needListen) {
-      if (!this.target.addEventListener) return;
-      this.target.addEventListener("scroll", this.onScroll);
-    } else if (!!this.target.removeEventListener) {
-      this.target.removeEventListener("scroll", this.onScroll);
-    }
-    this.isListening = needListen;
+  private isAboveRoot(entry: IntersectionObserverEntry): boolean {
+    const root = entry.rootBounds;
+    const rect = entry.boundingClientRect;
+    return !!root && !!rect && rect.bottom < root.top;
+  }
+  private renderRow(row: QuestionRowModel): void {
+    row.isNeedRender = true;
   }
 }
 
 export class QuestionRowModel extends Base {
-  protected _scrollableParent: any = undefined;
-  protected _updateVisibility: any = undefined;
-  private get allowRendering(): boolean {
-    return !this.panel || !this.panel.survey || !(this.panel.survey as any)["isLazyRenderingSuspended"];
+  public stopLazyRendering(): void {
+    this.panel?.unobserveLazyRow(this);
   }
-  private lazyRenderingContainer: LazyRenderingContainer;
-  public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
-    if (!DomDocumentHelper.isAvailable()) return;
-    this.unregisterLazyRendering();
-    this._scrollableParent = findScrollableContainer(rowContainerDiv);
-    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
-    // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
-    if (this._scrollableParent === DomDocumentHelper.getDocumentElement()) {
-      this._scrollableParent = DomWindowHelper.getWindow();
-    }
-    this.isNeedRender = !hasScroll;
-    if (hasScroll) {
-      this._updateVisibility = () => {
-        if (!this.allowRendering) {
-          return;
-        }
-        var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
-        if (!this.isNeedRender && isRowContainerDivVisible) {
-          this.isNeedRender = true;
-          this.stopLazyRendering();
-        }
-      };
-      this.lazyRenderingContainer = LazyRenderingContainer.register(this._scrollableParent, this);
-    }
-  }
-  public ensureVisibility() {
-    if (!!this._updateVisibility) {
-      this._updateVisibility();
-    }
-  }
-  public stopLazyRendering() {
-    this.unregisterLazyRendering();
-    this._scrollableParent = undefined;
-    this._updateVisibility = undefined;
-  }
-  private unregisterLazyRendering(): void {
-    if (!!this.lazyRenderingContainer) {
-      this.lazyRenderingContainer.removeRow(this);
-      this.lazyRenderingContainer = undefined;
+  public updateLazyRendering(): void {
+    if (this.isDisposed || this.isNeedRender || !this.rootElement || !this.panel) {
+      this.stopLazyRendering();
+    } else {
+      this.panel.observeLazyRow(this);
     }
   }
   constructor(public panel: PanelModelBase) {
@@ -178,6 +154,9 @@ export class QuestionRowModel extends Base {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "visible") {
       this.onVisibleChangedCallback && this.onVisibleChangedCallback();
+    }
+    if (name === "isNeedRender") {
+      this.updateLazyRendering();
     }
   }
   // The number of mounted UI components that render this row. Two components can render the same row (#10701),
@@ -267,7 +246,6 @@ export class QuestionRowModel extends Base {
       }
       if (this.elements[i].isPanel || this.elements[i].getType() === "paneldynamic") {
         this.setIsLazyRendering(false);
-        this.stopLazyRendering();
       }
     }
     this.visibleElements = visElements;
@@ -353,7 +331,10 @@ export class QuestionRowModel extends Base {
   }
   private rootElement?: HTMLElement;
   public setRootElement(element?: HTMLElement) {
+    if (this.rootElement === element) return;
+    this.stopLazyRendering();
     this.rootElement = element;
+    this.updateLazyRendering();
   }
   public getRootElement(): HTMLElement {
     return this.rootElement;
@@ -1615,12 +1596,6 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getPropertyValue("rows");
   }
 
-  public ensureRowsVisibility(): void {
-    this.rows.forEach((row) => {
-      row.ensureVisibility();
-    });
-  }
-
   protected onRowsChanged(): void {
     if (this.isLoadingFromJson || !this.wasRendered) return;
     this.runWithoutAnimations(() => {
@@ -1865,7 +1840,6 @@ export class PanelModelBase extends SurveyElement<Question>
   private forceRenderRow(row: QuestionRowModel): void {
     if (!!row && !row.isNeedRender) {
       row.isNeedRender = true;
-      row.stopLazyRendering();
     }
   }
   public forceRenderElement(el: IElement, elementsRendered = () => { }, gap = 0): void {
@@ -1964,7 +1938,6 @@ export class PanelModelBase extends SurveyElement<Question>
     row.updateVisible();
     if (row.visible && !row.isNeedRender) {
       row.setIsLazyRendering(false);
-      row.stopLazyRendering();
     }
   }
   protected notifyStateChanged(prevState: string): void {
@@ -2322,8 +2295,34 @@ export class PanelModelBase extends SurveyElement<Question>
   public afterRender(el: HTMLElement): void {
     this.afterRenderCore(el);
   }
+  private lazyRowsObserver: LazyRowsObserver;
+  private isLazyRenderingStarted = false;
+  public startLazyRendering(): void {
+    if (this.isLazyRenderingStarted || this.isDisposed || !this.survey || !this.survey.isLazyRendering) return;
+    this.isLazyRenderingStarted = true;
+    if (!!(DomWindowHelper.getWindow() as any)?.IntersectionObserver) {
+      this.lazyRowsObserver = new LazyRowsObserver(this.survey as SurveyModel);
+    }
+    this.rows.forEach(row => row.updateLazyRendering());
+  }
+  public observeLazyRow(row: QuestionRowModel): void {
+    if (!this.isLazyRenderingStarted) return;
+    if (!!this.lazyRowsObserver) {
+      this.lazyRowsObserver.observe(row);
+    } else {
+      row.isNeedRender = true;
+    }
+  }
+  public unobserveLazyRow(row: QuestionRowModel): void {
+    this.lazyRowsObserver?.unobserve(row);
+  }
   public dispose(): void {
     super.dispose();
+    if (!!this.lazyRowsObserver) {
+      this.lazyRowsObserver.dispose();
+      this.lazyRowsObserver = undefined;
+    }
+    this.isLazyRenderingStarted = false;
     if (this.rows) {
       for (let i = 0; i < this.rows.length; i++) {
         this.rows[i].dispose();
@@ -2722,6 +2721,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public afterRenderCore(element: HTMLElement): void {
     super.afterRenderCore(element);
+    this.startLazyRendering();
     if (this.isPanel) {
       this.survey?.afterRenderPanel(this, element);
     }

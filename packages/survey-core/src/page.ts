@@ -403,11 +403,6 @@ export class PageModel extends PanelModel implements IPage {
     }
   }
 
-  public ensureRowsVisibility() {
-    super.ensureRowsVisibility();
-    this.elements.forEach(el => el.ensureRowsVisibility());
-  }
-
   private _isReadyForClean: boolean = true;
   public get isReadyForClean(): boolean {
     return this._isReadyForClean;

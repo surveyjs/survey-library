@@ -62,7 +62,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
+import { isContainerVisible, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
 import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
@@ -1666,14 +1666,13 @@ export class SurveyModel extends SurveyElementCore
   protected releaseLazyRendering(): void {
     if (!this.isLazyRendering) return;
     this._isLazyRenderingSuspended = false;
+    const callbacks = this.lazyRenderingReleaseCallbacks;
+    this.lazyRenderingReleaseCallbacks = [];
+    callbacks.forEach(callback => callback());
   }
-  private updateLazyRenderingRowsOnRemovingElements() {
-    if (!this.isLazyRendering) return;
-    var page = this.currentPage;
-    if (!!page) {
-      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(getIdSelector(page.renderedId));
-      activateLazyRenderingChecks(htmlElement);
-    }
+  private lazyRenderingReleaseCallbacks: Array<() => void> = [];
+  public addLazyRenderingReleaseCallback(callback: () => void): void {
+    this.lazyRenderingReleaseCallbacks.push(callback);
   }
   /**
    * A list of triggers in the survey.
@@ -6366,6 +6365,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.focusQuestionInfo();
     this.isCurrentPageRendered = true;
+    this.activePage?.startLazyRendering();
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.activePage,
@@ -6704,9 +6704,6 @@ export class SurveyModel extends SurveyElementCore
     this.doCurrentPageComplete(true);
   }
   elementContentVisibilityChanged(element: ISurveyElement): void {
-    if (this.currentPage) {
-      this.currentPage.ensureRowsVisibility();
-    }
     this.onElementContentVisibilityChanged.fire(this, { element });
     this.doUIStateChanged("collapsed", element);
   }
@@ -6857,8 +6854,6 @@ export class SurveyModel extends SurveyElementCore
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            const pageRootElement = surveyRootElement.querySelector(getIdSelector(elementPage.renderedId));
-            activateLazyRenderingChecks(pageRootElement);
             optOnScolledCallback && optOnScolledCallback();
           });
         }, elementsToRenderBefore);
@@ -6872,14 +6867,11 @@ export class SurveyModel extends SurveyElementCore
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
-            // Without lazy rendering no row waits for the check, and its synthetic scroll is not needed.
-            if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           } else {
             this.suspendLazyRendering();
             SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
               this.releaseLazyRendering();
-              if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
               optOnScolledCallback && optOnScolledCallback();
             });
           }
@@ -8520,7 +8512,6 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    this.updateLazyRenderingRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -8776,7 +8767,6 @@ export class SurveyModel extends SurveyElementCore
       question: question,
       name: question.name,
     });
-    this.updateLazyRenderingRowsOnRemovingElements();
   }
   questionRenamed(
     question: IQuestion,
@@ -8911,7 +8901,6 @@ export class SurveyModel extends SurveyElementCore
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
-    this.updateLazyRenderingRowsOnRemovingElements();
   }
   validateQuestion(question: Question, errors: Array<SurveyError>, fireCallback: boolean): void {
     if (!this.onValidateQuestion.isEmpty) {

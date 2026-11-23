@@ -2,6 +2,7 @@ import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Base } from "./base";
 import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
@@ -3058,6 +3059,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     // A source assigned while another one is being assigned (an error handler of its first read) ends
     // inside the outer assignment: the outer one settles the data.
     this.dataSourceAssignmentScope.run((): void => this.setDataSourceCore(val));
+    this.isDataSourceAssigned = !!this.getDataSource();
     this.onDataSettled();
   }
   private setDataSourceCore(val: IDynamicDataSource): void {
@@ -3164,6 +3166,17 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   private updateIsDataLoading(): void {
     const list = this._dataList;
     this.isDataLoading = !!list && (list.isLoading || list.hasPendingRead);
+  }
+  // True while a data source is assigned (dataSource). The renderers wrap the records in the loading
+  // container only then: a question without a source renders as before.
+  @property({ defaultValue: false }) isDataSourceAssigned: boolean;
+  // The classes of the container that holds the records and, while a page is read, the loading overlay.
+  public getRecordsContentCss(): string {
+    return toCssClasses(this.cssClasses.recordsContent, this.isDataLoading && this.cssClasses.recordsContentLoading);
+  }
+  // What the loading overlay (role="status") announces.
+  public get loadingIndicatorAriaLabel(): string {
+    return this.getLocalizationString("loadingData");
   }
   /* Read by SurveyModel.getRunningAsyncOperations(). Is the model still waiting for this source? A
      page that has not arrived, a page that is about to be read again once the pending edits are

@@ -1748,7 +1748,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res !== undefined ? res : null;
   }
   public getRootCss(): string {
-    return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
+    return toCssClasses(super.getRootCss(), this.showNoRowsPlaceholder && this.cssClasses.empty);
+  }
+  // The "no rows" placeholder: no table to show, and no read in flight that may still bring rows.
+  public get showNoRowsPlaceholder(): boolean {
+    return !this.renderedTable?.showTable && !this.isDataLoading;
   }
   public getShowToolbar(location?: "top" | "bottom") {
     const showToolbar = !this.isDesignMode && this.canAddRow;

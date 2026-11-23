@@ -30,7 +30,7 @@ export interface IPanelDynamicActionsOwner {
    Their visibility is not computed (ComputedUpdater): its dependencies are collected on the first run
    only, and reading the panels builds them. */
 const footerPropertyNames = ["newPanelPosition", "displayMode", "showProgressBar", "allowAddPanel", "panelCountExpression",
-  "maxPanelCount", "isReadOnly", "_isMobile"];
+  "maxPanelCount", "isReadOnly", "_isMobile", "isDataLoading"];
 
 /* The actions of a dynamic panel: the footer toolbar (Previous, Next, Add, the progress text), the
    tabbed menu and each panel's remove button. Every action it creates is disposed by it: a remove

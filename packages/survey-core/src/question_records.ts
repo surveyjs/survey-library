@@ -9,6 +9,7 @@ import { settings } from "./settings";
 import { getSettingsOfSurvey } from "./survey-settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { normalizeSort } from "./dynamic-data/dynamic-data-view";
 import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
@@ -870,6 +871,17 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     const visibleOnly = !this.isHiddenRecordInFilteredData();
     return this.collectRecordValues((func: (index: number, item: QuestionRecordItem) => void): void => this.forEachViewRecord(visibleOnly, func),
       (index: number, item: QuestionRecordItem, add: (value: any) => void): void => this.addFilteredRecordValue(index, item, add));
+  }
+  /* The view in force: the authored filter and every bound Filter Control, combined as a paged read
+     carries them, and the sort. A source that pages and runs the whole view gets exactly this in its
+     next paged read; any other source and local data are read whole while the list runs the view.
+     A peek, so that asking never creates the list: no list means nothing is in force. The sort is new
+     plain objects, never the ones the view and its reads share. */
+  public getDataView(): { filter: string, sort: Array<ISortCriterion> } {
+    // It reads the list, not the mirror: the control filters are never mirrored.
+    const list = this.dataListValue;
+    if (!list) return { filter: "", sort: [] };
+    return { filter: list.sourceFilter, sort: normalizeSort(list.sort) };
   }
   // There is nothing to walk: without a view every record is in the value.
   protected isValueFilteredData(): boolean {

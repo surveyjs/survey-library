@@ -832,6 +832,206 @@ describe("nested data: the scopes of a choice, a validator and a trigger", () =>
   });
 });
 
+// Review 04, prompt 07: the two owners phase 1 left without a lookup. A matrix column's choices and validators belong
+// to its template question, which has no parent; a dynamic panel's template has no record outside design mode.
+describe("nested data: a matrix column's choices and validators resolve as the column", () => {
+  const create = (type: string, inPanel: boolean, ref: string): SurveyModel => {
+    const condition = "{" + ref + "} = 'v'";
+    const matrix: any = { type, name: "md2", columns: [{ name: "c1", cellType: "dropdown",
+      choices: [{ value: 1, visibleIf: condition }, 2], validators: [{ type: "expression", expression: condition }] }, { name: "c2" }] };
+    if (type === "matrixdropdown") matrix.rows = ["r1"]; else matrix.rowCount = 1;
+    const els: Array<any> = [matrix, { type: "text", name: "sib" }];
+    return new SurveyModel({ dataNesting: "auto", elements: [<any>{ type: "text", name: "q1" }]
+      .concat(inPanel ? [{ type: "panel", name: "p1", valueName: "addr", elements: els }] : els) });
+  };
+  const paths = (survey: SurveyModel, el: Base): Array<string> => survey.getExpressionScopePaths(el).map(item =>
+    item.path.join(".") + (item.record ? "@" + item.record.name : ""));
+  const cases: Array<{ type: string, inPanel: boolean }> = [];
+  ["matrixdynamic", "matrixdropdown"].forEach(type => [false, true].forEach(inPanel => cases.push({ type, inPanel })));
+  cases.forEach(c => {
+    const title = c.type + (c.inPanel ? " in a nesting panel" : " at the root");
+    // the reference, and the name of the question it reads at runtime
+    const refs: Array<[string, string]> = [["q1", "q1"], ["sib", "sib"], ["md2", "md2"]];
+    if (c.inPanel) refs.push(["addr.sib", "sib"], ["addr.md2", "md2"]);
+    test(title + ": the scope paths and the questions are the column's", () => {
+      const survey = create(c.type, c.inPanel, "q1");
+      const matrix: any = survey.getAllQuestions().filter(q => q.name === "md2")[0];
+      const column = matrix.columns[0];
+      const choice = column.templateQuestion.choices[0];
+      const validator = column.validators[0];
+      expect(validator.errorOwner, "#0: the validator belongs to the template question").toBe(column.templateQuestion);
+      const expected = c.inPanel ? ["@md2", "addr", ""] : ["@md2", ""];
+      expect(paths(survey, column), "#1: the column").toEqual(expected);
+      expect(paths(survey, choice), "#2: its choice").toEqual(expected);
+      expect(paths(survey, validator), "#3: its validator").toEqual(expected);
+      refs.concat([["row.c2", ""], ["nope", ""]]).forEach(([ref, qName]) => {
+        const res = survey.getQuestionByVariable(ref, column);
+        expect(!!res ? res.question.name : "", "#4: the column, {" + ref + "}").toBe(qName);
+        expect(survey.getQuestionByVariable(ref, choice), "#5: its choice, {" + ref + "}").toEqual(res);
+        expect(survey.getQuestionByVariable(ref, validator), "#6: its validator, {" + ref + "}").toEqual(res);
+      });
+    });
+    test(title + ": a cell's choice and validator read the question found", () => {
+      refs.filter(([ref]) => ref.indexOf("md2") < 0).forEach(([ref]) => {
+        const survey = create(c.type, c.inPanel, ref);
+        const matrix: any = survey.getAllQuestions().filter(q => q.name === "md2")[0];
+        const q = survey.getQuestionByVariable(ref, matrix.columns[0].templateQuestion.choices[0]).question;
+        const cell: any = matrix.visibleRows[0].cells[0].question;
+        cell.value = 2;
+        q.value = "v";
+        expect([cell.visibleChoices.length, cell.validate(false)], "{" + ref + "} = 'v'").toEqual([2, true]);
+        q.value = "w";
+        expect([cell.visibleChoices.length, cell.validate(false)], "{" + ref + "} = 'w'").toEqual([1, false]);
+      });
+    });
+  });
+  test("{row.c2}: a cell's choice reads the row's cell, which getQuestionByVariable does not answer", () => {
+    const survey = create("matrixdynamic", true, "row.c2");
+    const matrix: any = survey.getAllQuestions().filter(q => q.name === "md2")[0];
+    expect(survey.getQuestionByVariable("row.c2", matrix.columns[0].templateQuestion.choices[0]), "#1").toBeNull();
+    const row = matrix.visibleRows[0];
+    row.cells[1].question.value = "v";
+    expect(row.cells[0].question.visibleChoices.length, "#2: the runtime reads the cell").toBe(2);
+  });
+});
+
+describe("nested data: a dynamic panel's template question answers as a record's question", () => {
+  const json = (): any => ({ dataNesting: "auto", elements: [
+    { type: "text", name: "q1" },
+    { type: "paneldynamic", name: "dp", templateElements: [
+      { type: "text", name: "ps" },
+      { type: "panel", name: "inner", valueName: "in", elements: [{ type: "text", name: "st" },
+        { type: "radiogroup", name: "rg", choices: [{ value: "a" }], validators: [{ type: "expression", expression: "{q1} = 1" }] }] }] }] });
+  const name = (survey: SurveyModel, ref: string, el: Base): string => {
+    const info = survey.getQuestionByVariable(ref, el);
+    return !info ? "null" : info.question.getDataPath().join(".") + "|" + info.rest;
+  };
+  test("the probe: each name from the template gives what it gives from a record", () => {
+    const survey = new SurveyModel(json());
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const rg: any = dp.template.getQuestionByName("rg");
+    const ps = dp.template.getQuestionByName("ps");
+    const table = (rgSite: Base, psSite: Base): Array<string> =>
+      ["q1", "dp", "panel.ps", "st"].map(ref => name(survey, ref, rgSite) + " " + name(survey, ref, psSite));
+    // {st} is relative to the record: the template has no record to put it under
+    const expected = ["q1| q1|", "dp| dp|", "ps| ps|", "st| null"];
+    expect(table(rg, ps), "#1: the template's rg").toEqual(expected);
+    expect(table(rg.choices[0], ps), "#2: its choice").toEqual(expected);
+    expect(table(rg.validators[0], ps), "#3: its validator").toEqual(expected);
+    dp.panelCount = 1;
+    const record = dp.panels[0];
+    expect(table(record.getQuestionByName("rg"), record.getQuestionByName("ps")), "#4: a record's")
+      .toEqual(["q1| q1|", "dp| dp|", "ps| ps|", "in.st| null"]);
+  });
+  test("the template's sites find the template's questions where a record's sites find the record's", () => {
+    const survey = new SurveyModel(json());
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    dp.panelCount = 1;
+    const template = dp.template;
+    const record = dp.panels[0];
+    const asTemplate = (q: any): any => record.questions.indexOf(q) > -1 ? template.getQuestionByName(q.name) : q;
+    const site = (panel: PanelModel, kind: string): any => {
+      const rg: any = panel.getQuestionByName("rg");
+      return { panel: panel, inner: panel.getElementByName("inner"), ps: panel.getQuestionByName("ps"), rg: rg,
+        choice: rg.choices[0], validator: rg.validators[0] }[kind];
+    };
+    // the record's own variables name nothing from the first record; a top-level key with the unwrap postfix nothing
+    // in a record either, an inner one its question
+    const refs = ["q1", "dp", "panel.ps", "panel.in.st", "panel.inner.st", "st", "in.st", "ps", "panel.q1", "panel", "panelIndex",
+      "prevPanel.ps", "nextPanel.ps", "panel.ps-unwrapped", "panel.in.st-unwrapped", "nope"];
+    ["panel", "inner", "ps", "rg", "choice", "validator"].forEach(kind => {
+      const t = site(template, kind);
+      const r = site(record, kind);
+      expect(survey.getExpressionScopePaths(t), kind + ": the scope paths").toEqual(survey.getExpressionScopePaths(r));
+      refs.forEach(ref => {
+        const tq = survey.getQuestionByVariable(ref, t)?.question;
+        const rq = survey.getQuestionByVariable(ref, r)?.question;
+        expect(tq, kind + ", {" + ref + "}").toBe(asTemplate(rq));
+        if (!!tq && tq.name !== "q1" && tq.name !== "dp") expect(template.questions.indexOf(tq) > -1, kind + ", {" + ref + "}: the template's").toBe(true);
+      });
+    });
+  });
+  test("a dynamic panel in a matrix's detail panel: its template, also in design mode, answers as a row's record", () => {
+    const create = (design: boolean): SurveyModel => {
+      const survey = new SurveyModel();
+      if (design) survey.setDesignMode(true);
+      survey.fromJSON({ dataNesting: "auto", elements: [
+        { type: "text", name: "q1" },
+        { type: "matrixdynamic", name: "md", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }], detailElements: [
+          { type: "text", name: "d1" },
+          { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "ps" },
+            { type: "radiogroup", name: "rg", choices: ["a"], validators: [{ type: "expression", expression: "{q1} = 1" }] }] }] }] });
+      return survey;
+    };
+    const refs = ["q1", "md", "panel.ps", "row.d1", "d1", "ps", "c1", "nope"];
+    // by the question's name: a template's question has no data path
+    const found = (survey: SurveyModel, ref: string, el: Base): string => survey.getQuestionByVariable(ref, el)?.question.name || "null";
+    const table = (survey: SurveyModel, rg: any): Array<string> =>
+      [rg, rg.choices[0], rg.validators[0]].map(el => refs.map(ref => found(survey, ref, el)).join(" "));
+    const runtime = create(false);
+    const row = (<any>runtime.getQuestionByName("md")).visibleRows[0];
+    row.showDetailPanel();
+    const rowDp = row.detailPanel.getQuestionByName("dp");
+    rowDp.panelCount = 1;
+    const expected = table(runtime, rowDp.panels[0].getQuestionByName("rg"));
+    expect(expected[0], "#1: a row's record").toBe("q1 md ps d1 null null null null");
+    [false, true].forEach(design => {
+      const survey = create(design);
+      const dp = (<any>survey.getQuestionByName("md")).detailPanel.getQuestionByName("dp");
+      const rg: any = dp.template.getQuestionByName("rg");
+      expect(rg.data, "#2: no data, design " + design).toBeFalsy();
+      expect(table(survey, rg), "#3: the template, design " + design).toEqual(expected);
+    });
+  });
+  test("a nested dynamic panel: {parentPanel.x} from the inner template reads the outer record or template, as in a record of a record", () => {
+    [false, true].forEach(inPanel => {
+      const inner = { type: "paneldynamic", name: "inner", panelCount: 1, templateElements: [{ type: "text", name: "x" },
+        { type: "radiogroup", name: "rg", choices: [{ value: "a", visibleIf: "{parentPanel.y} = 6" }, "b"] }] };
+      const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "text", name: "q1" },
+        { type: "paneldynamic", name: "outer", panelCount: 1, templateElements: [{ type: "text", name: "y" },
+          inPanel ? { type: "panel", name: "np", valueName: "n", elements: [{ type: "text", name: "z" }, inner] } : inner] }] });
+      survey.data = { outer: [inPanel ? { y: 6, n: { inner: [{ x: 1 }] } } : { y: 6, inner: [{ x: 1 }] }] };
+      const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+      const innerOf = (panel: PanelModel): QuestionPanelDynamicModel => <any>panel.getQuestionByName("inner");
+      const recordOfRecord: any = innerOf(outer.panels[0]).panels[0].getQuestionByName("rg");
+      expect(recordOfRecord.visibleChoices.length, "#1: the runtime reads {parentPanel.y}").toBe(2);
+      const refs = ["parentPanel.y", "PARENTPANEL.y", "parentPanel.y-unwrapped", "parentPanel.nope", "panel.x", "q1", "outer", "inner", "y"]
+        .concat(inPanel ? ["parentPanel.n.z", "parentPanel.z"] : []);
+      const found = (ref: string, el: Base): string => survey.getQuestionByVariable(ref, el)?.question.name || "null";
+      const table = (rg: any): Array<string> => refs.map(ref => ref + "=" + found(ref, rg) + "," + found(ref, rg.choices[0]));
+      const expected = table(recordOfRecord);
+      expect(expected.slice(0, 4), "#2: a record of a record, in a panel " + inPanel)
+        .toEqual(["parentPanel.y=y,y", "PARENTPANEL.y=y,y", "parentPanel.y-unwrapped=null,null", "parentPanel.nope=null,null"]);
+      if (inPanel) expect(expected.slice(-2), "#3").toEqual(["parentPanel.n.z=z,z", "parentPanel.z=null,null"]);
+      const fromOuterRecord = innerOf(outer.panels[0]).template.getQuestionByName("rg");
+      const fromOuterTemplate = (<any>innerOf(outer.template)).template.getQuestionByName("rg");
+      expect(table(fromOuterRecord), "#4: the inner template in an outer record, in a panel " + inPanel).toEqual(expected);
+      expect(table(fromOuterTemplate), "#5: the inner template in the outer template, in a panel " + inPanel).toEqual(expected);
+      expect(survey.getQuestionByVariable("parentPanel.y", fromOuterRecord).question, "#6: the outer record's y").toBe(outer.panels[0].getQuestionByName("y"));
+      expect(survey.getQuestionByVariable("parentPanel.y", fromOuterTemplate).question, "#7: the outer template's y").toBe(outer.template.getQuestionByName("y"));
+    });
+  });
+  test("a record's choice and validator read the root and the record at runtime", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+        { type: "text", name: "ps" },
+        { type: "panel", name: "inner", valueName: "in", elements: [
+          { type: "radiogroup", name: "rg", choices: [{ value: "a", visibleIf: "{q1} = 1 and {panel.ps} = 2" }, "b"],
+            validators: [{ type: "expression", expression: "{q1} = 1 and {panel.ps} = 2" }] }] }] }] });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const rg: any = dp.panels[0].getQuestionByName("rg");
+    rg.value = "b";
+    expect([rg.visibleChoices.length, rg.validate(false)], "#1").toEqual([1, false]);
+    survey.setValue("q1", 1);
+    dp.panels[0].getQuestionByName("ps").value = 2;
+    expect([rg.visibleChoices.length, rg.validate(false)], "#2").toEqual([2, true]);
+    const trg: any = dp.template.getQuestionByName("rg");
+    expect(survey.getQuestionByVariable("q1", trg.choices[0]).question, "#3: the template's choice").toBe(survey.getQuestionByName("q1"));
+    expect(survey.getQuestionByVariable("panel.ps", trg.validators[0]).question, "#4: the template's validator").toBe(dp.template.getQuestionByName("ps"));
+  });
+});
+
 describe("nested data: onDataKeyChangingCallback, before an element's data key changes", () => {
   const createSurvey = (mode: string = "auto"): SurveyModel => new SurveyModel({ dataNesting: mode, pages: [
     { name: "page1", elements: [

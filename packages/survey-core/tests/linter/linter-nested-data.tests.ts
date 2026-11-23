@@ -1353,10 +1353,11 @@ describe("linter nested data: the second oracle at a choice, a validator and a t
     dp.panelCount = 1;
     return dp.panels[0].getQuestionByName("rg");
   };
+  const templateRg = (s: SurveyModel): any => (<any>s.getQuestionByName("dp")).template.getQuestionByName("rg");
   const ITEM_VARIABLE = "a choice's own {item}: it names no question";
-  const COLUMN_OWNER = "until review-04/07";
   const ITEM_VALIDATOR = "a multiple text item's validator runs in the survey data, until a later linter fix";
-  const columnRefs = ["street", "topStreet", "address.street", "address.z", "q1", "item", "md", "row.c2", "mt.i1", "address.mt.i1"];
+  const ROW_CELL = "a matrix cell: getQuestionByVariable answers element questions only";
+  const COLUMN_ITEM = "a column's own {item} ({item} = 'a' fails at runtime), not the root question";
   const sites: Array<{ name: string, path: string, context: (s: SurveyModel) => Base, known: { [ref: string]: string } }> = [
     { name: "a choice's visibleIf, in a nesting panel", path: "elements[2].elements[2].choices[0].visibleIf",
       context: s => (<any>s.getQuestionByName("panel1.kind")).choices[0], known: knownAs(["item"], ITEM_VARIABLE) },
@@ -1366,13 +1367,19 @@ describe("linter nested data: the second oracle at a choice, a validator and a t
       context: s => recordRg(s).choices[0], known: knownAs(["item"], ITEM_VARIABLE, knownAs(["street", "mt.i1"], UNTIL_STEP_07)) },
     { name: "a validator, in a nesting panel of a dynamic panel's record", path: "elements[3].templateElements[1].elements[1].validators[0].expression",
       context: s => recordRg(s).validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
+    { name: "a choice, in a nesting panel of a dynamic panel's template", path: "elements[3].templateElements[1].elements[1].choices[0].visibleIf",
+      context: s => templateRg(s).choices[0], known: knownAs(["item"], ITEM_VARIABLE, knownAs(["street", "mt.i1"], UNTIL_STEP_07)) },
+    { name: "a validator, in a nesting panel of a dynamic panel's template", path: "elements[3].templateElements[1].elements[1].validators[0].expression",
+      context: s => templateRg(s).validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
     { name: "a trigger's expression", path: "triggers[0].expression", context: s => s.triggers[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
     { name: "a multiple text item's validator", path: "elements[2].elements[3].items[0].validators[0].expression",
       context: s => (<any>s.getQuestionByName("panel1.mt")).items[0].validators[0], known: knownAs(["street", "z", "mt.i1"], ITEM_VALIDATOR) },
     { name: "a matrix column's choice", path: "elements[4].columns[0].choices[0].visibleIf",
-      context: s => (<any>s.getQuestionByName("md")).columns[0].templateQuestion.choices[0], known: knownAs(columnRefs, COLUMN_OWNER) },
+      context: s => (<any>s.getQuestionByName("md")).columns[0].templateQuestion.choices[0],
+      known: knownAs(["item"], ITEM_VARIABLE, knownAs(["row.c2"], ROW_CELL, knownAs(["street", "mt.i1"], UNTIL_STEP_07))) },
     { name: "a matrix column's validator", path: "elements[4].columns[0].validators[0].expression",
-      context: s => (<any>s.getQuestionByName("md")).columns[0].validators[0], known: knownAs(columnRefs, COLUMN_OWNER) },
+      context: s => (<any>s.getQuestionByName("md")).columns[0].validators[0],
+      known: knownAs(["item"], COLUMN_ITEM, knownAs(["row.c2"], ROW_CELL, knownAs(["street", "mt.i1"], UNTIL_STEP_07))) },
   ];
   const refs = ["street", "topStreet", "address.street", "z", "address.z", "q1", "item", "st", "in.st", "panel.in.st", "panel.ps",
     "md", "row.c2", "c2", "mt.i1", "address.mt.i1"];

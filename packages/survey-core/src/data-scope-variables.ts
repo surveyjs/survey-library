@@ -22,9 +22,11 @@ function isElementQuestion(q: Question): boolean {
 }
 // The object a choice's (an item value's) or a validator's expression resolves as: its owner, as their value-getter
 // contexts hand a name to it (ItemValueGetterContext, SurveyValidator.getValueGetterContext). null for any other
-// object, and for one whose owner has no context.
+// object, and for one whose owner has no context. A matrix column's choices and validators belong to its template
+// question, which has no parent: they resolve as the column, as a cell's do at runtime.
 function getContextOwner(el: any): any {
-  const owner: any = el instanceof ItemValue ? el.locOwner : el instanceof SurveyValidator ? el.errorOwner : null;
+  let owner: any = el instanceof ItemValue ? el.locOwner : el instanceof SurveyValidator ? el.errorOwner : null;
+  if (!!owner && owner.locOwner?.templateQuestion === owner) owner = owner.locOwner;
   return !!owner && typeof owner.getValueGetterContext === "function" ? owner : null;
 }
 // An item value's own variables ({item}, {choice}, {self}, with or without a path after them): they keep the item

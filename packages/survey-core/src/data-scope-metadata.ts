@@ -1,14 +1,16 @@
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
+import { stripUnwrapPostfix } from "./conditions/conditionProcessValue";
 import { RecordKeyLevel } from "./record-key-level";
 import { getInnerLevels } from "./data-key-index";
 import { RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
 import { getRecordTemplatePanel, isTemplatePanel } from "./name-scope";
+import { settings } from "./settings";
 
 // The metadata mode's start context of an element inside a records template (design time): the element's own
 // context, then the levels of the template's nesting panels around it, innermost first, then the template's
 // record, then the records question's own metadata context (an outer template's levels come after an inner
-// template's record). A matrix's detail panel template has no data: the matrix's design row stands for its
-// record. A matrix column goes on to its matrix's metadata context. The element's own context otherwise.
+// template's record). A template with no data has no record: for a matrix's detail panel template the matrix's
+// design row stands for it, for a dynamic panel's template the template itself. A matrix column goes on to its matrix's metadata context. The element's own context otherwise.
 // A panel's own expressions run in its parent's scope, so its levels start at its parent; a template panel's
 // own expressions run in its record.
 // The elements are typed any: an element, a column or a template panel is read through the members it has.
@@ -38,11 +40,39 @@ function withOwnerRoot(cxt: IValueGetterContext, owner: any): IValueGetterContex
   return { getValue: params => cxt.getValue(params),
     getRootObj: () => ({ getValueGetterContext: () => getMetadataValueGetterContext(owner) }) };
 }
-// The record of a template with no data (a matrix's detail panel template): the matrix's design row.
+// The record of a template with no data: for a matrix's detail panel template, the matrix's design row; for a
+// dynamic panel's template (the only owner without a design row), the template itself (getTemplateRecordContext).
+// A dynamic panel's template questions have no data outside design mode, and inside a matrix's detail panel
+// template in design mode too.
 function getDesignRecordObj(template: any): IObjectValueContext {
   const owner: any = template.getRecordsOwner();
-  if (!owner || typeof owner.getDesignRowContext !== "function") return undefined;
+  if (!owner) return undefined;
+  if (typeof owner.getDesignRowContext !== "function") return { getValueGetterContext: () => getTemplateRecordContext(template) };
   return { getValueGetterContext: () => owner.getDesignRowContext() };
+}
+// A dynamic panel's template as its record: it answers {panel.x}, from the template's keys, as a record's {panel.x}
+// reads the record's (PanelDynamicItemGetterContext). In a nested dynamic panel {parentPanel.x} is the outer
+// record's (or the outer template's) {panel.x}, as a record's getSpecificValue reads it. A bare name goes on to the
+// dynamic panel. The record's other variables ({panelIndex}, {prevPanel.x}, {nextPanel.x}) have no answer here:
+// the template is no record of the list. A top-level key with the unwrap postfix ({panel.x-unwrapped}) names
+// nothing, as in a record, whose top-level step does not strip it.
+function getTemplateRecordContext(template: any): IValueGetterContext {
+  return { getValue: params => {
+    const path = params.path;
+    const head = path.length > 0 ? path[0].name.toLocaleLowerCase() : "";
+    const dp = template.getRecordsOwner();
+    if (path.length > 1 && head === settings.expressionVariables.parentPanel.toLocaleLowerCase() && !!dp.parentQuestion && !!dp.parent) {
+      const outerTemplate = dp.parentQuestion.template;
+      const outer: IValueGetterContext = !!dp.parent.data ? dp.parent.data.getValueGetterContext() :
+        (!!outerTemplate && outerTemplate === getRecordTemplatePanel(dp) ? getTemplateRecordContext(outerTemplate) : undefined);
+      const outerPath = [{ ...path[0], name: settings.expressionVariables.panel }].concat(path.slice(1));
+      return !!outer ? outer.getValue({ ...params, path: outerPath, isRoot: true }) : undefined;
+    }
+    if (head !== settings.expressionVariables.panel.toLocaleLowerCase()) return undefined;
+    if (path.length > 1 && stripUnwrapPostfix(path[1].name, <any>{}) !== path[1].name) return undefined;
+    const levels = [new RecordKeyLevel(template.elements)];
+    return new RecordKeyLevelValueGetterContext(levels).getValue({ ...params, path: path.slice(1), isRoot: false });
+  } };
 }
 // The levels of the template's nesting panels around an element, innermost first; empty when no panel around
 // it nests in the records.

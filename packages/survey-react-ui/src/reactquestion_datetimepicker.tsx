@@ -69,7 +69,9 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
     const q = this.question;
     return (
       <div key={q.range ? "range" : "single"} className={q.getRootClass()} ref={(div) => this.setControl(div)}>
-        {this.renderFields()}
+        <div className={q.cssClasses.fields}>
+          {this.renderFields()}
+        </div>
         {q.isInputReadOnly ? null : <Popup model={q.popupModel}></Popup>}
       </div>
     );

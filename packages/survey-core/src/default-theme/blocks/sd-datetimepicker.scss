@@ -1,8 +1,12 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
+// The root anchors the popup; the popup host stays out of the fields row, so the row gap never reaches it.
 .sd-datetimepicker {
   position: relative;
+}
+
+.sd-datetimepicker__fields {
   display: flex;
   align-items: center;
   gap: var(--sjs2-spacing-x150);

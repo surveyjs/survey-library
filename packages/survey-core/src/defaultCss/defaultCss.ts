@@ -835,6 +835,7 @@ export var defaultCss = {
   datetimepicker: {
     root: "sd-datetimepicker",
     rootRange: "sd-datetimepicker--range",
+    fields: "sd-datetimepicker__fields",
     field: "sd-formbox sd-datetimepicker__field",
     rootDisabled: "sd-formbox--disabled",
     rootReadOnly: "sd-formbox--readonly",

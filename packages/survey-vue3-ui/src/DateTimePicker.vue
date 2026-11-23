@@ -1,30 +1,32 @@
 <template>
   <div :class="question.getRootClass()" ref="root">
-    <template v-for="(field, index) in fields" :key="field.id">
-      <span v-if="index === 1" :class="question.cssClasses.rangeSeparator">{{ question.rangeSeparatorText }}</span>
-      <div :class="question.getFieldClass()">
-        <input
-          :id="field.id"
-          type="text"
-          autocomplete="off"
-          :class="question.getControlClass()"
-          :placeholder="field.placeholder"
-          :disabled="question.isDisabledAttr"
-          :readonly="question.isReadOnlyAttr"
-          ref="inputs"
-          @blur="question.onBlur"
-          @focus="question.onFocus"
-          @keyup="question.onKeyUp"
-          :aria-required="question.a11y_input_ariaRequired"
-          :aria-label="question.a11y_input_ariaLabel"
-          :aria-labelledby="question.a11y_input_ariaLabelledBy"
-          :aria-describedby="question.a11y_input_ariaDescribedBy"
-          :aria-invalid="question.a11y_input_ariaInvalid"
-          :aria-errormessage="question.a11y_input_ariaErrormessage"
-        />
-        <SvComponent :is="'sv-action-bar'" :model="question.getEditorButtons(index)"></SvComponent>
-      </div>
-    </template>
+    <div :class="question.cssClasses.fields">
+      <template v-for="(field, index) in fields" :key="field.id">
+        <span v-if="index === 1" :class="question.cssClasses.rangeSeparator">{{ question.rangeSeparatorText }}</span>
+        <div :class="question.getFieldClass()">
+          <input
+            :id="field.id"
+            type="text"
+            autocomplete="off"
+            :class="question.getControlClass()"
+            :placeholder="field.placeholder"
+            :disabled="question.isDisabledAttr"
+            :readonly="question.isReadOnlyAttr"
+            ref="inputs"
+            @blur="question.onBlur"
+            @focus="question.onFocus"
+            @keyup="question.onKeyUp"
+            :aria-required="question.a11y_input_ariaRequired"
+            :aria-label="question.a11y_input_ariaLabel"
+            :aria-labelledby="question.a11y_input_ariaLabelledBy"
+            :aria-describedby="question.a11y_input_ariaDescribedBy"
+            :aria-invalid="question.a11y_input_ariaInvalid"
+            :aria-errormessage="question.a11y_input_ariaErrormessage"
+          />
+          <SvComponent :is="'sv-action-bar'" :model="question.getEditorButtons(index)"></SvComponent>
+        </div>
+      </template>
+    </div>
     <SvComponent v-if="!question.isInputReadOnly" :is="'sv-popup'" :model="question.popupModel"></SvComponent>
   </div>
 </template>

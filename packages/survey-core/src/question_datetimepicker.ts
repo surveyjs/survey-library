@@ -789,4 +789,4 @@ Serializer.addClass(
 );
 QuestionFactory.Instance.registerQuestion("datetimepicker", (name: string) => {
   return new QuestionDateTimePickerModel(name);
-}, false);
+});

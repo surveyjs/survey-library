@@ -19,14 +19,13 @@
         </div>
         <div :class="model.cssClasses.table" @mouseleave="model.hoverItem(undefined)">
           <div v-for="(item, itemIndex) in month.days" :key="itemIndex" :class="model.cssClasses.dayCell">
-            <div :class="item.css" @click="model.selectItem(item)" @mouseenter="model.hoverItem(item)">{{ item.text }}</div>
+            <CalendarItemCell :item="item" :calendar="model" />
           </div>
         </div>
       </div>
     </div>
     <div v-else :class="model.cssClasses.table" @mouseleave="model.hoverItem(undefined)">
-      <div v-for="(item, itemIndex) in model.items" :key="itemIndex" :class="item.css"
-        @click="model.selectItem(item)" @mouseenter="model.hoverItem(item)">{{ item.text }}</div>
+      <CalendarItemCell v-for="(item, itemIndex) in model.items" :key="itemIndex" :item="item" :calendar="model" />
     </div>
     <div v-if="model.footerVisible" :class="model.cssClasses.footer">
       <SvComponent :is="'sv-action-bar'" :model="model.footerToolbar"></SvComponent>
@@ -37,6 +36,7 @@
 <script lang="ts" setup>
 import type { CalendarViewModel } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
+import CalendarItemCell from "./CalendarItem.vue";
 import { useBase } from "../../base";
 import { onMounted, onUnmounted, onUpdated, ref } from "vue";
 

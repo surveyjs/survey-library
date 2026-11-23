@@ -1,7 +1,8 @@
 import { Base } from "../base";
 import { EventBase } from "../event";
 import { property } from "../decorators";
-import { CalendarZoom, ICalendarOptions } from "./interfaces";
+import { CalendarZoom } from "./calendar-item";
+import { ICalendarOptions } from "./interfaces";
 import { clampDate, getToday, isPeriodOutside, isSameDay, toDateOnly, toMonthStart } from "./date-utils";
 
 export const yearsInRange = 12;

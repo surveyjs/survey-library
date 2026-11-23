@@ -3,7 +3,8 @@ import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { property } from "../decorators";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { CalendarItem, CalendarMonth, CalendarRangePosition, CalendarZoom } from "./interfaces";
+import { CalendarItem, CalendarRangePosition, CalendarZoom } from "./calendar-item";
+import { CalendarMonth } from "./interfaces";
 import { calendarCssClasses } from "./css-classes";
 import { CalendarModel, yearsInRange } from "./calendar";
 import { clampDate, getToday, isPeriodOutside, isSameDay, shiftMonth, toMonthStart } from "./date-utils";
@@ -25,12 +26,10 @@ const rangePositionCss: { [position: string]: string } = {
 };
 
 interface ICalendarItemState {
-  isSelected: boolean;
   isToday: boolean;
   isDisabled: boolean;
   isOutside?: boolean;
   isHidden?: boolean;
-  rangePosition?: CalendarRangePosition;
 }
 
 interface IMonthListBinding {
@@ -125,8 +124,9 @@ export class CalendarViewModel extends Base {
   }
   public hoverItem(item?: CalendarItem): void {
     if (!!item && (item.isDisabled || item.isHidden)) return;
+    if (this.hoveredItem === item) return;
     this.hoveredItem = item;
-    this.updateView();
+    this.refreshHover();
   }
   public resetView(): void {
     this.hoveredItem = undefined;
@@ -311,17 +311,14 @@ export class CalendarViewModel extends Base {
       const date = new Date(year, month, 1 - offset + i);
       const isOutside = date.getMonth() !== month;
       if (isOutside && hideOutside) {
-        days.push(this.createItem("day", date, "", { isSelected: false, isToday: false, isDisabled: false, isOutside: true, isHidden: true }));
+        days.push(this.createItem("day", date, "", { isToday: false, isDisabled: false, isOutside: true, isHidden: true }, selectedRange));
         continue;
       }
-      const rangePosition = this.getRangePosition(date, selectedRange);
       days.push(this.createItem("day", date, date.getDate().toString(), {
-        isSelected: this.model.range ? !!rangePosition : isSameDay(this.model.value, date),
         isToday: isSameDay(today, date),
         isDisabled: this.model.isPeriodDisabled(date, date),
-        isOutside: isOutside,
-        rangePosition: rangePosition
-      }));
+        isOutside: isOutside
+      }, selectedRange));
     }
     if (hideOutside) {
       this.trimHiddenWeeks(days);
@@ -354,10 +351,9 @@ export class CalendarViewModel extends Base {
       const start = new Date(year, month, 1);
       const end = new Date(year, month + 1, 0);
       return this.createItem("month", start, name, {
-        isSelected: this.isPeriodSelected(start, end, selectedRange),
         isToday: !isPeriodOutside(start, end, today, today),
         isDisabled: this.model.isPeriodDisabled(start, end)
-      });
+      }, selectedRange);
     });
   }
   private createYearItems(startYear: number, selectedRange: Array<Date>): Array<CalendarItem> {
@@ -367,35 +363,52 @@ export class CalendarViewModel extends Base {
       const start = new Date(year, 0, 1);
       const end = new Date(year, 11, 31);
       res.push(this.createItem("year", start, year.toString(), {
-        isSelected: this.isPeriodSelected(start, end, selectedRange),
         isToday: !isPeriodOutside(start, end, today, today),
         isDisabled: this.model.isPeriodDisabled(start, end)
-      }));
+      }, selectedRange));
     }
     return res;
   }
-  private createItem(kind: CalendarZoom, date: Date, text: string, state: ICalendarItemState): CalendarItem {
-    const isOutside = !!state.isOutside;
-    const hovered = this.hoveredItem;
-    // An unavailable date is always rendered as disabled and unselected.
-    const rangePosition = state.isDisabled ? undefined : state.rangePosition;
-    const item: CalendarItem = {
-      date: date,
-      text: text,
-      isSelected: state.isSelected && !state.isDisabled,
-      isInRange: !!rangePosition,
-      isHovered: !state.isDisabled && !!hovered && isSameDay(hovered.date, date) && hovered.isOutside === isOutside,
+  private createItem(kind: CalendarZoom, date: Date, text: string, state: ICalendarItemState, selectedRange: Array<Date>): CalendarItem {
+    const item = new CalendarItem(kind, date, text, {
       isToday: state.isToday,
-      isOutside: isOutside,
+      isOutside: !!state.isOutside,
       isHidden: !!state.isHidden,
-      isDisabled: state.isDisabled,
-      rangePosition: rangePosition,
-      css: ""
-    };
-    item.css = this.getItemCss(kind, item);
+      isDisabled: state.isDisabled
+    });
+    this.applyItemState(item, selectedRange);
     return item;
   }
-  private getItemCss(kind: CalendarZoom, item: CalendarItem): string {
+  // Hover and the range preview rewrite the flags of the cells that already exist.
+  private refreshHover(): void {
+    const selectedRange = this.model.getSelectedRange(this.hoveredItem?.date);
+    (this.months || []).forEach(month => month.days.forEach(item => this.applyItemState(item, selectedRange)));
+    (this.items || []).forEach(item => this.applyItemState(item, selectedRange));
+  }
+  private applyItemState(item: CalendarItem, selectedRange: Array<Date>): void {
+    let rangePosition: CalendarRangePosition = undefined;
+    let isSelected = false;
+    // An unavailable or a hidden neighbour day is rendered unselected.
+    if (!item.isDisabled && !item.isHidden) {
+      if (item.kind === "day") {
+        rangePosition = this.getRangePosition(item.date, selectedRange);
+        isSelected = this.model.range ? !!rangePosition : isSameDay(this.model.value, item.date);
+      } else {
+        const end = item.kind === "month"
+          ? new Date(item.date.getFullYear(), item.date.getMonth() + 1, 0)
+          : new Date(item.date.getFullYear(), 11, 31);
+        isSelected = this.isPeriodSelected(item.date, end, selectedRange);
+      }
+    }
+    const hovered = this.hoveredItem;
+    item.isSelected = isSelected;
+    item.isInRange = !!rangePosition;
+    item.isHovered = !item.isDisabled && !item.isHidden && !!hovered && hovered.kind === item.kind && hovered.isOutside === item.isOutside && isSameDay(hovered.date, item.date);
+    item.rangePosition = rangePosition;
+    item.css = this.getItemCss(item);
+  }
+  private getItemCss(item: CalendarItem): string {
+    const kind = item.kind;
     const classes: { [key: string]: string } = calendarCssClasses;
     return new CssClassBuilder()
       .append(classes[kind])

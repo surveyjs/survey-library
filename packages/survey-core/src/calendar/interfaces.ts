@@ -1,20 +1,4 @@
-export type CalendarZoom = "day" | "month" | "year";
-export type CalendarRangePosition = "start" | "end" | "middle" | "single";
-
-export interface CalendarItem {
-  date: Date;
-  text: string;
-  isSelected: boolean;
-  // the day is between the range start and end (inclusive), committed or being selected
-  isInRange: boolean;
-  isHovered: boolean;
-  isToday: boolean;
-  isOutside: boolean;
-  isHidden: boolean;
-  isDisabled: boolean;
-  rangePosition?: CalendarRangePosition;
-  css: string;
-}
+import type { CalendarItem } from "./calendar-item";
 
 export interface CalendarMonth {
   date: Date;

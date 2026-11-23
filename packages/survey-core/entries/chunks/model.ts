@@ -357,7 +357,8 @@ export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup
 export { PopupModalManager } from "../../src/popup-modal-manager";
 export { CalendarModel } from "../../src/calendar/calendar";
 export { CalendarViewModel } from "../../src/calendar/calendar-view-model";
-export { CalendarItem, CalendarMonth, CalendarZoom, CalendarRangePosition, ICalendarOptions } from "../../src/calendar/interfaces";
+export { CalendarItem, CalendarZoom, CalendarRangePosition } from "../../src/calendar/calendar-item";
+export { CalendarMonth, ICalendarOptions } from "../../src/calendar/interfaces";
 export { calendarCssClasses } from "../../src/calendar/css-classes";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";

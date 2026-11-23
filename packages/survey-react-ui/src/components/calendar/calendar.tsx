@@ -3,6 +3,7 @@ import { Base, CalendarItem, CalendarMonth, CalendarViewModel } from "survey-cor
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyActionBar } from "../action-bar/action-bar";
+import { SurveyCalendarItem } from "./calendar-item";
 
 interface ICalendarProps {
   model: CalendarViewModel;
@@ -71,16 +72,10 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
     );
   }
   private renderDay(item: CalendarItem, index: number): React.JSX.Element {
-    return <div key={index} className={this.model.cssClasses.dayCell}>{this.renderItem(item, index)}</div>;
+    return <div key={index} className={this.model.cssClasses.dayCell}><SurveyCalendarItem item={item} calendar={this.model} /></div>;
   }
   private renderItem(item: CalendarItem, index: number): React.JSX.Element {
-    return (
-      <div key={index} className={item.css}
-        onClick={() => this.model.selectItem(item)}
-        onMouseEnter={() => this.model.hoverItem(item)}>
-        {item.text}
-      </div>
-    );
+    return <SurveyCalendarItem key={index} item={item} calendar={this.model} />;
   }
   private renderMonth(month: CalendarMonth): React.JSX.Element {
     const css = this.model.cssClasses;

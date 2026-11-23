@@ -1,6 +1,7 @@
 import { CalendarModel } from "../src/calendar/calendar";
 import { CalendarViewModel } from "../src/calendar/calendar-view-model";
-import { CalendarItem, ICalendarOptions } from "../src/calendar/interfaces";
+import { CalendarItem } from "../src/calendar/calendar-item";
+import { ICalendarOptions } from "../src/calendar/interfaces";
 
 import { describe, test, expect, vi, afterEach } from "vitest";
 
@@ -211,6 +212,22 @@ describe("CalendarModel", () => {
 
     calendar.hoverItem();
     expect(days(calendar).filter(item => item.isHovered)).toHaveLength(0);
+  });
+
+  test("Hover keeps the day and month objects", () => {
+    const calendar = createCalendar({ viewDate: d(2026, 11, 1) });
+    const month = calendar.months[0];
+    const grid = days(calendar).slice();
+    const first = findDay(calendar, d(2026, 11, 9));
+    const second = findDay(calendar, d(2026, 11, 10));
+    calendar.hoverItem(first);
+    calendar.hoverItem(second);
+    expect(calendar.months[0]).toBe(month);
+    days(calendar).forEach((item, index) => expect(item).toBe(grid[index]));
+    expect(second.isHovered).toBe(true);
+    expect(first.isHovered).toBe(false);
+    expect(second.css.indexOf("sv-calendar__day--hovered")).toBeGreaterThan(-1);
+    expect(first.css.indexOf("sv-calendar__day--hovered")).toBe(-1);
   });
 
   test("Hovering an outside day hovers only that cell", () => {
@@ -554,6 +571,33 @@ describe("CalendarModel zoom", () => {
     expect(calendar.items.filter(item => item.isHovered).map(item => item.text)).toEqual(["2020"]);
     calendar.hoverItem();
     expect(calendar.items.filter(item => item.isHovered)).toHaveLength(0);
+  });
+
+  test("Hover keeps the month and year items", () => {
+    const calendar = createCalendar({ viewDate: d(2026, 11, 1) });
+    calendar.model.zoom = "month";
+    const monthItems = calendar.items.slice();
+    const may = findItem(calendar, "May");
+    const june = findItem(calendar, "June");
+    calendar.hoverItem(may);
+    calendar.hoverItem(june);
+    calendar.items.forEach((item, index) => expect(item).toBe(monthItems[index]));
+    expect(june.isHovered).toBe(true);
+    expect(may.isHovered).toBe(false);
+    expect(june.css.indexOf("sv-calendar__month--hovered")).toBeGreaterThan(-1);
+    expect(may.css.indexOf("sv-calendar__month--hovered")).toBe(-1);
+
+    calendar.model.zoom = "year";
+    const yearItems = calendar.items.slice();
+    const year2020 = findItem(calendar, "2020");
+    const year2021 = findItem(calendar, "2021");
+    calendar.hoverItem(year2020);
+    calendar.hoverItem(year2021);
+    calendar.items.forEach((item, index) => expect(item).toBe(yearItems[index]));
+    expect(year2021.isHovered).toBe(true);
+    expect(year2020.isHovered).toBe(false);
+    expect(year2021.css.indexOf("sv-calendar__year--hovered")).toBeGreaterThan(-1);
+    expect(year2020.css.indexOf("sv-calendar__year--hovered")).toBe(-1);
   });
 
   test("Month and year item css", () => {

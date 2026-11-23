@@ -4,7 +4,7 @@ import { QuestionFactory } from "../src/questionfactory";
 import { QuestionDateTimePickerModel } from "../src/question_datetimepicker";
 import { CalendarModel } from "../src/calendar/calendar";
 import { CalendarViewModel } from "../src/calendar/calendar-view-model";
-import { CalendarItem } from "../src/calendar/interfaces";
+import { CalendarItem } from "../src/calendar/calendar-item";
 import { InputMaskDateTime } from "../src/mask/mask_datetime";
 import { IAction } from "../src/actions/action";
 

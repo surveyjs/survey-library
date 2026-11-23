@@ -27,13 +27,10 @@ export class CalendarComponent extends BaseAngular<CalendarViewModel> implements
   public trackMonth = (index: number, month: CalendarMonth): string => {
     return this.model.getMonthKey(month);
   };
-  // Hover rebuilds the item arrays. Tracking by index keeps the clicked element in place.
+  // The index stays put for a grid, so the element under the pointer is the one that receives the click.
   public trackIndex = (index: number): number => {
     return index;
   };
-  public selectItem(item: CalendarItem): void {
-    this.model.selectItem(item);
-  }
   public hoverItem(item?: CalendarItem): void {
     this.model.hoverItem(item);
   }

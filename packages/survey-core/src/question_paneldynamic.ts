@@ -3633,8 +3633,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.renderedId + "_noEntriesText";
   }
   public getShowNoEntriesPlaceholder(): boolean {
-    // While a page is read the panels may still come: the loading overlay shows instead.
-    return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0 && !this.isDataLoading;
+    // While the first page of a source is read the panels may still come: the loading overlay shows instead.
+    return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0 && !this.isFirstDataLoading;
   }
   public getShowPlaceholderToolbar(): boolean {
     // The single input summary adds panels from the survey navigation bar.

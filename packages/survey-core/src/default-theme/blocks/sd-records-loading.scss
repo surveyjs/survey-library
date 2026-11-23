@@ -18,6 +18,16 @@
    progress bar) would take the container as its containing block and change its width. */
 .sd-records__content--loading {
   position: relative;
+}
+
+/* The body is its own stacking context while loading: the sticky cells of a matrix (row actions, drag handle,
+   detail toggle - z-index 12, sd-table.scss) stay under the overlay instead of painting over it. */
+.sd-records__content--loading > .sd-records__body {
+  isolation: isolate;
+}
+
+// The first read: nothing is shown yet, the container keeps room for the spinner. A later read keeps its height.
+.sd-records__content--first-loading {
   min-height: var(--sd-records-loading-min-height, calc(3 * var(--sjs2-size-x600)));
 }
 

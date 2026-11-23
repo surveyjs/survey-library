@@ -3172,7 +3172,16 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   @property({ defaultValue: false }) isDataSourceAssigned: boolean;
   // The classes of the container that holds the records and, while a page is read, the loading overlay.
   public getRecordsContentCss(): string {
-    return toCssClasses(this.cssClasses.recordsContent, this.isDataLoading && this.cssClasses.recordsContentLoading);
+    return toCssClasses(this.cssClasses.recordsContent, this.isDataLoading && this.cssClasses.recordsContentLoading,
+      this.isFirstDataLoading && this.cssClasses.recordsContentFirstLoading);
+  }
+  /* The first read of a source: no window is committed yet, so there is nothing to show under the overlay - the
+     "no records" placeholders give way to it and the container keeps a height (recordsContentFirstLoading). A later
+     read keeps what is shown: the overlay dims it, and on a fast answer nothing disappears or changes size. */
+  protected get isFirstDataLoading(): boolean {
+    const isLoading = this.isDataLoading;
+    const list = this._dataList;
+    return isLoading && !!list && !list.isWindowCommitted;
   }
   // What the loading overlay (role="status") announces.
   public get loadingIndicatorAriaLabel(): string {

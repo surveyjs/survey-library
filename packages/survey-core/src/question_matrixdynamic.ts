@@ -1750,9 +1750,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), this.showNoRowsPlaceholder && this.cssClasses.empty);
   }
-  // The "no rows" placeholder: no table to show, and no read in flight that may still bring rows.
+  // The "no rows" placeholder: no table to show, and not the first read of a source (isFirstDataLoading).
   public get showNoRowsPlaceholder(): boolean {
-    return !this.renderedTable?.showTable && !this.isDataLoading;
+    return !this.renderedTable?.showTable && !this.isFirstDataLoading;
   }
   public getShowToolbar(location?: "top" | "bottom") {
     const showToolbar = !this.isDesignMode && this.canAddRow;

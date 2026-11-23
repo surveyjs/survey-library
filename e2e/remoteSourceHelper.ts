@@ -1,9 +1,10 @@
 import type { Page } from "@playwright/test";
 
 /* A data source for a records question whose reads answer when the test says so (answerReads). The records
-   are { id, col1 }; canInsert adds an insert, so that the add buttons show. */
-export async function assignDeferredSource(page: Page, questionName: string, count: number, options: { canInsert?: boolean } = {}): Promise<void> {
-  await page.evaluate(([questionName, count, canInsert]) => {
+   are { id, col1 }; canInsert adds an insert, so that the add buttons show; canRemove adds a remove, so that
+   the remove buttons show. */
+export async function assignDeferredSource(page: Page, questionName: string, count: number, options: { canInsert?: boolean, canRemove?: boolean } = {}): Promise<void> {
+  await page.evaluate(([questionName, count, canInsert, canRemove]) => {
     const w = window as any;
     const records = Array.from({ length: count as number }, (_, i) => ({ id: i, col1: "v" + i }));
     w.readRequests = [];
@@ -21,8 +22,11 @@ export async function assignDeferredSource(page: Page, questionName: string, cou
     if (canInsert) {
       source.insert = (record: any) => Promise.resolve(Object.assign({}, record, { id: 1000 + records.length }));
     }
+    if (canRemove) {
+      source.remove = () => Promise.resolve();
+    }
     w.survey.getQuestionByName(questionName).dataSource = source;
-  }, [questionName, count, !!options.canInsert] as [string, number, boolean]);
+  }, [questionName, count, !!options.canInsert, !!options.canRemove] as [string, number, boolean, boolean]);
 }
 export async function answerReads(page: Page): Promise<void> {
   await page.evaluate(() => {

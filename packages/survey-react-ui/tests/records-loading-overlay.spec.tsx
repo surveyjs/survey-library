@@ -55,7 +55,7 @@ describe("Records: the loading overlay", () => {
     const server = deferredSource();
     act(() => { matrix.dataSource = server.source; });
     const content = q(".sd-records__content") as HTMLElement;
-    expect(content.className, "#2").toBe("sd-records__content sd-records__content--loading");
+    expect(content.className, "#2: the first read").toBe("sd-records__content sd-records__content--loading sd-records__content--first-loading");
     const body = content.querySelector(".sd-records__body") as HTMLElement;
     expect([body.getAttribute("aria-busy"), body.hasAttribute("inert")], "#3").toEqual(["true", true]);
     const overlay = q(".sd-records__loading-overlay") as HTMLElement;

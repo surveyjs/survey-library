@@ -771,5 +771,24 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await compareScreenshot(page, root, "matrixdynamic-loading-next-page.png");
     });
+    test("Matrixdynamic loading overlay over the row actions", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        width: "900px",
+        elements: [{ type: "matrixdynamic", name: "matrix", title: "Question title", rowCount: 0, pageSize: 3,
+          columns: [{ name: "col1", cellType: "text" }] }]
+      });
+      await assignDeferredSource(page, "matrix", 9, { canRemove: true });
+      const root = page.locator(".sd-question");
+      const overlay = page.locator(".sd-records__loading-overlay");
+      await answerReads(page);
+      await expect(overlay).toHaveCount(0);
+      await page.locator(".sd-pager button[title='Next']").click();
+      await expect(overlay).toBeVisible();
+      await stopLoadingSpinners(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, root, "matrixdynamic-loading-row-actions.png");
+    });
   });
 });

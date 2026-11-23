@@ -34,6 +34,7 @@ import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dyn
 import { IDynamicDataFilterTarget } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
 type FilterSavedPresets = { [name: string]: IFilterSavedPresetState };
@@ -199,6 +200,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // been renamed, the lookup no longer finds the question that still carries the filter, and it
   // would stay filtered forever with nothing left to clear it.
   private attachedTarget: FilterTargetQuestion;
+  // The debounced write into a remote source (scheduleApplyToTarget) and the expression last written into the
+  // attached target: a change undone within the delay writes nothing.
+  private applyTimer: ReturnType<typeof setTimeout> = undefined;
+  private lastAppliedExpression: string = undefined;
   // The question targetQuestion names, if it can be filtered by a control. Asked by capability, the way the
   // data list asks a target whether it has "remove": the control imports none of the records questions.
   // A control taken off its page keeps its data, so without the parent check it would still find a
@@ -1469,6 +1474,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // the author's JSON, which an application may still hold: they are let go of, not disposed. The
   // respondent's own presets are the control's, and go with it.
   public dispose(): void {
+    this.cancelScheduledApply();
     this.detachFromTarget();
     if (!!this.toolbarsValue) {
       this.toolbarsValue.dispose();
@@ -1503,6 +1509,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     // event instead of a wrong pair of them.
     this.updateFilterExpression(true);
     this.attachedTarget = target;
+    // The new target has no filter of this control yet; the write below, if any, records what it gets.
+    this.lastAppliedExpression = "";
     // Attaching is not a change of the filter by itself: with nothing composed, before or now, there
     // is nothing to write and nothing to report. A move that empties the expression is one, though:
     // a host that mirrors the filter would otherwise keep querying by the text composed for the old
@@ -1514,8 +1522,10 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.updateToolbars();
   }
   private detachFromTarget(): void {
+    this.cancelScheduledApply();
     const target = this.attachedTarget;
     this.attachedTarget = undefined;
+    this.lastAppliedExpression = undefined;
     // A disposed question has no list and no controller left to write into.
     if (!!target && target.isDisposed !== true) {
       target.setControlFilter(this.controlFilterKey, "");
@@ -1523,9 +1533,35 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // A control with no target filters nothing itself: the application reads combinedExpression.
   private applyToTarget(): void {
+    this.cancelScheduledApply();
     const target = this.attachedTarget;
     if (!!target) {
       target.setControlFilter(this.controlFilterKey, this.combinedExpression);
+      this.lastAppliedExpression = this.combinedExpression;
+    }
+  }
+  /* A change made by the respondent. A source that reads from a server is asked again on every write, so the
+     write waits for settings.filterApplyDelay: a burst of changes (typing, several clicks) is one request.
+     Anything else is written at once. */
+  private scheduleApplyToTarget(): void {
+    const target = this.attachedTarget;
+    const delay = settings.filterApplyDelay;
+    if (!target || target.isDataSourceAssigned !== true || !(delay > 0)) {
+      this.applyToTarget();
+      return;
+    }
+    this.cancelScheduledApply();
+    this.applyTimer = setTimeout((): void => {
+      this.applyTimer = undefined;
+      if (this.isDisposed || this.attachedTarget !== target) return;
+      if (this.combinedExpression === this.lastAppliedExpression) return;
+      this.applyToTarget();
+    }, delay);
+  }
+  private cancelScheduledApply(): void {
+    if (this.applyTimer !== undefined) {
+      clearTimeout(this.applyTimer);
+      this.applyTimer = undefined;
     }
   }
   // A bound control whose target is not there (yet) has no fields to check restored conditions
@@ -1856,7 +1892,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     // own, before the write below - two writes and two events for one batch.
     this.updateFilterExpression(true);
     if (this.combinedExpression !== oldExpression) {
-      this.applyToTarget();
+      this.scheduleApplyToTarget();
     }
     if (raiseUIState && isUIStateChanged) {
       this.raiseUIStateChanged();
@@ -2072,7 +2108,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (combined === this.combinedExpression) return;
     this.setPropertyValue("combinedExpression", combined);
     if (!skipApply) {
-      this.applyToTarget();
+      this.scheduleApplyToTarget();
     }
   }
 }

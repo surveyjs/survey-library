@@ -9,7 +9,14 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
     super(props);
   }
-  protected renderElement(): React.JSX.Element {
+  protected renderElement(): React.JSX.Element | null {
+    if (this.question.isCheckboxView && this.question.booleanValue !== true) {
+      return (
+        <div className={this.question.viewModeCssClass} id={this.question.inputId}>
+          {this.question.checkboxViewText}
+        </div>
+      );
+    }
     const cssClasses = this.question.cssClasses;
     const itemClass = this.question.getCheckboxItemCss();
     const description = this.question.canRenderLabelDescription ?
@@ -32,6 +39,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               disabled={this.question.isDisabledAttr}
               readOnly={this.question.isReadOnlyAttr}
               checked={this.question.booleanValue || false}
+              tabIndex={this.question.isCheckboxView ? -1 : undefined}
               onChange={this.handleOnChange}
               aria-required={this.question.a11y_input_ariaRequired}
               aria-label={this.question.a11y_input_ariaLabel}
@@ -50,13 +58,13 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               }
               <span className="check" />
             </span>
-            {this.question.isLabelRendered && (
+            {this.question.isLabelRendered && !this.question.isCheckboxView && (
               <span className={cssClasses.checkboxControlLabel} id={this.question.labelRenderedAriaID}>
                 <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>
               </span>
             )}
           </label>
-          {description}
+          {!this.question.isCheckboxView ? description : null}
         </div>
       </div>
     );

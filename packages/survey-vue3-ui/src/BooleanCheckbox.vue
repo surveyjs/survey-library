@@ -1,5 +1,8 @@
 <template>
-  <div :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
+  <div v-if="question.isCheckboxView && question.booleanValue !== true" :class="question.viewModeCssClass" :id="question.inputId">
+    {{ question.checkboxViewText }}
+  </div>
+  <div v-else :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
     <div :class="question.getCheckboxItemCss()">
       <label :class="question.cssClasses.checkboxLabel">
         <input
@@ -12,6 +15,7 @@
           :indeterminate.prop="question.isIndeterminate"
           :disabled="question.isDisabledAttr"
           :readonly="question.isReadOnlyAttr"
+          :tabindex="question.isCheckboxView ? -1 : undefined"
           :aria-required="question.a11y_input_ariaRequired"
           :aria-label="question.a11y_input_ariaLabel"
           :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -29,7 +33,7 @@
           <span class="check"></span>
         </span>
         <span
-          v-if="question.isLabelRendered"
+          v-if="question.isLabelRendered && !question.isCheckboxView"
           :id="question.labelRenderedAriaID"
           :class="question.cssClasses.checkboxControlLabel"
         >
@@ -48,7 +52,7 @@
         </span>
       </label>
       <div
-        v-if="question.canRenderLabelDescription"
+        v-if="question.canRenderLabelDescription && !question.isCheckboxView"
         :class="question.cssDescription"
         :id="question.ariaDescriptionId"
       >

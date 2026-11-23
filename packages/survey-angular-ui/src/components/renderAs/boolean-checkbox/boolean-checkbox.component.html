@@ -1,4 +1,5 @@
-<div [class]="model.cssClasses.rootCheckbox" (keydown)="model.onKeyDown($event)">
+<div *ngIf="model.isCheckboxView && model.booleanValue !== true" [class]="model.viewModeCssClass" [attr.id]="model.inputId">{{ model.checkboxViewText }}</div>
+<div *ngIf="!model.isCheckboxView || model.booleanValue === true" [class]="model.cssClasses.rootCheckbox" (keydown)="model.onKeyDown($event)">
   <div [class]="model.getCheckboxItemCss()">
     <label [class]="model.cssClasses.checkboxLabel">
       <input
@@ -13,6 +14,7 @@
         [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
         [(ngModel)]="model.booleanValue" [value]="model.booleanValue"
         [disabled]="model.isDisabledAttr" [readonly]="model.isReadOnlyAttr" [indeterminate]="model.isIndeterminate"
+        [attr.tabindex]="model.isCheckboxView ? -1 : null"
       />
       <span [class]="model.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
         <svg *ngIf="!!model.svgIcon" [class]="model.cssClasses.checkboxItemDecorator">
@@ -20,10 +22,10 @@
         </svg>
         <span class="check"></span>
       </span>
-      <span *ngIf="model.isLabelRendered" [class]="model.cssClasses.checkboxControlLabel" [id]="model.labelRenderedAriaID">
+      <span *ngIf="model.isLabelRendered && !model.isCheckboxView" [class]="model.cssClasses.checkboxControlLabel" [id]="model.labelRenderedAriaID">
         <sv-ng-element-title-actions [element]="model"></sv-ng-element-title-actions>
       </span>
     </label>
-    <div *ngIf="model.canRenderLabelDescription" [class]="model.cssDescription" [attr.id]="model.ariaDescriptionId" [model]="model.locDescription" sv-ng-string></div>
+    <div *ngIf="model.canRenderLabelDescription && !model.isCheckboxView" [class]="model.cssDescription" [attr.id]="model.ariaDescriptionId" [model]="model.locDescription" sv-ng-string></div>
   </div>
 </div>

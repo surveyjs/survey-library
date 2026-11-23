@@ -96,6 +96,7 @@
   @include sjs2--typography--default-strong;
   height: var(--sv-calendar-cell-size);
   padding: 0 var(--sjs2-spacing-x150);
+  user-select: none;
 
   button {
     flex-direction: row-reverse;

@@ -112,6 +112,51 @@ describe("rich text editor model", () => {
     expect(element.textContent).toBe("Please read the terms");
   });
 
+  test("Ctrl+Z after bold restores the selected text", () => {
+    const question = new QuestionRichTextModel("c");
+    const { element, model } = mount(question);
+    const doc = element.ownerDocument as any;
+    const previous = doc.execCommand;
+    const undoStack: Array<() => void> = [];
+    doc.execCommand = (command: string, _ui?: boolean, value?: string): boolean => {
+      if (command !== "insertHTML") return false;
+      const selection = document.getSelection();
+      const range = selection.getRangeAt(0);
+      const snapshot = range.cloneContents();
+      range.deleteContents();
+      const holder = document.createElement("div");
+      holder.innerHTML = value || "";
+      const frag = document.createDocumentFragment();
+      const inserted: Node[] = [];
+      while(holder.firstChild) {
+        inserted.push(holder.firstChild);
+        frag.appendChild(holder.firstChild);
+      }
+      if (inserted.length) range.insertNode(frag);
+      undoStack.push(() => {
+        if (!inserted.length || !inserted[0].parentNode) return;
+        const restore = document.createRange();
+        restore.setStartBefore(inserted[0]);
+        restore.setEndAfter(inserted[inserted.length - 1]);
+        restore.deleteContents();
+        restore.insertNode(snapshot);
+      });
+      return true;
+    };
+    try {
+      element.innerHTML = "Please read the terms";
+      selectText(element, model, "read", "read");
+      model.run("bold");
+      expect(undoStack.length).toBe(1);
+      expect(element.innerHTML.toLowerCase()).toBe("please <strong>read</strong> the terms");
+      undoStack.pop()();
+      expect(element.textContent).toBe("Please read the terms");
+      expect(element.innerHTML.toLowerCase()).not.toContain("strong");
+    } finally {
+      doc.execCommand = previous;
+    }
+  });
+
   test("bold on a mixed selection stores the worked example", () => {
     const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
     const question = survey.getQuestionByName("c") as QuestionRichTextModel;

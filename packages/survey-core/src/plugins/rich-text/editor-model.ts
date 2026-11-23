@@ -812,7 +812,9 @@ function overlaps(range: Range, node: Text): boolean {
 
 function markHtml(range: Range, tags: string[]): string {
   const doc = range.startContainer.ownerDocument;
-  const contents = range.extractContents();
+  // Clone so insertHTML replaces the selection as one undo step. Extracting first
+  // deletes the text outside that step, and Ctrl+Z leaves the selection empty.
+  const contents = range.cloneContents();
   const wrapper = doc.createElement(tags[0]);
   wrapper.appendChild(contents);
   return wrapper.outerHTML;

@@ -379,7 +379,6 @@ describe("Matrix rebind: the rows are kept for a sort and a page move, and rebui
     { name: "the vertical column layout", json: { transposeData: true } },
     { name: "single-input mode", surveyJson: { questionsOnPageMode: "inputPerPage" } },
     { name: "onUpdateQuestionCssClasses", setup: (m) => { surveyOf(m).onUpdateQuestionCssClasses.add(() => { }); } },
-    { name: "onUpdateMatrixCellCss", setup: (m) => { surveyOf(m).onUpdateMatrixCellCss.add(() => { }); } },
     { name: "choices loaded on demand", columns: [plainColumns[0], { name: "name", cellType: "dropdown", choicesLazyLoadEnabled: true }] },
     { name: "a choice with elements", columns: [plainColumns[0],
       { name: "name", cellType: "checkbox", choices: [{ value: 1, elements: [{ type: "text", name: "t" }] }, 2] }] }

@@ -4448,7 +4448,6 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     this.runTriggersOnSetValue(fieldName, newValue);
     this.notifyRecordWritten();
     this.onRecordWritten(name, isComment);
-    this.onRecordChanged();
   }
   /* Returns undefined to refuse the write. The default hands the owner the field value, unbound: the
      owner stores it, and the question keeps its own. */
@@ -4464,13 +4463,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     for (let i = 0; i < questions.length; i++) {
       this.updateQuestionFromRecord(questions[i], record);
     }
-    this.onRecordChanged();
   }
-  /* The record changed: assigned from outside the item or written by one of its questions. What a survey
-     handler computed from it - the classes of a matrix row and its cells, of a Dynamic Panel's panel -
-     is computed again. A rebind is not a change: the object is configured for its new record as a new
-     one is (the creation events). */
-  protected onRecordChanged(): void { }
   protected updateQuestionFromRecord(question: Question, record: any): void {
     const name = question.getValueName();
     question.updateValueFromSurvey(!!record ? record[name] : undefined);

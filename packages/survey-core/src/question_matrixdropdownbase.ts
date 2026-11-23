@@ -615,9 +615,6 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       isDeleting: newValue == null && !changedQuestion || isComment && !newValue && !!changedQuestion
     };
   }
-  protected onRecordChanged(): void {
-    this.data.onRowRecordChanged(this);
-  }
   protected onRecordWritten(name: string, isComment: boolean): void {
     if (isComment) return;
     const changedQuestion = this.getQuestionByName(name);
@@ -1701,11 +1698,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
-  }
-  // A row's record changed: the table the renderers show, if one is built, runs onUpdateMatrixCellCss for the row again.
-  onRowRecordChanged(row: MatrixDropdownRowModelBase): void {
-    const table = <QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable");
-    if (!!table && !table.isDisposed) table.updateCustomCss(row);
   }
   protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
     if (!question) return undefined;

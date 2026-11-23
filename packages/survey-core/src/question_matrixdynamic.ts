@@ -83,11 +83,10 @@ interface IRowRemoval extends IRecordRemoval {
 // The count properties of the dynamic matrix: getRecordCountNames and the Serializer entries read them.
 const rowCountNames = getRecordCountNamesOf("Row");
 /* RB01: the survey events a new row fires for its cells (canRebindOwnItems). onUpdateQuestionCssClasses
-   and onUpdateMatrixCellCss too: a cell keeps the classes a handler computed for its record.
-   onAfterRenderQuestionInput fires once per mounted cell editor, and a kept editor is not mounted again
-   for the new record. */
+   too: a cell keeps the classes a handler computed for its record. onAfterRenderQuestionInput fires once
+   per mounted cell editor, and a kept editor is not mounted again for the new record. */
 const rowCreationEvents = ["onQuestionCreated", "onMatrixCellCreating", "onMatrixCellCreated", "onMatrixRowAdded", "onAfterRenderMatrixCell",
-  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses", "onUpdateMatrixCellCss"];
+  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses"];
 
 /**
   * A class that describes the Dynamic Matrix question type.

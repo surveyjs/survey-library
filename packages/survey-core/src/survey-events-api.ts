@@ -689,61 +689,6 @@ export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
    */
   css: string;
 }
-/* The options of SurveyModel.onUpdateMatrixCellCss.
-
-   What the event does: it is raised for each data cell (<td>) and each data row (<tr>) of a Dynamic
-   Matrix or a Multi-Select Matrix (matrixdynamic, matrixdropdown). A handler applies CSS classes based on
-   the row's data, for example a red "failed" status cell or a greyed-out draft row. It replaces the
-   onAfterRenderMatrixCell + DOM bookkeeping pattern: the classes are part of the model and every
-   renderer (React, Angular, Vue, vanilla JS) shows them.
-
-   How to tell a cell from a row: options.column is set for a cell and undefined for a row.
-
-   When it is raised:
-   - when the matrix builds a cell or a row for display (first render, a new page, a sort, an added row);
-   - again for every cell of a row and for the row itself when that row's value changes: a new
-     matrix.value or survey.data, an edit by the respondent, or a value an expression column writes.
-   So a class computed from the row's data stays up to date. To react to state outside the survey data,
-   store that state in the row records (a field needs no column) and assign matrix.value.
-
-   Where it is not raised: header cells, the footer (totals) row, error cells, action cells (drag handle,
-   remove button, detail toggle), row-title cells of a Multi-Select Matrix, and the detail panel row
-   (use onUpdatePanelCssClasses for the detail panel). In the vertical layout (transposeData: true) the
-   data cells are raised, but the <tr> elements are not: a vertical row shows a column, not a record.
-
-   The classes the handler receives are the cell's or row's default classes. Classes that reflect the
-   current state are added afterwards and must not be handled here: a cell's error and "answered"
-   classes, a row's expanded-detail and drag classes.
-
-   Performance note: while a handler is attached, a Dynamic Matrix with local paging or sorting builds new
-   rows on a page change or a sort instead of reusing them.
-
-   Example:
-     survey.onUpdateMatrixCellCss.add((_, options) => {
-       const record = options.question.value[options.row.getIndex()]; // matrixdropdown: [options.row.rowName]
-       if (options.column?.name === "status" && record.status === "failed") options.css += " status--failed";
-       if (!options.column && record.isDraft) options.css += " row--draft";
-     });
-
-   `question` (from MatrixDropdownQuestionEventMixin) is the matrix the cell or row belongs to. */
-export interface UpdateMatrixCellCssEvent extends MatrixDropdownQuestionEventMixin {
-  /* The matrix row the cell belongs to, or the row itself. To read the row's whole record, including
-     fields that have no column: options.question.value[options.row.getIndex()] in a Dynamic Matrix (also
-     correct on page 2, after a sort or a filter, and with a server dataSource), and
-     options.question.value[options.row.rowName] in a Multi-Select Matrix. row.value holds the column
-     values only. */
-  row: MatrixDropdownRowModelBase;
-  // The column of the cell; undefined when the event is raised for the row.
-  column: MatrixDropdownColumn;
-  /* The question that edits the cell's value (options.cellQuestion.value is the cell value); undefined
-     for the row. In a column with showInMultipleColumns, each choice has its own cell, and all of them
-     get the same cellQuestion. */
-  cellQuestion: Question;
-  /* A string of CSS classes separated by a space character, applied to the <td> or <tr>. It holds the
-     default classes when the handler is called; modify or replace it. Each run starts from the default
-     classes again, so a class added for an old value goes away when the value changes. */
-  css: string;
-}
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
   /**
    * @deprecated Use the `sender` parameter instead.

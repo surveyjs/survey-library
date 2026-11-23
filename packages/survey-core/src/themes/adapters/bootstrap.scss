@@ -732,3 +732,7 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
     var(--sjs2-layout-component-panel-header-padding-top) - var(--sjs2-layout-component-panel-header-padding-bottom)
   );
 }
+
+.sd-paneldynamic__panel-wrapper {
+  padding-top: calc(var(--sjs-bs-card-spacer-y) * 2);
+}

@@ -1453,6 +1453,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    *
    * - `"always"`\
    * Displays the sort bar even when column headers support sorting.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
    * @see maxSortLevel
    */
   public get showSortBar(): "auto" | "always" {

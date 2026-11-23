@@ -2302,6 +2302,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
    * Default value: 0 (pagination is disabled)
    *
    * The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @see pageIndex
    * @see pageCount
    * @since 3.2.2
@@ -2337,6 +2341,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   }
   /**
    * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @see pageSize
    * @see pageCount
    * @since 3.2.2
@@ -2345,6 +2353,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   /**
    * Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @see pageSize
    * @see pageIndex
    * @since 3.2.2
@@ -2379,6 +2391,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
    * Assigning an array, adding or removing criteria, or changing an item's `field` or `direction` reapplies sorting. This property reflects the current sort, including changes made by respondents.
    *
    * Sorting changes the display order while preserving the record order in the question's `value`.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see sort
    * @see clearSort
    * @see allowSort
@@ -2392,6 +2408,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
    * Updates [`sortCriteria`](#sortCriteria) and applies sorting without validating the current data page. Available regardless of the [`allowSort`](#allowSort) and [`maxSortLevel`](#maxSortLevel) settings.
    *
    * When an array of sorting criteria is passed, it replaces all existing criteria, and the `direction` and `append` parameters are ignored.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @param fieldOrCriteria A field name or an array of objects with a `field` name and an optional `direction` (`"asc"` or `"desc"`). Criteria are applied in array order; the default direction is `"asc"`.
    * @param direction The sort direction: `"asc"` (default) or `"desc"`. Applies when `fieldOrCriteria` is a field name.
    * @param append Pass `true` to preserve existing criteria and add the field as the last sorting level. If the field is already present, its direction is updated in place. Defaults to `false`, which replaces all existing criteria. Applies when `fieldOrCriteria` is a field name.
@@ -2404,6 +2424,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
    * Clears all sorting criteria and displays data in the original order.
    *
    * Equivalent to setting [`sortCriteria`](#sortCriteria) to an empty array.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see sort
    */
   public clearSort(): void { this.paging.clearSort(); }
@@ -2429,6 +2453,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
    * Sorting in code is available regardless of this property's value.
    *
    * In matrix questions, you can set an individual column's [`allowSort`](/form-library/documentation/api-reference/multi-select-matrix-column-values#allowSort) property to `false` to disable sorting by that column.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see maxSortLevel
    * @see sortCriteria
    * @see sort
@@ -2442,6 +2470,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
    * Each field defines a sorting level. Set this property to a value greater than 1 to enable sorting by multiple fields.
    *
    * This limit applies only to respondent sorting. You can specify more fields in code using [`sortCriteria`](#sortCriteria) or the [`sort()`](#sort) method.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see allowSort
    */
   public get maxSortLevel(): number {

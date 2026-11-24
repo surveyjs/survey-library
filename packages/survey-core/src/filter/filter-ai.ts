@@ -15,7 +15,7 @@ import {
 } from "./filter-conditions";
 import { getFieldChoiceItems, toExpressionConst } from "./filter-expression";
 import { FilterFieldEditorKind, getFilterFieldListItems } from "./filter-field-kinds";
-import { filterPresetTitleMaxLength, isFilterPresetTitleTaken } from "./filter-preset-dialog";
+import { filterPresetTitleMaxLength, isFilterPresetTitleTaken } from "./filter-preset";
 
 // The AI side of a Filter Control: what the model is told about the control's fields, and how its
 // answer is read and checked. The answer is a filter the control shows as conditions - one per field,

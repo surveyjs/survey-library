@@ -3,9 +3,8 @@ import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { SurveyModel } from "../survey";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
-import { FilterPreset } from "./filter-preset";
+import { FilterPreset, filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset";
 import { filterPopupFooterAppearance } from "./filter-field-popup";
-import { filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset-dialog";
 import { getLocaleString } from "../surveyStrings";
 // The name is a text question: registered with the serializer before a survey of one is made.
 import "../question_text";

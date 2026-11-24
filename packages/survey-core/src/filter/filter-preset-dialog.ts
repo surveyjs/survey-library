@@ -8,7 +8,7 @@ import { getLocaleString } from "../surveyStrings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { IFilterCondition, IFilterPresetEdit } from "../interfaces/ui-interfaces";
-import { FilterPreset } from "./filter-preset";
+import { FilterPreset, filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
 import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { ExpressionRunner } from "../expressions/expressionRunner";
@@ -33,25 +33,6 @@ export interface IFilterPresetDialogOwner extends IFilterConditionsEditorOwner {
   cssClasses: any;
   isMobile?: boolean;
 }
-// The longest title a preset may get: the mockup's counter.
-export const filterPresetTitleMaxLength = 32;
-// Whether another preset already has the title: trimmed and compared case-insensitively, as a
-// respondent reads them.
-export function isFilterPresetTitleTaken(title: string, otherTitles: Array<string>): boolean {
-  const key = (title || "").trim().toLocaleLowerCase();
-  return otherTitles.some((other: string): boolean => (other || "").trim().toLocaleLowerCase() === key);
-}
-// Why a title will not do for a preset - none given, too long, another preset's - or undefined when
-// it will: what the preset dialogs and "Save as..." check a title by.
-export function getFilterPresetTitleError(value: any, otherTitles: Array<string>, locale: string): string {
-  const title = (value || "").toString().trim();
-  if (!title) return getLocaleString("requiredError", locale);
-  if (title.length > filterPresetTitleMaxLength) {
-    return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
-  }
-  return isFilterPresetTitleTaken(title, otherTitles) ? getLocaleString("filterPresetTitleExists", locale) : undefined;
-}
-
 // A preset as a dialog edits it: its title, and its conditions - or, null, the preset is edited as
 // text, which expression holds: one that does not decompose always is, any other when the respondent
 // asks for it (editAsText).

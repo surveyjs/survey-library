@@ -2,6 +2,7 @@ import { Base } from "../base";
 import { Serializer } from "../jsonobject";
 import { LocalizableString } from "../localizablestring";
 import { ISurvey } from "../base-interfaces";
+import { getLocaleString } from "../surveyStrings";
 
 // The control that holds a preset: the survey its title is localized for.
 export interface IFilterPresetOwner {
@@ -15,6 +16,25 @@ export function getUniqueFilterActionId(base: string, isUsed: (id: string) => bo
     id = base + "-" + n;
   }
   return id;
+}
+
+// The longest title a preset may get: the mockup's counter.
+export const filterPresetTitleMaxLength = 32;
+// Whether another preset already has the title: trimmed and compared case-insensitively, as a
+// respondent reads them.
+export function isFilterPresetTitleTaken(title: string, otherTitles: Array<string>): boolean {
+  const key = (title || "").trim().toLocaleLowerCase();
+  return otherTitles.some((other: string): boolean => (other || "").trim().toLocaleLowerCase() === key);
+}
+// Why a title will not do for a preset - none given, too long, another preset's - or undefined when
+// it will: what the preset dialogs and "Save as..." check a title by.
+export function getFilterPresetTitleError(value: any, otherTitles: Array<string>, locale: string): string {
+  const title = (value || "").toString().trim();
+  if (!title) return getLocaleString("requiredError", locale);
+  if (title.length > filterPresetTitleMaxLength) {
+    return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
+  }
+  return isFilterPresetTitleTaken(title, otherTitles) ? getLocaleString("filterPresetTitleExists", locale) : undefined;
 }
 
 // The JSON of a preset, and what addPreset() and updatePreset() take.

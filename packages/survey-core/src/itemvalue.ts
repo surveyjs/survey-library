@@ -12,7 +12,7 @@ import { Base, ComputedUpdater } from "./base";
 import { ISaveToJSONOptions, IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
-import { Question } from "./question";
+import type { Question } from "./question";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import type { HashTable } from "./helpers";
@@ -21,6 +21,13 @@ interface IItemConditionRun {
   expression: string;
   value: any;
   result: boolean;
+}
+
+// The item's owner when it is a question. Told by isQuestion and not by instanceof: question.ts
+// reaches this file at runtime (through the Filter Control's property rules), so importing Question
+// as a value here would close an import cycle.
+function getOwnerQuestion(owner: any): Question {
+  return !!owner && owner.isQuestion ? <Question>owner : undefined;
 }
 
 export class ItemValueGetterContext implements IValueGetterContext {
@@ -217,8 +224,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     const lastRun = isVisible ? item.lastVisibleConditionRun : item.lastEnableConditionRun;
     if (!!lastRun && lastRun.expression === runner.expression && !runner.isAsync &&
       Helpers.isTwoValueEquals(lastRun.value, item.value, false, true, false)) {
-      const owner = item.locOwner;
-      if (owner instanceof Question && owner.canSkipItemCondition(runner)) return lastRun.result;
+      const owner = getOwnerQuestion(item.locOwner);
+      if (!!owner && owner.canSkipItemCondition(runner)) return lastRun.result;
     }
     const result = runner.runContext(item.getValueGetterContext(), properties);
     ItemValue.setLastConditionRun(item, isVisible, { expression: runner.expression, value: item.value, result: result });
@@ -515,16 +522,17 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   //base action
   @property() selectedValue: boolean;
   public get selected(): boolean {
-    const locOwner = this._locOwner;
-    if (locOwner instanceof Question && locOwner.isItemSelected && this.selectedValue === undefined) {
+    const locOwner = getOwnerQuestion(this._locOwner);
+    if (!!locOwner && locOwner.isItemSelected && this.selectedValue === undefined) {
       this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => locOwner.isItemSelected(this)));
     }
     return this.selectedValue;
   }
   private componentValue: string;
   public getComponent(): string {
-    if (this._locOwner instanceof Question) {
-      return this.componentValue || this._locOwner.itemComponent;
+    const owner = getOwnerQuestion(this._locOwner);
+    if (!!owner) {
+      return this.componentValue || owner.itemComponent;
     }
     return this.componentValue;
   }

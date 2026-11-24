@@ -9,7 +9,7 @@ import { PanelModel } from "../../src/panel";
 import { FilterChip } from "../../src/filter/filter-toolbars";
 import { FilterConditionsEditor } from "../../src/filter/filter-conditions-editor";
 import { getFilterExpressionError } from "../../src/filter/filter-expression-panel";
-import { getFilterPresetTitleError } from "../../src/filter/filter-preset-dialog";
+import { getFilterPresetTitleError } from "../../src/filter/filter-preset";
 
 // The control's own captions come from the locale dictionary, in the survey's locale: a locale that
 // translates them shows its texts, a locale that does not falls back to English. Both locales are the

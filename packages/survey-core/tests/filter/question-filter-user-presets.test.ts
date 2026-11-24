@@ -2,6 +2,8 @@ import { describe, test, expect } from "vitest";
 import { createFilter, presetList, onCombinedExpressionChanged } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
+import { FilterPreset } from "../../src/filter/filter-preset";
+import { Serializer } from "../../src/jsonobject";
 import { Action } from "../../src/actions/action";
 
 // Presets the respondent adds, renames, edits, deletes and resets (New Preset, Save as... and Edit
@@ -31,7 +33,7 @@ describe("QuestionFilterModel.addPresetFromConditions", () => {
     expect(names(q), "#2").toEqual(["adults", "germans", "edges", "userPreset1"]);
     expect([q.selectedPreset, q.combinedExpression, q.isUserPreset(item), q.isUserPreset(q.presets[0])], "#3").toEqual(["", "", true, false]);
     expect(events, "#4").toEqual({ filter: 0, uiState: 1 });
-    expect(q.toJSON().presets.length, "#5: presets is the live list").toBe(4);
+    expect([q.presets.length, q.toJSON().presets.length], "#5: presets is the live list, the JSON is the author's").toEqual([4, 3]);
     q.togglePreset("userPreset1");
     expect([q.activePreset, q.combinedExpression], "#6: it is a preset like the others").toEqual([item, "{age} > 60"]);
   });
@@ -166,5 +168,79 @@ describe("QuestionFilterModel.applyPresetEdits and getEditablePresets", () => {
     q.getPresetByName("changed").allowEdit = false;
     expect(q.getEditablePresets().map((item) => item.name), "#1: not one that may only be reset").toEqual(["adults", "germans", "edges"]);
     expect(control({ showPresets: false }).getEditablePresets().length, "#2: hidden presets have no list").toBe(0);
+  });
+});
+
+// presets is the live list; toJSON() stores the presets as the author made them, and uiState holds what
+// the respondent changed over them.
+describe("QuestionFilterModel.toJSON keeps the authored presets", () => {
+  const authored = (q: QuestionFilterModel): any => q.toJSON().presets;
+  const live = (q: QuestionFilterModel): Array<Array<string>> => q.presets.map((item) => [item.name, item.title, item.expression]);
+  test("the respondent's own preset is in the live list, not in the JSON", () => {
+    const q = control();
+    q.addPresetFromConditions("Old", [{ field: "age", operator: "greater", value: 60 }]);
+    expect([q.presets.length, authored(q)], "#1").toEqual([4, presets]);
+  });
+  test("an authored preset the respondent deleted stays in the JSON in its place, as the JSON made it", () => {
+    const q = control();
+    q.deletePreset("germans");
+    q.updatePresetFromConditions("adults", "Grown-ups", [{ field: "age", operator: "greater", value: 21 }]);
+    q.deletePreset("adults");
+    expect(names(q), "#1").toEqual(["edges"]);
+    expect(authored(q), "#2: deleted in another order than they come, one of them changed first").toEqual(presets);
+  });
+  test("an authored preset the respondent changed is in the JSON as the JSON made it: title, text and permissions", () => {
+    const json = [{ name: "adults", title: { default: "Adults", de: "Erwachsene" }, expression: "{age} > 18" },
+      { name: "kids", expression: "{age} < 12", allowDelete: false }];
+    const q = control({ presets: json });
+    q.updatePresetFromConditions("adults", "Mine", [{ field: "age", operator: "greater", value: 30 }]);
+    q.updatePreset({ name: "kids", title: "Children", expression: "{age} < 10", allowEdit: false, allowDelete: true, allowCopy: false });
+    const adults = q.getPresetByName("adults");
+    expect([adults.title, adults.expression, q.isPresetModified(adults)], "#1: the live preset keeps the change").toEqual(["Mine", "{age} > 30", true]);
+    expect(authored(q), "#2").toEqual(json);
+  });
+  test("a property added to presets keeps its value in the JSON of a preset the respondent changed", () => {
+    Serializer.addProperty("filterpreset", "tag");
+    try {
+      const json = [{ name: "adults", expression: "{age} > 18", tag: "a" }];
+      const q = control({ presets: json });
+      q.updatePresetFromConditions("adults", "Mine", [{ field: "age", operator: "greater", value: 30 }]);
+      expect(authored(q), "#1").toEqual(json);
+    } finally {
+      Serializer.removeProperty("filterpreset", "tag");
+    }
+  });
+  test("a restored uiState changes the live list and not the JSON; the JSON and uiState bring the live list back", () => {
+    const q = control();
+    const survey = <SurveyModel>q.survey;
+    survey.uiState = { questions: { f1: { filter: { deletedPresets: ["germans"],
+      presets: { adults: { title: "Grown-ups", expression: "{age} > 21" } },
+      userPresets: [{ name: "userPreset1", title: "Old", expression: "{age} > 60" }] } } } };
+    expect(live(q), "#1").toEqual([["adults", "Grown-ups", "{age} > 21"], ["edges", "edges", "{age} < 18 or {age} > 35"], ["userPreset1", "Old", "{age} > 60"]]);
+    expect(authored(q), "#2").toEqual(presets);
+    const copy = new SurveyModel(survey.toJSON());
+    copy.uiState = survey.uiState;
+    expect(live(<QuestionFilterModel>copy.getQuestionByName("f1")), "#3").toEqual(live(q));
+  });
+  test("the application's own changes of the list are the author's: they are in the JSON", () => {
+    const q = control();
+    q.deletePreset("germans");
+    const late = new FilterPreset("late");
+    late.expression = "{age} > 80";
+    q.presets.push(late);
+    q.getPresetByName("edges").title = "Edges";
+    expect(authored(q), "#1: a deleted preset keeps its place among them").toEqual([presets[0], presets[1],
+      { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" }, { name: "late", expression: "{age} > 80" }]);
+    q.presets = <any>[{ name: "only", expression: "{age} = 1" }];
+    expect(authored(q), "#2: a new list replaces the deletions too").toEqual([{ name: "only", expression: "{age} = 1" }]);
+  });
+  test("in the designer the JSON is the live list: the author's changes are saved", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", presets: [{ name: "adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} < 12" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.presets[0].title = "Adults";
+    q.presets.splice(1, 1);
+    expect(authored(q), "#1").toEqual([{ name: "adults", title: "Adults", expression: "{age} > 18" }]);
   });
 });

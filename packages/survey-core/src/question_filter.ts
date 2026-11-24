@@ -37,6 +37,13 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
 type FilterSavedPresets = { [name: string]: IFilterSavedPresetState };
+// What an authored preset was in the JSON before the respondent first changed it: its title as JSON (a
+// localized text stays localized), its expression and its permissions.
+type FilterOriginalPreset = { expression: string, title: any, allowEdit: boolean, allowDelete: boolean, allowCopy: boolean };
+// An authored preset the respondent deleted: the preset itself, its place among the authored presets
+// (getAuthoredPresetList) and what the JSON made it, if they had changed it first - all toJSON() needs
+// to store it as the author did.
+type FilterDeletedPreset = { name: string, preset: FilterPreset, index: number, original: FilterOriginalPreset };
 // The operators whose value is a set of values - see isSameConditionSet().
 // The target is always the question findQuestionByName returns, asked by capability - see filterTarget.
 type FilterTargetQuestion = Question & IDynamicDataFilterTarget;
@@ -285,7 +292,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
 
   // presets is the live list: the authored presets the respondent did not delete, then the
-  // respondent's own and the ones the application added.
+  // respondent's own and the ones the application added. toJSON() stores the authored presets as the
+  // JSON made them (getSerializablePresetsValue); uiState holds what the respondent changed over them.
   public getPresetByName(name: string): FilterPreset {
     if (!name) return undefined;
     const presets = this.presets;
@@ -580,8 +588,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     }, true);
   }
   // Removes a preset from presets. The respondent's own is disposed once the toolbars have let go of its
-  // chip; an authored one's name is remembered as deleted, so uiState can tell it from one never there.
-  // A preset that is selected is unselected, and the filter with it: there is nothing left to filter by.
+  // chip; an authored one is remembered as deleted (rememberDeletedPreset), so uiState can tell it from
+  // one never there and toJSON() still stores it. A preset that is selected is unselected, and the
+  // filter with it: there is nothing left to filter by.
   public deletePreset(name: string): void {
     const preset = this.getPresetByName(name);
     if (!preset || this.isDesignMode) return;
@@ -593,9 +602,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (isUser) {
         this.userPresetsValue.splice(this.userPresetsValue.indexOf(preset), 1);
       } else {
-        this.deletedPresetNames.push(name);
-        delete this.originalPresets[name];
-        delete this.savedPresetTitles[name];
+        this.rememberDeletedPreset(preset);
       }
       this.removeFromPresets(preset);
       this.updateFilterExpression();
@@ -1230,20 +1237,63 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The titles the respondent gave authored presets (updatePreset), by name. What they filter by is
   // their expression itself: a preset's text is the only record of what it filters by.
   private savedPresetTitles: HashTable<string> = {};
-  // What an authored preset was in the JSON before the respondent first changed it - its expression,
-  // and its title as JSON (a localized text stays localized) - by name. A preset with an entry here is
-  // modified (isPresetModified); resetPreset() puts it back and drops the entry. getUIState() stores the
-  // expression of one whose text is not the JSON's any more. A preset that is later removed just
-  // leaves a stale, harmless entry here: getUIState() skips a name that no longer resolves. A presets
-  // array the host assigns anew drops the entries of the presets it replaced - see
-  // dropReplacedSavedPresets().
-  private originalPresets: HashTable<{ expression: string, title: any, allowEdit: boolean, allowDelete: boolean, allowCopy: boolean }> = {};
+  // What an authored preset was in the JSON before the respondent first changed it, by name. A preset
+  // with an entry here is modified (isPresetModified); resetPreset() puts it back and drops the entry,
+  // deleting it moves the entry into deletedPresetsValue. getUIState() stores the expression of one
+  // whose text is not the JSON's any more, and toJSON() stores the entry instead of the preset. A
+  // preset the host later removes just leaves a stale, harmless entry here: getUIState() skips a name
+  // that no longer resolves, and toJSON() goes by the presets there are. A presets array the host
+  // assigns anew drops the entries of the presets it replaced - see dropReplacedSavedPresets().
+  private originalPresets: HashTable<FilterOriginalPreset> = {};
   // The respondent's own presets (addPreset), in the order they were added. They are in presets as
   // well (the live list); this tells them from the authored ones, which uiState keeps apart.
   private userPresetsValue: Array<FilterPreset> = [];
-  // The authored presets the respondent deleted, by name: gone from presets, kept here for uiState and
-  // so that the name stays taken.
-  private deletedPresetNames: Array<string> = [];
+  // The authored presets the respondent deleted, in the order they were deleted: gone from presets,
+  // kept here for uiState and toJSON(), and so that the name stays taken.
+  private deletedPresetsValue: Array<FilterDeletedPreset> = [];
+  // Before the preset leaves presets: its place is read off the list it is still in.
+  private rememberDeletedPreset(preset: FilterPreset): void {
+    const name = preset.name;
+    this.deletedPresetsValue.push({ name: name, preset: preset, index: this.getAuthoredPresetList().indexOf(preset), original: this.originalPresets[name] });
+    delete this.originalPresets[name];
+    delete this.savedPresetTitles[name];
+  }
+  // The authored presets in the order the author made them: those in presets that are not the
+  // respondent's own, with the deleted ones back in their places. Each was deleted at its index in this
+  // very list, so putting them back by ascending index gives the list they were taken from. A list the
+  // host changed since (push, splice) may move one by as many places; a new array drops them anyway.
+  private getAuthoredPresetList(): Array<FilterPreset> {
+    const res = this.presets.filter((preset: FilterPreset): boolean => !this.isUserPreset(preset));
+    const deleted = [].concat(this.deletedPresetsValue).sort((a: FilterDeletedPreset, b: FilterDeletedPreset): number => a.index - b.index);
+    deleted.forEach((item: FilterDeletedPreset): void => {
+      res.splice(Math.min(Math.max(item.index, 0), res.length), 0, item.preset);
+    });
+    return res;
+  }
+  // What toJSON() stores of presets: the authored presets as the JSON made them (getAuthoredPresetList),
+  // so a survey saved while the respondent works keeps the author's JSON - none of the respondent's own,
+  // and a preset they changed as it was. The application's own changes of the list (an array assigned,
+  // push, splice, a property set) are the author's and are stored. In the designer nothing is tracked
+  // and this is presets itself.
+  public getSerializablePresetsValue(): Array<FilterPreset> {
+    return this.getAuthoredPresetList().map((preset: FilterPreset): FilterPreset => {
+      const deleted = this.deletedPresetsValue.filter((item: FilterDeletedPreset): boolean => item.preset === preset)[0];
+      const original = !!deleted ? deleted.original : this.originalPresets[preset.name];
+      return !!original ? this.createSerializablePreset(preset, original) : preset;
+    });
+  }
+  // A copy of the preset with what the JSON made it put back: the other properties - one an application
+  // added to presets too - are the preset's own. Nothing holds the copy, so it needs no dispose.
+  private createSerializablePreset(preset: FilterPreset, original: FilterOriginalPreset): FilterPreset {
+    const res = <FilterPreset>Serializer.createClass(preset.getType());
+    new JsonObject().toObject(preset.toJSON(), res);
+    res.locTitle.setJson(original.title, true);
+    res.expression = original.expression;
+    res.allowEdit = original.allowEdit;
+    res.allowDelete = original.allowDelete;
+    res.allowCopy = original.allowCopy;
+    return res;
+  }
   private createUserPreset(name: string, title: string, expression: string): FilterPreset {
     const preset = new FilterPreset(name);
     this.setPresetText(preset.locTitle, (title || "").trim());
@@ -1260,7 +1310,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // A name is a key, not a title: matched exactly, with no trimming or case folding.
   private isPresetNameUsed(name: string): boolean {
-    return !!this.getPresetByName(name) || this.deletedPresetNames.indexOf(name) > -1;
+    return !!this.getPresetByName(name) || this.deletedPresetsValue.some((item: FilterDeletedPreset): boolean => item.name === name);
   }
   // A title the respondent typed is the text in every locale: set as the default text,
   // with no translations left that would show the author's text in another locale.
@@ -1499,7 +1549,10 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!!presets) { state.presets = presets; isEmpty = false; }
     const userPresets = this.getUIStateUserPresets();
     if (!!userPresets) { state.userPresets = userPresets; isEmpty = false; }
-    if (this.deletedPresetNames.length > 0) { state.deletedPresets = [].concat(this.deletedPresetNames); isEmpty = false; }
+    if (this.deletedPresetsValue.length > 0) {
+      state.deletedPresets = this.deletedPresetsValue.map((item: FilterDeletedPreset): string => item.name);
+      isEmpty = false;
+    }
     if (isEmpty) return res;
     res = res || {};
     res.filter = state;
@@ -1655,7 +1708,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (this.selectedPreset === name) {
         this.setSelectedPreset("");
       }
-      this.deletedPresetNames.push(name);
+      this.rememberDeletedPreset(preset);
       this.removeFromPresets(preset);
     });
   }
@@ -1880,7 +1933,7 @@ export class QuestionFilterModel extends QuestionNonValue {
         if (!isKept(name)) delete saved[name];
       });
     });
-    this.deletedPresetNames = [];
+    this.deletedPresetsValue = [];
     this.userPresetsValue = this.userPresetsValue.filter((preset: FilterPreset): boolean => news.indexOf(preset) > -1);
     const pending = this.pendingPresets;
     if (!!pending) {
@@ -2055,7 +2108,9 @@ Serializer.addClass("filter", [
   // With no target question, the control's own fields (the host reads its combinedExpression). With
   // one, overrides of the target's fields and fields of the record the target has no column for.
   { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name" },
-  { name: "presets:filterpreset[]", className: "filterpreset", uniqueProperty: "name" },
+  // The live list is the respondent's changes too: the JSON is the authored presets (getSerializablePresetsValue).
+  { name: "presets:filterpreset[]", className: "filterpreset", uniqueProperty: "name",
+    onSerializeValue: (obj: any): any => obj.getSerializablePresetsValue() },
   // For a control: "" first (no default preset), which also keeps the list non-empty, so a designer
   // that skips an empty list of choices still drops the presets that are gone. Without a control
   // (the linter, the JSON schema) there is no list: a lone "" would read as the only allowed value.

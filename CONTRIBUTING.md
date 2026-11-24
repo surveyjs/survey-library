@@ -106,6 +106,13 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/survey
 - You may want to **include screenshots and animated GIFs** which help you demonstrate the steps or point out the part which the suggestion is related to.
 - **Explain why this enhancement would be useful** to most SurveyJS Form Library users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
+<!-- omit in toc -->
+#### API gaps found while integrating
+
+If you, or an AI coding agent working for you, had to work around SurveyJS in application code, please report the gap instead of keeping the workaround. Follow [Missing API or found a bug?](./packages/survey-core/README.md#missing-api-or-found-a-bug): it lists what to include, what to leave out, and the `[API gap]` title prefix.
+
+Issues created through the GitHub CLI (`gh issue create`) or the GitHub API skip the issue forms. They are welcome as long as the body follows that format.
+
 ### Your First Code Contribution
 
 SurveyJS Team follows the [GitHub flow](https://docs.github.com/en/get-started/using-github/github-flow) in development. It means that all proposed changes to our codebase should be made via pull requests. Here's how you can contribute to the SurveyJS codebase:

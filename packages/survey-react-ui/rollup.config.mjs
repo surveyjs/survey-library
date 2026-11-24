@@ -57,7 +57,11 @@ const buildPlatformJson = {
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/surveyjs/surveyjs.git"
+    "url": "git+https://github.com/surveyjs/survey-library.git",
+    "directory": "packages/survey-react-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/surveyjs/survey-library/issues"
   },
   "main": "survey-react-ui.js",
   "module": "fesm/survey-react-ui.mjs",

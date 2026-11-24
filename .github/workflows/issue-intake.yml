@@ -1,0 +1,110 @@
+name: Issue intake
+
+# ---------------------------------------------------------------------------
+# - issues: opened
+#   A title that starts with "[API gap]" gets the `api-gap` and `needs-triage`
+#   labels. If the body has neither a version number nor a JSON code block,
+#   one comment asks for both.
+#
+# - pull_request_target: opened
+#   A pull request from someone other than an owner, member or collaborator
+#   whose description references no issue (#123 or an issues URL) gets a linked
+#   issue "[From PR #<n>] <PR title>", labeled `api-gap` and `needs-triage`, and
+#   a comment that links to it and to AGENTS.md.
+#
+# Security: pull_request_target runs with a write token in the context of the
+# base repository. This workflow never checks out or runs pull request code;
+# it reads only the event payload.
+# ---------------------------------------------------------------------------
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    steps:
+      # No checkout: the pull request's code is never fetched or run.
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: "api-gap", color: "1d76db", description: "A workaround in app code that a SurveyJS API should replace" },
+              { name: "needs-triage", color: "fbca04", description: "Not yet reviewed by a maintainer" }
+            ];
+            const labelNames = labels.map(l => l.name);
+            async function ensureLabels() {
+              for (const label of labels) {
+                try {
+                  await github.rest.issues.createLabel({ ...context.repo, ...label });
+                } catch (e) {
+                  if (e.status !== 422) throw e; // 422: the label already exists
+                }
+              }
+            }
+            function comment(number, body) {
+              return github.rest.issues.createComment({ ...context.repo, issue_number: number, body });
+            }
+
+            async function onIssueOpened(issue) {
+              if (!/^\[API gap\]/i.test((issue.title || "").trim())) return;
+              await ensureLabels();
+              await github.rest.issues.addLabels({ ...context.repo, issue_number: issue.number, labels: labelNames });
+
+              const body = issue.body || "";
+              const hasVersion = /\b\d+\.\d+\.\d+\b/.test(body);
+              const hasJson = /```\s*json\b/i.test(body);
+              if (hasVersion || hasJson) return;
+              await comment(issue.number, [
+                "Thanks for the report. To help us design the API, please add:",
+                "",
+                "- the SurveyJS package names and versions (for example, `survey-core 3.2.4`);",
+                "- a minimal survey JSON in a ```` ```json ```` code block.",
+                "",
+                "If you can, also include the workaround code you wrote and the API you expected. Please don't include application code beyond the workaround, credentials or real data."
+              ].join("\n"));
+            }
+
+            async function onPullRequestOpened(pr) {
+              if (["OWNER", "MEMBER", "COLLABORATOR"].includes(pr.author_association)) return;
+              // Dependabot and other apps open pull requests that need no tracking issue.
+              if (pr.user.type === "Bot") return;
+              const prBody = (pr.body || "").trim();
+              const referencesIssue = /(^|[^\w&])#\d+\b/.test(prBody) || /github\.com\/[\w.-]+\/[\w.-]+\/issues\/\d+/i.test(prBody);
+              if (referencesIssue) return;
+
+              // An issue body is limited to 65,536 characters.
+              const maxQuoteLength = 60000;
+              let quote = prBody ? prBody.split(/\r?\n/).map(line => "> " + line).join("\n") : "> (The pull request has no description.)";
+              if (quote.length > maxQuoteLength) quote = quote.substring(0, maxQuoteLength) + "\n>\n> (truncated)";
+
+              await ensureLabels();
+              const { data: issue } = await github.rest.issues.create({
+                ...context.repo,
+                title: `[From PR #${pr.number}] ${pr.title}`,
+                labels: labelNames,
+                body: [
+                  `Opened automatically for pull request #${pr.number} (${pr.html_url}) by @${pr.user.login}, which references no issue.`,
+                  "",
+                  "Pull request description:",
+                  "",
+                  quote
+                ].join("\n")
+              });
+              const agentsUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${context.payload.repository.default_branch}/AGENTS.md`;
+              await comment(pr.number, `Thanks for the pull request. We opened #${issue.number} to track the need behind it; please describe the use case there. New public API starts with an issue, as described in [AGENTS.md](${agentsUrl}).`);
+            }
+
+            if (context.eventName === "issues") {
+              await onIssueOpened(context.payload.issue);
+            } else if (context.eventName === "pull_request_target") {
+              await onPullRequestOpened(context.payload.pull_request);
+            }

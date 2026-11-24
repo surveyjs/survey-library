@@ -51,7 +51,7 @@ function getChoicesField(obj: any): IDynamicDataFilterField {
   if (!obj) return undefined;
   // A Filter Control's fields entry: the field it stands for, the target's it overrides among them. Asked
   // first: an entry has getFilterField and a templateQuestion too, and would pass for a column.
-  const control: any = obj.fieldOwner;
+  const control: any = obj.fieldOwner || obj.designOwner;
   if (!!control && typeof control.getFieldOfEntry === "function") {
     const field = control.getFieldOfEntry(obj);
     if (!!field) return field;

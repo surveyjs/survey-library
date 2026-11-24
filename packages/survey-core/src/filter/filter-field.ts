@@ -52,6 +52,10 @@ export class FilterField extends Base implements ILocalizableOwner, IFilterField
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.fieldOwner ? this.fieldOwner.getSurvey(live) : null;
   }
+  // The control a designer's row of getDesignFieldEntries() stands for a field of, while the entry is not
+  // in its fields. Not fieldOwner: an entry that is not in fields knows no survey, so a change to it is
+  // no change of the survey (nothing for undo) until the designer adds it to fields.
+  public designOwner: IFilterFieldOwner;
   public getLocale(): string {
     return !!this.fieldOwner ? this.fieldOwner.getLocale() : "";
   }

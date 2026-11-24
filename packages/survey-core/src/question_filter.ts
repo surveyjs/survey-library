@@ -284,12 +284,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   private createDesignEntry(field: IDynamicDataFilterField, targetFields: Array<IDynamicDataFilterField>): FilterField {
     const isNameShared = targetFields.some((f: IDynamicDataFilterField): boolean => f !== field && f.name === field.name);
     const entry = new FilterField(isNameShared ? field.valueName : field.name);
-    entry.fieldOwner = this;
+    entry.designOwner = this;
     return entry;
   }
   private getFieldOfDesignEntry(entry: FilterField): IDynamicDataFilterField {
     const target = this.filterTarget;
-    if (entry.fieldOwner !== this || !target) return undefined;
+    if (entry.designOwner !== this || !target) return undefined;
     const field = this.findFieldInList(target.getFilterFields(), entry.name);
     return !!field ? entry.applyTo(field) : undefined;
   }

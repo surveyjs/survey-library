@@ -188,7 +188,7 @@ describe("The designer's fields entries", () => {
     expect(rows.map(e => e.name), "#1").toEqual(["country", "price", "city"]);
     expect(rows[0], "#2: the override itself").toBe(authored[1]);
     expect(rows[2], "#3: the field of the record").toBe(authored[0]);
-    expect([q.fields.indexOf(rows[1]), rows[1].fieldOwner === q], "#4: a new entry, not in fields").toEqual([-1, true]);
+    expect([q.fields.indexOf(rows[1]), rows[1].designOwner === q, rows[1].getSurvey()], "#4: a new entry, not in fields, that knows no survey").toEqual([-1, true, null]);
     expect(q.toJSON().fields, "#5: the JSON is as it was").toEqual([{ name: "city" }, { name: "country", title: "Land" }]);
     expect(q.getDesignFieldEntries()[0], "#6").toBe(authored[1]);
   });

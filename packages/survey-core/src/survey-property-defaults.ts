@@ -10,9 +10,6 @@ export interface IPropertyDefaults {
   classes?: { [className: string]: { [propertyName: string]: PropertyDefaultValue | undefined } | undefined };
 }
 
-function hasOwn(obj: any, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(obj, key);
-}
 function isPlainObject(v: any): boolean {
   if (!v || typeof v !== "object" || Array.isArray(v)) return false;
   const proto = Object.getPrototypeOf(v);
@@ -22,8 +19,8 @@ function isPrimitive(v: any): boolean {
   return v === null || typeof v === "string" || typeof v === "number" || typeof v === "boolean";
 }
 
-// One survey's own property defaults (SurveyModel.propertyDefaults). They are read at read time, over the global
-// metadata: nothing is copied into the objects or into the metadata.
+// One survey's own property defaults (the propertyDefaults option of the SurveyModel constructor). They are read at
+// read time, over the global metadata: nothing is copied into the objects or into the metadata.
 // The counters live in survey-property-defaults-state.ts.
 export class PropertyDefaultsLayer {
   // resolve() returns it when the layer does not set the property
@@ -31,26 +28,30 @@ export class PropertyDefaultsLayer {
 
   private classes: { [className: string]: { [propertyName: string]: PropertyDefaultValue } } = {};
   private hasClasses: boolean = false;
-  // className -> the values the class and its ancestors set, nearest class first. Built lazily, reset by merge().
+  // className -> the values the class and its ancestors set, nearest class first. Built lazily, reset by clear().
   private resolved: Map<string, Map<string, PropertyDefaultValue>>;
 
-  public get hasValues(): boolean {
-    return this.hasClasses;
-  }
-  // Merges per (class, property), as SurveyModel.settings() merges per key. `undefined` removes an override, a
-  // class or all classes.
-  public merge(value: IPropertyDefaults): void {
+  // The values are set once, here. An `undefined` class or property value is not a default.
+  constructor(value: IPropertyDefaults) {
     if (!isPlainObject(value)) return;
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       if (key === "classes") {
-        this.mergeClasses(value.classes);
+        this.setClasses(value.classes);
       } else {
         this.warn(key);
       }
     }
     this.hasClasses = Object.keys(this.classes).length > 0;
+  }
+  public get hasValues(): boolean {
+    return this.hasClasses;
+  }
+  // Removes every value (SurveyModel.releasePropertyDefaults)
+  public clear(): void {
+    this.classes = {};
+    this.hasClasses = false;
     this.resolved = undefined;
   }
   // The value of the `classes` entry for obj's class or its nearest ancestor, or PropertyDefaultsLayer.notCovered
@@ -83,11 +84,7 @@ export class PropertyDefaultsLayer {
     this.resolved.set(className, result);
     return result;
   }
-  private mergeClasses(classes: any): void {
-    if (classes === undefined) {
-      this.classes = {};
-      return;
-    }
+  private setClasses(classes: any): void {
     if (!isPlainObject(classes)) return;
     const names = Object.keys(classes);
     for (let i = 0; i < names.length; i++) {
@@ -97,10 +94,6 @@ export class PropertyDefaultsLayer {
         continue;
       }
       const entry = classes[names[i]];
-      if (entry === undefined) {
-        delete this.classes[className];
-        continue;
-      }
       if (!isPlainObject(entry)) continue;
       const propNames = Object.keys(entry);
       for (let j = 0; j < propNames.length; j++) {
@@ -114,19 +107,13 @@ export class PropertyDefaultsLayer {
       this.warn(path + "." + propName);
       return;
     }
-    let values = this.classes[className];
-    if (val === undefined) {
-      if (!!values && hasOwn(values, propName)) {
-        delete values[propName];
-        if (Object.keys(values).length === 0) delete this.classes[className];
-      }
-      return;
-    }
+    if (val === undefined) return;
     // Arrays are never a metadata default, and an object would be shared by every object of the survey
     if (!isPrimitive(val)) {
       ConsoleWarnings.warn("The property default \"" + path + "." + propName + "\" must be a string, a number, a boolean or null. It is ignored.");
       return;
     }
+    let values = this.classes[className];
     if (!values) {
       values = {};
       this.classes[className] = values;

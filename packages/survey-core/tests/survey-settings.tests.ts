@@ -8,7 +8,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { applyFilter } from "../src/dynamic-data/dynamic-data-filter";
-import { ISurveySettings } from "../src/survey-settings";
+import { ISurveyRuntimeSettings } from "../src/survey-settings";
 
 export * from "../src/question_text";
 export * from "../src/question_checkbox";
@@ -20,6 +20,7 @@ const visibleIfJson = {
     { type: "text", name: "t", visibleIf: "{q} = 'us'" }
   ]
 };
+const caseSensitiveOptions = { runtimeSettings: { comparator: { caseSensitive: true } } };
 function isTVisible(survey: SurveyModel): boolean {
   return survey.getQuestionByName("t").isVisible;
 }
@@ -29,7 +30,7 @@ function createWithValue(value: any, options?: any, json: any = visibleIfJson): 
   return survey;
 }
 
-describe("Survey settings", () => {
+describe("Survey runtime settings", () => {
   let saved: any;
   let warnSpy: any;
   beforeEach(() => {
@@ -52,13 +53,13 @@ describe("Survey settings", () => {
     expect(isTVisible(survey), "#1: case-insensitive by default").toBe(true);
     survey.setValue("q", " us ");
     expect(isTVisible(survey), "#2: trims by default").toBe(true);
-    expect(survey.getSettings().comparator.caseSensitive, "#3").toBe(false);
-    expect(survey.getSettings().comparator.trimStrings, "#4").toBe(true);
+    expect(survey.runtimeSettings.comparator.caseSensitive, "#3").toBe(false);
+    expect(survey.runtimeSettings.comparator.trimStrings, "#4").toBe(true);
     expect(warnSpy, "#5: no warning").not.toHaveBeenCalled();
   });
 
   test("options in the constructor: caseSensitive for one survey only", () => {
-    const survey1 = createWithValue("US", { comparator: { caseSensitive: true } });
+    const survey1 = createWithValue("US", caseSensitiveOptions);
     const survey2 = createWithValue("US");
     expect(isTVisible(survey1), "#1: case-sensitive survey").toBe(false);
     expect(isTVisible(survey2), "#2: the other survey keeps the global value").toBe(true);
@@ -68,127 +69,91 @@ describe("Survey settings", () => {
   });
 
   test("the fallback is per leaf key and at read time", () => {
-    const survey = createWithValue(" us", { comparator: { caseSensitive: true } });
+    const survey = createWithValue(" us", caseSensitiveOptions);
     expect(isTVisible(survey), "#1: trimStrings comes from the global settings").toBe(true);
     settings.comparator.trimStrings = false;
     survey.setValue("q", "us ");
     expect(isTVisible(survey), "#2: a later global trimStrings reaches the survey").toBe(false);
-    expect(survey.getSettings().comparator.trimStrings, "#3").toBe(false);
+    expect(survey.runtimeSettings.comparator.trimStrings, "#3").toBe(false);
     settings.comparator.trimStrings = true;
     settings.comparator.caseSensitive = false;
     survey.setValue("q", "US");
     expect(isTVisible(survey), "#4: the global caseSensitive does not override the survey's own value").toBe(false);
     settings.comparator.caseSensitive = true;
-    const survey2 = createWithValue("US", { comparator: { caseSensitive: false } });
+    const survey2 = createWithValue("US", { runtimeSettings: { comparator: { caseSensitive: false } } });
     expect(isTVisible(survey2), "#5: an own false wins over a global true").toBe(true);
   });
 
-  test("survey.settings() on a loaded survey re-runs conditions at once", () => {
-    const survey = createWithValue("US");
-    expect(isTVisible(survey), "#1").toBe(true);
-    const spy = vi.spyOn(survey as any, "runConditions");
-    survey.settings({ comparator: { caseSensitive: true } });
-    expect(isTVisible(survey), "#2: hidden at once").toBe(false);
-    expect(spy, "#3").toHaveBeenCalledTimes(1);
-    survey.settings({ comparator: { caseSensitive: true } });
-    expect(spy, "#4: the same values again do not re-run").toHaveBeenCalledTimes(1);
-    survey.settings({ comparator: { caseSensitive: undefined } });
-    expect(isTVisible(survey), "#5: back to the global value at once").toBe(true);
-    expect(spy, "#6").toHaveBeenCalledTimes(2);
-    survey.settings({ comparator: { caseSensitive: undefined } });
-    expect(spy, "#7: removing a value that is not there does not re-run").toHaveBeenCalledTimes(2);
-    survey.settings({});
-    expect(spy, "#8: an empty object does not re-run").toHaveBeenCalledTimes(2);
+  test("the options are read-only: runtimeSettings, propertyDefaults and events are set in the constructor only", () => {
+    const survey = createWithValue("US", caseSensitiveOptions);
+    expect((<any>survey).settings, "#1: no settings() method").toBeUndefined();
+    expect((<any>survey).getSettings, "#2: no getSettings() method").toBeUndefined();
+    expect((<any>survey).propertyDefaults, "#3: no propertyDefaults() method").toBeUndefined();
+    expect(() => { (<any>survey).runtimeSettings = { comparator: { caseSensitive: false } }; }, "#4: no setter").toThrow();
+    expect(survey.runtimeSettings.comparator.caseSensitive, "#5").toBe(true);
+    expect(isTVisible(survey), "#6: unchanged").toBe(false);
   });
 
-  test("survey.settings() before the JSON is loaded and while loading", () => {
-    const survey = new SurveyModel();
-    const spy = vi.spyOn(survey as any, "runConditions");
-    survey.settings({ comparator: { caseSensitive: true } });
-    survey.fromJSON(visibleIfJson);
-    survey.setValue("q", "US");
-    expect(isTVisible(survey), "#1").toBe(false);
-    spy.mockClear();
-    (<any>survey).isLoadingFromJsonValue = true;
-    survey.settings({ comparator: { caseSensitive: false } });
-    expect(spy, "#2: no re-run while loading").not.toHaveBeenCalled();
-    (<any>survey).isLoadingFromJsonValue = false;
-    expect(survey.getSettings().comparator.caseSensitive, "#3: the value is still applied").toBe(false);
-  });
-
-  test("an unknown key warns once with its full path and changes nothing", () => {
-    const survey = new SurveyModel(visibleIfJson, <any>{ comparator: { caseSensitiv: true }, comparatorr: { caseSensitive: true } });
-    expect(warnSpy, "#1: two unknown keys in the constructor").toHaveBeenCalledTimes(2);
+  test("an unknown runtime setting warns once with its full path and changes nothing", () => {
+    const survey = new SurveyModel(visibleIfJson, <any>{ runtimeSettings: { comparator: { caseSensitiv: true, trimStrings: false }, comparatorr: { caseSensitive: true }, toString: { a: 1 } } });
+    expect(warnSpy, "#1: three unknown keys").toHaveBeenCalledTimes(3);
     expect(warnSpy.mock.calls[0][0], "#2").toContain("\"comparator.caseSensitiv\"");
     expect(warnSpy.mock.calls[1][0], "#3").toContain("\"comparatorr\"");
+    expect(warnSpy.mock.calls[2][0], "#4: a key of Object.prototype is unknown too").toContain("\"toString\"");
+    expect(survey.runtimeSettings.comparator.caseSensitive, "#5").toBe(false);
+    expect(survey.runtimeSettings.comparator.trimStrings, "#6: the known key in the same group is applied").toBe(false);
     survey.setValue("q", "US");
-    expect(isTVisible(survey), "#4: nothing changed").toBe(true);
+    expect(isTVisible(survey), "#7").toBe(true);
+  });
+
+  test("an unknown option warns; a runtime setting at the top level points to runtimeSettings and is not applied", () => {
+    const survey = createWithValue("US", <any>{ comparator: { caseSensitive: true }, keepEmptyValues: true, renderedElement: 1 });
+    expect(warnSpy, "#1").toHaveBeenCalledTimes(3);
+    expect(warnSpy.mock.calls[0][0], "#2").toContain("\"comparator\"");
+    expect(warnSpy.mock.calls[0][0], "#3").toContain("runtimeSettings");
+    expect(warnSpy.mock.calls[1][0], "#4").toContain("\"keepEmptyValues\"");
+    expect(warnSpy.mock.calls[2][0], "#5").toContain("\"renderedElement\"");
+    expect(warnSpy.mock.calls[2][0], "#6").not.toContain("runtimeSettings");
+    expect(survey.getOwnRuntimeSettings(), "#7: nothing is applied").toBeUndefined();
+    expect(isTVisible(survey), "#8").toBe(true);
     warnSpy.mockClear();
-    survey.settings(<any>{ comparator: { caseSensitiv: true, trimStrings: false } });
-    expect(warnSpy, "#5: one warning in survey.settings").toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0], "#6").toContain("\"comparator.caseSensitiv\"");
-    expect(survey.getSettings().comparator.caseSensitive, "#7").toBe(false);
-    expect(survey.getSettings().comparator.trimStrings, "#8: the known key in the same group is applied").toBe(false);
-    warnSpy.mockClear();
-    survey.settings(<any>{ toString: { a: 1 } });
-    expect(warnSpy, "#9: a key of Object.prototype is unknown too").toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0], "#10").toContain("\"toString\"");
+    new SurveyModel(visibleIfJson, { runtimeSettings: {}, events: {}, propertyDefaults: {} });
+    expect(warnSpy, "#9: the known options do not warn").not.toHaveBeenCalled();
   });
 
   test("a __proto__ or constructor key warns and never reaches Object.prototype", () => {
     const payload = "{ \"caseSensitive\": true, \"polluted\": \"yes\" }";
-    const options = JSON.parse("{ \"__proto__\": " + payload + ", \"constructor\": " + payload +
-      ", \"comparator\": { \"__proto__\": " + payload + ", \"constructor\": " + payload + " } }");
+    const group = "{ \"__proto__\": " + payload + ", \"constructor\": " + payload;
+    const options = JSON.parse(group + ", \"runtimeSettings\": " + group + ", \"comparator\": " + group + " } } }");
     const survey = new SurveyModel(visibleIfJson, options);
-    survey.settings(options);
     expect(({} as any).polluted, "#1: Object.prototype is untouched").toBeUndefined();
     expect(({} as any).caseSensitive, "#2").toBeUndefined();
-    expect(survey.getOwnSettings(), "#3: the survey sets nothing itself").toBeUndefined();
-    expect(warnSpy, "#4: four keys in the constructor, four in survey.settings()").toHaveBeenCalledTimes(8);
+    expect(survey.getOwnRuntimeSettings(), "#3: the survey sets nothing itself").toBeUndefined();
+    expect(warnSpy, "#4: two keys in the options, two in runtimeSettings, two in comparator").toHaveBeenCalledTimes(6);
     expect(warnSpy.mock.calls[0][0], "#5").toContain("\"__proto__\"");
-    expect(warnSpy.mock.calls[3][0], "#6").toContain("\"comparator.constructor\"");
+    expect(warnSpy.mock.calls[5][0], "#6").toContain("\"comparator.constructor\"");
   });
 
-  test("events is reserved: no warning in the constructor, a warning in survey.settings", () => {
-    const survey = new SurveyModel(visibleIfJson, <any>{ events: {} });
-    expect(warnSpy, "#1").not.toHaveBeenCalled();
-    survey.settings(<any>{ events: {} });
-    expect(warnSpy, "#2").toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0], "#3").toContain("events");
+  test("runtimeSettings or a group that is not a plain object is ignored with no warning; undefined is not an own value", () => {
+    const values: Array<any> = ["x", ["x"], null, 5];
+    for (let i = 0; i < values.length; i++) {
+      const s1 = new SurveyModel(visibleIfJson, <any>{ runtimeSettings: values[i] });
+      expect(s1.getOwnRuntimeSettings(), "#1." + i + ": runtimeSettings").toBeUndefined();
+      const s2 = new SurveyModel(visibleIfJson, <any>{ runtimeSettings: { comparator: values[i] } });
+      expect(s2.getOwnRuntimeSettings(), "#2." + i + ": the comparator group").toBeUndefined();
+    }
+    const s3 = new SurveyModel(visibleIfJson, { runtimeSettings: { comparator: undefined, keepEmptyValues: undefined } });
+    expect(s3.getOwnRuntimeSettings(), "#3: undefined groups").toBeUndefined();
+    const s4 = new SurveyModel(visibleIfJson, { runtimeSettings: { comparator: { caseSensitive: undefined } } });
+    expect(s4.getOwnRuntimeSettings(), "#4: an undefined key").toBeUndefined();
+    expect(warnSpy, "#5: no warning").not.toHaveBeenCalled();
   });
 
-  test("a group set to undefined clears its own values; a group that is not a plain object is ignored", () => {
-    const survey = new SurveyModel(visibleIfJson, { comparator: { caseSensitive: true, trimStrings: false } });
-    survey.settings({ comparator: undefined });
-    expect(survey.getSettings().comparator.caseSensitive, "#1").toBe(false);
-    expect(survey.getSettings().comparator.trimStrings, "#2").toBe(true);
-    survey.settings({ comparator: { caseSensitive: true } });
-    survey.settings(<any>{ comparator: "x" });
-    expect(survey.getSettings().comparator.caseSensitive, "#3: ignored").toBe(true);
-    survey.settings(<any>{ comparator: ["x"] });
-    expect(survey.getSettings().comparator.caseSensitive, "#4: an array is not a plain object").toBe(true);
-    survey.settings(<any>{ comparator: null });
-    expect(survey.getSettings().comparator.caseSensitive, "#5: null is not a plain object").toBe(true);
-    expect(warnSpy, "#6: no warning").not.toHaveBeenCalled();
-  });
-
-  test("null is a value; only undefined removes", () => {
-    const survey = createWithValue("US", { comparator: { caseSensitive: <any>null } });
-    expect(survey.getSettings().comparator.caseSensitive, "#1").toBe(null);
+  test("null is a value; it does not fall back", () => {
+    const survey = createWithValue("US", { runtimeSettings: { comparator: { caseSensitive: <any>null } } });
+    expect(survey.runtimeSettings.comparator.caseSensitive, "#1").toBe(null);
     settings.comparator.caseSensitive = true;
-    expect(survey.getSettings().comparator.caseSensitive, "#2: null does not fall back").toBe(null);
-  });
-
-  test("survey.settings() with a value that is not a plain object does nothing, with no warning", () => {
-    const survey = new SurveyModel(visibleIfJson, { comparator: { caseSensitive: true } });
-    const spy = vi.spyOn(survey as any, "runConditions");
-    survey.settings(<any>"x");
-    survey.settings(<any>[{ comparator: { caseSensitive: false } }]);
-    survey.settings(<any>null);
-    survey.settings(<any>undefined);
-    expect(warnSpy, "#1").not.toHaveBeenCalled();
-    expect(survey.getSettings().comparator.caseSensitive, "#2").toBe(true);
-    expect(spy, "#3").not.toHaveBeenCalled();
+    expect(survey.runtimeSettings.comparator.caseSensitive, "#2: null does not fall back").toBe(null);
   });
 
   test("the second constructor argument: render() is called for anything that is not a plain object", () => {
@@ -202,18 +167,18 @@ describe("Survey settings", () => {
     expect(renderSpy, "#4: a string").toHaveBeenCalledTimes(2);
     expect(renderSpy.mock.calls[1].length, "#5").toBe(0);
     expect(survey2.getAllQuestions().length, "#6").toBe(2);
-    const arr = [{ comparator: { caseSensitive: true } }];
+    const arr = [caseSensitiveOptions];
     const survey3 = new SurveyModel(visibleIfJson, <any>arr);
     expect(renderSpy, "#7: an array").toHaveBeenCalledTimes(3);
     expect(renderSpy.mock.calls[2].length, "#8").toBe(0);
-    expect(survey3.getSettings().comparator.caseSensitive, "#9: an array is not read as options").toBe(false);
+    expect(survey3.runtimeSettings.comparator.caseSensitive, "#9: an array is not read as options").toBe(false);
     expect(warnSpy, "#10: no warning").not.toHaveBeenCalled();
 
     renderSpy.mockClear();
     const nullProto = Object.create(null);
-    nullProto.comparator = { caseSensitive: true };
-    const parsed = JSON.parse("{ \"comparator\": { \"caseSensitive\": true } }");
-    const options = [{ comparator: { caseSensitive: true } }, nullProto, parsed];
+    nullProto.runtimeSettings = { comparator: { caseSensitive: true } };
+    const parsed = JSON.parse("{ \"runtimeSettings\": { \"comparator\": { \"caseSensitive\": true } } }");
+    const options = [caseSensitiveOptions, nullProto, parsed];
     for (let i = 0; i < options.length; i++) {
       const survey = createWithValue("US", options[i]);
       expect(isTVisible(survey), "#11." + i + ": read as options").toBe(false);
@@ -232,7 +197,7 @@ describe("Survey settings", () => {
         { type: "text", name: "t", visibleIf: "{q} = 'us'" }
       ]
     };
-    const survey = new SurveyModel(json, { comparator: { caseSensitive: true } });
+    const survey = new SurveyModel(json, caseSensitiveOptions);
     expect(isTVisible(survey), "#1: the first run of the conditions already uses the options").toBe(false);
   });
 
@@ -247,7 +212,7 @@ describe("Survey settings", () => {
     const s1 = createWithValue("FOCUS US", undefined, json);
     expect(s1.getQuestionByName("t").isVisible, "#1").toBe(true);
     expect(s1.getQuestionByName("n").isVisible, "#2").toBe(false);
-    const s2 = createWithValue("FOCUS US", { comparator: { caseSensitive: true } }, json);
+    const s2 = createWithValue("FOCUS US", caseSensitiveOptions, json);
     expect(s2.getQuestionByName("t").isVisible, "#3").toBe(false);
     expect(s2.getQuestionByName("n").isVisible, "#4").toBe(true);
   });
@@ -265,7 +230,7 @@ describe("Survey settings", () => {
     expect(s1.getQuestionByName("any").isVisible, "#1").toBe(true);
     expect(s1.getQuestionByName("all").isVisible, "#2").toBe(true);
     expect(s1.getQuestionByName("none").isVisible, "#3").toBe(false);
-    const s2 = createWithValue(["US", "UK"], { comparator: { caseSensitive: true } }, json);
+    const s2 = createWithValue(["US", "UK"], caseSensitiveOptions, json);
     expect(s2.getQuestionByName("any").isVisible, "#4").toBe(false);
     expect(s2.getQuestionByName("all").isVisible, "#5").toBe(false);
     expect(s2.getQuestionByName("none").isVisible, "#6").toBe(true);
@@ -282,23 +247,23 @@ describe("Survey settings", () => {
     const s1 = createWithValue("us", undefined, json);
     expect(s1.getQuestionByName("ge").isVisible, "#1").toBe(true);
     expect(s1.getQuestionByName("le").isVisible, "#2").toBe(true);
-    const s2 = createWithValue("us", { comparator: { caseSensitive: true } }, json);
+    const s2 = createWithValue("us", caseSensitiveOptions, json);
     expect(s2.getQuestionByName("ge").isVisible, "#3: 'us' > 'US'").toBe(true);
     expect(s2.getQuestionByName("le").isVisible, "#4: not equal any more").toBe(false);
   });
 
   test("trimStrings", () => {
     expect(isTVisible(createWithValue(" us")), "#1").toBe(true);
-    expect(isTVisible(createWithValue(" us", { comparator: { trimStrings: false } })), "#2").toBe(false);
+    expect(isTVisible(createWithValue(" us", { runtimeSettings: { comparator: { trimStrings: false } } })), "#2").toBe(false);
   });
 
   test("normalizeTextCallback is not a per-survey key: it warns, and the global callback applies", () => {
     settings.comparator.normalizeTextCallback = (str: string): string => str.replace(/-/g, "");
-    const survey = createWithValue("u-s", <any>{ comparator: { normalizeTextCallback: (str: string): string => str } });
+    const survey = createWithValue("u-s", <any>{ runtimeSettings: { comparator: { normalizeTextCallback: (str: string): string => str } } });
     expect(warnSpy, "#1").toHaveBeenCalledTimes(1);
     expect(warnSpy.mock.calls[0][0], "#2").toContain("\"comparator.normalizeTextCallback\"");
     expect(isTVisible(survey), "#3: the global callback").toBe(true);
-    expect("normalizeTextCallback" in survey.getSettings().comparator, "#4: not in the view").toBe(false);
+    expect("normalizeTextCallback" in survey.runtimeSettings.comparator, "#4: not in the view").toBe(false);
   });
 
   test("isAnswerCorrect for a text question and a checkbox", () => {
@@ -314,11 +279,11 @@ describe("Survey settings", () => {
     s1.data = data;
     expect(s1.getQuestionByName("q").isAnswerCorrect(), "#1").toBe(true);
     expect((<QuestionCheckboxModel>s1.getQuestionByName("c")).isAnswerCorrect(), "#2").toBe(true);
-    const s2 = new SurveyModel(json, { comparator: { caseSensitive: true } });
+    const s2 = new SurveyModel(json, caseSensitiveOptions);
     s2.data = data;
     expect(s2.getQuestionByName("q").isAnswerCorrect(), "#3").toBe(false);
     expect(s2.getQuestionByName("c").isAnswerCorrect(), "#4").toBe(false);
-    const s3 = new SurveyModel(json, { comparator: { caseSensitive: false } });
+    const s3 = new SurveyModel(json, { runtimeSettings: { comparator: { caseSensitive: false } } });
     settings.comparator.caseSensitive = true;
     s3.data = data;
     expect(s3.getQuestionByName("q").isAnswerCorrect(), "#5: the survey's caseSensitive beats a global true").toBe(true);
@@ -334,7 +299,7 @@ describe("Survey settings", () => {
     m1.value = [{ c: "US" }, { c: "us" }];
     expect(m1.hasErrors(), "#2: a duplicate, case-insensitively").toBe(true);
 
-    const s2 = new SurveyModel(json, { comparator: { caseSensitive: true } });
+    const s2 = new SurveyModel(json, caseSensitiveOptions);
     const m2 = <QuestionMatrixDynamicModel>s2.getQuestionByName("m");
     expect(m2.useCaseSensitiveComparison, "#3: the survey's value").toBe(true);
     m2.value = [{ c: "US" }, { c: "us" }];
@@ -350,7 +315,7 @@ describe("Survey settings", () => {
     };
     const s1 = new SurveyModel(json);
     expect((<QuestionTextModel>s1.getQuestionByName("q")).renderedMin, "#1").toBe(5);
-    const s2 = new SurveyModel(json, { comparator: { caseSensitive: true } });
+    const s2 = new SurveyModel(json, caseSensitiveOptions);
     expect((<QuestionTextModel>s2.getQuestionByName("q")).renderedMin, "#2").toBe(1);
     // Assigned after load, the expression runs with no properties: the survey is found through the context
     const q2 = <QuestionTextModel>s2.getQuestionByName("q");
@@ -358,16 +323,7 @@ describe("Survey settings", () => {
     expect(q2.renderedMin, "#3: after load, the survey is found through the context").toBe(2);
   });
 
-  test("updateSurvey with an absent settings value applies nothing and does not warn", () => {
-    const s = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { comparator: { caseSensitive: true } });
-    s.updateSurvey({ settings: undefined });
-    s.updateSurvey({ settings: null });
-    expect(warnSpy, "#1: no warning").not.toHaveBeenCalled();
-    expect(typeof s.settings, "#2: still a function").toBe("function");
-    expect(s.getSettings().comparator.caseSensitive, "#3: unchanged").toBe(true);
-  });
-
-  test("a dynamic-data list filter uses the survey's settings", () => {
+  test("a dynamic-data list filter uses the survey's runtime settings", () => {
     const json = {
       elements: [{
         type: "matrixdynamic", name: "m", rowCount: 3, filterExpression: "{name} = 'us'",
@@ -378,20 +334,20 @@ describe("Survey settings", () => {
     const s1 = new SurveyModel(json);
     s1.data = data;
     expect((<QuestionMatrixDynamicModel>s1.getQuestionByName("m")).visibleRows.length, "#1").toBe(2);
-    const s2 = new SurveyModel(json, { comparator: { caseSensitive: true } });
+    const s2 = new SurveyModel(json, caseSensitiveOptions);
     s2.data = data;
     expect((<QuestionMatrixDynamicModel>s2.getQuestionByName("m")).visibleRows.length, "#2").toBe(1);
   });
 
-  test("applyFilter takes the settings as a trailing argument", () => {
+  test("applyFilter takes the runtime settings as a trailing argument", () => {
     const records = [{ name: "US" }, { name: "us" }, { name: "z-a" }];
-    const caseSensitive: ISurveySettings = { comparator: { caseSensitive: true } };
+    const caseSensitive: ISurveyRuntimeSettings = { comparator: { caseSensitive: true } };
     expect(applyFilter(records, "{name} = 'us'"), "#1").toEqual([0, 1]);
     expect(applyFilter(records, "{name} = 'us'", undefined, caseSensitive), "#2").toEqual([1]);
   });
 
-  test("a question created outside the survey uses the survey's settings once it is added", () => {
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { comparator: { caseSensitive: true } });
+  test("a question created outside the survey uses the survey's runtime settings once it is added", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, caseSensitiveOptions);
     const t = new QuestionTextModel("t");
     t.visibleIf = "{q} = 'us'";
     survey.pages[0].addElement(t);
@@ -401,10 +357,10 @@ describe("Survey settings", () => {
     expect(t.isVisible, "#2").toBe(true);
   });
 
-  test("getSettings() returns one read-only view of the effective values", () => {
-    const survey = new SurveyModel(visibleIfJson, { comparator: { caseSensitive: true } });
-    const view = survey.getSettings();
-    expect(survey.getSettings(), "#1: the same object").toBe(view);
+  test("runtimeSettings returns one read-only view of the effective values", () => {
+    const survey = new SurveyModel(visibleIfJson, caseSensitiveOptions);
+    const view = survey.runtimeSettings;
+    expect(survey.runtimeSettings, "#1: the same object").toBe(view);
     expect(view, "#2: never the global settings").not.toBe(<any>settings);
     expect(view.comparator, "#3: the same group object").toBe(view.comparator);
     expect(JSON.parse(JSON.stringify(view)), "#4").toEqual({ comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: false, strictEquality: false }, keepEmptyValues: false });
@@ -418,68 +374,55 @@ describe("Survey settings", () => {
     expect(settings.comparator.caseSensitive, "#11: the global settings unchanged").toBe(false);
     settings.comparator.trimStrings = true;
 
-    const copy = createWithValue("US", survey.getSettings());
-    expect(copy.getSettings().comparator.caseSensitive, "#12: copied").toBe(true);
+    const copy = createWithValue("US", { runtimeSettings: survey.runtimeSettings });
+    expect(copy.runtimeSettings.comparator.caseSensitive, "#12: copied").toBe(true);
     expect(isTVisible(copy), "#13").toBe(false);
-    const other = new SurveyModel(visibleIfJson);
-    other.settings(survey.getSettings());
-    expect(other.getSettings().comparator.caseSensitive, "#14: settings() copies too").toBe(true);
-    expect(warnSpy, "#15").not.toHaveBeenCalled();
+    expect(warnSpy, "#14").not.toHaveBeenCalled();
   });
 
-  test("getOwnSettings() is undefined until the survey sets a key itself, so comparisons read the global settings", () => {
+  test("getOwnRuntimeSettings() is undefined when the survey sets no key itself, so comparisons read the global settings", () => {
     const survey = createWithValue("US");
-    expect(survey.getOwnSettings(), "#1: no own settings").toBeUndefined();
-    expect(survey.getSettings().comparator.caseSensitive, "#2: the view is still there").toBe(false);
+    expect(survey.getOwnRuntimeSettings(), "#1: no own settings").toBeUndefined();
+    expect(survey.runtimeSettings.comparator.caseSensitive, "#2: the view is still there").toBe(false);
     settings.comparator.caseSensitive = true;
     survey.runExpressions();
     expect(isTVisible(survey), "#3: a global change applies").toBe(false);
     settings.comparator.caseSensitive = false;
-    survey.settings({ comparator: { caseSensitive: true } });
-    expect(survey.getOwnSettings(), "#4: the view once a key is set").toBe(survey.getSettings());
-    expect(isTVisible(survey), "#5").toBe(false);
-    survey.settings({ comparator: { caseSensitive: undefined } });
-    expect(survey.getOwnSettings(), "#6: undefined again after the key is removed").toBeUndefined();
-    expect(isTVisible(survey), "#7").toBe(true);
-    const s2 = createWithValue("US", { comparator: { trimStrings: false } });
-    expect(s2.getOwnSettings(), "#8: from the constructor").toBe(s2.getSettings());
+    const s2 = createWithValue("US", { runtimeSettings: { comparator: { trimStrings: false } } });
+    expect(s2.getOwnRuntimeSettings(), "#4: from the constructor").toBe(s2.runtimeSettings);
   });
 
-  test("keepEmptyValues is a top-level key: an own value, removed by undefined, falls back to the global value", () => {
-    const survey = new SurveyModel(visibleIfJson, { keepEmptyValues: true });
-    const view = survey.getSettings();
+  test("keepEmptyValues is a top-level key: an own value, or the global value at read time", () => {
+    const survey = new SurveyModel(visibleIfJson, { runtimeSettings: { keepEmptyValues: true } });
+    const view = survey.runtimeSettings;
     expect(view.keepEmptyValues, "#1: from the constructor").toBe(true);
-    expect(survey.getOwnSettings(), "#2: an own value").toBe(view);
+    expect(survey.getOwnRuntimeSettings(), "#2: an own value").toBe(view);
     expect(() => { (<any>view).keepEmptyValues = false; }, "#3: read-only").toThrow();
-    const spy = vi.spyOn(survey as any, "runConditions");
-    survey.settings({ keepEmptyValues: true });
-    expect(spy, "#4: the same value again does not re-run").not.toHaveBeenCalled();
-    survey.settings({ keepEmptyValues: undefined });
-    expect(spy, "#5: removing the value re-runs").toHaveBeenCalledTimes(1);
-    expect(survey.getOwnSettings(), "#6: no own settings").toBeUndefined();
+    const s2 = new SurveyModel(visibleIfJson, { runtimeSettings: { keepEmptyValues: undefined } });
+    expect(s2.getOwnRuntimeSettings(), "#4: undefined is not an own value").toBeUndefined();
     settings.keepEmptyValues = true;
-    expect(view.keepEmptyValues, "#7: the global value at read time").toBe(true);
+    expect(s2.runtimeSettings.keepEmptyValues, "#5: the global value at read time").toBe(true);
     settings.keepEmptyValues = false;
-    survey.settings(<any>{ data: { keepEmptyValues: true } });
-    expect(warnSpy, "#8: the data group is unknown").toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0], "#9").toContain("\"data\"");
-    expect(view.keepEmptyValues, "#10").toBe(false);
+    const s3 = new SurveyModel(visibleIfJson, <any>{ runtimeSettings: { data: { keepEmptyValues: true } } });
+    expect(warnSpy, "#6: the data group is unknown").toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0][0], "#7").toContain("\"data\"");
+    expect(s3.runtimeSettings.keepEmptyValues, "#8").toBe(false);
   });
 
-  test("getSettings() works during construction, before the JSON is loaded", () => {
-    let fromEvent: ISurveySettings;
+  test("runtimeSettings works during construction, before the JSON is loaded", () => {
+    let fromEvent: ISurveyRuntimeSettings;
     class TestSurvey extends SurveyModel {
       public fromJSON(json: any, options?: any): void {
-        fromEvent = this.getSettings();
+        fromEvent = this.runtimeSettings;
         super.fromJSON(json, options);
       }
     }
-    const survey = new TestSurvey(visibleIfJson, { comparator: { caseSensitive: true } });
-    expect(fromEvent, "#1").toBe(survey.getSettings());
+    const survey = new TestSurvey(visibleIfJson, caseSensitiveOptions);
+    expect(fromEvent, "#1").toBe(survey.runtimeSettings);
     expect(fromEvent.comparator.caseSensitive, "#2").toBe(true);
   });
 
-  test("a standalone ConditionRunner / ExpressionRunner takes the settings", () => {
+  test("a standalone ConditionRunner / ExpressionRunner takes the runtime settings", () => {
     const runner = new ConditionRunner("{a} = 'us'");
     expect(runner.runValues({ a: "US" }), "#1").toBe(true);
     expect(runner.runValues({ a: "US" }, undefined, { comparator: { caseSensitive: true } }), "#2").toBe(false);
@@ -487,16 +430,9 @@ describe("Survey settings", () => {
     const exprRunner = new ExpressionRunner("iif({a} = 'us', 1, 2)");
     expect(exprRunner.runValues({ a: "US" }), "#4").toBe(1);
     expect(exprRunner.runValues({ a: "US" }, undefined, { comparator: { caseSensitive: true } }), "#5").toBe(2);
-    const survey = new SurveyModel(visibleIfJson, { comparator: { caseSensitive: false } });
+    const survey = new SurveyModel(visibleIfJson, { runtimeSettings: { comparator: { caseSensitive: false } } });
     settings.comparator.caseSensitive = true;
     expect(runner.runValues({ a: "US" }, { survey: survey }), "#6: properties.survey").toBe(true);
     expect(runner.runValues({ a: "US" }, { survey: survey }, { comparator: { caseSensitive: true } }), "#7: the explicit settings win").toBe(false);
-  });
-
-  test("updateSurvey() routes a settings prop to survey.settings()", () => {
-    const survey = createWithValue("US");
-    survey.updateSurvey({ model: survey, settings: { comparator: { caseSensitive: true } } });
-    expect(typeof survey.settings, "#1: still a method").toBe("function");
-    expect(isTVisible(survey), "#2").toBe(false);
   });
 });

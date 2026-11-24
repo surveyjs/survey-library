@@ -1,7 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers, createDate } from "../helpers";
 import { settings } from "../settings";
-import type { ISurveySettings } from "../survey-settings";
+import type { ISurveyRuntimeSettings } from "../survey-settings";
 import { IDynamicDataField, ISortCriterion, SortDirection } from "./dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data-records";
 
@@ -115,17 +115,17 @@ function getVirtualFields(fields: Array<IDynamicDataField>): Array<IDynamicDataF
 /* Returns the indexes of the records the filter expression accepts, in record order. A field that is
    read and never stored is a variable too: each record is then run as a copy with the fields the
    expression names put over its own keys, and the record itself is not modified.
-   surveySettings: the list's survey settings for the filter's comparisons; without them the global settings apply. */
+   runtimeSettings: the list's survey settings for the filter's comparisons; without them the global settings apply. */
 export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>,
-  surveySettings?: ISurveySettings): Array<number> {
-  return applyFilters(records, [toRunner(filter)], fields, surveySettings);
+  runtimeSettings?: ISurveyRuntimeSettings): Array<number> {
+  return applyFilters(records, [toRunner(filter)], fields, runtimeSettings);
 }
 /* The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
    was parsed on its own, so this never concatenates the expressions - and therefore never has to
    bracket them. A field that is read and never stored is put over the record's own keys when any
-   of the expressions names it, as applyFilter does. surveySettings: as in applyFilter. */
+   of the expressions names it, as applyFilter does. runtimeSettings: as in applyFilter. */
 export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>, fields?: Array<IDynamicDataField>,
-  surveySettings?: ISurveySettings): Array<number> {
+  runtimeSettings?: ISurveyRuntimeSettings): Array<number> {
   const used = (runners || []).filter((runner: ConditionRunner): boolean => !!runner);
   if (used.length === 0) return createIndexes(records.length);
   const names: Array<string> = [];
@@ -144,7 +144,7 @@ export function applyFilters(records: Array<any>, runners: Array<ConditionRunner
     }
     let passes = true;
     for (let j = 0; j < used.length && passes; j++) {
-      passes = used[j].runValues(values, undefined, surveySettings);
+      passes = used[j].runValues(values, undefined, runtimeSettings);
     }
     if (passes) res.push(i);
   }

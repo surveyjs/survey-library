@@ -4,21 +4,21 @@ import { SurveyModel } from "../src/survey";
 import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import type { ISurveySettings } from "../src/survey-settings";
+import type { ISurveyRuntimeSettings } from "../src/survey-settings";
 
 // comparator.strictEquality (decisions.md, C5): with the key on, the expression operators end their comparison
 // in === instead of ==, after the explicit conversions. Value-change checks, choice matching and matrix cells keep ==.
 
-const KEY_ON: ISurveySettings = { comparator: { strictEquality: true } };
+const KEY_ON: ISurveyRuntimeSettings = { comparator: { strictEquality: true } };
 
-function run(expression: string, values: any, surveySettings?: ISurveySettings): boolean {
-  return new ConditionRunner(expression).runValues(values, undefined, surveySettings);
+function run(expression: string, values: any, runtimeSettings?: ISurveyRuntimeSettings): boolean {
+  return new ConditionRunner(expression).runValues(values, undefined, runtimeSettings);
 }
 // questions: the question JSON for each value; a value without one goes to a text question
-function isVisibleInSurvey(condition: string, values: any, questions: any, surveySettings?: ISurveySettings): boolean {
+function isVisibleInSurvey(condition: string, values: any, questions: any, runtimeSettings?: ISurveyRuntimeSettings): boolean {
   const elements: Array<any> = Object.keys(values).map((name: string) => ({ type: "text", name: name, ...(questions[name] || {}) }));
   elements.push({ type: "text", name: "target", visibleIf: condition });
-  const survey = new SurveyModel({ elements: elements }, surveySettings);
+  const survey = new SurveyModel({ elements: elements }, { runtimeSettings: runtimeSettings });
   Object.keys(values).forEach((name: string) => survey.setValue(name, values[name]));
   return survey.getQuestionByName("target").isVisible;
 }
@@ -112,7 +112,7 @@ describe("comparator.strictEquality", () => {
       expect(run("{q} contains '.5'", { q: [0.5] }, KEY_ON)).toBe(true);
     });
     test("with comparator.numericTextAsText on too, a text against a number still converts", () => {
-      const both: ISurveySettings = { comparator: { numericTextAsText: true, strictEquality: true } };
+      const both: ISurveyRuntimeSettings = { comparator: { numericTextAsText: true, strictEquality: true } };
       expect(run("{q} = '.5'", { q: 0.5 }, both)).toBe(true);
       expect(run("{q} = 5", { q: "5.0" }, both)).toBe(true);
       expect(run("{q} = '5'", { q: "5.0" }, both)).toBe(false);
@@ -133,17 +133,17 @@ describe("comparator.strictEquality", () => {
   // Each check runs with the key off, on for the survey and on globally: choice matching and value-change checks
   // read the global settings, so a per-survey key alone would not show a leak of the strict comparison there.
   describe("conditions only", () => {
-    const modes: Array<[string, ISurveySettings, boolean]> = [["off", undefined, false], ["survey", KEY_ON, false], ["global", undefined, true]];
-    function forEachMode(check: (mode: string, surveySettings: ISurveySettings) => void): void {
-      for (const [mode, surveySettings, globalOn] of modes) {
+    const modes: Array<[string, ISurveyRuntimeSettings, boolean]> = [["off", undefined, false], ["survey", KEY_ON, false], ["global", undefined, true]];
+    function forEachMode(check: (mode: string, runtimeSettings: ISurveyRuntimeSettings) => void): void {
+      for (const [mode, runtimeSettings, globalOn] of modes) {
         settings.comparator.strictEquality = globalOn;
-        check(mode, surveySettings);
+        check(mode, runtimeSettings);
       }
     }
     test("a choice with value 1 still matches the value true (recorded)", () => {
       const json = { elements: [{ type: "radiogroup", name: "r", choices: [1, 2] }] };
-      forEachMode((mode, surveySettings) => {
-        const survey = new SurveyModel(json, surveySettings);
+      forEachMode((mode, runtimeSettings) => {
+        const survey = new SurveyModel(json, { runtimeSettings: runtimeSettings });
         const q = <QuestionRadiogroupModel>survey.getQuestionByName("r");
         q.value = true;
         expect(q.selectedItem?.value, "selectedItem, " + mode).toBe(1);
@@ -152,8 +152,8 @@ describe("comparator.strictEquality", () => {
       });
     });
     test("setting the same value twice fires onValueChanged once", () => {
-      forEachMode((mode, surveySettings) => {
-        const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, surveySettings);
+      forEachMode((mode, runtimeSettings) => {
+        const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { runtimeSettings: runtimeSettings });
         const names: Array<string> = [];
         survey.onValueChanged.add((_, options) => names.push(options.name + ":" + JSON.stringify(options.value)));
         survey.setValue("q", true);
@@ -165,8 +165,8 @@ describe("comparator.strictEquality", () => {
       });
     });
     test("setVariable: true and then 1 fires onVariableChanged once", () => {
-      forEachMode((mode, surveySettings) => {
-        const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, surveySettings);
+      forEachMode((mode, runtimeSettings) => {
+        const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { runtimeSettings: runtimeSettings });
         let count = 0;
         survey.onVariableChanged.add(() => count++);
         survey.setVariable("a", { a: true });
@@ -177,8 +177,8 @@ describe("comparator.strictEquality", () => {
       });
     });
     test("a correct answer 1 still accepts the value true (recorded)", () => {
-      forEachMode((mode, surveySettings) => {
-        const survey = new SurveyModel({ elements: [{ type: "text", name: "q", correctAnswer: 1 }] }, surveySettings);
+      forEachMode((mode, runtimeSettings) => {
+        const survey = new SurveyModel({ elements: [{ type: "text", name: "q", correctAnswer: 1 }] }, { runtimeSettings: runtimeSettings });
         survey.setValue("q", true);
         expect(survey.getQuestionByName("q").isAnswerCorrect(), "isAnswerCorrect, " + mode).toBe(true);
         expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, " + mode).toBe(1);
@@ -186,8 +186,8 @@ describe("comparator.strictEquality", () => {
     });
     test("a matrix cell value check behaves as today", () => {
       const json = { elements: [{ type: "matrix", name: "m", columns: [1, 2], rows: ["r1"] }] };
-      forEachMode((mode, surveySettings) => {
-        const survey = new SurveyModel(json, surveySettings);
+      forEachMode((mode, runtimeSettings) => {
+        const survey = new SurveyModel(json, { runtimeSettings: runtimeSettings });
         const q = <QuestionMatrixModel>survey.getQuestionByName("m");
         q.value = { r1: true };
         const row = q.visibleRows[0];
@@ -196,8 +196,8 @@ describe("comparator.strictEquality", () => {
     });
     test("a matrix dropdown cell matches its choice as today", () => {
       const json = { elements: [{ type: "matrixdropdown", name: "m", rows: ["r1"], columns: [{ name: "c1", cellType: "dropdown", choices: [1, 2] }] }] };
-      forEachMode((mode, surveySettings) => {
-        const survey = new SurveyModel(json, surveySettings);
+      forEachMode((mode, runtimeSettings) => {
+        const survey = new SurveyModel(json, { runtimeSettings: runtimeSettings });
         const q = <any>survey.getQuestionByName("m");
         q.value = { r1: { c1: true } };
         const cell = q.visibleRows[0].getQuestionByColumnName("c1");
@@ -218,19 +218,6 @@ describe("comparator.strictEquality", () => {
       expect(isVisibleInSurvey("{b} = 1", { b: true }, BOOLEAN, { comparator: { strictEquality: false } })).toBe(true);
       expect(run("{b} = 1", { b: true }, { comparator: { strictEquality: false } })).toBe(true);
     });
-    test("survey.settings() on a loaded survey changes a visibleIf at once", () => {
-      const survey = new SurveyModel({ elements: [
-        { type: "boolean", name: "b" },
-        { type: "text", name: "target", visibleIf: "{b} = 1" }
-      ] });
-      survey.setValue("b", true);
-      const target = survey.getQuestionByName("target");
-      expect(target.isVisible, "#1").toBe(true);
-      survey.settings({ comparator: { strictEquality: true } });
-      expect(target.isVisible, "#2").toBe(false);
-      survey.settings({ comparator: { strictEquality: undefined } });
-      expect(target.isVisible, "#3").toBe(true);
-    });
     test("one runner reused with the key off and on keeps nothing between runs", () => {
       const runner = new ConditionRunner("{b} = 1");
       expect(runner.runValues({ b: true }, undefined, KEY_ON)).toBe(false);
@@ -248,8 +235,8 @@ describe("comparator.strictEquality", () => {
           { cellType: "text", name: "c2", visibleIf: "{row.c1} = 1" }
         ] }
       ] };
-      for (const [surveySettings, expected] of [[undefined, true], [KEY_ON, false]] as Array<[ISurveySettings, boolean]>) {
-        const survey = new SurveyModel(json, surveySettings);
+      for (const [runtimeSettings, expected] of [[undefined, true], [KEY_ON, false]] as Array<[ISurveyRuntimeSettings, boolean]>) {
+        const survey = new SurveyModel(json, { runtimeSettings: runtimeSettings });
         survey.data = { p: [{ pb: true }], m: [{ c1: true }] };
         const panel = (<any>survey.getQuestionByName("p")).panels[0];
         expect(panel.getQuestionByName("pt").isVisible, "panel " + expected).toBe(expected);

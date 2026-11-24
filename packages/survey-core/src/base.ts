@@ -8,7 +8,7 @@ import {
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
-import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
+import { ISurveyRuntimeSettings, getRuntimeSettingsOfSurvey } from "./survey-settings";
 import { PropertyDefaultsLayer } from "./survey-property-defaults";
 import { propertyDefaultsState } from "./survey-property-defaults-state";
 import { ItemValue } from "./itemvalue";
@@ -1954,11 +1954,11 @@ export class Base implements IObjectValueContext {
     const tX = typeof x;
     const tY = typeof y;
     const mayCompareStrings = tX === "string" && tY === "string" || tX === "object" && tY === "object" && x !== null && y !== null;
-    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, settings: mayCompareStrings ? this.getSurveySettings() : undefined });
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, settings: mayCompareStrings ? this.getSurveyRuntimeSettings() : undefined });
   }
   // The settings of the survey this object belongs to; undefined (the global settings) without one
-  protected getSurveySettings(): ISurveySettings {
-    return getSettingsOfSurvey(this.getSurvey());
+  protected getSurveyRuntimeSettings(): ISurveyRuntimeSettings {
+    return getRuntimeSettingsOfSurvey(this.getSurvey());
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

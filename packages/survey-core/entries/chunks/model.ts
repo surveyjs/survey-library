@@ -35,7 +35,7 @@ export function slk(key: string): void {
 export { hasLicense, glc, getEmbeddedLicense, IEmbeddedLicense } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
-export type { ISurveySettings, ISurveySettingsComparator, ISurveyOptions, SurveyEventHandlers } from "../../src/survey-settings";
+export type { ISurveyRuntimeSettings, ISurveyRuntimeSettingsComparator, ISurveyOptions, SurveyEventHandlers } from "../../src/survey-settings";
 export type { IPropertyDefaults, PropertyDefaultValue } from "../../src/survey-property-defaults";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
 export {

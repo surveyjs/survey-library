@@ -114,7 +114,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
+import { ISurveyOptions, ISurveyRuntimeSettings, SurveyRuntimeSettingsValues, isPlainObject, addEventHandlersFromOptions, warnUnknownSurveyOptions } from "./survey-settings";
 import { IPropertyDefaults, PropertyDefaultsLayer } from "./survey-property-defaults";
 import { propertyDefaultsState } from "./survey-property-defaults-state";
 import DefaultLightTheme from "./themes/default-light";
@@ -1287,12 +1287,13 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
-    // Before the settings and the JSON: everything loaded reads the survey's own property defaults
-    if (isPlainObject(options) && options.propertyDefaults !== undefined) {
-      this.propertyDefaults(options.propertyDefaults);
+    // The options are read once, before the JSON loads, and cannot change later. A value that is not a plain object is ignored.
+    warnUnknownSurveyOptions(options);
+    if (isPlainObject(options)) {
+      // Everything loaded reads the survey's own property defaults
+      this.setPropertyDefaults(options.propertyDefaults);
+      this.runtimeSettingsValues.setValues(options.runtimeSettings);
     }
-    // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
-    this.surveySettingsValues.merge(options, true);
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
 
@@ -1469,40 +1470,38 @@ export class SurveyModel extends SurveyElementCore
       this.renderCallback();
     }
   }
-  private surveySettingsValuesValue: SurveySettingsValues;
-  private get surveySettingsValues(): SurveySettingsValues {
+  private runtimeSettingsValuesValue: SurveyRuntimeSettingsValues;
+  private get runtimeSettingsValues(): SurveyRuntimeSettingsValues {
     // Created on first use, not in a field initializer: it can be read during construction
-    if (!this.surveySettingsValuesValue) {
-      this.surveySettingsValuesValue = new SurveySettingsValues();
+    if (!this.runtimeSettingsValuesValue) {
+      this.runtimeSettingsValuesValue = new SurveyRuntimeSettingsValues();
     }
-    return this.surveySettingsValuesValue;
+    return this.runtimeSettingsValuesValue;
   }
-  public settings(value: ISurveySettings): void {
-    // The conditions re-run at once, as for showInvisibleElements, so no re-render is needed
-    if (this.surveySettingsValues.merge(value, false) && !this.isLoadingFromJson) {
-      this.runConditions();
-    }
+  // The effective runtime settings: a read-only view, set by the constructor's runtimeSettings option
+  public get runtimeSettings(): ISurveyRuntimeSettings {
+    return this.runtimeSettingsValues.view;
   }
-  public getSettings(): ISurveySettings {
-    return this.surveySettingsValues.view;
-  }
-  // For the comparisons (ISurvey.getOwnSettings): the view when the survey sets a key itself, else undefined,
+  // For the comparisons (ISurvey.getOwnRuntimeSettings): the view when the survey sets a key itself, else undefined,
   // so a survey without its own settings reads the global settings directly, at no extra cost.
-  public getOwnSettings(): ISurveySettings {
-    const values = this.surveySettingsValuesValue;
+  public getOwnRuntimeSettings(): ISurveyRuntimeSettings {
+    const values = this.runtimeSettingsValuesValue;
     return !!values && values.hasOwnValues ? values.view : undefined;
   }
   private propertyDefaultsLayerValue: PropertyDefaultsLayer;
   private isPropertyDefaultsLayerLive: boolean;
-  // Merges per (class, property), as settings() does. Only later reads change: nothing computed during the load is
-  // recomputed and no change notification fires, so a rendered survey does not re-render, and layout built at load
-  // (pages merged by questionsOnPageMode, matrix cells) is not rebuilt. A global Serializer default change behaves the same.
-  public propertyDefaults(value: IPropertyDefaults): void {
-    if (this.isDisposed) return;
-    if (!this.propertyDefaultsLayerValue) {
-      this.propertyDefaultsLayerValue = new PropertyDefaultsLayer();
+  // Set once, by the constructor's propertyDefaults option
+  private setPropertyDefaults(value: IPropertyDefaults): void {
+    if (value === undefined) return;
+    this.propertyDefaultsLayerValue = new PropertyDefaultsLayer(value);
+    this.updatePropertyDefaultsLayerCount();
+  }
+  // Removes the survey's own property defaults: its objects read the global defaults from now on. dispose() calls it;
+  // the Creator calls it for a survey it keeps without disposing (its designer survey, a survey whose pages it moved).
+  public releasePropertyDefaults(): void {
+    if (!!this.propertyDefaultsLayerValue) {
+      this.propertyDefaultsLayerValue.clear();
     }
-    this.propertyDefaultsLayerValue.merge(value);
     this.updatePropertyDefaultsLayerCount();
   }
   // For Base.getDefaultPropertyValue: the layer when it has values, else undefined
@@ -1519,13 +1518,6 @@ export class SurveyModel extends SurveyElementCore
   public updateSurvey(newProps: any, oldProps?: any) {
     for (var key in newProps) {
       if (key == "model" || key == "children") continue;
-      if (key === "settings") {
-        // Data for the settings() method; assigning it would replace the method. An absent value applies nothing
-        if (newProps[key] !== undefined && newProps[key] !== null) {
-          this.settings(newProps[key]);
-        }
-        continue;
-      }
       if (key.indexOf("on") == 0 && this[key] && this[key].add) {
         let funcBody = newProps[key];
         let func = function (sender: any, options: any) {
@@ -7615,7 +7607,7 @@ export class SurveyModel extends SurveyElementCore
       for (let i = 0; i < maxIterations; i++) {
         this.runSurveyTriggers(options, isQuestionInvalid);
         if (this.isCompleted || this.isTwoValueEqualsInSurvey(originalKeys, this.triggerKeys)) break;
-        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnSettings());
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnRuntimeSettings());
         originalKeys = Helpers.createCopy(this.triggerKeys);
       }
       let prevCanBeCompleted = this.canBeCompletedByTrigger;
@@ -8508,11 +8500,11 @@ export class SurveyModel extends SurveyElementCore
   // keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
   // undefined always removes the key: it is what Question.clearValue() assigns.
   private isEmptyValueKeptOnSetValue(val: any): boolean {
-    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().keepEmptyValues;
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.runtimeSettings.keepEmptyValues;
   }
   // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
   private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
-    if (!name || !this.getSettings().keepEmptyValues) return false;
+    if (!name || !this.runtimeSettings.keepEmptyValues) return false;
     return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
@@ -9910,11 +9902,8 @@ export class SurveyModel extends SurveyElementCore
     this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
-    if (!!this.propertyDefaultsLayerValue) {
-      // Objects loaded with these defaults may outlive the survey: they read the global defaults from now on
-      this.propertyDefaultsLayerValue.merge({ classes: undefined });
-    }
-    this.updatePropertyDefaultsLayerCount();
+    // Objects loaded with these defaults may outlive the survey: they read the global defaults from now on
+    this.releasePropertyDefaults();
     this.editingObj = null;
     if (!this.pages) return;
     this.currentPage = null;

@@ -6,7 +6,7 @@ import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
-import { getSettingsOfSurvey } from "./survey-settings";
+import { getRuntimeSettingsOfSurvey } from "./survey-settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
@@ -4688,9 +4688,9 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   protected updateSharedQuestionsValue(name: string, value: any): void {
     const questions = this.getQuestionsByValueName(name);
     if (questions.length > 1) {
-      const surveySettings = getSettingsOfSurvey(this.getSurvey());
+      const runtimeSettings = getRuntimeSettingsOfSurvey(this.getSurvey());
       for (let i = 0; i < questions.length; i ++) {
-        if (!Helpers.checkIfValuesEqual(questions[i].value, value, { ignoreOrder: false, settings: surveySettings })) {
+        if (!Helpers.checkIfValuesEqual(questions[i].value, value, { ignoreOrder: false, settings: runtimeSettings })) {
           this.runSettingValue((): void => questions[i].updateValueFromSurvey(value));
         }
       }

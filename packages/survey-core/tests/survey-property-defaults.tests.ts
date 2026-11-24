@@ -122,21 +122,10 @@ describe("Per-survey property defaults", () => {
     expect(plain.getQuestionByName("q1").choices[0].randomize).toBe(true);
     expect(s.toJSON()).toEqual(plain.toJSON());
   });
-  test("propertyDefaults() before fromJSON affects everything loaded", () => {
-    const s = create();
-    s.propertyDefaults({ classes: { question: { titleLocation: "left" } } });
+  test("The constructor option also applies to a later fromJSON", () => {
+    const s = withLayer({ question: { titleLocation: "left" } });
     s.fromJSON({ elements: [{ type: "text", name: "q1" }] });
     expect(s.getQuestionByName("q1").titleLocation).toBe("left");
-  });
-  test("propertyDefaults() after the load changes later reads only", () => {
-    const json = { pages: [{ elements: [{ type: "text", name: "q1" }] }, { elements: [{ type: "text", name: "q2" }] }] };
-    const s = create(json);
-    expect(s.visiblePages.length).toBe(2);
-    s.propertyDefaults({ classes: { question: { titleLocation: "left" }, survey: { questionsOnPageMode: "singlePage" } } });
-    expect(s.getQuestionByName("q1").titleLocation).toBe("left");
-    expect(s.questionsOnPageMode).toBe("singlePage");
-    // Layout built at load is not rebuilt
-    expect(s.visiblePages.length).toBe(2);
   });
   describe("Serialization", () => {
     const layer = {
@@ -282,38 +271,31 @@ describe("Per-survey property defaults", () => {
     expect(texts[1].indexOf("question.titleLocaton") > -1).toBe(true);
     expect(texts[2].indexOf("question.startWithNewLine") > -1).toBe(true);
   });
-  test("settings({ propertyDefaults }) warns; the constructor option does not", () => {
-    const warn = vi.spyOn(ConsoleWarnings, "warn").mockImplementation(() => {});
-    const s = withLayer({ question: { titleLocation: "left" } });
-    expect(warn).not.toHaveBeenCalled();
-    s.settings(<any>{ propertyDefaults: { classes: {} } });
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn.mock.calls[0][0].indexOf("survey.propertyDefaults()") > -1).toBe(true);
-  });
   test("Class names are matched in lower case", () => {
     const s = withLayer({ Question: { titleLocation: "left" } }, { elements: [{ type: "text", name: "q1" }] });
     expect(s.getQuestionByName("q1").titleLocation).toBe("left");
   });
-  test("Merge and removal", () => {
+  test("An undefined value is not a default; releasePropertyDefaults() removes them all", () => {
+    const warn = vi.spyOn(ConsoleWarnings, "warn").mockImplementation(() => {});
     const start = propertyDefaultsState.liveLayerCount;
-    const s = create({ elements: [{ type: "text", name: "q1" }] });
+    const empty = withLayer({ question: { titleLocation: undefined }, survey: undefined });
+    expect(empty.getOwnPropertyDefaults(), "#1: only undefined values").toBeUndefined();
+    expect(propertyDefaultsState.liveLayerCount, "#2").toBe(start);
+    const s = withLayer({ question: { titleLocation: "left", descriptionLocation: undefined }, survey: { showProgressBar: true } },
+      { elements: [{ type: "text", name: "q1" }] });
     const q = s.getQuestionByName("q1");
-    s.propertyDefaults({ classes: { question: { titleLocation: "left" } } });
-    s.propertyDefaults({ classes: { question: { descriptionLocation: "underInput" } } });
-    expect(q.titleLocation).toBe("left");
-    expect(q.descriptionLocation).toBe("underInput");
-    expect(propertyDefaultsState.liveLayerCount).toBe(start + 1);
-    s.propertyDefaults({ classes: { question: { titleLocation: undefined } } });
-    expect(q.titleLocation).toBe("default");
-    expect(q.descriptionLocation).toBe("underInput");
-    s.propertyDefaults({ classes: { question: undefined, survey: { showProgressBar: true } } });
-    expect(q.descriptionLocation).toBe("default");
-    expect(s.showProgressBar).toBe(true);
-    expect(propertyDefaultsState.liveLayerCount).toBe(start + 1);
-    s.propertyDefaults({ classes: undefined });
-    expect(s.showProgressBar).toBe(false);
-    expect(propertyDefaultsState.liveLayerCount).toBe(start);
-    expect(s.getOwnPropertyDefaults()).toBeUndefined();
+    expect(q.titleLocation, "#3").toBe("left");
+    expect(q.descriptionLocation, "#4").toBe("default");
+    expect(s.showProgressBar, "#5").toBe(true);
+    expect(propertyDefaultsState.liveLayerCount, "#6").toBe(start + 1);
+    s.releasePropertyDefaults();
+    expect(q.titleLocation, "#7").toBe("default");
+    expect(s.showProgressBar, "#8").toBe(false);
+    expect(propertyDefaultsState.liveLayerCount, "#9").toBe(start);
+    expect(s.getOwnPropertyDefaults(), "#10").toBeUndefined();
+    s.releasePropertyDefaults();
+    expect(propertyDefaultsState.liveLayerCount, "#11: once").toBe(start);
+    expect(warn, "#12: no warning").not.toHaveBeenCalled();
   });
   test("dispose() decrements the count once; a survey without a layer never increments it", () => {
     const start = propertyDefaultsState.liveLayerCount;

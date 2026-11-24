@@ -1,14 +1,14 @@
 import { HashTable } from "../helpers";
 import { IValueGetterContext, VariableGetterContextEx } from "./conditionProcessValue";
 import { ExpressionRunnerBase } from "../expressions/expressionRunner";
-import type { ISurveySettings } from "../survey-settings";
+import type { ISurveyRuntimeSettings } from "../survey-settings";
 
 export class ConditionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: boolean) => void;
-  public runValues(values: HashTable<any>, properties?: HashTable<any>, settings?: ISurveySettings): boolean {
+  public runValues(values: HashTable<any>, properties?: HashTable<any>, settings?: ISurveyRuntimeSettings): boolean {
     return this.runContext(new VariableGetterContextEx(values, properties?.context), properties, settings);
   }
-  public runContext(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveySettings): boolean {
+  public runContext(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveyRuntimeSettings): boolean {
     return this.runContextCore(context, properties, settings) == true;
   }
   protected doOnComplete(res: any, id: number): void {

@@ -720,7 +720,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return json;
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveySettings());
+    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveyRuntimeSettings());
   }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     if (!val || !Array.isArray(val)) return false;

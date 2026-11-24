@@ -16,7 +16,7 @@ import { IAction } from "../src/actions/action";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { describe, expect, test, afterEach } from "vitest";
 
-const keepOn = { keepEmptyValues: true };
+const keepOn = { runtimeSettings: { keepEmptyValues: true } };
 const createSurvey = (json: any, isKeepOn: boolean): SurveyModel => isKeepOn ? new SurveyModel(json, keepOn) : new SurveyModel(json);
 const offAndOn = [false, true];
 const caseName = (isKeepOn: boolean): string => isKeepOn ? "the key on" : "the key off";
@@ -220,21 +220,6 @@ describe("keepEmptyValues: a respondent's own clear", () => {
     survey.doComplete();
     expect(survey.data).toStrictEqual({ q: "" });
   });
-  test("the key set by survey.settings() after load applies to the next clear", () => {
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] });
-    const q = survey.getQuestionByName("q");
-    blurText(q, "x");
-    blurText(q, "");
-    expect(survey.data, "#1: the key is off").toStrictEqual({});
-    survey.settings({ keepEmptyValues: true });
-    blurText(q, "x");
-    blurText(q, "");
-    expect(survey.data, "#2: the key is on").toStrictEqual({ q: "" });
-    survey.settings({ keepEmptyValues: false });
-    blurText(q, "x");
-    blurText(q, "");
-    expect(survey.data, "#3: the key is off again").toStrictEqual({});
-  });
   describe("the global settings", () => {
     afterEach(() => { settings.keepEmptyValues = false; });
     test("a survey without its own value follows the global key at the time of the clear", () => {
@@ -246,7 +231,7 @@ describe("keepEmptyValues: a respondent's own clear", () => {
     });
     test("a survey's own false wins over the global true", () => {
       settings.keepEmptyValues = true;
-      const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { keepEmptyValues: false });
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { runtimeSettings: { keepEmptyValues: false } });
       blurText(survey.getQuestionByName("q"), "x");
       blurText(survey.getQuestionByName("q"), "");
       expect(survey.data).toStrictEqual({});

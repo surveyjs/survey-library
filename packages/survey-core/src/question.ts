@@ -2515,7 +2515,7 @@ export class Question extends SurveyElement<Question>
     this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
   }
   protected isKeepingEmptyValues(): boolean {
-    return !!this.survey && !!this.survey.getSettings().keepEmptyValues;
+    return !!this.survey && !!this.survey.runtimeSettings.keepEmptyValues;
   }
   // See ISurvey.runDeletingEmptyValues: the empty values func writes remove their keys.
   protected runDeletingEmptyValues<T>(func: () => T): T {
@@ -2840,7 +2840,7 @@ export class Question extends SurveyElement<Question>
   }
   protected checkIfAnswerCorrect(): boolean {
     // caseSensitive is left to the settings: the survey's own value, else the global one
-    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveySettings() });
+    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveyRuntimeSettings() });
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {

@@ -3,7 +3,7 @@ import { IValueGetterContext, IValueGetterNameInfo, VariableGetterContextEx } fr
 import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
 import type { IExpressionExecutorBase } from "./expressionExecutor";
-import type { ISurveySettings } from "../survey-settings";
+import type { ISurveyRuntimeSettings } from "../survey-settings";
 
 export { IExpressionExecutorBase };
 
@@ -82,7 +82,7 @@ export class ExpressionRunnerBase {
   public canRun(): boolean {
     return this.expressionExecutor.canRun();
   }
-  public runContextCore(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveySettings): any {
+  public runContextCore(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveyRuntimeSettings): any {
     const id = this.getRunId ? this.getRunId() : ++this.runIdCounter;
     try {
       if (this.onBeforeAsyncRun && this.isAsync) {
@@ -109,10 +109,10 @@ export class ExpressionRunnerBase {
 
 export class ExpressionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: any) => void;
-  public runValues(values: HashTable<any>, properties?: HashTable<any>, settings?: ISurveySettings): any {
+  public runValues(values: HashTable<any>, properties?: HashTable<any>, settings?: ISurveyRuntimeSettings): any {
     return this.runContext(new VariableGetterContextEx(values, properties?.context), properties, settings);
   }
-  public runContext(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveySettings): any {
+  public runContext(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveyRuntimeSettings): any {
     return this.runContextCore(context, properties, settings);
   }
   protected doOnComplete(res: any, id: number): void {

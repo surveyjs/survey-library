@@ -13,7 +13,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { FunctionFactory } from "./functionsfactory";
 import { PanelModel, PanelModelBase } from "./panel";
 import { settings } from "./settings";
-import { getSurveySetting } from "./survey-settings";
+import { getRuntimeSetting } from "./survey-settings";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -1482,7 +1482,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @since 2.0.0
    */
   public get useCaseSensitiveComparison(): boolean {
-    return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : getSurveySetting(this.getSurveySettings(), "comparator", "caseSensitive");
+    return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : getRuntimeSetting(this.getSurveyRuntimeSettings(), "comparator", "caseSensitive");
   }
   public set useCaseSensitiveComparison(val: boolean) {
     this.useCaseSensitiveComparisonValue = val;

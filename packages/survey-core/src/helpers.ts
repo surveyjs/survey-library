@@ -1,6 +1,6 @@
 import { settings } from "./settings";
 import { mulberry32, isProtoKey } from "./utils/utils";
-import { ISurveySettings, getSurveySetting } from "./survey-settings";
+import { ISurveyRuntimeSettings, getRuntimeSetting } from "./survey-settings";
 
 export interface HashTable<T = any> {
   [key: string]: T;
@@ -14,7 +14,7 @@ export interface IEqualValuesParameters {
   // applies to conditions, not to value-change checks, choice matching or matrix cells, which carry the same settings
   strictEqualityApplies?: boolean;
   // The survey's settings for the keys not given above; undefined means the global settings
-  settings?: ISurveySettings;
+  settings?: ISurveyRuntimeSettings;
 }
 // What "the current moment" means for one survey. A survey that has no provider reads the machine
 // clock, which is what every application does. A provider is instance state on purpose: two surveys
@@ -124,13 +124,13 @@ export class Helpers {
   public static isValueUndefined(value: any): boolean {
     return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));
   }
-  public static isArrayContainsEqual(x: any, y: any, surveySettings?: ISurveySettings): boolean {
+  public static isArrayContainsEqual(x: any, y: any, runtimeSettings?: ISurveyRuntimeSettings): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
     for (var i = 0; i < x.length; i++) {
       var j = 0;
       for (; j < y.length; j++) {
-        if (Helpers.checkIfValuesEqual(x[i], y[j], { ignoreOrder: false, settings: surveySettings })) break;
+        if (Helpers.checkIfValuesEqual(x[i], y[j], { ignoreOrder: false, settings: runtimeSettings })) break;
       }
       if (j === y.length) return false;
     }
@@ -163,9 +163,9 @@ export class Helpers {
     ignoreOrder: boolean = false,
     caseSensitive?: boolean,
     trimStrings? : boolean,
-    surveySettings?: ISurveySettings
+    runtimeSettings?: ISurveyRuntimeSettings
   ): boolean {
-    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: surveySettings });
+    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: runtimeSettings });
   }
   public static compareStrings(x: string, y: string): number {
     const normalize = settings.comparator.normalizeTextCallback;
@@ -203,8 +203,8 @@ export class Helpers {
     if ((y === undefined || y === null) && x === "") return true;
     if (typeof x === "string" && typeof y === "string") {
       // An explicit parameter wins, then the survey's own value, then the global one
-      const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : getSurveySetting(params.settings, "comparator", "caseSensitive");
-      const trimStrings = params.trimStrings !== undefined ? params.trimStrings : getSurveySetting(params.settings, "comparator", "trimStrings");
+      const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : getRuntimeSetting(params.settings, "comparator", "caseSensitive");
+      const trimStrings = params.trimStrings !== undefined ? params.trimStrings : getRuntimeSetting(params.settings, "comparator", "trimStrings");
       const normalize = settings.comparator.normalizeTextCallback;
       x = normalize(x, "compare");
       y = normalize(y, "compare");
@@ -244,7 +244,7 @@ export class Helpers {
       // side is strict: a number and a text that == reads as that number ('.5', '1e3') are C4's concern.
       // A boolean and a text returned above (true = 'true').
       if (params.strictEqualityApplies && (typeof x === "boolean" || typeof y === "boolean") &&
-        getSurveySetting(params.settings, "comparator", "strictEquality")) return x === y;
+        getRuntimeSetting(params.settings, "comparator", "strictEquality")) return x === y;
       return x == y;
     }
     if (!isXObj || !isYObj) return false;
@@ -269,9 +269,9 @@ export class Helpers {
     ignoreOrder: boolean = false,
     caseSensitive?: boolean,
     trimStrings? : boolean,
-    surveySettings?: ISurveySettings
+    runtimeSettings?: ISurveyRuntimeSettings
   ): boolean {
-    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: surveySettings });
+    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: runtimeSettings });
   }
   public static randomizeArray<T>(array: Array<T>, seed?: number): Array<T> {
 
@@ -331,11 +331,11 @@ export class Helpers {
     }
     return res;
   }
-  public static createDiff(changedObj: any, originalObject: any, surveySettings?: ISurveySettings): any {
+  public static createDiff(changedObj: any, originalObject: any, runtimeSettings?: ISurveyRuntimeSettings): any {
     const res: any = {};
     if (typeof changedObj !== "object" || typeof originalObject !== "object") return res;
     for (const key in changedObj) {
-      if (!Helpers.checkIfValuesEqual(changedObj[key], originalObject[key], { ignoreOrder: false, settings: surveySettings })) {
+      if (!Helpers.checkIfValuesEqual(changedObj[key], originalObject[key], { ignoreOrder: false, settings: runtimeSettings })) {
         res[key] = changedObj[key];
       }
     }

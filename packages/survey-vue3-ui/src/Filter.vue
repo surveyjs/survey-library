@@ -3,7 +3,7 @@
     <div v-if="question.showSearchBar" :class="question.cssClasses.searchRow">
       <div :class="question.searchRootCss">
         <SvComponent :is="'sv-svg-icon'" :className="question.cssClasses.searchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
-        <input type="text" :class="question.searchCss.control" :value="question.searchString" :placeholder="question.searchPlaceholder"
+        <input type="text" autocomplete="off" :class="question.searchCss.control" :value="question.searchString" :placeholder="question.searchPlaceholder"
           :aria-label="question.searchLabel" :disabled="question.isSearchDisabled"
           @input="onSearchInput" />
         <SvComponent v-if="question.showSearchClear" :is="'sv-action-bar-item'" :item="question.searchClearAction"></SvComponent>

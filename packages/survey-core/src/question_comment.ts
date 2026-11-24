@@ -153,7 +153,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     }
   }
   private updateValueFromTextArea(newValue: any): void {
-    if (!Helpers.isTwoValueEquals(this.value, newValue, false, true, false)) {
+    if (!Helpers.checkIfValuesEqual(this.value, newValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
       this.value = newValue;
     }
   }

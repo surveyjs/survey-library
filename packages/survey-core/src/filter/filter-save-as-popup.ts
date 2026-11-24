@@ -36,7 +36,7 @@ export class FilterSaveAsPopup extends Base {
     const survey = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off", elements: [
       { type: "panel", name: "presetName", elements: [
         { type: "text", name: "presetTitle", title: name, titleLocation: "hidden",
-          placeholder: name, maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }] });
+          placeholder: name, maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping", autocomplete: "off" }] }] });
     survey.locale = owner.getLocale();
     // Inside the popup with no frame of its own, as a popup's operator and value are.
     survey.isCompact = true;

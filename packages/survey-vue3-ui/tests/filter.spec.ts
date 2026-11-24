@@ -432,3 +432,48 @@ describe("The AI description of the preset dialogs", () => {
     cleanup(wrapper);
   });
 });
+
+// An input's id (sq_<n>i) is the same in every survey, and a browser offers what was typed into an
+// input with that id on any site - so the filter's inputs turn the browser's suggestions off.
+describe("The filter's inputs and the browser's autocomplete", () => {
+  it("the filter's inputs take no suggestions from the browser's history", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, fields: [
+      { name: "age", fieldType: "text", inputType: "number" },
+      { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const found: Array<string> = [];
+    const surveyWrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
+    await nextTick();
+    found.push(surveyWrapper.element.parentElement.querySelector(".sd-filter__search input").getAttribute("autocomplete"));
+    cleanup(surveyWrapper);
+
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    let wrapper = mountComponent("sv-filter-modal", { holder: holder });
+    await nextTick();
+    found.push(wrapper.element.parentElement.querySelector(".sd-filter-modal__section input").getAttribute("autocomplete"));
+    const modal = holder.modal;
+    holder.modal = undefined;
+    await nextTick();
+    modal.dispose();
+    cleanup(wrapper);
+
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    wrapper = mountComponent("sv-filter-field-popup", { holder: holder });
+    await nextTick();
+    found.push(wrapper.element.parentElement.querySelector(".sd-filter-popup__search-input").getAttribute("autocomplete"));
+    cleanup(wrapper);
+    holder.fieldPopup.dispose();
+
+    holder.fieldPopup = q.createFieldPopup("age", () => {});
+    wrapper = mountComponent("sv-filter-field-popup", { holder: holder });
+    await nextTick();
+    found.push(wrapper.element.parentElement.querySelector(".sd-filter-popup input[type='number']").getAttribute("autocomplete"));
+    cleanup(wrapper);
+    holder.fieldPopup.dispose();
+    survey.dispose();
+    // The search box, Search in Filters, a badge popup's search box, a badge popup's value.
+    expect(found).toEqual(["off", "off", "off", "off"]);
+  });
+});

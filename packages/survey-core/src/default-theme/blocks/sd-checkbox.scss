@@ -38,6 +38,10 @@
   fill: $foreground;
 }
 
+.sd-checkbox--view .sd-checkbox__decorator {
+  width: auto;
+}
+
 .sd-checkbox--disabled.sd-checkbox--disabled {
   .sd-checkbox__decorator {
     background-color: var(--sjs2-color-component-checkbox-false-disabled-bg);

@@ -489,3 +489,57 @@ describe("The AI description of the preset dialogs", () => {
     cleanup(container);
   });
 });
+
+// An input's id (sq_<n>i) is the same in every survey, and a browser offers what was typed into an
+// input with that id on any site - so the filter's inputs turn the browser's suggestions off.
+describe("The filter's inputs and the browser's autocomplete", () => {
+  function mount(element: React.ReactElement): HTMLElement {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(element, container);
+    });
+    return container;
+  }
+  function unmount(container: HTMLElement): void {
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+  }
+  it("the filter's inputs take no suggestions from the browser's history", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, fields: [
+      { name: "age", fieldType: "text", inputType: "number" },
+      { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const found: Array<string> = [];
+    let container = mount(React.createElement(SurveyReact, { model: survey }));
+    found.push(container.querySelector(".sd-filter__search input").getAttribute("autocomplete"));
+    unmount(container);
+
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    container = mount(React.createElement(SurveyFilterModal, { holder: holder }));
+    found.push(container.querySelector(".sd-filter-modal__section input").getAttribute("autocomplete"));
+    const modal = holder.modal;
+    act(() => { holder.modal = undefined; });
+    modal.dispose();
+    unmount(container);
+
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    container = mount(React.createElement(SurveyFilterFieldPopup, { holder: holder }));
+    found.push(container.querySelector(".sd-filter-popup__search-input").getAttribute("autocomplete"));
+    unmount(container);
+    holder.fieldPopup.dispose();
+
+    holder.fieldPopup = q.createFieldPopup("age", () => {});
+    container = mount(React.createElement(SurveyFilterFieldPopup, { holder: holder }));
+    found.push(container.querySelector(".sd-filter-popup input[type='number']").getAttribute("autocomplete"));
+    unmount(container);
+    holder.fieldPopup.dispose();
+    survey.dispose();
+    // The search box, Search in Filters, a badge popup's search box, a badge popup's value.
+    expect(found).toEqual(["off", "off", "off", "off"]);
+  });
+});

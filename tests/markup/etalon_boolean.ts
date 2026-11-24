@@ -127,6 +127,59 @@ registerMarkupTests(
     snapshot: "boolean-checkbox-readonly-defaultV2",
   },
   {
+    name: "Test Boolean Checkbox question markup: view empty",
+    json: {
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          displayMode: "checkbox"
+        }
+      ]
+    },
+    snapshot: "boolean-checkbox-view-dash",
+  },
+  {
+    name: "Test Boolean Checkbox question markup: view false",
+    json: {
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          displayMode: "checkbox",
+          defaultValue: false
+        }
+      ]
+    },
+    snapshot: "boolean-checkbox-view-dash",
+  },
+  {
+    name: "Test Boolean Checkbox question markup: view true",
+    json: {
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          displayMode: "checkbox",
+          defaultValue: true
+        }
+      ]
+    },
+    snapshot: "boolean-checkbox-view-true",
+  },
+  {
     name: "Test Boolean Checkbox question markup: Disabled",
     json: {
       mode: "display",

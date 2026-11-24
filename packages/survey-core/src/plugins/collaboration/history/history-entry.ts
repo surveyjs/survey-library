@@ -75,7 +75,7 @@ function isEmptyValue(value: any): boolean {
 // that holds nothing changes the value and leaves the answer as it was. Case counts:
 // survey-core's own comparison ignores it by default, a reader does not.
 export function hasSameContent(a: any, b: any): boolean {
-  return Helpers.isTwoValueEquals(contentOf(a), contentOf(b), false, true, false);
+  return Helpers.checkIfValuesEqual(contentOf(a), contentOf(b), { ignoreOrder: false, caseSensitive: true, trimStrings: false });
 }
 
 const CONTENT_TYPES = ["file", "signaturepad"];

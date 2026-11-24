@@ -90,6 +90,14 @@ describe("getFilterFieldOperators", () => {
       expect(ops, f.name).not.toContain("notcontains");
     });
   });
+  test("an expression field with a number displayStyle takes no contains, one without it does (#12389)", () => {
+    const field = new FilterField("f");
+    field.fieldType = "expression";
+    expect(getFilterFieldOperators(field.getFilterField()), "#1: the result type is not known").toContain("contains");
+    (<any>field.templateQuestion).displayStyle = "currency";
+    expect(field.valueType, "#2").toBe("number");
+    expect(getFilterFieldOperators(field.getFilterField()), "#3").not.toContain("contains");
+  });
   test("a typeless boolean field takes no comparisons at all", () => {
     const field = new FilterField("b");
     field.valueType = "boolean";

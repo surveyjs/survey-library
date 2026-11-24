@@ -23,6 +23,8 @@ export interface IRecordRemoval {
   position: number;
   recordIndex: number;
   viewIndex: number;
+  // The record as stored, read before it leaves (removeResolvedRecord): the removed event's getRecord.
+  record?: any;
 }
 
 // What the targets of a removal, a move and an insert read from the records question.

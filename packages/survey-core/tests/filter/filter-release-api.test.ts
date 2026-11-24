@@ -3,6 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Serializer } from "../../src/jsonobject";
+import { Base, PropertyAccessTracker } from "../../src/base";
 import { createFilter, createBound } from "./filter-test-helpers";
 
 describe("Filter release API: the three expressions", () => {
@@ -250,6 +251,49 @@ describe("Filter release API: searchPlaceholder", () => {
     const editor: any = q.createAllFiltersEditor();
     expect(editor.options.searchPlaceholder, "#2").toBe("Find");
     editor.dispose();
+  });
+  test("a component that read the placeholder is told when the author types one and when it is cleared", () => {
+    const q = createFilter({ showSearchBar: true, searchFields: ["name"] });
+    const read = (): Array<string> => {
+      const log: Array<string> = [];
+      const tracker = new PropertyAccessTracker((model: Base, options: any): void => {
+        if (model === q) log.push(options.name);
+      });
+      tracker.startTracking();
+      try {
+        q.searchPlaceholder;
+      } finally {
+        tracker.stopTracking();
+      }
+      tracker.subscribe();
+      return log;
+    };
+    let log = read();
+    q.searchPlaceholder = "test";
+    expect(log.indexOf("searchPlaceholder") > -1, "#1: typed").toBe(true);
+    expect(q.searchPlaceholder, "#2").toBe("test");
+    log = read();
+    q.searchPlaceholder = "";
+    expect(log.indexOf("searchPlaceholder") > -1, "#3: cleared").toBe(true);
+    expect(q.searchPlaceholder, "#4").toBe("Search by name");
+  });
+  test("a component that read a preset's title is told when the author changes it", () => {
+    const q = createFilter();
+    const preset = q.getPresetByName("adults");
+    const log: Array<string> = [];
+    const tracker = new PropertyAccessTracker((model: Base, options: any): void => {
+      if (model === preset) log.push(options.name);
+    });
+    tracker.startTracking();
+    try {
+      preset.title;
+    } finally {
+      tracker.stopTracking();
+    }
+    tracker.subscribe();
+    preset.title = "Grown-ups";
+    expect(log.indexOf("title") > -1, "#1").toBe(true);
+    expect(preset.title, "#2").toBe("Grown-ups");
   });
   test("the property shows only with the search bar", () => {
     const prop = Serializer.findProperty("filter", "searchPlaceholder");

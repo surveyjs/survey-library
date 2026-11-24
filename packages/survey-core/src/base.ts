@@ -1640,8 +1640,9 @@ export class Base implements IObjectValueContext {
     this.locStringAccessed(locStr);
     return locStr?.textOrHtml || "";
   }
-  // A read of a localizable string's value; the value is not in the property hash, so getPropertyValueCore does not see it
-  private locStringAccessed(locStr: LocalizableString): void {
+  // A read of a localizable string's value; the value is not in the property hash, so getPropertyValueCore does not see it.
+  // A getter that reads the string some other way (calculatedText) calls it, or a component that rendered it is not redrawn.
+  protected locStringAccessed(locStr: LocalizableString): void {
     const name = locStr?.name;
     if (!name) return;
     Base.collectDependency(this, name);

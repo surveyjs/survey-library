@@ -1067,7 +1067,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get searchLabel(): string { return this.getLocalizationString("filterSearchLabel"); }
   // The author's text for the search box; with none, the text that says what the search looks in.
   public get searchPlaceholder(): string {
-    return this.locSearchPlaceholder.calculatedText || this.getComputedSearchPlaceholder();
+    const locStr = this.locSearchPlaceholder;
+    this.locStringAccessed(locStr);
+    return locStr.calculatedText || this.getComputedSearchPlaceholder();
   }
   public set searchPlaceholder(val: string) { this.locSearchPlaceholder.text = val; }
   public get locSearchPlaceholder(): LocalizableString { return this.getOrCreateLocStr("searchPlaceholder"); }

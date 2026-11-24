@@ -87,7 +87,11 @@ export class FilterPreset extends Base implements IFilterPreset {
   public get name(): string { return this.getPropertyValue("name"); }
   public set name(val: string) { this.setPropertyValue("name", val); }
 
-  public get title(): string { return this.locTitle.calculatedText; }
+  public get title(): string {
+    const locStr = this.locTitle;
+    this.locStringAccessed(locStr);
+    return locStr.calculatedText;
+  }
   public set title(val: string) { this.locTitle.text = val; }
   public get locTitle(): LocalizableString { return this.getOrCreateLocStr("title"); }
 

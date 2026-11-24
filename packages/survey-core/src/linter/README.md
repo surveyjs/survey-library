@@ -466,46 +466,29 @@ another one, and no property holds it.
   the definition is the host's own, already normalized by the host's build. Lint it separately —
   `lintSurvey(definitionJson)` — to find *its* defects; `lintSurvey(survey, { variablePresets })`
   never reports on it.
-* **Nested data.** Outside `"none"` (the default), a panel or a page with a `valueName` - or every panel and/or page in a by-name
-  `dataNesting` mode, under its name - stores its questions' values in an object under its key
-  (`data.address.street`). The mode is the JSON's `dataNesting`, else the serializer default a host may
-  have changed; the key rule is the runtime's (`data-nesting.ts` keeps a copy of
-  `getDataNestingKey`, pinned by a test), and an unnamed container nests under the name the runtime
-  generates for it. A composite definition never nests. In a nesting mode, names follow the name scopes
-  ([Names Inside a Nesting Container](../../../../docs/design-survey-nested-data.md#names-inside-a-nesting-container)):
-  `name-scopes.ts` holds each scope's names and the lookups by a path of names. A name scope is a data scope. A dynamic panel's panel and a matrix row are records,
-  roots of their own: a panel inside the template or the detail panel nests by its `valueName` only (no
-  by-name mode reaches into a record, `"none"` switches it off), and the template and the detail panel
-  themselves never nest. A record's keys meet each other only - never the survey data's or a variable -
-  and its objects are reached through the record: `{panel.address.street}`, `{row.home.street2}`,
-  `{items[0].address.street}`, `{panel.address}` (the object); a question inside such an object is no
-  field of the record (`{row.street}` is unknown), though `{panel.street}` finds a dynamic panel's question by
-  its name at any depth, as the runtime does. References resolve in the runtime's order:
-  * at the root - variables and calculated values, a question of the survey data, a container key of the
-    survey data (`{address}`, `{address.street}`, `{page1.address.street}`), a question inside a container
-    by its **name** (`{street}`), and its comment key (`{street-Comment}`);
-  * inside a container - its questions by **value name**, the containers directly inside it by key, its
-    comment keys, then the outer objects and the root. Inside a record the outer objects stop at the
-    record and go on around the dynamic panel or the matrix. A matrix total inside an object of the survey
-    data is reached by a path from the survey data only (`{address.m-total.c}`), as at runtime. Inside a
-    record the runtime stores the total row in the record's object once a cell changes, and a path into
-    that object reaches it, from the record (`{panel.address.m-total.c}`, `{row.home.m-total.c}`) or from
-    the survey data (`{items[0].address.m-total.c}`), not its key alone from inside the object. A matrix
-    placed directly in a detail panel writes no total into the row, so `{row.m-total.c}` stays unknown.
-    Display-only questions (html, image) store nothing: a container key answers before them, and they
-    conflict with no key; inside a record's object they are found as in the survey data's. A path continues inside the
-    object it names and never falls back: `{address.foo}` is reported though the runtime reads raw data
-    for it, and there is no deep search - `{panel1.q1}` only works inside the page `panel1` is on;
-  * a question's `valueName` inside a container answers only inside it, and a nesting container's name
-    answers nothing - its object is reached by its key.
+* **Nested data.** Outside `"none"` (the default), a panel or a page with a `valueName` - or every panel and/or
+  page in a by-name `dataNesting` mode - stores its questions' values in an object under its key. The mode is the
+  JSON's `dataNesting`, else the serializer default a host may have changed. The key rule is the runtime's
+  `getDataNestingKey`, an unnamed container nests under the name the runtime generates for it, and a composite
+  definition never nests. Names, paths and trigger targets resolve as at runtime: see
+  [Names Inside a Nesting Container](../../../../docs/design-survey-nested-data.md#names-inside-a-nesting-container) and
+  [Nested Values in Expressions](../../../../docs/design-survey-nested-data.md#nested-values-in-expressions). `data-nesting.ts` creates
+  the data scopes the walker fills, and `name-scopes.ts` holds the name scopes. A resolved path reaches the
+  inner question, so `{address.kind}` is checked against `kind`'s choices, type and bounds. What the design doc
+  does not say:
+  * a matrix total inside an object of the survey data is reached by a path from the survey data only
+    (`{address.m-total.c}`); inside a record, by a path into the record's object (`{panel.address.m-total.c}`,
+    `{items[0].address.m-total.c}`). A matrix placed directly in a detail panel writes no total into the row,
+    so `{row.m-total.c}` stays unknown;
+  * display-only questions (html, image) store nothing: a container key answers before them, and they
+    conflict with no key;
+  * keys that differ only in letter case are one object to a reference, as at runtime;
+  * a path continues inside the object it names and never falls back: `{address.foo}` is reported, though the
+    runtime reads raw data for it, and there is no deep search (`{panel1.q1}` works only inside the page
+    `panel1` is on).
 
-  A resolved path reaches the inner question, so `{address.kind}` is checked against `kind`'s choices,
-  type and bounds, and `{address}` is an object. A name that is the `valueName` of a container that stores
-  nothing (`"dataNesting": "none"`) gets the `containerKeyNotNesting` hint. Trigger targets take
-  the same names, paths and container keys, in the expression order: `setToName: "address"` writes the
-  object even when a question inside it is named `address`. Data keys meet within one object: two
-  questions sharing a `valueName` in different containers share nothing. Keys that differ only in letter
-  case are one object to a reference, as at runtime.
+  A reference to the `valueName` of a container that stores nothing (`"none"`) gets the
+  `containerKeyNotNesting` hint.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,
   container array keys and trigger target properties are read from the `Serializer` at lint
   time, so a property or a type added to the core — or registered by the application — is
@@ -601,7 +584,7 @@ WARN  expression/unknown-choice
 | `index.ts` | `lintSurvey`, `getRules`, the run order and the result assembly. |
 | `types.ts` | The public interfaces (options, findings, result). |
 | `walker.ts` | Walks the JSON once and builds the index: elements, containers, name/valueName maps, calculated values, triggers, expression sites and their scopes. |
-| `data-nesting.ts` | Nested data: the container kind the core's key rule looks up, the mode, generated container names and the object an element or an expression belongs to. |
+| `data-nesting.ts` | Nested data: the container kind the core's key rule looks up, the mode, generated container names, the data scopes and the walk over their container keys, and the object an element or an expression belongs to. |
 | `name-scopes.ts` | Nested data, a nesting mode: the name scope of an element, its path of names, and the lookups by a name or a path of names from a scope outwards. |
 | `definition-variables.ts` | The fields of the host's variable definition: the paths below an object variable and the typo suggestion for a host variable. |
 | `symbols.ts` | The index data structures, including the case-insensitive maps used for user-supplied names. |
@@ -616,8 +599,7 @@ WARN  expression/unknown-choice
 | `constant-env.ts` | The values known at authoring time: calculated values and expression questions nothing else writes to. |
 | `condition-eval.ts` | Three-valued evaluation of a condition over the modules above. |
 | `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
-| `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules and of the sentences rules build. |
-| `name-shadowing-common.ts`, `name-shadowing-containers.ts` | The halves of `name/shadowing`: the comment and totals key check its element and container checks share, and the checks of nesting container keys. |
+| `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules, and of the sentences and related lists rules build. |
 | `fix-apply.ts` | `applyFix` — one fix onto a copy of the JSON. |
 | `fix-utils.ts` | The four edit shapes a rule's repair takes. |
 | `new-name.ts` | The name a fix gives a new element, asked of the host first. |

@@ -1,4 +1,7 @@
-// The sentence fragments several rules build the same way. A message is prose, not API - what
+import { ElementRecord } from "./symbols";
+import { ILintRelated } from "./types";
+
+// The sentence fragments and the related lists several rules build the same way. A message is prose, not API - what
 // a host localizes on is the (ruleId, reason) pair and messageData - but a defect of one kind
 // should read the same however many rules can find it.
 
@@ -26,4 +29,9 @@ export function quoteValues(values: Array<any>): string {
 export function ownerText(name?: string, className?: string): string {
   if (!!name) return "\"" + name + "\"";
   return className === "survey" ? "the survey" : "the " + className;
+}
+
+// The elements a finding names besides its own path.
+export function relatedOf(records: Array<ElementRecord>): Array<ILintRelated> {
+  return records.map(record => ({ path: record.path, elementName: record.name }));
 }

@@ -11,7 +11,7 @@ import {
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 import { getDataKey, getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
-import { getNestedScope, getOwnerDataScope, isInNestedObject, isInsideRecordScope } from "./data-nesting";
+import { getContainerNestingKind, getNestedScope, getOwnerDataScope, isInNestedObject, isInsideRecordScope } from "./data-nesting";
 import { findFromNameScope, getNamePathFrom, getNameScopeLabel, getOwnerNameScope, isNameScopeMode } from "./name-scopes";
 import { findDefinitionFieldByKey, getDefinitionFieldPaths, isUnknownDefinitionPath } from "./definition-variables";
 import { isMatrixDropdown } from "./metadata";
@@ -450,14 +450,13 @@ function scopedResolved(ref: ParsedRef, prefix: string): ParsedRef {
   return ref;
 }
 
-function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, candidates: Array<string>): ParsedRef {
-  return scopedUnknownWith(ref, prefix, segmentIndex, suggestForSegments(ref.segments, segmentIndex, candidates));
-}
-function scopedUnknownWith(ref: ParsedRef, prefix: string, segmentIndex: number, suggestion: RefSuggestion | undefined): ParsedRef {
+// suggestion: the typo suggestion, when the caller has it already; else it is drawn from candidates
+function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, candidates: Array<string>,
+  suggestion?: RefSuggestion): ParsedRef {
   ref.status = "scoped-unknown";
   ref.scopePrefix = prefix;
   ref.unknownSegmentIndex = segmentIndex;
-  setSuggestion(ref, suggestion);
+  setSuggestion(ref, suggestion || suggestForSegments(ref.segments, segmentIndex, candidates));
   return ref;
 }
 
@@ -478,7 +477,7 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
     // a nesting panel's object inside the record: the path continues inside it ({panel.address.street}), and
     // in the objects whose keys differ from it in letter case only, which the runtime merges with it
     const unknown = record.kind === "dataObject" ? resolveInRecordObject(ref, found + 1, map.get(recordName), lintSettings) : undefined;
-    if (!!unknown) return scopedUnknownWith(ref, prefix, unknown.index, unknown.suggestion);
+    if (!!unknown) return scopedUnknown(ref, prefix, unknown.index, [], unknown.suggestion);
     return ref;
   }
   // a comment lives next to its value inside the row/panel too ({row.col1-Comment}):
@@ -677,7 +676,7 @@ function validateRecordFieldPath(ref: ParsedRef, record: ElementRecord, level: S
   // the path is checked on a copy: resolvedTo stays the dynamic panel or the matrix (getSubPathRecord)
   const inner: ParsedRef = { raw: ref.raw, segments: ref.segments, status: ref.status };
   const unknown = resolveInRecordObject(inner, end + 1, fields.get(fieldName), lintSettings);
-  if (!!unknown) markUnknownSegmentWith(ref, unknown.index, unknown.suggestion, unknown.level || "field");
+  if (!!unknown) markUnknownSegment(ref, unknown.index, [], unknown.level || "field", unknown.suggestion);
 }
 
 // An unknown segment of a path inside a record's object: its index, its typo suggestion and, for a
@@ -764,17 +763,13 @@ function resolveRecordObjectQuestion(ref: ParsedRef, end: number, question: Elem
 
 // The segment at index does not name anything inside the container the segment before it
 // resolved to; level is what it was meant to name there. Candidates are the names that
-// container does hold, for the typo suggestion.
+// container does hold, for the typo suggestion, unless the caller has the suggestion already.
 function markUnknownSegment(ref: ParsedRef, index: number, candidates: Array<string>,
-  level: SegmentLevel): void {
-  markUnknownSegmentWith(ref, index, suggestForSegments(ref.segments, index, candidates), level);
-}
-function markUnknownSegmentWith(ref: ParsedRef, index: number, suggestion: RefSuggestion | undefined,
-  level: SegmentLevel): void {
+  level: SegmentLevel, suggestion?: RefSuggestion): void {
   ref.status = "unknown";
   ref.unknownSegmentIndex = index;
   ref.unknownSegmentLevel = level;
-  setSuggestion(ref, suggestion);
+  setSuggestion(ref, suggestion || suggestForSegments(ref.segments, index, candidates));
 }
 
 // The segments from start name nothing the container holds, not even joined into a dotted
@@ -1085,12 +1080,17 @@ function getItemDataPath(root: string, owner: ElementRecord | undefined, index: 
   return scope.kind === "survey" ? res : undefined;
 }
 
-// The hint for a name that is a valueName of a container that stores nothing under it.
+// The hint for a name that is a valueName of a panel or a page that stores nothing under it: with
+// "dataNesting": "none" no container nests.
 function setNonNestingHint(ref: ParsedRef, root: string, index: SurveyIndex): void {
-  const key = index.nonNestingKeys.first(root);
-  if (!key || !!ref.scopeHint) return;
-  ref.scopeHint = "\"" + root + "\" is the valueName of " + key.container.type + " \"" + key.container.name +
-    "\", which stores no object: " + key.why + ".";
+  if (index.dataNesting !== "none" || !!ref.scopeHint) return;
+  // the walker takes a blank valueName for none (isNonEmptyString)
+  const container = index.containers.find(cnt => !!getContainerNestingKind(cnt) && !!cnt.record &&
+    typeof cnt.record.json.valueName === "string" && cnt.record.json.valueName.trim() !== "" &&
+    equalsCI(cnt.record.json.valueName, root));
+  if (!container) return;
+  ref.scopeHint = "\"" + root + "\" is the valueName of " + container.record.type + " \"" + container.record.name +
+    "\", which stores no object: the survey's dataNesting is \"none\".";
   ref.hintReason = SurveyLintHintReasons.containerKeyNotNesting;
   ref.hintName = root;
 }

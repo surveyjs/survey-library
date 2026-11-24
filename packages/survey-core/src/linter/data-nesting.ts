@@ -27,23 +27,15 @@ export function generateContainerName(base: string, taken: Set<string>): string 
   return base + index;
 }
 
-function createScope(kind: "survey" | "record"): DataScopeRecord {
-  return {
-    kind: kind, key: "", path: [], containers: [],
+// The survey data, or with recordOwner the record one panel of a dynamic panel or one row of a matrix is: a
+// root of its own, as the survey data is. A record's paths start at the record: a survey path would need the
+// record's index, which a sort, a filter or a page changes.
+export function createScope(recordOwner?: ElementRecord): DataScopeRecord {
+  const res: DataScopeRecord = {
+    kind: !!recordOwner ? "record" : "survey", key: "", path: [], containers: [],
     questions: new CIMultiMap<ElementRecord>(), children: new CIMultiMap<DataScopeRecord>(),
   };
-}
-
-export function createRootScope(): DataScopeRecord {
-  return createScope("survey");
-}
-
-// The record one panel of a dynamic panel or one row of a matrix is: a root of its own, as the survey
-// data is. Its paths start at the record: a survey path would need the record's index, which a sort, a
-// filter or a page changes.
-export function createRecordScope(owner: ElementRecord): DataScopeRecord {
-  const res = createScope("record");
-  res.recordOwner = owner;
+  if (!!recordOwner) res.recordOwner = recordOwner;
   return res;
 }
 
@@ -105,23 +97,13 @@ export function getContainerKeyPath(record: ElementRecord): string {
   return record.name ? record.path + ".name" : record.path;
 }
 
-// Every object below the survey data, outer ones first.
-export function getAllNestedScopes(index: SurveyIndex): Array<DataScopeRecord> {
-  return getScopesBelow(index.rootScope);
-}
-function getScopesBelow(root: DataScopeRecord): Array<DataScopeRecord> {
-  const res: Array<DataScopeRecord> = [];
-  const collect = (scope: DataScopeRecord) => scope.children.forEach(children => children.forEach(child => {
-    res.push(child);
-    collect(child);
+// Every container key, as the object it lives in (scope) and the object it keys (child): in the survey data
+// and in each record, outer keys first. A record is a root of its own, never a child.
+export function forEachContainerKey(index: SurveyIndex,
+  callback: (scope: DataScopeRecord, child: DataScopeRecord) => void): void {
+  const visit = (scope: DataScopeRecord): void => scope.children.forEach(children => children.forEach(child => {
+    callback(scope, child);
+    visit(child);
   }));
-  collect(root);
-  return res;
-}
-// Every record and every object inside one, each record before its objects: the levels the key rules run
-// on inside dynamic panels and matrices. Nothing of the survey data is among them.
-export function getAllRecordLevels(index: SurveyIndex): Array<DataScopeRecord> {
-  const res: Array<DataScopeRecord> = [];
-  index.recordScopes.forEach(record => res.push(record, ...getScopesBelow(record)));
-  return res;
+  [index.rootScope].concat(index.recordScopes).forEach(visit);
 }

@@ -8,18 +8,16 @@ import { parseExpressionText, splitRefSegments, takeInArrayConditions } from "./
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, DataScopeRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, getCapturingFrame, joinPath, NonNestingKey, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  ExpressionSiteKind, getCapturingFrame, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues } from "./value-types";
 import { annotateSharedValues, getDataKey, getFrameNames } from "./record-fields";
-import { createRecordScope, createRootScope, generateContainerName, getChildScope, getContainerNestingKind, getDataNestingMode,
+import { createScope, generateContainerName, getChildScope, getContainerNestingKind, getDataNestingMode,
   isInNestedObject, isInsideRecordScope } from "./data-nesting";
 import { getNameScopeLabel, getRecordNameScope, isNameScopeMode } from "./name-scopes";
 
 const MAX_DEPTH = 128;
-// why a panel's or a page's valueName stores nothing: the hint of a reference to it
-const NON_NESTING_WHY = "the survey's dataNesting is \"none\"";
 
 interface WalkState {
   index: SurveyIndex;
@@ -306,13 +304,10 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   names.add(name);
   const valueName = isNonEmptyString(record.json.valueName) ? record.json.valueName : "";
   // inside a record a panel nests by its valueName only: no by-name mode lists the kind "record"
-  const keyKind: string = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
-  const key = !!dataScope ? getDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
-  if (!key) {
-    // a valueName nests unless "none" switches nesting off
-    if (valueName) state.index.nonNestingKeys.add(valueName, { container: record, why: NON_NESTING_WHY });
-    return dataScope;
-  }
+  const keyKind: string = kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
+  const key = getDataNestingKey(state.index.dataNesting, keyKind, valueName, name);
+  // a valueName nests unless "none" switches nesting off
+  if (!key) return dataScope;
   container.dataKey = key;
   container.dataKeySource = valueName ? "valueName" : (record.name ? "name" : "generated");
   container.nestedScope = getChildScope(dataScope, key, record);
@@ -323,7 +318,7 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
 // The record of a dynamic panel or a matrix, created on first use.
 function getRecordScope(state: WalkState, owner: ElementRecord): DataScopeRecord {
   if (!owner.recordScope) {
-    owner.recordScope = createRecordScope(owner);
+    owner.recordScope = createScope(owner);
     state.index.recordScopes.push(owner.recordScope);
   }
   return owner.recordScope;
@@ -474,7 +469,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     record.componentFieldNames = getComponentFieldNames(state, componentDef);
   }
   registerRecord(state, record, ancestorPanels);
-  if (!!dataScope && !!record.name) dataScope.questions.add(getDataKey(record), record);
+  if (!!record.name) dataScope.questions.add(getDataKey(record), record);
 
   // the dynamic-panel template frame is built before the expression pass because
   // templateVisibleIf is evaluated inside it (see TEMPLATE_SCOPED_PROPS)
@@ -739,8 +734,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     flatNames: flatNames,
     byValueName: new CIMultiMap<ElementRecord>(),
     dataNesting: dataNesting,
-    rootScope: createRootScope(),
-    nonNestingKeys: new CIMultiMap<NonNestingKey>(),
+    rootScope: createScope(),
     recordScopes: [],
     elementNames: new CIMultiMap<ElementRecord>(),
     nameScopes: new Map<DataScopeRecord, CIMultiMap<ElementRecord>>(),

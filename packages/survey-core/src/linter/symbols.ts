@@ -365,12 +365,6 @@ export interface ContainerRecord {
   keyPath?: string;
 }
 
-// A non-nesting container's valueName, and why it stores nothing: the hint a reference to it gets.
-export interface NonNestingKey {
-  container: ElementRecord;
-  why: string;
-}
-
 export interface Namespace {
   label: string;
   map: CIMultiMap<ElementRecord>;
@@ -393,8 +387,6 @@ export interface SurveyIndex {
   // nested data: the dataNesting mode of the survey, and the survey data's object
   dataNesting: string;
   rootScope: DataScopeRecord;
-  // panels and pages whose valueName stores nothing, by that valueName
-  nonNestingKeys: CIMultiMap<NonNestingKey>;
   // the records of the dynamic panels and matrices (ElementRecord.recordScope), in walk order
   recordScopes: Array<DataScopeRecord>;
   // the survey's own name scope, the map name/duplicate reads for it. In "none" every page, panel and

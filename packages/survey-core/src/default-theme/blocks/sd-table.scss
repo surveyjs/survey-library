@@ -331,8 +331,7 @@
 //alternative rows
 .sd-table__body--alternative-rows {
   & > .sd-table__row--data:nth-child(odd of .sd-table__row--data),
-  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) + .sd-table__row--error:has(> .sd-table__cell--error-bottom),
-  & > .sd-table__row--error:has(> .sd-table__cell--error-top):has(+ .sd-table__row--data:nth-child(odd of .sd-table__row--data)) {
+  & > .sd-table__row--alternate {
     --sd-table-sticky-background-color: #{table-sticky-background(
         (
           #{$background-dark},
@@ -416,16 +415,14 @@
 }
 .sd-table__row--data,
 .sd-table > thead > tr,
-.sd-table__row--error:has(> .sd-table__cell--error-bottom),
-.sd-table__row--error:has(> .sd-table__cell--error-bottom) + .sd-table__row--detail {
+.sd-table__row--error-below,
+.sd-table__row--detail-under-error {
   border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
     var(--sjs2-color-component-matrix-default-separator);
 }
 
-// A bottom error row belongs to the data row above it, so the separator goes under the error
-// (and under a detail panel that follows that error).
-.sd-table__row--data:has(+ .sd-table__row--error > .sd-table__cell--error-bottom),
-.sd-table__row--error:has(> .sd-table__cell--error-bottom):has(+ .sd-table__row--detail) {
+.sd-table__row--data-with-error-below,
+.sd-table__row--error-below.sd-table__row--error-has-detail {
   border-bottom: none;
 }
 

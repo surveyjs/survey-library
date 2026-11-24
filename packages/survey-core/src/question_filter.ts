@@ -907,7 +907,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   // as applyFilter() applies one; a preset as it was is selected (the own filter goes with the one
   // before); conditions replace the filter's own the way an edit does (replaceConditions): over a
   // selected preset they unselect it and keep its order - unless they are the preset's own
-  // conditions, which is no edit.
+  // conditions, which is no edit. Apply is one deliberate change, not a burst: its write is not
+  // debounced (scheduleApplyToTarget), and a write still pending goes with it.
   public applyFilterState(state: IFilterState): void {
     if (!state || !this.canEditConditions) return;
     this.runBatch((): void => {
@@ -923,7 +924,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (this.showSearchBar && state.searchString !== undefined) {
         this.searchString = state.searchString;
       }
-    }, true);
+    }, true, true);
   }
   // How many records an expression would leave in the bound target - the "Show N items" of the
   // Filters dialog - with the filters of the target's other controls and its own authored one.
@@ -1546,7 +1547,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   private scheduleApplyToTarget(): void {
     const target = this.attachedTarget;
     const delay = settings.filterApplyDelay;
-    if (!target || target.isDataSourceAssigned !== true || !(delay > 0)) {
+    if (!target || typeof target.shouldDebounceFilter !== "function" || !target.shouldDebounceFilter() || !(delay > 0)) {
       this.applyToTarget();
       return;
     }

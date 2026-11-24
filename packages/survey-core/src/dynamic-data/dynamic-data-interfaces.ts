@@ -266,7 +266,8 @@ export interface IDynamicDataFilterTarget {
   // of the record the target has no column for, a path into a key the filter offers included
   // ("customer.country" next to a "customer" column).
   hasRecordField?(name: string): boolean;
-  // Optional: true while the question reads its records from an assigned data source. The control then
-  // debounces its writes (settings.filterApplyDelay): each one is a request to that source.
-  readonly isDataSourceAssigned?: boolean;
+  // Optional: true while each filter write is a request to an assigned data source - one that is not an
+  // in-memory array (LocalDynamicDataSource), which filters synchronously. The control then debounces the
+  // respondent's changes (settings.filterApplyDelay). A target with no such method is written at once.
+  shouldDebounceFilter?(): boolean;
 }

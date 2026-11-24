@@ -526,9 +526,10 @@ export var settings = {
    * @since 2.5.10
    */
   dropdownSaveOnOutsideClick: false,
-  // The delay, in milliseconds, between the last change of a Filter Control and the moment it writes its filter
-  // into a question that reads its records from a data source (dataSource): the changes made within the delay
-  // are written once. 0 writes at once. A control over in-memory records always writes at once.
+  // The delay, in milliseconds, between the respondent's last change of a Filter Control and the moment it writes
+  // its filter into a question that reads its records from a data source (dataSource): the changes made within the
+  // delay are written once. 0 writes at once. Always written at once: records with no data source or an in-memory
+  // one (ArrayDynamicDataSource), the Filters dialog's Apply, and a restored state (uiState).
   filterApplyDelay: 300,
   /**
    * A function used to display a custom confirmation dialog.

@@ -3,6 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { settings } from "../../src/settings";
+import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { FakeServerSource, serverRecords, flush } from "../dynamic-data/remote-source-integration-helpers";
 
 const columns = [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text", inputType: "number" }];
@@ -26,7 +27,7 @@ async function setUp(): Promise<{ survey: SurveyModel, control: QuestionFilterMo
   return { survey: survey, control: <QuestionFilterModel>survey.getQuestionByName("f"), writes: writes };
 }
 
-describe("Filter Control over a remote source: every write is debounced", () => {
+describe("Filter Control over a remote source: the respondent's changes are debounced", () => {
   beforeEach(() => { vi.useFakeTimers(); });
   afterEach(() => { vi.useRealTimers(); settings.filterApplyDelay = 300; });
 
@@ -41,7 +42,7 @@ describe("Filter Control over a remote source: every write is debounced", () => 
     vi.advanceTimersByTime(1);
     expect(writes.m, "#4: one write for the burst").toEqual(["{col1} contains 'v1'"]);
   });
-  test("a preset, a chip condition and the dialog's Apply are debounced too", async () => {
+  test("a preset and a chip condition are debounced too", async () => {
     const { control, writes } = await setUp();
     control.togglePreset("small");
     expect(writes.m, "#1").toEqual([]);
@@ -51,10 +52,14 @@ describe("Filter Control over a remote source: every write is debounced", () => 
     expect(writes.m.length, "#3").toBe(1);
     vi.advanceTimersByTime(300);
     expect(writes.m, "#4").toEqual(["{col2} < 3", "{col2} > 5"]);
-    control.applyFilterState({ selectedPreset: "", conditions: [{ field: "col2", operator: "less", value: 9 }], searchString: "" });
-    expect(writes.m.length, "#5").toBe(2);
+  });
+  test("the dialog's Apply is one deliberate change: written at once, the pending write goes with it", async () => {
+    const { control, writes } = await setUp();
+    control.searchString = "v1";
+    control.applyFilterState({ selectedPreset: "", conditions: [{ field: "col2", operator: "less", value: 9 }], searchString: "v1" });
+    expect(writes.m, "#1: at once").toEqual(["({col2} < 9) and ({col1} contains 'v1')"]);
     vi.advanceTimersByTime(300);
-    expect(writes.m[2], "#6").toBe("{col2} < 9");
+    expect(writes.m, "#2: nothing follows").toEqual(["({col2} < 9) and ({col1} contains 'v1')"]);
   });
   test("a change undone within the delay writes nothing", async () => {
     const { control, writes } = await setUp();
@@ -101,6 +106,20 @@ describe("Filter Control over a remote source: every write is debounced", () => 
     const { survey, writes } = await setUp();
     survey.uiState = { questions: { f: { filter: { selectedPreset: "small" } } } };
     expect(writes.m, "#1").toEqual(["{col2} < 3"]);
+  });
+  test("a target over an in-memory source (ArrayDynamicDataSource) is filtered at once: there is no request to save", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 0, columns: columns },
+      { type: "filter", name: "f", targetQuestion: "m", showSearchBar: true, searchFields: ["col1"] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.dataSource = ArrayDynamicDataSource.fromArray(serverRecords(12));
+    const control = <QuestionFilterModel>survey.getQuestionByName("f");
+    expect(matrix.visibleRows.length, "#1").toBe(12);
+    control.searchString = "v1";
+    expect(matrix.visibleRows.length, "#2: typing, v1, v10, v11").toBe(3);
+    control.searchString = "";
+    control.applyFilter("{col2} < 2");
+    expect(matrix.visibleRows.length, "#3: applyFilter").toBe(2);
   });
   test("settings.filterApplyDelay = 0 writes at once", async () => {
     settings.filterApplyDelay = 0;

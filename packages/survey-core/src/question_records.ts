@@ -2532,6 +2532,12 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   // questions. A records question with no fields of its own offers none.
   public getFilterFields(): Array<IDynamicDataFilterField> { return []; }
   public hasRecordField(name: string): boolean { return false; }
+  // An in-memory source is read whole and synchronously: a filter write costs no request, so a Filter
+  // Control writes it at once. Any other assigned source is asked again on every write.
+  public shouldDebounceFilter(): boolean {
+    const source = this.getDataSource();
+    return !!source && !isLocalSource(source);
+  }
   public refreshView(): void { this.paging.refreshView(); }
   /* The bar the renderers show: the pager under the records and the sort bar in the header. Created on
      its first read; the question keeps it current through updateRecordsBar(). */

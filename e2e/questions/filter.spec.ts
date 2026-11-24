@@ -548,7 +548,7 @@ frameworks.forEach((framework) => {
     });
     test("typing into the search while the matrix loads is not interrupted, and the search is read once", async ({ page }) => {
       await initSurvey(page, framework, { elements: [
-        { type: "filter", name: "f1", source: "m", showSearch: true, searchFields: ["col1"] },
+        { type: "filter", name: "f1", targetQuestion: "m", showSearchBar: true, searchFields: ["col1"] },
         { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 5, columns: [{ name: "col1", cellType: "text" }] }
       ] });
       await assignDeferredSource(page, "m", 12);

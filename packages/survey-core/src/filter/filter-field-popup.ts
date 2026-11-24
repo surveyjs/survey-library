@@ -12,6 +12,7 @@ import { toCssClasses } from "../utils/cssClassBuilder";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
+import { setupApplyOnEnter } from "./filter-enter-key";
 import {
   FilterFieldEditorKind, IFilterFieldListItem, canFilterFieldSelectAll, getFilterFieldListItems,
   getFilterFieldSelection, getFilterSelectionCondition
@@ -71,6 +72,8 @@ export class FilterFieldPopup extends Base {
     this.footerToolbarValue.setActionsAppearance(filterPopupFooterAppearance);
     if (this.kind === "condition") {
       this.editorValue = owner.createQuickFilterEditor(key);
+      // Enter in the value box is Apply. A list's search box only searches.
+      setupApplyOnEnter(this.editorValue.survey, (): void => { this.apply(); });
     } else {
       this.listValue = this.createList();
       this.selectConditionValues();

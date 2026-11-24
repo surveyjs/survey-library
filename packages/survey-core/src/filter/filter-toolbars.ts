@@ -297,6 +297,10 @@ export class FilterToolbars {
       cssClass: this.getAllFiltersDialogCss()
     });
     this.setModalFooter(this.allFiltersDialog, modal);
+    const allFiltersDialog = this.allFiltersDialog;
+    if (!!allFiltersDialog && !modal.isReadOnly) {
+      modal.onEnterKey = (): void => { allFiltersDialog.apply(); };
+    }
   }
   // What every dialog of the control shares: a close button, the host's "popup" mode, and no work on
   // cancel - only Apply writes anything. Returns what the dialog host returned.
@@ -363,6 +367,10 @@ export class FilterToolbars {
       cssClass: this.getSubDialogCss()
     });
     this.setPresetDialogFooter(this.subDialog, dialogModel, (): void => { modal.refreshPresets(); });
+    const subDialog = this.subDialog;
+    if (!!subDialog) {
+      dialogModel.onEnterKey = (): void => { subDialog.apply(); };
+    }
   }
   // The dialog over the Filters dialog is gone (closed, or the control disposed): what it was drawn
   // from is released and its model disposed, once - onHide may come after dispose().

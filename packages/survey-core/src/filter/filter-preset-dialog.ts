@@ -16,6 +16,7 @@ import { makeFilterAITitle } from "./filter-ai";
 import type { FilterAIRequest } from "./filter-ai";
 import { FilterAIPrompt } from "./filter-ai-prompt";
 import { FilterExpressionPanel } from "./filter-expression-panel";
+import { setupApplyOnEnter } from "./filter-enter-key";
 // The question types the form is made of; imported here, as FilterConditionsEditor imports its own.
 import "../question_text";
 import "../question_tagbox";
@@ -79,6 +80,7 @@ export class FilterPresetDialog extends Base {
   constructor(protected owner: IFilterPresetDialogOwner, conditions?: Array<IFilterCondition>, expression?: string) {
     super();
     this.surveyValue = this.createSurvey();
+    setupApplyOnEnter(this.surveyValue, (): void => { this.doEnterKey(); });
     if (!!(expression || "").trim()) {
       this.showBuffer({ title: "", conditions: null, expression: expression.trim() });
     } else if (conditions !== undefined) {
@@ -131,6 +133,14 @@ export class FilterPresetDialog extends Base {
   public setIsMobile(isMobile: boolean): void {
     if (this.isDisposed) return;
     this.surveyValue.setIsMobile(!!isMobile);
+  }
+  // Set by whoever shows the dialog: applies it the way its Apply does. Enter in the name or in a
+  // field's text box calls it; the text of a preset is multi-line and keeps Enter for a new line.
+  public onEnterKey: () => void;
+  private doEnterKey(): void {
+    if (!this.isDisposed && !!this.onEnterKey) {
+      this.onEnterKey();
+    }
   }
   // Checks the preset and adds it. false keeps the dialog open, with the errors shown in the form.
   public apply(): boolean {
@@ -263,6 +273,7 @@ export class FilterPresetDialog extends Base {
     // Before the elements exist: a panel asks for its title actions when it is first drawn.
     const onGetTitleActions = (_: SurveyModel, options: any): void => { this.addModeAction(options); };
     const form = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off", elements: elements });
+    setupApplyOnEnter(form, (): void => { this.doEnterKey(); });
     form.onGetPanelTitleActions.add(onGetTitleActions);
     form.locale = this.owner.getLocale();
     // Inside the dialog with no frames of its own, as the fields' editors are.

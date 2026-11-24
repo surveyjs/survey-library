@@ -6,6 +6,7 @@ import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
 import { FilterPreset, getUniqueFilterActionId } from "./filter-preset";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
+import { setupApplyOnEnter } from "./filter-enter-key";
 import { getLocaleString } from "../surveyStrings";
 import { normalizeTextForSearch } from "../helpers";
 
@@ -86,6 +87,13 @@ export class FilterModal extends Base {
     this.ownExpression = state.expression;
     this.setPropertyValue("searchString", state.searchString);
     this.editorValue = owner.createModalEditor((): void => { this.onFieldChanged(); });
+    // Enter in a field's text box does what the dialog's main button does. "Search in Filters" is
+    // the renderer's own box and only searches.
+    setupApplyOnEnter(this.editorValue.survey, (): void => {
+      if (!!this.onEnterKey) {
+        this.onEnterKey();
+      }
+    });
     this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: this.getString("filterAddPreset"), iconName: "icon-plus-24x24",
       iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, false); } });
     this.editPresetAction = new Action({ id: "sv-filter-modal-edit-preset", title: this.getString("filterEditSelected"), iconName: "icon-edit-24x24",
@@ -107,6 +115,8 @@ export class FilterModal extends Base {
   }
   public getType(): string { return "filtermodal"; }
   public get editor(): FilterConditionsEditor { return this.editorValue; }
+  // Set by whoever shows the dialog: applies it the way its main button does.
+  public onEnterKey: () => void;
   // The presets' pills, then Add New and Edit Selected; none while the control hides its presets.
   public get presetsToolbar(): ActionContainer { return this.presetsToolbarValue; }
   // Edit... next to the text of a preset that does not decompose.

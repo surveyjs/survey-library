@@ -5,6 +5,7 @@ import { SurveyModel } from "../survey";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { FilterPreset, filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset";
 import { filterPopupFooterAppearance } from "./filter-field-popup";
+import { setupApplyOnEnter } from "./filter-enter-key";
 import { getLocaleString } from "../surveyStrings";
 // The name is a text question: registered with the serializer before a survey of one is made.
 import "../question_text";
@@ -44,6 +45,8 @@ export class FilterSaveAsPopup extends Base {
       options.error = getFilterPresetTitleError(options.value, this.getTitles(), this.owner.getLocale());
     });
     this.surveyValue = survey;
+    // Enter in the name is Save.
+    setupApplyOnEnter(survey, (): void => { this.save(); });
     this.footerToolbarValue = new ActionContainer();
     this.footerToolbarValue.setActionsAppearance(filterPopupFooterAppearance);
     this.footerToolbarValue.setItems([new Action({ id: "sv-filter-save-as-save", title: getLocaleString("filterSaveAsSave", owner.getLocale()),

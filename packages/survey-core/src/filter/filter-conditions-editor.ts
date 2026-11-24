@@ -279,7 +279,7 @@ export class FilterConditionsEditor {
   private createSurvey(): SurveyModel {
     const elements: Array<any> = this.names.map((name: string, index: number): any => this.createPanelJson(name, index));
     if (this.hasSearch) {
-      elements.unshift({ type: "text", name: this.getSearchName(), titleLocation: "hidden", textUpdateMode: "onTyping",
+      elements.unshift({ type: "text", name: this.getSearchName(), titleLocation: "hidden", textUpdateMode: "onTyping", autocomplete: "off",
         placeholder: this.options.searchPlaceholder || getLocaleString("filterStringPlaceholder", this.owner.getLocale()) });
     }
     const survey = new SurveyModel({
@@ -557,6 +557,12 @@ export class FilterConditionsEditor {
   // class must not leave the field with no editor at all.
   private createQuestion(json: any): Question {
     const question: Question = Serializer.createClass(json.type) || Serializer.createClass("text");
+    // An editor input's id (sq_<n>i) is the same in every survey, and a browser offers what was typed
+    // into an input with that id on any site. So the browser's suggestions are off, unless the field's
+    // author set autocomplete on it. Set in the json, before fromJSON: not one more property change.
+    if (!json.autocomplete && !!Serializer.findProperty(question.getType(), "autocomplete")) {
+      json.autocomplete = "off";
+    }
     question.fromJSON(json);
     return question;
   }

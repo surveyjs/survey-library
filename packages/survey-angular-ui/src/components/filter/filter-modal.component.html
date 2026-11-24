@@ -3,7 +3,7 @@
     <div [class]="modal.cssClasses.modalSection">
       <div [class]="modal.searchCss.root">
         <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="modal.cssClasses.searchIcon" sv-ng-svg-icon></svg>
-        <input type="text" [class]="modal.searchCss.control" [value]="modal.filterText" [attr.placeholder]="modal.searchPlaceholder"
+        <input type="text" autocomplete="off" [class]="modal.searchCss.control" [value]="modal.filterText" [attr.placeholder]="modal.searchPlaceholder"
           [attr.aria-label]="modal.searchPlaceholder" (input)="onSearchInput($event)" />
         <sv-action-bar-item *ngIf="modal.showSearchClear" [model]="modal.searchClearAction"></sv-action-bar-item>
       </div>

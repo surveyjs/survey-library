@@ -31,7 +31,7 @@ function captureReads(q: RecordsQuestion): IReadState {
   const stored = q.value;
   const res: IReadState = {
     counts: [q["loadedRecordCount"], q["storedRecordCount"], list.loadedCount, list.count],
-    sourceCount: source.count,
+    sourceCount: source.recordCount,
     isBatching: source["isBatching"],
     storedLength: Array.isArray(stored) ? stored.length : 0,
     minCount: q.getType() === "matrixdynamic" ? (<QuestionMatrixDynamicModel>q).rowCount : 0,
@@ -98,7 +98,7 @@ describe("a question reads its own records and counts through its source, as its
     expect(q.value.length, "#1: two stored records").toBe(2);
     expect(q.rowCount, "#2: four rows").toBe(4);
     expect(list.source === q["recordsSource"], "#3: one source").toBe(true);
-    expect(q["recordsSource"].count, "#4").toBe(4);
+    expect(q["recordsSource"].recordCount, "#4").toBe(4);
   });
   creators.forEach(({ name, create, canInsert }) => {
     test(name + ": outside a write", () => {

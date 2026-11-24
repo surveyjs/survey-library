@@ -1,26 +1,119 @@
 # AGENTS.md
 
-Instructions for AI coding agents working in this repository, usually while preparing a pull request.
+Instructions for AI coding agents (Claude Code, Codex, Copilot, Cursor and others) working in this repository. This is the only instruction file: `CLAUDE.md` imports it and `.github/copilot-instructions.md` points to it, so edit this file only.
 
-## Build, test and architecture
+## Repository layout
 
-See [CLAUDE.md](./CLAUDE.md). It covers the package layout, build order (build `survey-core` first), lint (`--max-warnings=0`), unit tests and the model architecture. Commit messages follow Conventional Commits.
+This is a monorepo (npm workspaces are *not* used — each package installs and builds independently). The packages under `packages/` are:
 
-## Bug fixes
+- **survey-core** — the platform-independent survey model. All business logic, serialization, validation, expressions, localization, theming, and SCSS styles live here. The UI packages are thin rendering layers on top of it.
+- **survey-react-ui** — React 17 renderer (`.tsx`, built with Rollup).
+- **survey-vue3-ui** — Vue 3 renderer (`.vue`, built with Vite).
+- **survey-angular-ui** — Angular 12 renderer (built with ng-packagr).
+- **survey-js-ui** — framework-free HTML/CSS/JS renderer (built with Rollup). jQuery support is a wrapper over this.
+- **converter** — converts third-party form definitions (Form.io, JSON Schema) into survey JSON. It has its own README with build and test steps.
 
-Bug fixes are welcome as pull requests when they include a unit test that fails before the fix and passes after it. Put model fixes in `packages/survey-core` with a Vitest test under `packages/survey-core/tests`.
+Each UI package depends on `survey-core` via the path `../survey-core/build`. In a UI package, `node_modules/survey-core` is a **Junction symlink to `packages/survey-core/build`**, so **survey-core must be built before any UI package can build or run its tests.**
 
-## New public API
+## Build
 
-New public API (properties, events, methods, JSON schema changes) starts with an issue, not a pull request:
+```bash
+# survey-core (run from packages/survey-core) — REQUIRED before building/testing any UI package
+npm run build          # main JS bundle + non-source files
+npm run build:all      # build + i18n + themes + icons + adapters + linter + doc
 
-- Open an issue at https://github.com/surveyjs/survey-library/issues with the `[API gap]` title prefix.
-- Describe the need and the workaround you wrote in application code, with a minimal survey JSON.
-- Maintainers design the API shape, because it has to fit serialization, the Survey Creator property grid, localization and all four renderers (React, Angular, Vue 3, HTML/JS).
-- A pull request may accompany the issue, but it must link to it (`#<issue number>` or the issue URL).
+# UI packages (run from the package dir)
+npm run build          # react / js-ui / angular (ng build) / vue3 (vite)
+```
 
-Survey Creator issues go to https://github.com/surveyjs/survey-creator/issues. Report security issues by email to info@devsoftbaltic.com, not in public issues or pull requests.
+Styles are authored in SCSS under `packages/survey-core/src/default-theme/` and compiled into the survey-core build. Question/element factories and the JSON serializer are populated by import side effects, so bundle entry points (`packages/survey-core/entries/`) matter — `entries/index.ts` is the public API surface.
 
-## Privacy
+## Lint
 
-Never include code or data from the developer's own application in issues or pull requests. Reduce the case to a minimal survey JSON plus the SurveyJS calls that reproduce it.
+```bash
+npm run lint           # eslint, --max-warnings=0 (root or any package)
+npm run lint:fix
+```
+
+ESLint is enforced with zero warnings. `lint-staged` runs `eslint --fix` on commit, and commit messages must follow Conventional Commits (`@commitlint/config-conventional`).
+
+## Tests
+
+### Unit tests — survey-core (Vitest + jsdom)
+Run from `packages/survey-core`:
+
+```bash
+npm run test                      # all unit tests (vitest run)
+npm run test:watch
+npx vitest run tests/<file>.ts    # single file
+npx vitest run -t "test name"     # single test by name substring
+```
+
+The UI packages also have Vitest unit/markup tests (`npm run test`); React markup snapshots are updated with `npm run test:update`.
+
+`npm run pre-push-check` (the husky pre-push hook) runs survey-core unit tests.
+
+### E2E / VRT / a11y — UI packages (Playwright)
+The **root `playwright.config.ts`** defines three projects shared by all UI packages: `e2e` (`./e2e`), `vrt` (`./screenshots`), `a11y` (`./accessibilityTests`). Each UI package's own `playwright.config.ts` sets its `webServer` and an `env` variable that selects the framework to test. The `:ci` scripts set `env` through `cross-env`. Run from the package dir:
+
+| Package | Working directory | `env` | Web server (started by Playwright) | Example build needed first |
+|---|---|---|---|---|
+| survey-react-ui | `packages/survey-react-ui` | `react` | `npx http-server --silent` | no |
+| survey-js-ui | `packages/survey-js-ui` | `survey-js-ui` | `npx http-server --silent` | no |
+| survey-angular-ui | `packages/survey-angular-ui` | `angular` | `npm run serve:example:prod` | `npm run build:example:prod` (produces `example/dist`) |
+| survey-vue3-ui | `packages/survey-vue3-ui` | `vue3` | `npm run serve:example:prod` | `npm run build:example:prod` (produces `example/dist`) |
+
+```bash
+npm run e2e:ci                    # e2e
+npm run scr:ci                    # visual regression
+npm run accessibility-tests:ci    # axe-based a11y
+npm run e2e:ci -- --grep "TestName"   # single e2e test (or pass --project e2e with specific test files)
+# drop the :ci suffix (npm run e2e / scr) to open Playwright's interactive UI
+```
+
+Prerequisites:
+- Build `survey-core` first.
+- **Do NOT manually start an http-server.** Playwright starts and stops the server from the table above; a pre-started one causes "port already in use".
+- Angular and Vue3 need the example build from the table; React and js-ui serve static files.
+
+Output size: Vitest prints only failed assertions and a summary, so it is safe to run synchronously. Playwright prints progress (`[X/450]`) and details only for failures. Run one package's tests at a time to keep output manageable.
+
+## Architecture
+
+### Serialization metadata system (the backbone)
+SurveyJS is JSON-driven: a survey is defined by a JSON schema and serialized back to JSON. This is powered by a custom reflection/metadata layer in `packages/survey-core/src/jsonobject.ts`:
+
+- `Serializer` (the `JsonMetadata` singleton) holds the registry of every serializable class and its properties.
+- Classes register themselves and their properties via `Serializer.addClass(name, properties, creator, parentName)`, typically in a static block at the bottom of each class file (e.g. `question_text.ts`). Properties declare type, default, `isLocalizable`, `visibleIf`, `dependsOn`, etc.
+- `Base` (`src/base.ts`) is the root class for all serializable model objects. It stores property values in a hash, fires `onPropertyChanged`, and integrates with the reactivity bridge. Property getters/setters call `getPropertyValue` / `setPropertyValue`.
+
+When adding or changing a question property, you almost always touch both the TypeScript getter/setter **and** the `Serializer.addClass`/`addProperty` registration, plus localization strings if it's user-facing.
+
+### Model class hierarchy (survey-core)
+`Base` → `SurveyElement` (`survey-element.ts`) → `Question` (`question.ts`) and `PanelModelBase`/`PanelModel`/`PageModel` (`panel.ts`, `page.ts`). `SurveyModel` (`survey.ts`) is the top-level container. Concrete question types live in `question_*.ts` (e.g. `question_text.ts`, `question_checkbox.ts`, `question_matrixdynamic.ts`, `question_paneldynamic.ts`) and register with `QuestionFactory` / `ElementFactory` (`questionfactory.ts`) so they can be created from a JSON `type`.
+
+### Other core subsystems
+- **Expressions** (`src/expressions/`, `src/conditions/`) — `visibleIf`/`enableIf`/`requiredIf`, triggers, calculated values, and the custom function library (`functionsfactory.ts`). The parser (`src/expressions/expressionParserCore.ts`) is hand-written and follows `tests/expressions/oracle/grammar.pegjs`; a `peggy`-generated parser of that grammar is the test oracle.
+- **Localization** (`src/localization/`, `src/surveyStrings.ts`, `localizablestring.ts`) — every user-facing string is a `LocalizableString` that resolves per-locale and supports text piping/preprocessing (`textPreProcessor.ts`).
+- **Input masks** (`src/mask/`) — pattern/numeric/currency/datetime masks with their own lexer/parser.
+- **Drag & drop** (`src/dragdrop/`), **actions/list/popup UI primitives** (`src/actions/`, `list.ts`, `popup*.ts`), and **theming** (`src/themes.ts`, `src/default-theme/`).
+
+### Reactivity bridge (core ↔ UI)
+survey-core is framework-agnostic and exposes its own change-notification system rather than depending on any framework's reactivity. Each UI package adapts it:
+
+- React (`reactquestion_element.tsx`): `SurveyElementBase` calls `makeBaseElementsReact()` / `unMakeBaseElementsReact()` to subscribe to model `onPropertyChanged` events and trigger `forceUpdate`. Question components are resolved through `ReactQuestionFactory` / `ReactElementFactory`; localizable strings render via `renderLocString`.
+- Vue/Angular wrap the same model events into their respective reactivity systems.
+
+So a typical UI rendering component is a paper-thin view over a survey-core model object: it reads computed properties (CSS classes, visibility, value) off the model and re-renders when the model notifies a change. New behavior generally belongs in survey-core; the UI layer only renders it.
+
+## Coding conventions
+
+- **Do not generate API doccomments** (`/** ... */`) for either new or existing API members.
+- If an API requires clarification for maintainers, add a regular JavaScript comment (`//` or `/* ... */`) in the implementation instead of a doccomment.
+
+## Contribution policy (issues and pull requests)
+
+- **Bug fixes** are welcome as pull requests when they include a unit test that fails before the fix and passes after it. Model fixes go in `packages/survey-core`, with a Vitest test under `packages/survey-core/tests`.
+- **New public API** (properties, events, methods, JSON schema changes) starts with an issue, not a pull request. Maintainers design the API shape, because it has to fit serialization, the Survey Creator property grid, localization and all four renderers. A pull request may accompany the issue, but its description must link to it (`#<issue number>` or the issue URL).
+- **How to write the issue** (when to report, title prefix, what to include, what to leave out, where Survey Creator and security issues go): follow [Missing API or found a bug?](./packages/survey-core/README.md#missing-api-or-found-a-bug). That section is the single source for issue reports, and every package README carries the same text.
+- **Pull requests follow the same privacy rule as issues:** never include code or data from the developer's own application. Reduce the case to a minimal survey JSON plus the SurveyJS calls that reproduce it.

@@ -2,6 +2,7 @@ import { toCssClasses } from "../utils/cssClassBuilder";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
+import { addRecordGetter } from "../question_records";
 import { DragDropCore } from "./core";
 import { MatrixRowDragOverEvent } from "src/survey-events-api";
 import { Question } from "src/question";
@@ -193,12 +194,12 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const dropTargetRow = this.matrixRowMap[this.dropTarget.id].row;
     const bottomOffset = this.isBottom && !dropTargetRow.isDetailPanelShowing ? 1 : 0;
     let toIndex = 0;
-    const options: MatrixRowDragOverEvent = {
+    const options: MatrixRowDragOverEvent = addRecordGetter({
       allow: dropTargetMatrix == this.parentElement,
       row: dropTargetRow,
       fromMatrix: this.parentElement,
       toMatrix: dropTargetMatrix,
-    } as any;
+    } as any, dropTargetRow);
     this.survey.onMatrixRowDragOver.fire(this.survey, options);
     if (!options.allow) return;
 
@@ -277,7 +278,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
     this.draggedElement = row;
     this.onDragStart.fire(this, { fromElement: (<any>row).parent, draggedElement: row });
-    const options: MatrixRowDragOverEvent = { allow: true, row: target, fromMatrix: matrix, toMatrix: matrix } as any;
+    const options: MatrixRowDragOverEvent = addRecordGetter({ allow: true, row: target, fromMatrix: matrix, toMatrix: matrix } as any, target);
     this.survey?.onMatrixRowDragOver.fire(this.survey, options);
     if (options.allow) {
       this.fromIndex = fromPosition;

@@ -92,17 +92,19 @@ export interface ISurveyFileCallbacks {
   ): any;
   chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
 }
+/* The events about a row or a panel get their options from the question (row/panel, the indexes,
+   allow, getRecord); the survey sets options.question and fires the event. */
 export interface ISurveyMatrixCallbacks {
-  matrixRowAdded(question: IQuestion, row: any): any;
+  matrixRowAdded(question: IQuestion, options: any): any;
   matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {
     question: IQuestion,
     canAddRow: boolean,
   }): any;
-  matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
-  matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
+  matrixRowRemoved(question: IQuestion, options: any): any;
+  matrixRowRemoving(question: IQuestion, options: any): boolean;
+  matrixAllowRemoveRow(question: IQuestion, options: any): boolean;
+  matrixDetailPanelVisibleChanged(question: IQuestion, options: any): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
   updateMatrixCellCss(question: IQuestion, options: any): void;
@@ -114,9 +116,9 @@ export interface ISurveyMatrixCallbacks {
   matrixDragHandleArea: string;
 }
 export interface ISurveyDynamicPanelCallbacks {
-  dynamicPanelAdded(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
-  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
-  dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
+  dynamicPanelAdded(question: IQuestion, options: any, updateIndexes: boolean): void;
+  dynamicPanelRemoved(question: IQuestion, options: any, updateIndexes: boolean): void;
+  dynamicPanelRemoving(question: IQuestion, options: any): boolean;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 }

@@ -7,6 +7,7 @@ import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import type { PanelModel } from "./panel";
 import type { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { addRecordGetter } from "./question_records";
 
 export class PanelDynamicTabbedMenuItem extends Action {
 }
@@ -224,11 +225,11 @@ export class PanelDynamicActions {
         str = question.locTabTitlePlaceholder.renderedHtml;
       }
       if (!question.survey) return str;
-      const options = {
+      const options = addRecordGetter({
         title: str,
         panel: panel,
         visiblePanelIndex: this.owner.getPanelVisibleIndex(panel)
-      };
+      }, panel);
       question.dynamicPanelCallbacks.dynamicPanelGetTabTitle(question, options);
       return options.title;
     };

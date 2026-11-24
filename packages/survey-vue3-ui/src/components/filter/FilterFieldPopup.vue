@@ -2,7 +2,7 @@
   <div v-if="!!popup()" :class="popup().cssClasses.popup">
     <div v-if="!!popup().list && popup().showSearch" :class="popup().cssClasses.popupSearch">
       <SvComponent :is="'sv-svg-icon'" :className="popup().cssClasses.popupSearchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
-      <input type="text" :class="popup().cssClasses.popupSearchInput" :value="popup().list.filterString || ''"
+      <input type="text" autocomplete="off" :class="popup().cssClasses.popupSearchInput" :value="popup().list.filterString || ''"
         :placeholder="popup().list.filterStringPlaceholder" :aria-label="popup().list.filterStringPlaceholder"
         @input="onSearchInput" @keydown="(e) => popup().onSearchKeyDown(e)" />
     </div>

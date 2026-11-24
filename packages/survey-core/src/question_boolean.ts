@@ -1,7 +1,7 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext, readOnlyViewEmptyText } from "./question";
 import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
@@ -326,19 +326,29 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
       this.isReadOnlyStyle && this.cssClasses.switchButtonReadOnly
     );
   }
+  // View mode keeps the checkbox renderer: true is the matrix checkmark, false and empty are the view dash.
+  public get isCheckboxView(): boolean {
+    return this.isViewMode && this.getRenderAsValue() === "checkbox";
+  }
+  public get checkboxViewText(): string {
+    return this.booleanValue === true ? "" : readOnlyViewEmptyText;
+  }
+  protected get supportsQuestionView(): boolean {
+    return !this.isCheckboxView;
+  }
   public getCheckboxItemCss() {
-    return this.getItemCssValue(
-      {
-        item: this.cssClasses.checkboxItem,
-        itemOnError: this.cssClasses.checkboxItemOnError,
-        itemDisabled: this.cssClasses.checkboxItemDisabled,
-        itemDisable: this.cssClasses.checkboxItemDisabled,
-        itemReadOnly: this.cssClasses.checkboxItemReadOnly,
-        itemPreview: this.cssClasses.checkboxItemPreview,
-        itemChecked: this.cssClasses.checkboxItemChecked,
-        itemIndeterminate: this.cssClasses.checkboxItemIndeterminate,
-        itemIsLabelRendered: this.cssClasses.checkboxIsLabelRendered
-      }
+    const css = this.cssClasses;
+    const view = this.isCheckboxView;
+    return toCssClasses(
+      css.checkboxItem,
+      !view && this.hasCssError() && css.checkboxItemOnError,
+      !view && this.isDisabledStyle && css.checkboxItemDisabled,
+      !view && this.isReadOnlyStyle && css.checkboxItemReadOnly,
+      (view || this.isPreviewStyle) && css.checkboxItemPreview,
+      view && css.checkboxItemView,
+      !!this.booleanValue && css.checkboxItemChecked,
+      !view && !this.isDeterminated && css.checkboxItemIndeterminate,
+      !!this.isLabelRendered && css.checkboxIsLabelRendered
     );
   }
 

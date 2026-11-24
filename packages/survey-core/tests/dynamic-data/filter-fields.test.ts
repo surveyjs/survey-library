@@ -61,7 +61,26 @@ describe("isFilterable and allowFiltering", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const colProp = Serializer.findProperty("matrixdropdowncolumn", "allowFiltering");
     expect(colProp.isVisible("", matrix.columns[0]), "#8").toBe(true);
-    expect(prop.isVisible("", matrix.detailPanel.getQuestionByName("d1")), "#9: a detail panel's question").toBe(false);
+    expect(prop.isVisible("", matrix.detailPanel.getQuestionByName("d1")), "#9: a detail panel's question").toBe(true);
+  });
+  test("a detail panel's question shows allowFiltering and filterOperators where its matrix is reachable", () => {
+    const detail = [{ type: "text", name: "d1" }, { type: "panel", name: "inner", elements: [{ type: "text", name: "d2" }] },
+      { type: "multipletext", name: "mt", items: [{ name: "i1" }] }];
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow", detailElements: detail },
+      { type: "matrixdynamic", name: "noMode", columns: [{ name: "c1" }], detailElements: [{ type: "text", name: "d1" }] },
+      { type: "paneldynamic", name: "p", templateElements: [
+        { type: "matrixdynamic", name: "inTemplate", columns: [{ name: "c1" }], detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d1" }] }] }] });
+    const allow = Serializer.findProperty("question", "allowFiltering");
+    const operators = Serializer.findProperty("question", "filterOperators");
+    const both = (q: any): Array<boolean> => [allow.isVisible("", q), operators.isVisible("", q)];
+    const m = <any>survey.getQuestionByName("m");
+    expect(both(m.detailPanel.getQuestionByName("d1")), "#1").toEqual([true, true]);
+    expect(both(m.detailPanel.getQuestionByName("d2")), "#2: in a panel in the detail panel").toEqual([true, true]);
+    expect(both(m.detailPanel.getQuestionByName("mt")), "#3: nested fields: allowFiltering only").toEqual([true, false]);
+    expect(both((<any>survey.getQuestionByName("noMode")).detailPanel.getQuestionByName("d1")), "#4: no detail panel mode").toEqual([false, false]);
+    const inTemplate = (<any>survey.getQuestionByName("p")).template.getQuestionByName("inTemplate");
+    expect(both(inTemplate.detailPanel.getQuestionByName("d1")), "#5: the matrix is no target").toEqual([false, false]);
   });
   test("a Dynamic Panel subclass registered under a type of its own reaches its template's questions", () => {
     class MyDynamicPanel extends QuestionPanelDynamicModel {

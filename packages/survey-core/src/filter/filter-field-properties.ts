@@ -7,23 +7,38 @@ import { getFilterFieldOperators } from "./filter-conditions";
 // registrations share them.
 
 // Whether a Filter Control can reach a question as a field: the question is in the template of a
-// Dynamic Panel that can be a target (isFilterTargetInReach: not nested, not in a matrix detail
-// panel's template), at any depth - in a panel (its parentQuestion is still the Dynamic Panel),
-// or in a question whose children are the fields (a composite question, a Multiple Textboxes).
-// A nested Dynamic Panel's template, a matrix cell and a matrix detail panel's question are not
-// fields: getFilterFields doesn't walk into them, and no target is nested. A column has its own rule.
+// Dynamic Panel or in the detail panel of a matrix, and that one can be a target (isFilterTargetInReach:
+// not nested, not in a matrix detail panel's template), at any depth - in a panel (its parentQuestion
+// is still the Dynamic Panel), or in a question whose children are the fields (a composite question,
+// a Multiple Textboxes). A nested Dynamic Panel's template and a matrix cell are not fields:
+// getFilterFields doesn't walk into them, and no target is nested. A column has its own rule.
 export function isFilterFieldInReach(question: Question): boolean {
   if (!question) return false;
-  let owner: Question = question.parentQuestion;
-  while(!!owner && owner.hasNestedFilterFields) {
-    owner = owner.parentQuestion;
+  let top: Question = question;
+  while(!!top.parentQuestion && top.parentQuestion.hasNestedFilterFields) {
+    top = top.parentQuestion;
   }
-  return !!owner && owner.isDescendantOf("paneldynamic") && isFilterTargetInReach(owner);
+  const owner: Question = top.parentQuestion;
+  if (!!owner) return owner.isDescendantOf("paneldynamic") && isFilterTargetInReach(owner);
+  const matrix = getDetailPanelMatrix(top);
+  return !!matrix && matrix.detailPanelMode !== "none" && isFilterTargetInReach(matrix);
+}
+// The matrix whose detail panel template holds the question. The template's questions have no
+// parentQuestion (only the rows' panels set it); the template is a panel on no page that the matrix
+// stands for in the designer (selectedElementInDesign).
+function getDetailPanelMatrix(question: Question): any {
+  let root: any = question.parent;
+  while(!!root && !!root.parent) {
+    root = root.parent;
+  }
+  const matrix: any = !!root ? root.selectedElementInDesign : undefined;
+  return !!matrix && typeof matrix.isDetailPanelTemplate === "function" && matrix.isDetailPanelTemplate(root) ? matrix : undefined;
 }
 // Whether a Filter Control can take the question as its target: it finds the target by name among the
 // survey's questions (findQuestionByName), and no target is nested - not in a Dynamic Panel's template
 // or a composite question (a parentQuestion), not in a matrix detail panel's template (a panel on no
-// page). A question not added anywhere yet is let through.
+// page) - the questions of that template are fields, not targets. A question not added anywhere yet
+// is let through.
 export function isFilterTargetInReach(question: Question): boolean {
   return !!question && !question.parentQuestion && (!question.parent || !!question.page);
 }

@@ -176,3 +176,57 @@ describe("hasRecordField of a target question", () => {
     }
   });
 });
+
+// What Creator's Fields table shows (getDesignFieldEntries): a row per field of the target, the entry
+// that overrides it or one made for the row that is not in fields, then the other entries.
+describe("The designer's fields entries", () => {
+  test("a row per column in its order - the authored entry where there is one - then the other entries", () => {
+    const { q } = create([{ name: "city" }, { name: "country", title: "Land" }],
+      [{ name: "country" }, { name: "price", cellType: "text", inputType: "number" }]);
+    const authored = [].concat(q.fields);
+    const rows = q.getDesignFieldEntries();
+    expect(rows.map(e => e.name), "#1").toEqual(["country", "price", "city"]);
+    expect(rows[0], "#2: the override itself").toBe(authored[1]);
+    expect(rows[2], "#3: the field of the record").toBe(authored[0]);
+    expect([q.fields.indexOf(rows[1]), rows[1].fieldOwner === q], "#4: a new entry, not in fields").toEqual([-1, true]);
+    expect(q.toJSON().fields, "#5: the JSON is as it was").toEqual([{ name: "city" }, { name: "country", title: "Land" }]);
+    expect(q.getDesignFieldEntries()[0], "#6").toBe(authored[1]);
+  });
+  test("a row's entry offers the operators of its column, and once in fields it overrides that column", () => {
+    const { q } = create([], [{ name: "country" }, { name: "price", cellType: "text", inputType: "number" }]);
+    const price = q.getDesignFieldEntries()[1];
+    const choices: Array<string> = Serializer.findProperty("filterfield", "operators").getChoices(price);
+    expect([choices.indexOf("greater") > -1, choices.indexOf("contains") > -1], "#1").toEqual([true, false]);
+    expect(q.getFieldOfEntry(price).valueName, "#2").toBe("price");
+    price.title = "Cost";
+    q.fields.push(price);
+    expect(getFilterFieldTitle(q.getFieldByName("price")), "#3").toBe("Cost");
+    expect(names(q), "#4").toEqual(["country", "price"]);
+  });
+  test("two nested fields of the same name are rows by their paths", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", templateElements: [
+        { type: "multipletext", name: "home", items: [{ name: "city" }] },
+        { type: "multipletext", name: "work", items: [{ name: "city" }, { name: "zip" }] }] },
+      { type: "filter", name: "f1", targetQuestion: "p" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const rows = q.getDesignFieldEntries();
+    expect(rows.map(e => e.name), "#1").toEqual(["home.city", "work.city", "zip"]);
+    rows[1].title = "Office";
+    q.fields.push(rows[1]);
+    const titles = q.getFilterFields().map(f => getFilterFieldTitle(f));
+    expect(titles, "#2: the second one only").toEqual(["city", "Office", "zip"]);
+  });
+  test("with no target the rows are the fields entries", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "a" }, { name: "b" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const rows = q.getDesignFieldEntries();
+    expect(rows, "#1").toEqual(q.fields);
+    expect(rows === q.fields, "#2: a copy").toBe(false);
+  });
+  test("an entry of another control or none has no field", () => {
+    const { q } = create([], [{ name: "country" }]);
+    const other = create([], [{ name: "country" }]).q;
+    expect(q.getFieldOfEntry(other.getDesignFieldEntries()[0]), "#1").toBeUndefined();
+  });
+});

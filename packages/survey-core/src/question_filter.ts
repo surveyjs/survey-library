@@ -250,14 +250,48 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // The field a fields entry stands for: the target's it overrides, the record field it adds or, with
   // no target, its own; undefined for an entry the control ignores. The designer offers an entry's
-  // operators by it.
+  // operators by it. An entry of getDesignFieldEntries() that is not in fields yet stands for its field.
   public getFieldOfEntry(entry: FilterField): IDynamicDataFilterField {
-    if (!entry || this.fields.indexOf(entry) < 0) return undefined;
+    if (!entry) return undefined;
+    if (this.fields.indexOf(entry) < 0) return this.getFieldOfDesignEntry(entry);
     const target = this.filterTarget;
     if (!target) return entry.getFilterField();
     const field = target.getFilterFields().filter((f: IDynamicDataFilterField): boolean => this.findFieldEntry(f) === entry)[0];
     if (!!field) return entry.applyTo(field);
     return !entry.name || this.isTargetRecordField(target, entry.name) ? undefined : entry.getFilterField();
+  }
+  // What the designer's Fields table shows: with a target, a row per field of the target in its order -
+  // the entry that overrides it (findFieldEntry, as buildFilterFields matches it) or a new entry that is
+  // not in fields and stands for the field until the designer adds it - then every other entry: the
+  // fields of the record and the entries the control ignores, so they can be changed and removed.
+  // With no target, the fields entries. A new array, and new entries, on every call.
+  public getDesignFieldEntries(): Array<FilterField> {
+    const target = this.filterTarget;
+    if (!target) return [].concat(this.fields);
+    const targetFields = target.getFilterFields();
+    const res: Array<FilterField> = [];
+    targetFields.forEach((field: IDynamicDataFilterField): void => {
+      const entry = this.findFieldEntry(field);
+      res.push(!!entry && res.indexOf(entry) < 0 ? entry : this.createDesignEntry(field, targetFields));
+    });
+    this.fields.forEach((entry: FilterField): void => {
+      if (res.indexOf(entry) < 0) res.push(entry);
+    });
+    return res;
+  }
+  // Named by the field's name, or by its path where another field of the target has the same name: once
+  // added, findFieldEntry would give an entry named "city" to the first of two such fields.
+  private createDesignEntry(field: IDynamicDataFilterField, targetFields: Array<IDynamicDataFilterField>): FilterField {
+    const isNameShared = targetFields.some((f: IDynamicDataFilterField): boolean => f !== field && f.name === field.name);
+    const entry = new FilterField(isNameShared ? field.valueName : field.name);
+    entry.fieldOwner = this;
+    return entry;
+  }
+  private getFieldOfDesignEntry(entry: FilterField): IDynamicDataFilterField {
+    const target = this.filterTarget;
+    if (entry.fieldOwner !== this || !target) return undefined;
+    const field = this.findFieldInList(target.getFilterFields(), entry.name);
+    return !!field ? entry.applyTo(field) : undefined;
   }
   // A target that cannot tell (no hasRecordField) takes no name: an entry its list does not have is a
   // field of the record.

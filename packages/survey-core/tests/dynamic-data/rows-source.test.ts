@@ -82,7 +82,7 @@ describe("RowsDynamicDataSource: the records are the rows' answers", () => {
   test("count, readAt and itemAt", () => {
     const answer = { 1: { x: 1 }, b: { x: 2 } };
     const { source, rows } = createSource([1, "", "b", "c"], answer);
-    expect(source.count, "#1").toBe(3);
+    expect(source.recordCount, "#1").toBe(3);
     expect(source.readAt(0) === answer[1], "#2: a number row value reads its key").toBe(true);
     expect(source.readAt(1) === answer.b, "#3").toBe(true);
     expect(source.readAt(2), "#4: no answer").toBeUndefined();
@@ -156,13 +156,13 @@ describe("RowsDynamicDataSource: writes", () => {
     const reads: Array<any> = [];
     stored.source.batch(() => {
       stored.source.update(0, { x: 10 });
-      reads.push(stored.source.readAt(0), stored.source.readAt(1), stored.source.count);
+      reads.push(stored.source.readAt(0), stored.source.readAt(1), stored.source.recordCount);
       expect(stored.value.a, "#1: the answer does not have the write yet").toEqual({ x: 1 });
     });
     expect(reads, "#2: the written record, the other one, and the rows' count").toEqual([{ x: 10 }, { x: 2 }, 2]);
     stored.value = { a: { x: 5 }, b: { x: 2 } };
     expect(stored.source.readAt(0), "#3: the stored answer again").toEqual({ x: 5 });
-    expect(stored.source.count, "#4").toBe(2);
+    expect(stored.source.recordCount, "#4").toBe(2);
   });
 });
 
@@ -174,7 +174,7 @@ describe("RowsDynamicDataSource: rowsChanged()", () => {
     stored.source.rowsChanged();
     expect(stored.replaced.length, "#1").toBe(1);
     expect(remapAll(stored.replaced[0], 2), "#2").toEqual([0, 2]);
-    expect(stored.source.count, "#3").toBe(3);
+    expect(stored.source.recordCount, "#3").toBe(3);
   });
   test("a row removed: its key is gone", () => {
     const stored = createSource(["a", "b", "c"], {});

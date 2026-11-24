@@ -433,6 +433,7 @@ export var defaultCss = {
     checkboxItemDisabled: "sd-item--disabled sd-checkbox--disabled",
     checkboxItemReadOnly: "sd-item--readonly sd-checkbox--readonly",
     checkboxItemPreview: "sd-item--preview sd-checkbox--preview",
+    checkboxItemView: "sd-checkbox--view",
     controlCheckbox: "sd-visuallyhidden sd-item__control sd-checkbox__control",
     checkboxMaterialDecorator: "sd-item__decorator sd-checkbox__decorator",
     checkboxControlLabel: "sd-item__control-label",

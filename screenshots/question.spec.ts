@@ -475,6 +475,49 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, pRoot, "question-with-error-below-one-line.png");
     });
 
+    test("Check question error below in panelless theme one-row", async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 800 });
+      await initSurvey(page, framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question6",
+                "isRequired": true,
+                "errorLocation": "bottom"
+              },
+              {
+                "type": "checkbox",
+                "name": "question2",
+                "startWithNewLine": false,
+                "choices": [
+                  {
+                    "value": "item1",
+                    "text": "Item 1",
+                    "elements": [
+                      { "type": "text", "name": "question4" },
+                      { "type": "text", "name": "question5" }
+                    ]
+                  },
+                  { "value": "item2", "text": "Item 2" },
+                  { "value": "item3", "text": "Item 3" }
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static"
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
+      });
+      await page.click(".sd-navigation__complete-btn");
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-body"), "question-with-error-below-panelless-one-line.png");
+    });
+
     test("Check title location Left", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {

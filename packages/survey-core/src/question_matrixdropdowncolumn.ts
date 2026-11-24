@@ -562,6 +562,8 @@ export class MatrixDropdownColumn extends Base
    * Columns whose cells hold multiple values (`"checkbox"` and `"tagbox"` [cell types](#cellType), or a `"slider"` with `sliderType: "range"`) are excluded from respondent sorting regardless of this setting.
    *
    * Sorting configured in code remains available regardless of this property's value.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
    */
   @property({ defaultValue: true }) allowSort: boolean;
   // Whether the cell's value can be sorted at all, whatever allowSort says: the designer's sort fields offer such a column.

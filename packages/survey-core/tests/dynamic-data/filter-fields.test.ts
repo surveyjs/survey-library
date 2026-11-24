@@ -104,7 +104,7 @@ describe("isFilterable and allowFiltering", () => {
   });
   test("the JSON schema still lists every operator", () => {
     const schema: any = Serializer.generateSchema();
-    expect(schema.definitions.question.properties.filterOperators.enum.length, "#1").toBe(13);
+    expect(schema.definitions.question.properties.filterOperators.items.enum.length, "#1").toBe(13);
   });
   test("a column's filterOperators follows the column's allowFiltering and offers its cell type's operators", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [

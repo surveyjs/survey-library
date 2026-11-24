@@ -29,7 +29,8 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed,
+  addRecordGetter
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
@@ -614,6 +615,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       ownerValue: rowValue,
       isDeleting: newValue == null && !changedQuestion || isComment && !newValue && !!changedQuestion
     };
+  }
+  protected onRecordChanged(): void {
+    this.data.onRowRecordChanged(this);
   }
   protected onRecordWritten(name: string, isComment: boolean): void {
     if (isComment) return;
@@ -1453,6 +1457,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    *
    * - `"always"`\
    * Displays the sort bar even when column headers support sorting.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
    * @see maxSortLevel
    */
   public get showSortBar(): "auto" | "always" {
@@ -1699,13 +1705,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
   }
+  // A row's record changed: the table the renderers show, if one is built, runs onUpdateMatrixCellCss and onUpdateMatrixRowCss for the row again.
+  onRowRecordChanged(row: MatrixDropdownRowModelBase): void {
+    const table = <QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable");
+    if (!!table && !table.isDisposed) table.updateCustomCss(row);
+  }
   protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
     if (!question) return undefined;
     return <MatrixDropdownRowModelBase>question.data;
   }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase): void {
     if (!this.survey) return;
-    var options = {
+    var options = addRecordGetter({
       rowValue: row.value,
       row: row,
       column: <any>null,
@@ -1713,7 +1724,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       cell: <any>null,
       cellQuestion: <any>null,
       value: <any>null,
-    };
+    }, row);
     for (var i = 0; i < this.columns.length; i++) {
       options.column = this.columns[i];
       options.columnName = options.column.name;
@@ -1897,13 +1908,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string {
     if (!this.survey) return cellType;
-    var options = {
+    var options = addRecordGetter({
       rowValue: row.value,
       row: row,
       column: column,
       columnName: column.name,
       cellType: cellType
-    };
+    }, row);
     this.matrixCallbacks.matrixCellCreating(this, options);
     return options.cellType;
   }
@@ -2468,6 +2479,24 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   private getRowRecordValue(position: number): any {
     return this.getStoredRecordValue(this.getRecordIndexAtRowPosition(position));
   }
+  /* A row's cells are created in its constructor (onMatrixCellCreating), before the row has a position:
+     the record it is built for is known only here. getItemData does not read it - the cells read their
+     values through it, as released - only getItemRecord does. */
+  private buildingRowRecordScope = new ValueScope<number>();
+  private buildRowForRecord<T extends MatrixDropdownRowModelBase>(recordIndex: number, createRow: () => T): T {
+    return this.buildingRowRecordScope.run(recordIndex, createRow);
+  }
+  // getItemData already gives the copy (unbindRowValue, which copyItemRecord is): a second one would only cost.
+  protected getItemRecord(item: QuestionRecordItem): any {
+    if (this.isRowBeingBuilt(item)) return this.getStoredRecordValue(this.buildingRowRecordScope.value);
+    return this.getItemData(item);
+  }
+  /* The row the scope is for: in no position yet and never told a record. A row built before it in the
+     same batch, a detached row and the total row are not it. */
+  private isRowBeingBuilt(item: QuestionRecordItem): boolean {
+    return this.buildingRowRecordScope.value !== undefined && this.getItemIndex(item) < 0 &&
+      this.getBuiltRecordIndex(item) < 0 && !(item instanceof MatrixDropdownTotalRowModel);
+  }
   // A row without a record reads null; a panel reads {}. Both as released.
   public getItemData(item: ISurveyData): any {
     const copy = this.getRecordCleanupCopy(item, this.getItemIndex(item) < 0);
@@ -2515,7 +2544,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // The rows of the records indexes names, in that order: createRow makes one, and it is told its record.
   protected createRowsForRecords<T extends MatrixDropdownRowModelBase>(indexes: Array<number>, createRow: (index: number) => T): Array<T> {
     return indexes.map((index: number): T => {
-      const row = createRow(index);
+      const row = this.buildRowForRecord(index, (): T => createRow(index));
       this.setBuiltRecordIndex(row, index);
       return row;
     });
@@ -2523,7 +2552,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   /* One row for one record that appeared after the rows were built: numbered with its record, so that
      what is kept under the record (a detail panel's paged question) finds it, put at position in the
      rows - the end when it is undefined - and announced. The list is not created. */
-  protected addRowForRecord<T extends MatrixDropdownRowModelBase>(row: T, recordIndex: number, position?: number): T {
+  protected addRowForRecord<T extends MatrixDropdownRowModelBase>(createRow: () => T, recordIndex: number, position?: number): T {
+    const row = this.buildRowForRecord(recordIndex, createRow);
     this.setBuiltRecordIndex(row, recordIndex);
     if (position === undefined) {
       this.generatedVisibleRows.push(row);
@@ -3058,7 +3088,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const getQuestion = (colName: any) => {
       return row.getQuestionByName(colName);
     };
-    return {
+    return addRecordGetter({
       row: row,
       columnName: columnName,
       rowValue: rowValue,
@@ -3066,7 +3096,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       getCellQuestion: getQuestion,
       cellQuestion: row.getQuestionByName(columnName),
       column: this.getColumnByName(columnName)
-    };
+    }, row);
   }
   protected onCellValueChanged(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any, oldCellValue?: any): void {
     if (!this.survey) return;
@@ -3316,7 +3346,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (this.survey) {
       // The row's position in the whole view, as the event has always passed (getRecordViewIndex).
-      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getItemViewIndex(row), row, val);
+      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this,
+        addRecordGetter({ rowIndex: this.getItemViewIndex(row), row: row, visible: val, detailPanel: row.detailPanel }, row));
     }
   }
   /* The paged questions of a row's detail panel keep their page states under the row's record when the

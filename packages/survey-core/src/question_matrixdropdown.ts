@@ -345,10 +345,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const insertIndex = this.rowsSource.items.indexOf(item);
     if (insertIndex < 0 || addedIndexes.length !== 1 || addedIndexes[0] !== insertIndex) return false;
     const val = this.value || {};
-    const newRow = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
-    newRow.visibleIndex = insertIndex;
     // The records are the rows items with a value: the row's position is its record index.
-    this.addRowForRecord(newRow, insertIndex, insertIndex);
+    const newRow = this.addRowForRecord((): MatrixDropdownRowModel => {
+      const row = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
+      row.visibleIndex = insertIndex;
+      return row;
+    }, insertIndex, insertIndex);
     this.finishIncrementalRowChange((table) => table.onAddedRow(newRow, insertIndex));
     return true;
   }
@@ -357,7 +359,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      remap has already renumbered the built rows when a detail panel holds a paged question. */
   private tryRemoveSingleRow(removedIndexes: Array<number>): boolean {
     const rows = this.generatedVisibleRows;
-    if (removedIndexes.length !== 1 || rows.length !== this.rowsSource.count + 1) return false;
+    if (removedIndexes.length !== 1 || rows.length !== this.rowsSource.recordCount + 1) return false;
     const removeIndex = removedIndexes[0];
     const removedRow = rows[removeIndex];
     if (!this.isDisposed) {

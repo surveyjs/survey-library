@@ -225,7 +225,6 @@
 }
 
 .sd-table__cell--error {
-  padding-block: 0;
   .sd-question__erbox {
     margin: 0;
   }
@@ -331,13 +330,9 @@
 }
 //alternative rows
 .sd-table__body--alternative-rows {
-  .sd-table__cell--error-top {
-    padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
-  }
-  .sd-table__cell--error-bottom {
-    padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
-  }
-  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
+  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data),
+  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) + .sd-table__row--error:has(> .sd-table__cell--error-bottom),
+  & > .sd-table__row--error:has(> .sd-table__cell--error-top):has(+ .sd-table__row--data:nth-child(odd of .sd-table__row--data)) {
     --sd-table-sticky-background-color: #{table-sticky-background(
         (
           #{$background-dark},
@@ -420,9 +415,18 @@
   opacity: 0.25;
 }
 .sd-table__row--data,
-.sd-table > thead > tr {
+.sd-table > thead > tr,
+.sd-table__row--error:has(> .sd-table__cell--error-bottom),
+.sd-table__row--error:has(> .sd-table__cell--error-bottom) + .sd-table__row--detail {
   border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
     var(--sjs2-color-component-matrix-default-separator);
+}
+
+// A bottom error row belongs to the data row above it, so the separator goes under the error
+// (and under a detail panel that follows that error).
+.sd-table__row--data:has(+ .sd-table__row--error > .sd-table__cell--error-bottom),
+.sd-table__row--error:has(> .sd-table__cell--error-bottom):has(+ .sd-table__row--detail) {
+  border-bottom: none;
 }
 
 @mixin table_responsive {

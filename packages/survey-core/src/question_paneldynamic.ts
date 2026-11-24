@@ -153,6 +153,12 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
     super.updateQuestionFromRecord(question, record);
     question.initDataUI();
   }
+  // An onUpdatePanelCssClasses handler computes the panel's classes from its record: only the panel's own are dropped.
+  protected onRecordChanged(): void {
+    if (!!this.panel && this.data["hasSurveyHandlers"](["onUpdatePanelCssClasses"])) {
+      this.panel["clearCssClasses"]();
+    }
+  }
   /* A question of a new panel takes its record from the survey data (setSurveyImpl), not as a value
      assigned to it: an empty field is taken as it is, a missing comment stays unset, and the value is
      not changed directly - the same update an assignment from outside gives the panel. */

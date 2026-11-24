@@ -82,7 +82,7 @@ import {
   ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
   GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
-  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
+  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, UpdateMatrixCellCssEvent, UpdateMatrixRowCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
@@ -838,6 +838,22 @@ export class SurveyModel extends SurveyElementCore
    * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
+  /**
+   * An event that is raised when a cell in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its row's data changes. Use it to override the default CSS classes applied to the cell's `<td>` element.
+   * @see css
+   * @see onUpdateMatrixRowCss
+   */
+  public onUpdateMatrixCellCss: EventBase<SurveyModel, UpdateMatrixCellCssEvent> = this.addEvent<SurveyModel, UpdateMatrixCellCssEvent>();
+  /**
+   * An event that is raised when a row in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its data changes. Use it to override the default CSS classes applied to the row's `<tr>` element.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is raised only in the horizontal layout, where each rendered matrix row represents one record. When [`transposeData`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#transposeData) switches the matrix to the vertical layout, each rendered row represents a matrix column. Use [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss) to style individual matrix cells in that layout.
+   * @see css
+   * @see onUpdateMatrixCellCss
+   */
+  public onUpdateMatrixRowCss: EventBase<SurveyModel, UpdateMatrixRowCssEvent> = this.addEvent<SurveyModel, UpdateMatrixRowCssEvent>();
 
   /**
    * An event that is raised after the survey is rendered to the DOM. Use this event to modify survey markup.
@@ -1516,6 +1532,12 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see onUpdateQuestionCssClasses
+   * @see onUpdatePanelCssClasses
+   * @see onUpdatePageCssClasses
+   * @see onUpdateChoiceItemCss
+   * @see onUpdateMatrixRowCss
+   * @see onUpdateMatrixCellCss
    */
   public get css(): any {
     if (!this.cssValue) {
@@ -6519,6 +6541,14 @@ export class SurveyModel extends SurveyElementCore
   matrixCellCreated(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
+  }
+  updateMatrixCellCss(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
+    this.onUpdateMatrixCellCss.fire(this, options);
+  }
+  updateMatrixRowCss(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
+    this.onUpdateMatrixRowCss.fire(this, options);
   }
   matrixAfterCellRender(options: any): void {
     const evt = this.onAfterRenderMatrixCell;

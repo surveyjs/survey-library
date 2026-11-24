@@ -30,7 +30,7 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     //   request.filter the expression text of question.filterExpression, "" for no filter. When a
 //     //                  Filter Control filters the question too, it is the authored expression
 //     //                  and the control's combined, each one bracketed:
-//     //                  "({country} = 'de') and ({price} > 10)". Parse it (see below), never
+//     //                  "({country} = 'de') and ({price} > 10)". Convert it (see below), never
 //     //                  pattern-match it - and expect more requests: every change a control
 //     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
@@ -38,8 +38,7 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
 //     // "hasMore", or from a window that came back shorter than "take".
 //     read: (request) =>
-//       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
-//         .then(r => r.json())
+//       post("/api/orders/query", { ...request, filter: toFilterTree(request.filter) })
 //         .then(r => ({ records: r.items, total: r.total })),
 //     // Optional: how many records a filter matches, without the records - the "Show N items" count
 //     // of a Filter Control's dialog. Without it the list reads { skip: 0, take: 1, filter, sort: [] }
@@ -88,11 +87,13 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 // dynamic panel): one names a record for the source, the other forbids duplicate answers.
 //
 // The filter is a survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18".
-// The list never parses it. A source that speaks another dialect translates it with the library's
-// own parser and re-renders the operand tree in its dialect:
-//   const operand = new ConditionsParser().parseExpression(request.filter);
-//   const where = operand.toString(op => op.getType() === "variable" ? op.variable : undefined);
-// The callback answers for the nodes the source knows and returns undefined for the rest.
+// The list never parses it. A source sends the server toFilterTree(request.filter) instead of the
+// text: a documented JSON tree (build/filter-tree.schema.json, "survey-core/filter-tree.schema.json")
+// with every value kept as a value, so a server in any language reads it without our parser. A
+// filter the tree cannot express (arithmetic, a function of a field, a function that reads the
+// survey) throws an Error naming the part. A Node server can render the whole request as SQL, a
+// MongoDB query or an OData query with survey-core/query instead. Never paste the expression text,
+// or any value from it, into a query.
 //
 // filtering and sorting mean something only together with paging. A source that does not page
 // answers with every record, and the list filters and sorts that answer itself, whatever the two

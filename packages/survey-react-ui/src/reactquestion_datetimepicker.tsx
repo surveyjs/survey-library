@@ -15,6 +15,11 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
   protected getStateElement(): Base {
     return this.question;
   }
+  // The input text is written to the DOM, not rendered as a value attribute.
+  // Reading it here still subscribes the component to the draft properties.
+  protected forceHiddenDependencies(): void {
+    this.getRenderedTexts();
+  }
   private getRenderedTexts(): Array<string> {
     const q = this.question;
     return q.range ? [q.renderedStartInputValue, q.renderedEndInputValue] : [q.renderedInputValue];

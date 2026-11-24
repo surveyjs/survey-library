@@ -1185,3 +1185,54 @@ describe("Sort bar: the watch of a dynamic panel's template", () => {
     expect([box.addElementCallback, box.removeElementCallback], "#2").toEqual([undefined, undefined]);
   });
 });
+
+describe("Sort bar: an expression column (#12389)", () => {
+  function createTotalMatrix(displayStyle?: string, expression: string = "{row.price} * 2"): QuestionMatrixDynamicModel {
+    const total: any = { name: "total", title: "Total", cellType: "expression", expression: expression };
+    if (!!displayStyle) total.displayStyle = displayStyle;
+    const matrix = createMatrix({ columns: productColumns.concat([total]) });
+    // The rendered rows run the expressions and store the totals in the records the list sorts.
+    matrix.visibleRows;
+    return matrix;
+  }
+  test("a number display style gets the number labels and starts with the largest value", () => {
+    ["decimal", "currency", "percent"].forEach((displayStyle: string): void => {
+      const matrix = createTotalMatrix(displayStyle);
+      expect(matrix.getSortFieldDataType("total"), "#1 " + displayStyle).toBe("number");
+      pickField(matrix, "Total");
+      expect(titlesOf(directionList(matrix)), "#2 " + displayStyle).toEqual(["Default", "High - Low", "Low - High"]);
+      expect(shown(matrix), "#3 " + displayStyle).toEqual(["Total", "High - Low", "Total", "High - Low"]);
+      expect(sortOf(matrix), "#4 " + displayStyle).toEqual([{ field: "total", direction: "desc" }]);
+      expect(productsOf(matrix), "#5 " + displayStyle).toEqual(["a", "b", "c"]);
+      expect(header(matrix, "total").sortDescription, "#6 " + displayStyle).toBe("Sorted by Total (High - Low)");
+    });
+  });
+  test("a header click on a number expression column starts with High - Low", () => {
+    const matrix = createTotalMatrix("decimal");
+    matrix.toggleSort("total");
+    expect(sortOf(matrix), "#1").toEqual([{ field: "total", direction: "desc" }]);
+    matrix.toggleSort("total");
+    expect(sortOf(matrix), "#2").toEqual([{ field: "total", direction: "asc" }]);
+    expect(shown(matrix), "#3").toEqual(["Total", "Low - High", "Total", "Low - High"]);
+  });
+  test("the date display style gets the date labels", () => {
+    const matrix = createTotalMatrix("date", "today()");
+    expect(matrix.getSortFieldDataType("total"), "#1").toBe("date");
+    pickField(matrix, "Total");
+    expect(titlesOf(directionList(matrix)), "#2").toEqual(["Default", "Newest first", "Oldest first"]);
+  });
+  test("no display style keeps the alphabetical labels: the result type of the expression is not known", () => {
+    const matrix = createTotalMatrix();
+    expect(matrix.getSortFieldDataType("total"), "#1").toBe("any");
+    pickField(matrix, "Total");
+    expect(titlesOf(directionList(matrix)), "#2").toEqual(["Default", "Alphabet, A - Z", "Alphabet, Z - A"]);
+  });
+  test("changing displayStyle of the column updates the direction labels", () => {
+    const matrix = createTotalMatrix();
+    pickField(matrix, "Total");
+    expect(shown(matrix), "#1").toEqual(["Total", "Alphabet, A - Z", "Total", "Alphabet, A - Z"]);
+    matrix.getColumnByName("total").displayStyle = "decimal";
+    expect(titlesOf(directionList(matrix)), "#2").toEqual(["Default", "High - Low", "Low - High"]);
+    expect(shown(matrix), "#3: the kept direction gets the new label").toEqual(["Total", "Low - High", "Total", "Low - High"]);
+  });
+});

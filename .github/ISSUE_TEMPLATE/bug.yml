@@ -1,0 +1,42 @@
+name: Bug report
+description: SurveyJS Form Library behaves incorrectly.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please don't include application code, credentials or real data. Reduce the case to a minimal survey JSON and the SurveyJS calls that reproduce it.
+        Survey Creator issues go to https://github.com/surveyjs/survey-creator/issues. Report security issues by email to info@devsoftbaltic.com, not in public issues.
+  - type: input
+    id: versions
+    attributes:
+      label: Package versions and framework
+      description: For example, survey-core 3.2.4, survey-angular-ui 3.2.4, Angular 19.
+      placeholder: survey-core 3.2.4, survey-react-ui 3.2.4, React 19
+    validations:
+      required: true
+  - type: textarea
+    id: json
+    attributes:
+      label: Minimal survey JSON
+      description: The smallest survey JSON that reproduces the bug.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run the survey.
+        2. Select "Item 1" in question1.
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs. actual behavior
+      description: What you expected to happen, and what happened instead.
+    validations:
+      required: true

@@ -44,7 +44,7 @@ export interface PanelDynamicQuestionEventMixin {
 }
 export interface MatrixDropdownQuestionEventMixin {
   /**
-   * A Multi-Select Matrix question instance for which the event is raised.
+   * The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
    */
   question: QuestionMatrixDropdownModelBase;
 }
@@ -60,6 +60,20 @@ export interface PanelEventMixin {
    */
   panel: PanelModel;
 }
+/* The events about one row of a Dynamic Matrix or a Multi-Select Matrix, or one panel of a Dynamic
+   Panel. getRecord returns that row's or panel's record as it is stored - the fields that have no
+   column or question included - as a copy, on any page, with a filter, a sort and rowsVisibleIf
+   (row.getRecord() outside an event). It reads when it is called. null for a row without a record (a
+   Multi-Select Matrix row without a value, the total row) and for a panel that is not a Dynamic
+   Panel's; {} for a Dynamic Panel's panel without one. In onMatrixRowRemoved and onDynamicPanelRemoved
+   the row or panel has left the question: options.getRecord() gives the removed record. */
+export interface RecordEventMixin {
+  getRecord: () => any;
+}
+export interface MatrixRowEventMixin extends RecordEventMixin {
+  row: MatrixDropdownRowModelBase;
+}
+export interface DynamicPanelEventMixin extends PanelEventMixin, RecordEventMixin { }
 export interface PageEventMixin {
   /**
    * A Page instance for which the event is raised.
@@ -689,6 +703,69 @@ export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
    */
   css: string;
 }
+/* The options of SurveyModel.onUpdateMatrixCellCss and SurveyModel.onUpdateMatrixRowCss.
+
+   What the events do: onUpdateMatrixCellCss is raised for each data cell (<td>), onUpdateMatrixRowCss
+   for each data row (<tr>) of a Dynamic Matrix or a Multi-Select Matrix (matrixdynamic, matrixdropdown).
+   A handler applies CSS classes based on the row's data, for example a red "failed" status cell or a
+   greyed-out draft row. They replace the onAfterRenderMatrixCell + DOM bookkeeping pattern: the classes
+   are part of the model and every renderer (React, Angular, Vue, vanilla JS) shows them.
+
+   When they are raised:
+   - when the matrix builds a cell or a row for display (first render, a new page, a sort, an added row);
+   - again for every cell of a row and for the row itself when that row's value changes: a new
+     matrix.value or survey.data, an edit by the respondent, or a value an expression column writes.
+   So a class computed from the row's data stays up to date. To react to state outside the survey data,
+   store that state in the row records (a field needs no column) and assign matrix.value.
+
+   Where they are not raised: header cells, the footer (totals) row, error cells, action cells (drag
+   handle, remove button, detail toggle), row-title cells of a Multi-Select Matrix, and the detail panel
+   row (use onUpdatePanelCssClasses for the detail panel). In the vertical layout (transposeData: true)
+   onUpdateMatrixCellCss is raised for the data cells, but onUpdateMatrixRowCss is not raised: a vertical
+   row shows a column, not a record.
+
+   The classes the handler receives are the cell's or row's default classes. Classes that reflect the
+   current state are added afterwards and must not be handled here: a cell's error and "answered"
+   classes, a row's expanded-detail and drag classes.
+
+   Performance note: while a handler of either event is attached, a Dynamic Matrix with local paging or
+   sorting builds new rows on a page change or a sort instead of reusing them.
+
+   The row's data: options.getRecord() (RecordEventMixin) - the row's stored record, the fields without
+   a column included, on any page and with a sort or a filter. It is null for a Multi-Select Matrix row
+   without a value. It reads when it is called, so a handler that does not need it costs nothing.
+
+   Example:
+     survey.onUpdateMatrixCellCss.add((_, options) => {
+       const record = options.getRecord() || {};
+       if (options.column.name === "status" && record.status === "failed") options.css += " status--failed";
+     });
+     survey.onUpdateMatrixRowCss.add((_, options) => {
+       const record = options.getRecord() || {};
+       if (record.isDraft) options.css += " row--draft";
+     });
+
+   `question` (from MatrixDropdownQuestionEventMixin) is the matrix the cell or row belongs to. */
+export interface UpdateMatrixRowCssEvent extends MatrixDropdownQuestionEventMixin, MatrixRowEventMixin {
+  /**
+   * The matrix row being styled or the row that contains the cell.
+   */
+  row: MatrixDropdownRowModelBase;
+  /**
+   * A space-separated string of default CSS classes for the cell or row. You can modify this string to apply custom CSS classes.
+   */
+  css: string;
+}
+export interface UpdateMatrixCellCssEvent extends UpdateMatrixRowCssEvent {
+  /**
+   * The matrix column that contains the cell.
+   */
+  column: MatrixDropdownColumn;
+  /**
+   * The question instance for the cell. Use `options.cellQuestion.value` to read the cell's value.
+   */
+  cellQuestion: Question;
+}
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
   /**
    * @deprecated Use the `sender` parameter instead.
@@ -757,7 +834,7 @@ export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
    */
   values: Array<any>;
 }
-export interface MatrixRowAddedEvent extends MatrixDynamicQuestionEventMixin {
+export interface MatrixRowAddedEvent extends MatrixDynamicQuestionEventMixin, MatrixRowEventMixin {
   /**
    * An added matrix row.
    */
@@ -773,7 +850,7 @@ export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMix
    */
   canAddRow: boolean;
 }
-export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin {
+export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin, MatrixRowEventMixin {
   /**
    * A matrix row to be deleted. If you want to clear row data, set the `options.row.value` property to `undefined`.
    */
@@ -787,7 +864,7 @@ export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin 
    */
   allow: boolean;
 }
-export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin {
+export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin, MatrixRowEventMixin {
   /**
    * A deleted matrix row.
    */
@@ -797,7 +874,7 @@ export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin {
    */
   rowIndex: number;
 }
-export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMixin {
+export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMixin, MatrixRowEventMixin {
   /**
    * A matrix row for which the event is raised.
    */
@@ -811,7 +888,7 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
    */
   allow: boolean;
 }
-export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQuestionEventMixin {
+export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQuestionEventMixin, MatrixRowEventMixin {
   /**
    * A matrix row to which the detail section belongs.
    */
@@ -830,7 +907,7 @@ export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQues
   visible: boolean;
 }
 
-export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
+export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin, MatrixRowEventMixin {
   /**
    * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
@@ -865,7 +942,7 @@ export interface MatrixCellCreatedEvent extends MatrixCellCreatingBaseEvent {
    */
   cellQuestion: Question;
 }
-export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRenderElementEventMixin {
+export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRenderElementEventMixin, MatrixRowEventMixin {
   /**
    * A matrix cell for which the event is raised.
    */
@@ -884,7 +961,7 @@ export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRen
   column: MatrixDropdownColumn | MatrixDropdownCell;
 }
 
-export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMixin {
+export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMixin, MatrixRowEventMixin {
   /**
    * A matrix row to which the cell belongs.
    */
@@ -925,7 +1002,7 @@ export interface MatrixCellValidateEvent extends MatrixCellValueBaseEvent {
    */
   error?: string;
 }
-export interface DynamicPanelModifiedEvent extends PanelDynamicQuestionEventMixin, PanelEventMixin {
+export interface DynamicPanelModifiedEvent extends PanelDynamicQuestionEventMixin, DynamicPanelEventMixin {
   /**
    * The panel's index within Dynamic Panel.
    */
@@ -961,7 +1038,7 @@ export interface TimerPanelInfoTextEvent {
    */
   text: string;
 }
-export interface DynamicPanelValueChangedEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelValueChangedEvent extends PanelDynamicQuestionEventMixin, DynamicPanelEventMixin {
   /**
    * The panel's data object that includes all item values.
    */
@@ -992,7 +1069,7 @@ export interface DynamicPanelValueChangingEvent extends DynamicPanelValueChanged
 
 export interface DynamicPanelItemValueChangedEvent extends DynamicPanelValueChangedEvent {
 }
-export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin, DynamicPanelEventMixin {
   /**
    * A panel for which the event is raised.
    */
@@ -1071,7 +1148,7 @@ export interface DragDropAllowEvent {
    */
   source: IElement;
 }
-export interface MatrixRowDragOverEvent {
+export interface MatrixRowDragOverEvent extends MatrixRowEventMixin {
   row: MatrixDynamicRowModel;
   fromMatrix: QuestionMatrixDynamicModel;
   toMatrix: QuestionMatrixDynamicModel;
@@ -1133,7 +1210,7 @@ export interface GetPanelFooterActionsEvent extends GetActionsEventMixin, PanelE
    */
   question?: QuestionPanelDynamicModel;
 }
-export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActionsEventMixin {
+export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActionsEventMixin, MatrixRowEventMixin {
   /**
    * A matrix row for which the event is raised.
    */

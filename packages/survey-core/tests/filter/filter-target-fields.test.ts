@@ -140,6 +140,24 @@ describe("Filter fields of a target question", () => {
   });
 });
 
+describe("A matrix detail panel as a source of fields", () => {
+  test("a fields entry overrides a detail panel field and the filter reads the detail value", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow",
+        detailElements: [{ type: "dropdown", name: "project", choices: ["A", "B"] }] },
+      { type: "filter", name: "f1", targetQuestion: "m", fields: [{ name: "project", title: "Proj", showInQuickFilters: false }] }] });
+    const matrix: any = survey.getQuestionByName("m");
+    matrix.value = [{ c1: 1, project: "A" }, { c1: 2, project: "B" }];
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(names(q), "#1: one field, not a standalone one next to it").toEqual(["c1", "project"]);
+    expect(q.getFieldByName("project").fieldType, "#2: the detail question's editor").toBe("dropdown");
+    expect(getFilterFieldTitle(q.getFieldByName("project")), "#3").toBe("Proj");
+    expect(q.getQuickFilterFields().map(f => f.name), "#4").toEqual(["c1"]);
+    q.applyFilter("{project} = 'A'");
+    expect(matrix.visibleRows.length, "#5").toBe(1);
+  });
+});
+
 describe("A target question that has no hasRecordField", () => {
   test("an entry that names no field of its list is a field of the record", () => {
     const { q, matrix } = create([{ name: "total", fieldType: "text", inputType: "number" }]);

@@ -6,6 +6,11 @@ import { Serializer } from "../../src/jsonobject";
 import { ComponentCollection } from "../../src/question_custom";
 import { getFilterFieldsForQuestions } from "../../src/dynamic-data/dynamic-data-filter-fields";
 import "../../src/question_signaturepad";
+import "../../src/question_boolean";
+import "../../src/question_comment";
+import "../../src/question_expression";
+import "../../src/question_multipletext";
+import "../../src/question_matrixdropdown";
 
 describe("isFilterable and allowFiltering", () => {
   test("the types that cannot be filtered say so", () => {
@@ -290,5 +295,58 @@ describe("getFilterFields with a composite cell type", () => {
     expect(fields[0].choices.map((item: any) => item.value), "#1: what its cells show").toEqual(["de"]);
     expect(fields[1].choices, "#2: its own choices are the template question's").toBe(undefined);
     expect(fields[2].choices, "#3: not a select column").toBe(undefined);
+  });
+});
+
+// The detail panel is a part of the row record, as the sort bar already takes it: its questions are
+// fields after the columns, by the same walk a Dynamic Panel template takes.
+describe("getFilterFields with a detail panel", () => {
+  const expenses = (detailPanelMode?: string): any => ({ type: "matrixdynamic", name: "expenses", detailPanelMode: detailPanelMode,
+    columns: [
+      { name: "date", cellType: "text", inputType: "date" },
+      { name: "category", cellType: "dropdown", choices: ["Airfare", "Meals"] },
+      { name: "merchant", cellType: "text" },
+      { name: "amount", cellType: "text", inputType: "number" }],
+    detailElements: [
+      { type: "dropdown", name: "project", choices: ["PRJ-118", "PRJ-204"] },
+      { type: "dropdown", name: "payment", startWithNewLine: false, choices: ["corporate", "cash"] },
+      { type: "boolean", name: "receipt" },
+      { type: "boolean", name: "billable", startWithNewLine: false },
+      { type: "comment", name: "purpose", rows: 2 }] });
+  test("a matrix offers its detail panel's questions after its columns", () => {
+    const survey = new SurveyModel({ elements: [expenses("underRowSingle")] });
+    const matrix = <any>survey.getQuestionByName("expenses");
+    const fields = matrix.getFilterFields();
+    expect(fields.map((f: any) => f.name), "#1").toEqual(["date", "category", "merchant", "amount", "project", "payment", "receipt", "billable", "purpose"]);
+    const project = fields.filter((f: any) => f.name === "project")[0];
+    expect(project.fieldType, "#2").toBe("dropdown");
+    expect(project.templateQuestion, "#3: the detail panel template's question").toBe(matrix.detailPanel.getQuestionByName("project"));
+    expect(fields.filter((f: any) => f.name === "receipt")[0].fieldType, "#4").toBe("boolean");
+  });
+  test("without a detail panel mode the detail elements are no fields", () => {
+    const survey = new SurveyModel({ elements: [expenses()] });
+    expect((<any>survey.getQuestionByName("expenses")).getFilterFields().map((f: any) => f.name), "#1").toEqual(["date", "category", "merchant", "amount"]);
+  });
+  test("a detail question nested in a panel, opted out, an expression, a multipletext", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow", detailElements: [
+      { type: "panel", name: "pnl", elements: [{ type: "text", name: "inner" }] },
+      { type: "text", name: "off", allowFiltering: false },
+      { type: "expression", name: "calc", expression: "1" },
+      { type: "multipletext", name: "mt", items: [{ name: "i1" }] }] }] });
+    expect((<any>survey.getQuestionByName("m")).getFilterFields().map((f: any) => f.valueName),
+      "#1: an expression holds a value only in the rows that were opened").toEqual(["c1", "inner", "mt.i1"]);
+  });
+  test("a detail question sharing a column's key leaves the field to the column", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "c1" }, { name: "c2", allowFiltering: false }],
+      detailPanelMode: "underRow", detailElements: [{ type: "dropdown", name: "c1", choices: [1] }, { type: "text", name: "c2" }, { type: "text", name: "d" }] }] });
+    const matrix = <any>survey.getQuestionByName("m");
+    const fields = matrix.getFilterFields();
+    expect(fields.map((f: any) => f.name), "#1: the column's opt-out holds for its key").toEqual(["c1", "d"]);
+    expect(fields[0].templateQuestion, "#2").toBe(matrix.columns[0].templateQuestion);
+  });
+  test("a fixed-rows matrix offers its detail panel's questions too", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c1" }],
+      detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }] }] });
+    expect((<any>survey.getQuestionByName("md")).getFilterFields().map((f: any) => f.name), "#1").toEqual(["c1", "d"]);
   });
 });

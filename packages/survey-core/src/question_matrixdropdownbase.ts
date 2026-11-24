@@ -1227,7 +1227,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   /* Only a row that was opened and then edited holds an expression's value, so a sort would depend on the rows the
      respondent touched. A custom question that wraps an expression has its component's type. */
   protected isTemplateQuestionSortable(q: Question): boolean {
-    return super.isTemplateQuestionSortable(q) && ((<any>q).contentQuestion || q).getType() !== "expression";
+    return super.isTemplateQuestionSortable(q) && !this.isDetailExpression(q);
+  }
+  // The same holds for the filter (getFilterFields).
+  private isDetailExpression(q: Question): boolean {
+    return ((<any>q).contentQuestion || q).getType() === "expression";
   }
   // Without a detail panel mode nothing reads detailPanel, which would build a panel for a matrix that has none.
   protected getRecordSortTemplate(): PanelModelBase {
@@ -2792,6 +2796,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // by the same rule a Dynamic Panel template is walked by. collectFilterFields starts from the
   // cell question, so it names them under getValueName() - the key the cell writes, which is what
   // column.sortField reports and is not the column name when the column is bound through valueName.
+  // The detail panel's questions follow the columns: their values are in the row record too, and the
+  // sort bar offers them (getRecordSortTemplate). A key a column has stays the column's, filtered or
+  // not, as in getFields; an expression is no field, as it is no sort field (isDetailExpression).
   public getFilterFields(): Array<IDynamicDataFilterField> {
     const res = new Array<IDynamicDataFilterField>();
     this.columns.forEach((column: MatrixDropdownColumn): void => {
@@ -2804,18 +2811,41 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         collectFilterFields(res, column.templateQuestion, "");
       }
     });
+    this.getDetailFilterQuestions().forEach((q: Question): void => {
+      if (!this.isDetailExpression(q)) {
+        collectFilterFields(res, q, "");
+      }
+    });
     return res;
   }
   // A column by its name or the key its cells write, filtered or not, a child of a column's record by
   // its path, or a path into a column the filter leaves out (see isRecordFieldName). The walk of the
-  // cell question adds the key its cells write (column.sortField).
+  // cell question adds the key its cells write (column.sortField). The detail panel's questions are
+  // taken the way a Dynamic Panel takes its template's.
   public hasRecordField(name: string): boolean {
     const keys: IFilterRecordKeys = { keys: [], excluded: [] };
     this.columns.forEach((column: MatrixDropdownColumn): void => {
       addFilterRecordKey(keys, column.name, !column.allowFiltering);
       collectFilterRecordKeys(keys, column.templateQuestion, "", !column.allowFiltering);
     });
+    this.getDetailFilterQuestions().forEach((q: Question): void => {
+      addFilterRecordKey(keys, q.name, !q.allowFiltering);
+      collectFilterRecordKeys(keys, q, "", false);
+    });
     return isRecordFieldName(name, keys);
+  }
+  // The detail panel's questions whose key no column has.
+  private getDetailFilterQuestions(): Array<Question> {
+    const template = this.getRecordSortTemplate();
+    if (!template) return [];
+    const columnKeys = new Array<string>();
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      columnKeys.push(column.name);
+      if (!!column.templateQuestion) {
+        columnKeys.push(column.templateQuestion.getValueName());
+      }
+    });
+    return template.questions.filter((q: Question): boolean => columnKeys.indexOf(q.getValueName()) < 0);
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();

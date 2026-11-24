@@ -63,6 +63,9 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
       this.videoNotLoaded = false;
     }
   }
+  public get renderedImageURL(): string {
+    return this.getLocStringHtml(this.locImageLink);
+  }
 
 }
 
@@ -138,9 +141,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   protected getItemValueType() {
     return "imageitemvalue";
-  }
-  public get isCompositeQuestion(): boolean {
-    return true;
   }
   protected get itemFlowDirection() {
     return "row";

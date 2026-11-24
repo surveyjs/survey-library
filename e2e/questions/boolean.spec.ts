@@ -121,7 +121,8 @@ frameworks.forEach((framework) => {
     });
 
     test("check arrow keydowns", async ({ page }) => {
-      page.keyboard.press("Tab");
+      await expect(page.locator(".sd-boolean")).toBeVisible();
+      await page.keyboard.press("Tab");
       expect(await getQuestionValue(page)).toEqual(undefined);
       await page.keyboard.press("ArrowRight");
       expect(await getQuestionValue(page)).toBeTruthy();
@@ -379,7 +380,8 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      page.keyboard.press("Tab");
+      await expect(page.locator(".sd-boolean")).toBeVisible();
+      await page.keyboard.press("Tab");
       expect(await getQuestionValue(page)).toEqual(undefined);
       // With swapOrder, ArrowRight should select false (No is on the right)
       await page.keyboard.press("ArrowRight");

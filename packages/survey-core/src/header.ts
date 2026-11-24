@@ -196,9 +196,7 @@ export class Cover extends Base implements ILayoutElementModel {
   @property() public titlePositionY: VerticalAlignment;
   @property() public descriptionPositionX: HorizontalAlignment;
   @property() public descriptionPositionY: VerticalAlignment;
-  @property() logoStyle: { gridColumn: number, gridRow: number };
   @property() titleStyle: { gridColumn: number, gridRow: number };
-  @property() descriptionStyle: { gridColumn: number, gridRow: number };
   @property() headerClasses: string;
   @property() contentClasses: string;
   @property() width: number;

@@ -129,7 +129,7 @@ export class DropdownListModel extends Base {
 
     const value = newValue || this.filterString;
     const surveySettings = this.getQuestionSurveySettings();
-    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false, undefined, surveySettings))[0];
+    const item = this.listModel.getVisibleActions().filter(action => Helpers.checkIfValuesEqual(action.text, value, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {
@@ -457,9 +457,6 @@ export class DropdownListModel extends Base {
     this._loadQuestionChoices(callbackAfterItemsLoaded);
   }
 
-  public get canShowSelectedItem(): boolean {
-    return this.renderState.canShowSelectedItem;
-  }
   public get markdownMode(): boolean {
     return this._markdownMode;
   }
@@ -668,14 +665,8 @@ export class DropdownListModel extends Base {
   public get filterReadOnly(): boolean {
     return this.renderState.filterReadOnly;
   }
-  public get filterStringEnabled(): boolean {
-    return this.renderState.filterStringEnabled;
-  }
   public get inputMode(): "none" | "text" {
     return this.renderState.inputMode;
-  }
-  public get popupEnabled(): boolean {
-    return this.renderState.popupEnabled;
   }
 
   public get ariaQuestionRole(): string | undefined { return this.renderState.ariaQuestionRole; }

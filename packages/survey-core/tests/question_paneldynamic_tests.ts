@@ -6174,7 +6174,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
     const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-    expect(!!panel["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
+    expect(!!panel["actionsValue"]?.["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
     expect(panel.isRenderModeTab, "isRenderModeTab").toBeTruthy();
     expect(panel.currentIndex, "currentIndex is 0").toBe(0);
     expect(panelTabToolbar.actions.length, "2 panels").toBe(2);
@@ -7822,20 +7822,20 @@ describe("Survey_QuestionPanelDynamic", () => {
       ]
     });
     const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeFalsy();
 
     question.displayMode = "tab";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeTruthy();
 
     question.displayMode = "carousel";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeTruthy();
 
     question.displayMode = "list";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeFalsy();
   });
   test("paneldynamic: Do not call onFirstRendered for hidden panels, Issue#10501", () => {
     const survey = new SurveyModel({
@@ -8044,7 +8044,7 @@ describe("Survey_QuestionPanelDynamic", () => {
       }
     };
     const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-    const options = question["getPanelsAnimationOptions"]();
+    const options = question["dynamicAnimation"].getAnimationOptions();
     const panelsContainer = document.createElement("div");
     const panelContainer2 = document.createElement("div");
     const panelContainer1 = document.createElement("div");
@@ -8108,7 +8108,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
     expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question["focusNewPanelCallback"] = () => {};
+    question["dynamicAnimation"].focusNewPanelCallback = () => {};
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-adding sv-pd-animation-left");
@@ -8126,7 +8126,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     question.removePanel(removedPanel);
     question["_renderedPanels"] = [question.panels[0], removedPanel];
 
-    question["removedPanelIndex"] = 0;
+    question["dynamicAnimation"].removedPanelIndex = 0;
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-removing sv-pd-animation-left");
@@ -8140,7 +8140,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
     expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question["removedPanelIndex"] = 1;
+    question["dynamicAnimation"].removedPanelIndex = 1;
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-removing sv-pd-animation-right");
@@ -11304,6 +11304,22 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     question.refreshView();
     expect(question.filterExpression, "#3: and it is not re-pushed").toBe("");
   });
+  test("#12398 an authored sort and a defaultValue: the first build shows the sorted panels", () => {
+    const question = createQuestion({ sortCriteria: [{ field: "q1" }], defaultValue: cba });
+    expect(values(question), "#1").toEqual(["a", "b", "c"]);
+    question.addPanelUI();
+    expect(question.visiblePanels.length, "#2: one more panel, not all of them at once").toBe(4);
+    expect(question.value.length, "#3").toBe(4);
+  });
+  test("#12398 an authored filter and a defaultValue: the first build shows the panels the filter keeps", () => {
+    const question = createQuestion({ filterExpression: "{q1} <> 'a'", defaultValue: cba });
+    expect(values(question), "#1").toEqual(["c", "b"]);
+  });
+  test("#12398 an authored sort, a panelCount and a defaultPanelValue: the first build shows the panels", () => {
+    const question = createQuestion({ sortCriteria: [{ field: "q1" }], panelCount: 2, defaultPanelValue: { q1: "x" } });
+    expect(values(question), "#1").toEqual(["x", "x"]);
+    expect(question.value.length, "#2").toBe(2);
+  });
 });
 
 describe("paneldynamic: one paging sync per condition run", () => {
@@ -12181,5 +12197,58 @@ describe("Dynamic panel: the template JSON of a batch of new panels", () => {
       expect((<Question>parts[index][0]).locTitle.getLocaleText("de"), "#5: the localized title of panel " + index).toBe(isChanged ? "Changed in panel " + index : "Q1 de");
     });
     expect((<Question>question.template.getQuestionByName("q1")).locTitle.getLocaleText("de"), "#6: the template").toBe("Q1 de");
+  });
+});
+
+describe("Question Panel Dynamic: onUpdatePanelCssClasses follows the record", () => {
+  function createPanelSurvey(): { survey: SurveyModel, question: QuestionPanelDynamicModel, questionCalls: () => number } {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: "x" }, { a: "y", flag: true }] };
+    survey.onUpdatePanelCssClasses.add((_, options) => {
+      const item = <QuestionPanelDynamicItem>options.panel.data;
+      const record = (question.value || [])[item.getIndex()] || {};
+      if (record.a === "z") options.cssClasses.panel.container += " is-z";
+      if (record.flag) options.cssClasses.panel.container += " flagged";
+    });
+    let questionCalls = 0;
+    survey.onUpdateQuestionCssClasses.add(() => { questionCalls++; });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    return { survey: survey, question: question, questionCalls: () => questionCalls };
+  }
+  function containerCss(question: QuestionPanelDynamicModel): Array<string> {
+    return question.panels.map((panel: PanelModel) => panel.cssClasses.panel.container);
+  }
+  function has(css: string, name: string): boolean {
+    return css.split(" ").indexOf(name) > -1;
+  }
+  test("a value assignment computes the classes of a changed record's panel again", () => {
+    const { question } = createPanelSurvey();
+    const panels = question.panels.slice();
+    expect(containerCss(question).map((css) => has(css, "flagged")), "#1").toEqual([false, true]);
+    question.value = [{ a: "z" }, { a: "y" }];
+    expect(question.panels[0], "#2: the panels are kept").toBe(panels[0]);
+    expect(containerCss(question).map((css) => has(css, "is-z")), "#3").toEqual([true, false]);
+    expect(containerCss(question).map((css) => has(css, "flagged")), "#4: the flag is gone").toEqual([false, false]);
+  });
+  test("an edit inside a record computes its panel's classes again, not its questions'", () => {
+    const { question, questionCalls } = createPanelSurvey();
+    containerCss(question);
+    question.panels.forEach((panel: PanelModel) => panel.questions[0].cssClasses);
+    const calls = questionCalls();
+    question.panels[1].getQuestionByName("a").value = "z";
+    expect(containerCss(question).map((css) => has(css, "is-z")), "#1").toEqual([false, true]);
+    question.panels.forEach((panel: PanelModel) => panel.questions[0].cssClasses);
+    expect(questionCalls(), "#2: the questions keep their classes").toBe(calls);
+  });
+  test("pinning: updateElementCss(true) on the question refreshes every panel, for state outside the records", () => {
+    const { survey, question } = createPanelSurvey();
+    const selected = { index: -1 };
+    survey.onUpdatePanelCssClasses.add((_, options) => {
+      if ((<QuestionPanelDynamicItem>options.panel.data).getIndex() === selected.index) options.cssClasses.panel.container += " selected";
+    });
+    expect(containerCss(question).map((css) => has(css, "selected")), "#1").toEqual([false, false]);
+    selected.index = 1;
+    question.updateElementCss(true);
+    expect(containerCss(question).map((css) => has(css, "selected")), "#2").toEqual([false, true]);
   });
 });

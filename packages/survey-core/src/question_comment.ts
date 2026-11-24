@@ -13,7 +13,6 @@ import { IsTouch } from "./utils/devices";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-comment/ (linkStyle))
  */
 export class QuestionCommentModel extends QuestionTextBase {
-  private element: HTMLElement;
   private textAreaModelValue: TextAreaModel;
 
   constructor(name: string) {
@@ -130,14 +129,6 @@ export class QuestionCommentModel extends QuestionTextBase {
   public supportGoNextPageError(): boolean {
     return false;
   }
-  public afterRenderQuestionElement(el: HTMLElement): void {
-    this.element = el?.querySelector(`#${this.inputId}`) || el;
-    super.afterRenderQuestionElement(el);
-  }
-  public beforeDestroyQuestionElement(el: HTMLElement): void {
-    super.beforeDestroyQuestionElement(el);
-    this.element = undefined;
-  }
   public onInput(event: any): void {
     if (this.isInputTextUpdate)
       this.value = event.target.value;
@@ -162,7 +153,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     }
   }
   private updateValueFromTextArea(newValue: any): void {
-    if (!Helpers.isTwoValueEquals(this.value, newValue, false, true, false)) {
+    if (!Helpers.checkIfValuesEqual(this.value, newValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
       this.value = newValue;
     }
   }

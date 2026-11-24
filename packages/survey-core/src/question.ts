@@ -20,7 +20,8 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { getElementWidth, isContainerVisible } from "./utils/dom-utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -33,6 +34,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { getFilterOperatorChoices, isFilterFieldInReach } from "./filter/filter-field-properties";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -107,11 +109,6 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   getQuestion(): IQuestion { return this.question; }
-  protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
-    const survey = this.question.getSurvey();
-    if (survey) return (<any>survey).getValueGetterContext().getValue({ path, isRoot: false, index });
-    return undefined;
-  }
   private getQuestionValue(index: number, isOriginalValue?: boolean): IValueGetterInfo {
     const q = this.question;
     // The plain {name} exposes the unwrapped value by default (the "-unwrapped" suffix is kept for
@@ -197,7 +194,6 @@ export interface IValidationContextParams {
   isOnValueChanged?: boolean;
   isOnValueChanging?: boolean;
   focusOnFirstError?: boolean;
-  firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
   /* false: the validation shows errors and changes no value. A question that pages its records
@@ -238,7 +234,6 @@ export interface IVerifyDataContext {
   // as something is found. setData() never sets it.
   stopOnFirst: boolean;
   readonly hasIssues: boolean;
-  readonly issueCount: number;
   pushSegment(segment: string | number): void;
   popSegment(): void;
   // lastSegment is appended for this issue only: an unknown key, the array index of an offending item.
@@ -318,7 +313,6 @@ class VerifyDataContext implements IVerifyDataContext {
   constructor(public checks: IDataVerificationOptions) {
   }
   public get hasIssues(): boolean { return this.issues.length > 0; }
-  public get issueCount(): number { return this.issues.length; }
   public pushSegment(segment: string | number): void {
     this.segmentsScope.value.push(segment);
   }
@@ -630,6 +624,12 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected getDefaultTitle(): string { return this.name; }
+  // The display value is built from texts (choices, rows, columns, labels) that can have names of their
+  // own, so a text that shows it ({q1}) can change on a change of another value.
+  // true by default: a custom question can build its display value from anything. A wrong true costs
+  // an extra refresh, a wrong false leaves a stale text. A question whose display value comes from its
+  // value only returns false.
+  public hasDisplayTexts(): boolean { return true; }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;
@@ -640,6 +640,8 @@ export class Question extends SurveyElement<Question>
       if (!this.survey) return text;
       return this.titleSettings.getUpdatedQuestionTitle(this, text);
     };
+    // The question's name. An onGetQuestionTitle handler can read any value: then the survey refreshes every string
+    locTitleValue.isTextCallbackPure = true;
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
     return locTitleValue;
@@ -734,7 +736,7 @@ export class Question extends SurveyElement<Question>
     this.updateIsReady();
   }
   protected ensureQuestionIsReady(): void {
-    const _displayValue = this.displayValue;
+    this.displayValue;
   }
   public waitForQuestionIsReady(callback?: () => void): Promise<void> {
     return new Promise((resolve: any) => {
@@ -877,6 +879,20 @@ export class Question extends SurveyElement<Question>
   public get hasPlainInput(): boolean {
     return this.hasInput;
   }
+  // Whether a Filter Control can offer this question as a filter field. A question whose value is a
+  // record or a table of its own is not a field - its children may be.
+  public get isFilterable(): boolean {
+    return this.getValueType() !== "object";
+  }
+  // Whether a Filter Control walks into a question that is not a field for the fields of its own:
+  // a record whose nested questions write directly under its value, so {address.city} reaches them.
+  public get hasNestedFilterFields(): boolean {
+    return this.getValueType() === "object";
+  }
+  @property({ defaultValue: true }) allowFiltering: boolean;
+  // The operators a Filter Control offers for this question's field, in this order. Empty = every
+  // operator the question's value editor takes; see getFilterFieldOperators.
+  @property() filterOperators: Array<string>;
   /* Whether records can be ordered by this question's value: a scalar value only. It reads
      getValueType() on every call, so it follows a type switch (multiSelect) as it happens. Not
      hasInput: an expression has a value to sort by although nobody types it. */
@@ -1148,12 +1164,14 @@ export class Question extends SurveyElement<Question>
     const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
     return run2 !== "";
   }
+  // The trigger rules differ from canSkip: a function or a constant decides with the second runner,
+  // and the record and composite context names are not added. Only the names check is shared
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     if (!runner.expression) return "";
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo(), undefined, this.getSurveyVariableNamesInfo()) ? "var" : "";
+    return this.getChangedKeys(keys).isAnyChanged(vars, undefined, runner.getVariablesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -1161,21 +1179,17 @@ export class Question extends SurveyElement<Question>
   // writes no value back. The item names resolve inside this question's value first ({r1} in a matrix
   // row reads row r1), so a change of the value, or of any container that holds it, runs them all.
   public canSkipItemCondition(runner: ExpressionRunnerBase): boolean {
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
-    if (!keys || this.isOwnOrContainerValueChanged(keys, survey)) return false;
+    const keys = this.getValueChangedKeys();
+    if (!keys || this.isOwnOrContainerValueChanged(keys, this.getSurvey())) return false;
     return this.canSkipExpressionByKeys(runner, keys, undefined, true);
   }
-  // A change inside a dynamic panel or a composite question reports the container's name only
-  private isOwnOrContainerValueChanged(keys: any, survey: any): boolean {
-    const lowerKeys: HashTable<boolean> = Object.create(null);
-    for (const key in keys) {
-      lowerKeys[key.toLowerCase()] = true;
-    }
+  // A change inside a dynamic panel or a composite question reports the container's name only.
+  // Names match in any letter case
+  private isOwnOrContainerValueChanged(keys: ChangedKeys, survey: any): boolean {
     let question: Question = this;
     while(!!question) {
       const valueName = question.getValueName();
-      if (!!valueName && lowerKeys[valueName.toLowerCase()]) return true;
+      if (!!valueName && keys.hasKey(valueName)) return true;
       let data: any = question.data;
       // A dynamic panel item or a matrix row hands over to the question that holds it. The walk stops
       // at the survey: its data getter builds the whole result object.
@@ -1385,9 +1399,6 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputHasActions(): boolean {
     return this.singleInputBehavior.singleInputHasActions;
-  }
-  protected singleInputMoveToFirst(): void {
-    this.singleInputBehavior.singleInputMoveToFirst();
   }
   //#endregion
   /**
@@ -1666,9 +1677,6 @@ export class Question extends SurveyElement<Question>
       this.localeChangedCallback();
     }
   }
-  public get isCompositeQuestion(): boolean {
-    return false;
-  }
   public get isContainer(): boolean { return false; }
   // A container that keeps the saved masked text of its nested question on a locale change (QuestionTextModel.localeChanged).
   protected keepsSavedTextOnLocaleChange(question: Question): boolean { return false; }
@@ -1929,11 +1937,6 @@ export class Question extends SurveyElement<Question>
   public getHeaderAndContentContainerCss(): string {
     return toCssClasses(this.cssClasses.headerAndContentContainer);
   }
-  public get isComplexQuestion(): boolean {
-    const rootCss = this.getRootCss() || "";
-    return rootCss.indexOf("sd-element--complex") > -1;
-    // return this.isContainer || !!this.singleInputQuestion;
-  }
   public getQuestionRootCss() {
     return toCssClasses(this.cssClasses.root, this.isMobile && this.cssClasses.rootMobile);
   }
@@ -2010,7 +2013,7 @@ export class Question extends SurveyElement<Question>
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
   public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
-    if (this.isDesignMode || !this.isVisible || this.isReadOnly || !this.survey) return;
+    if (this.isDesignMode || !this.isVisibleWithParents || this.isReadOnly || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     const isSingleInput = this.isSingleInputMode;
@@ -2185,9 +2188,6 @@ export class Question extends SurveyElement<Question>
   public get renderedInputReadOnly(): string {
     return this.isInputReadOnly ? "" : undefined;
   }
-  public get renderedInputDisabled(): string {
-    return this.isInputReadOnly ? "" : undefined;
-  }
   public get isReadOnlyAttr(): boolean {
     return this.isReadOnly;
   }
@@ -2275,13 +2275,12 @@ export class Question extends SurveyElement<Question>
   private canSkipDefaultValueExpression(): boolean {
     const lastRun = this.lastDefaultValueRun;
     if (!lastRun || !settings.expressionQuestionTrackDependencies) return false;
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    const keys = this.getValueChangedKeys();
     if (!keys) return false;
     if (lastRun.expression !== this.defaultValueExpression) return false;
     const runner = this.getExpressionByProperty("defaultValueExpression");
     if (!runner || runner.isAsync) return false;
-    if (!Helpers.isTwoValueEquals(lastRun.defaultValue, this.defaultValue, false, true, false)) return false;
+    if (!Helpers.checkIfValuesEqual(lastRun.defaultValue, this.defaultValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return false;
     if (!this.isTwoValueEquals(lastRun.value, this.value)) return false;
     // A path under a cleared value ({a.x} once a is cleared) counts as changed
     return this.canSkipExpressionByKeys(runner, keys, undefined, true);
@@ -2452,7 +2451,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
-  public getFilteredName(): any { return this.getValueName(); }
+  public getFilteredName(): string { return this.getValueName(); }
   public get valueForSurvey(): any {
     return this.valueForSurveyCore(this.value);
   }
@@ -2551,9 +2550,6 @@ export class Question extends SurveyElement<Question>
       visible: <any>new ComputedUpdater(isVisible),
       ariaLabelledBy: this.a11y_input_ariaLabelledBy
     });
-  }
-  clearValueOnly(): void {
-    this.clearValue(true);
   }
   public unbindValue(): void {
     this.clearValue();
@@ -2844,7 +2840,7 @@ export class Question extends SurveyElement<Question>
   }
   protected checkIfAnswerCorrect(): boolean {
     // caseSensitive is left to the settings: the survey's own value, else the global one
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), undefined, true, this.getSurveySettings());
+    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveySettings() });
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -3745,7 +3741,9 @@ export class Question extends SurveyElement<Question>
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);
-    this.resetPropertyValue("no");
+    if (val >= 0 || this.no !== "") {
+      this.resetPropertyValue("no");
+    }
     return val < 0 ? 0 : 1;
   }
   protected isVisibleIndexNegative(val: number): boolean {
@@ -3953,8 +3951,6 @@ export class Question extends SurveyElement<Question>
     }
   }
 
-  public transformToMobileView(): void { }
-  public transformToDesktopView(): void { }
   public needResponsiveWidth() {
     return false;
   }
@@ -4230,9 +4226,6 @@ export class Question extends SurveyElement<Question>
     return null;
     //return this.hasCssError() ? this.id + "_errors" : null; // due to https://cerovac.com/a11y/2024/06/support-for-aria-errormessage-is-getting-better-but-still-not-there-yet/
   }
-  public get a11y_input_ariaExpanded(): "true" | "false" {
-    return this.getPropertyValue("ariaExpanded");
-  }
   //EO new a11y
 
   public get dragDropMatrixAttribute(): string {
@@ -4367,6 +4360,17 @@ Serializer.addClass("question", [
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   getReadOnlyModePropertyInfo(),
+  /* The Filter Control offers this question as a filter field unless the author opts it out. It is
+     shown only where a Filter Control can reach the question (isFilterFieldInReach), on a question
+     that is a field and on one whose children are (a composite question, a Multiple Textboxes):
+     allowFiltering: false there opts all of them out (collectFilterFields). */
+  { name: "allowFiltering:boolean", default: true,
+    visibleIf: (obj: any): boolean => !!obj && (!!obj.isFilterable || !!obj.hasNestedFilterFields) && isFilterFieldInReach(obj) },
+  // Applies only where the question is a filter field: filterable, within reach and not opted out.
+  // A text question's override adds inputType to dependsOn: its operators follow it.
+  { name: "filterOperators:string[]", dependsOn: "allowFiltering",
+    choices: (obj: any): Array<string> => getFilterOperatorChoices(obj),
+    visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable && obj.allowFiltering !== false && isFilterFieldInReach(obj) },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

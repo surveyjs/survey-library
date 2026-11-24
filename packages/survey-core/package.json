@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "3.2.5",
+  "version": "3.2.7",
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
@@ -10,7 +10,8 @@
     "build:linter": "rollup -c rollup.linter.config.mjs --environment emitMinified",
     "build:collaboration": "rollup -c rollup.collaboration.config.mjs --environment emitMinified",
     "build:tester": "rollup -c rollup.tester.config.mjs --environment emitMinified && tsc -p tsconfig.tester.json --emitDeclarationOnly",
-    "build:all": "npm run build && concurrently --kill-others-on-fail \"npm:build:i18n\" \"npm:build:themes\" \"npm:build:icons\" \"npm:build:adapters\" \"npm:build:linter\" \"npm:build:collaboration\" \"npm:build:tester\" \"npm:build:doc\"",
+    "build:query": "rollup -c rollup.query.config.mjs --environment emitMinified && tsc -p tsconfig.query.json --emitDeclarationOnly",
+    "build:all": "npm run build && concurrently --kill-others-on-fail \"npm:build:i18n\" \"npm:build:themes\" \"npm:build:icons\" \"npm:build:adapters\" \"npm:build:linter\" \"npm:build:collaboration\" \"npm:build:tester\" \"npm:build:query\" \"npm:build:doc\"",
     "watch:dev": "rollup -c rollup.config.mjs -w",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",

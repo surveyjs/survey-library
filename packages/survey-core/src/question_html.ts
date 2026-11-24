@@ -15,9 +15,6 @@ export class QuestionHtmlModel extends QuestionNonValue {
   public getType(): string {
     return "html";
   }
-  public get isCompositeQuestion(): boolean {
-    return true;
-  }
   public getProcessedText(text: string): string {
     if (this.ignoreHtmlProgressing) return text;
     return super.getProcessedText(text);
@@ -35,6 +32,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
         ? obj.processHtml(str)
         : str;
     };
+    // It processes the names of its own text. An onProcessHtml handler can read any value: then the survey
+    // refreshes every string
+    locStr.isTextCallbackPure = true;
   } } }) html: string;
 
   public get processedHtml() {
@@ -48,6 +48,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
   }
   public get renderCssRoot(): string {
     return toCssClasses(this.cssClasses.root, this.getIsNested() && this.cssClasses.nested) || undefined;
+  }
+  public get renderedHtml(): string {
+    return this.getLocStringHtml(this.locHtml);
   }
 }
 Serializer.addClass(

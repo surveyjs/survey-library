@@ -1433,13 +1433,13 @@ describe("linter vs runtime: reserved names", () => {
 });
 
 describe("linter vs runtime: a name that is not a string", () => {
-  // the runtime trims a name whatever it belongs to, so a page or a panel named by a number
-  // stops the survey from loading the way a question does - and neither has a required name
-  test("a page and a panel named by a number do not load, and property/required reports them", () => {
+  // the runtime loads a numeric name as its string, whatever element it belongs to - and a number
+  // is still not a name, so property/required reports it on a page and a panel too
+  test("a page and a panel named by a number load with the name as a string, and property/required reports them", () => {
     const pageJson = { pages: [{ name: 1, elements: [{ type: "text", name: "q1" }] }] };
     const panelJson = { elements: [{ type: "panel", name: 5, elements: [{ type: "text", name: "q1" }] }] };
-    expect(() => new SurveyModel(pageJson)).toThrow();
-    expect(() => new SurveyModel(panelJson)).toThrow();
+    expect(new SurveyModel(pageJson).pages[0].name).toBe("1");
+    expect(new SurveyModel(panelJson).getPanelByName("5")).toBeTruthy();
     expect(errors(pageJson)).toEqual(["property/required @ pages[0].name"]);
     expect(errors(panelJson)).toEqual(["property/required @ elements[0].name"]);
   });

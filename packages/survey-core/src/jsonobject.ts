@@ -1,5 +1,5 @@
 import type { Base } from "./base";
-import { Helpers, HashTable } from "./helpers";
+import { Helpers } from "./helpers";
 import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { settings } from "./settings";
 import { propertyDefaultsState, propertyDefaultNotSet } from "./survey-property-defaults-state";
@@ -227,14 +227,15 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     const dValue = this.getDefaultValue(obj);
     if (dValue !== undefined) {
       if (typeof dValue !== "object") return dValue === value;
-      return Helpers.isTwoValueEquals(value, dValue, false, true, false);
+      return Helpers.checkIfValuesEqual(value, dValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
     }
     return (
       (value === false && this.isBooleanType && !this.defaultValueFunc) ||
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  // For internal use: the empty check of getSerializableValue, shared with JsonObject's loop that skips empty properties
+  // For internal use: the empty check of getSerializableValue, shared with JsonObject's loop that skips empty properties for a wrapper
+  // (for an object that is its own original, the loop calls isOwnSerializablePropertyEmpty, which this check ends in)
   public isEmptyIn(obj: any): boolean {
     return this.isSerializable && !!obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this);
   }
@@ -315,6 +316,16 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public getObjType(objType: string) {
     if (!this.classNamePart) return objType;
     return objType.replace(this.classNamePart, "");
+  }
+  // The class the deserializer builds for an item of this property whose JSON "type" is objType:
+  // the property's className wins over the JSON type, and classNamePart completes a short name
+  // unless the name already contains it ("setvalue" -> "setvaluetrigger"). Lower-cased.
+  public getObjClassName(objType: string): string {
+    const res: any = this.className || objType;
+    if (typeof res !== "string" || !res) return res;
+    const className = res.toLowerCase();
+    const part = this.classNamePart;
+    return !!part && className.indexOf(part) < 0 ? className + part : className;
   }
   /**
    * Depricated, please use getChoices
@@ -424,7 +435,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public schemaType(): string {
     if (this.className === "choicesByUrl") return undefined;
-    if (this.className === "string") return this.className;
+    if (this.className === "string") return this.isArray ? "array" : this.className;
     if (!!this.className && this.isArray) return "array";
     if (!!this.baseClassName) return "array";
     if (!!this.className) return undefined;
@@ -844,7 +855,6 @@ export class JsonMetadataClass {
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;
-        var s: string;
         if (
           prop.serializationProperty &&
           prop.serializationProperty.indexOf("loc") == 0
@@ -1200,18 +1210,24 @@ export class JsonMetadata {
   }
   public createClass(name: string, json: any = undefined): any {
     name = name.toLowerCase();
-    var metaDataClass = this.findClass(name);
-    if (!metaDataClass) return null;
-    if (metaDataClass.creator) return metaDataClass.creator(json);
-    var parentName = metaDataClass.parentName;
-    while(parentName) {
-      metaDataClass = this.findClass(parentName);
-      if (!metaDataClass) return null;
-      parentName = metaDataClass.parentName;
-      if (metaDataClass.creator)
-        return this.createCustomType(name, metaDataClass.creator, json);
+    const metaDataClass = this.findClass(name);
+    const creatorClass = this.findCreatorClass(metaDataClass);
+    if (!creatorClass) return null;
+    if (creatorClass === metaDataClass) return creatorClass.creator(json);
+    return this.createCustomType(name, creatorClass.creator, json);
+  }
+  // Whether createClass builds an object for this name: the class or one of its ancestors has a creator.
+  public isCreatableClass(name: string): boolean {
+    if (typeof name !== "string" || !name) return false;
+    return !!this.findCreatorClass(this.findClass(name));
+  }
+  // The class whose creator builds metaDataClass: the class itself or its nearest ancestor with a creator.
+  private findCreatorClass(metaDataClass: JsonMetadataClass): JsonMetadataClass {
+    while(!!metaDataClass) {
+      if (metaDataClass.creator) return metaDataClass;
+      metaDataClass = metaDataClass.parentName ? this.findClass(metaDataClass.parentName) : undefined;
     }
-    return null;
+    return undefined;
   }
   private createCustomType(
     name: string,
@@ -1485,6 +1501,11 @@ export class JsonMetadata {
       if (propType === "array") {
         if (prop.className === "string") {
           res.items = { type: prop.className };
+          // The choices of a string[] property restrict its items, not the array itself
+          if (!!res.enum) {
+            res.items.enum = res.enum;
+            delete res.enum;
+          }
         } else {
           const refClas = { $ref: this.getChemeRefName(prop.className, isRoot) };
           if (!settings.serialization.itemValueSerializeAsObject && this.isDescendantOf(prop.className, "itemvalue")) {
@@ -1779,9 +1800,18 @@ export class JsonObject {
     // With these options and property flags, valueToJson's filters let the property through and
     // getSerializableValue calls the same empty check (isEmptyIn) first, so an empty property writes nothing there.
     const canSkipEmpty = !options.storeDefaults && !options.version && this.storesAllLocaleStrings(options);
+    // For an object that is its own original, isEmptyIn ends in isOwnSerializablePropertyEmpty: the loop calls it directly
+    // (the same check as getSerializableValue's) and tests for a wrapper once per object. A wrapper keeps isEmptyIn.
+    const isOwnObj = canSkipEmpty && !!obj.isOwnSerializablePropertyEmpty && !!obj.getOriginalObj && obj.getOriginalObj() === obj;
+    // Once per object (see isPropertyReadObserved for the observers): a getter in the loop that starts a dependency collection
+    // or a useCache function ends it before it returns, and a getPropertyValueCoreHandler belongs to the object, so the state
+    // tested here holds for this object's loop. An observer left set by a throw only sends later checks down the observed path.
+    // Nested objects run their own propertiesToJson and test again.
+    const readHash = isOwnObj && !obj.isPropertyReadObserved();
     for (var i: number = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if (canSkipEmpty && !prop.isSerializableFunc && !prop.onSerializeValue && !this.isLightSkipped(prop) && prop.isEmptyIn(obj)) continue;
+      if (canSkipEmpty && !prop.isSerializableFunc && !prop.onSerializeValue && !this.isLightSkipped(prop) &&
+        (isOwnObj ? prop.isSerializable && obj.isOwnSerializablePropertyEmpty(prop, readHash) : prop.isEmptyIn(obj))) continue;
       this.valueToJson(obj, json, prop, options);
     }
   }
@@ -1852,6 +1882,10 @@ export class JsonObject {
   }
   public valueToObj(value: any, obj: any, property: JsonObjectProperty, jsonObj?: any, options?: ILoadFromJSONOptions): void {
     if (value === null || value === undefined) return;
+    if (this.isIncorrectForStringChoices(property, obj, value)) {
+      this.addNewError(new JsonIncorrectPropertyValueError(property, value), jsonObj, obj);
+      return;
+    }
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
       property.setValue(obj, value, this);
@@ -1889,6 +1923,17 @@ export class JsonObject {
         obj[property.name] = value;
       }
     }
+  }
+  // Setters of string properties with string choices call string methods on the value, so a number, a boolean
+  // or an object that is not one of the choices or acceptedValues would throw. It is always checked, unlike
+  // options.validatePropertyValues. Numeric choices, arrays and sets are left out: they accept values that are not
+  // in the choices and do not throw.
+  private isIncorrectForStringChoices(property: JsonObjectProperty, obj: any, value: any): boolean {
+    if (!property || typeof value === "string" || property.isArray) return false;
+    if (property.type === "multiplevalues" || property.type === "set") return false;
+    const choices = property.getChoices(obj, () => { });
+    if (!Array.isArray(choices) || choices.length === 0 || typeof choices[0] !== "string") return false;
+    return !property.validateValue(obj, value);
   }
   private removePosOnValueToJson(property: JsonObjectProperty, value: any): any {
     if (!property.isCustom || !value) return value;
@@ -1943,23 +1988,12 @@ export class JsonObject {
   // Items of an unregistered class, such as string[], are kept as they were.
   private isEmptyItemFatal(property: JsonObjectProperty): boolean {
     if (!property || !property.className) return true;
-    let className = property.className.toLowerCase();
-    const classNamePart = property.classNamePart;
-    if (classNamePart && className.indexOf(classNamePart) < 0) className += classNamePart;
-    return !!Serializer.findClass(className);
+    return !!Serializer.findClass(property.getObjClassName(property.className));
   }
   private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
-    var res = property != null && property.className ? property.className : undefined;
-    if (!res) {
-      res = value[JsonObject.typePropertyName];
-    }
-    if (!res) return res;
-    res = res.toLowerCase();
-    const classNamePart = property.classNamePart;
-    if (classNamePart && res.indexOf(classNamePart) < 0) {
-      res += classNamePart;
-    }
-    return res;
+    // The value is not read when the property names the class: a null item of such an array gets here too.
+    const objType = !property || !property.className ? value[JsonObject.typePropertyName] : undefined;
+    return !!property ? property.getObjClassName(objType) : objType;
   }
   private checkNewObjectOnErrors(
     newObj: any,

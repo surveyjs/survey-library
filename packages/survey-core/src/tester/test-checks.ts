@@ -249,17 +249,11 @@ function getSurveyErrorTexts(context: ISurveyTestContext): Array<string> {
 function getErrorCount(context: ISurveyTestContext, target: ISurveyTestTarget): number {
   return target.kind === "survey" ? getSurveyErrorTexts(context).length : getErrorTexts(target).length;
 }
-// A question knows whether its containers are visible; a panel knows about itself only, so its
-// parents are walked here. A page has no parent to walk.
+// A survey element knows whether it and every container above it are visible, its owner question's
+// containers included. A matrix row is not a survey element: it is visible when it and its matrix are.
 function isElementVisible(obj: any): boolean {
-  if (obj.isVisible !== true) return false;
-  if (typeof obj.isVisibleInSurvey === "boolean") return obj.isVisibleInSurvey;
-  let parent: any = obj.parent;
-  while(!!parent) {
-    if (parent.isVisible === false) return false;
-    parent = parent.parent;
-  }
-  return true;
+  if (typeof obj.isVisibleWithParents === "boolean") return obj.isVisibleWithParents;
+  return obj.isVisible === true && !!obj.data && obj.data.isVisibleWithParents === true;
 }
 function getElementTitle(obj: any): string {
   // renderedHtml resolves the locale and the text piping, which is the point of checking a title.

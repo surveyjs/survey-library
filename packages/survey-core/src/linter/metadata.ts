@@ -42,11 +42,8 @@ function buildKnownKeys(props: Array<JsonObjectProperty>): KnownKeys {
 
 const COLUMN_CLASS = "matrixdropdowncolumn";
 const DEFAULT_ITEM_CLASS = "itemvalue";
-// Fallbacks for the class-name suffixes and container array keys the walker needs.
-// The serializer is the source (see getClassNamePart/buildArrayKeys); these only keep
-// the linter working if a property is ever renamed out from under it.
-const TRIGGER_SUFFIX = "trigger";
-const VALIDATOR_SUFFIX = "validator";
+// The mask classes are not resolved through a classNamePart: the maskSettings property has
+// none, and createMaskSettings always appends "mask" to the maskType.
 const MASK_SUFFIX = "mask";
 const MASK_BASE_CLASS = "masksettings";
 const MASK_NONE = "none";
@@ -107,19 +104,6 @@ export function isDescendantOf(type: string, ancestor: string): boolean {
 // the core types does not automatically hold for it.
 export function isComponentType(type: string): boolean {
   return !!type && !!ComponentCollection.Instance.getCustomQuestionByName(type);
-}
-
-// The class chain of a type, from the type itself up to the root.
-export function getClassChain(type: string): Array<string> {
-  const res: Array<string> = [];
-  let name = (type || "").toLowerCase();
-  while(!!name) {
-    const cls = findMetaClass(name);
-    if (!cls) break;
-    res.push(cls.name || name);
-    name = cls.parentName;
-  }
-  return res;
 }
 
 export function isSelectBase(type: string): boolean {
@@ -202,15 +186,13 @@ export class LintMetadata {
   private templateElementsKeys: Array<string>;
   private countBoundProps = new Map<string, CountBoundProps | undefined>();
 
-  // "Append the suffix unless the type already carries it" is how the deserializer
-  // resolves the class of a nested object (JsonMetadata.getClassNameForNewObj), and the
-  // suffix itself is registered on the owning array property as classNamePart. Read it
-  // from there instead of hardcoding "trigger"/"validator".
-  public getClassNamePart(ownerType: string, propName: string, fallback: string): string {
+  // The class-name suffix the owning array property registers as classNamePart ("trigger",
+  // "validator"). The forward direction - the class a JSON type resolves to - is the core's
+  // JsonObjectProperty.getObjClassName; the linter reads the suffix itself only to strip it.
+  public getClassNamePart(ownerType: string, propName: string): string {
     const key = ownerType + "." + propName;
     if (!this.classNameParts.has(key)) {
-      const prop = findProperty(ownerType, propName);
-      this.classNameParts.set(key, !!prop && !!prop.classNamePart ? prop.classNamePart : fallback);
+      this.classNameParts.set(key, findProperty(ownerType, propName).classNamePart);
     }
     return this.classNameParts.get(key);
   }
@@ -218,9 +200,7 @@ export class LintMetadata {
   // A validator "type" is accepted both as "expression" and as the full class name
   // "expressionvalidator": the class name the deserializer resolves it to.
   public getValidatorClassName(type: string): string {
-    const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
-    const lower = (type || "").toLowerCase();
-    return !lower || lower.indexOf(suffix) > -1 ? lower : lower + suffix;
+    return findProperty("question", "validators").getObjClassName(type || "");
   }
 
   public getValidatorExpressionProps(type: string): Array<ExpressionPropDef> {
@@ -307,9 +287,11 @@ export class LintMetadata {
   }
 
   // The JSON validator type with the class-name suffix stripped, the short form
-  // settings.supportedValidators lists.
+  // settings.supportedValidators lists. Only a suffix at the end is stripped: the core's
+  // JsonObjectProperty.getObjType replaces the first match anywhere in the name, which would
+  // change what the linter reports for a type that carries the suffix in the middle.
   public normalizeValidatorType(type: string): string {
-    const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
+    const suffix = this.getClassNamePart("question", "validators");
     const res = (type || "").toLowerCase();
     if (!!suffix && res.endsWith(suffix)) return res.substring(0, res.length - suffix.length);
     return res;
@@ -352,7 +334,7 @@ export class LintMetadata {
   }
 
   private getTriggerSuffix(): string {
-    return this.getClassNamePart("survey", "triggers", TRIGGER_SUFFIX);
+    return this.getClassNamePart("survey", "triggers");
   }
 
   public getExpressionProps(className: string): Array<ExpressionPropDef> {
@@ -488,20 +470,12 @@ export class LintMetadata {
   }
 }
 
-// Mirrors Serializer.createClass: the creator may sit on an ancestor.
-function isCreatableClass(type: string): boolean {
-  let cls = findMetaClass(type);
-  while(!!cls) {
-    if (!!cls.creator) return true;
-    cls = cls.parentName ? findMetaClass(cls.parentName) : undefined;
-  }
-  return false;
-}
-
 function isElementClass(type: string): boolean {
-  return isCreatableClass(type) && (isDescendantOf(type, "question") || isDescendantOf(type, "panel"));
+  return Serializer.isCreatableClass(type) && (isDescendantOf(type, "question") || isDescendantOf(type, "panel"));
 }
 
+// type has its suffix stripped (normalizeTriggerType), so it is appended back as is: the
+// "unless the name contains it" rule of getObjClassName would not restore "triggerxtrigger".
 function buildTriggerDef(type: string, suffix: string): TriggerTypeDef {
   const className = type + suffix;
   if (!isDescendantOf(className, "surveytrigger")) return undefined;

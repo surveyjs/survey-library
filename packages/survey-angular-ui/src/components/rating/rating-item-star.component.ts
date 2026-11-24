@@ -2,8 +2,10 @@ import { AfterViewInit, Component, Input } from "@angular/core";
 import { ListModel, Action, QuestionRatingModel, RenderedRatingItem } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-rating-item-star",
   templateUrl: "./rating-item-star.component.html",
   styleUrls: ["../../hide-host.scss"],

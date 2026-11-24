@@ -489,6 +489,10 @@ export var settings = {
    * Default value: 100
    *
    * If a question's `pageSize` exceeds this limit, this value is used as the effective page size. Set this property to 0 to remove the limit.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @since 3.2.2
    */
   maxPageSize: 100,

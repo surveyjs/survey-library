@@ -7,7 +7,9 @@ import {
 } from "../src/jsonobject";
 import { property } from "../src/decorators";
 import { ItemValue } from "../src/itemvalue";
-import { Base } from "../src/base";
+import { Base, Dependencies, PropertyAccessTracker } from "../src/base";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
+import { FunctionFactory, registerFunction } from "../src/functionsfactory";
 import { Helpers } from "../src/helpers";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -30,6 +32,10 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionFactory } from "../src/questionfactory";
 import { ComponentCollection } from "../src/question_custom";
+// Not in the Creator toolbox (ElementFactory), yet a JSON "type" creates them.
+import "../src/question_buttongroup";
+import "../src/flowpanel";
+import "../src/question_imagemap";
 
 import { describe, test, expect, vi } from "vitest";
 class Car extends Base implements ILocalizableOwner {
@@ -3287,6 +3293,12 @@ describe("JsonSerializationTests", () => {
     expect(q.getLocalizableString("description"), "There is a description after setting the value").toBeTruthy();
   });
 });
+// The properties toJSON() of a text question with only a name (and title) reads through getPropertyValueCore
+const textQuestionReadKeys = "allowClear allowFiltering autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
+  "descriptionLocation enableIf errorLocation filterOperators indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
+  "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
+  "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
+  "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width";
 describe("toJSON skips empty properties", () => {
   const customQuestionName = "tojsoncustomdropdown";
   const funcPropName = "funcSerializedProp";
@@ -3392,7 +3404,8 @@ describe("toJSON skips empty properties", () => {
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
         clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
-        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
+        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1,
+        allowFiltering: true
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
         name: "i1", isRequired: false, inputType: "text", maskType: "none", inputTextAlignment: "auto", title: "Item 1", maxLength: -1
@@ -3524,17 +3537,13 @@ describe("toJSON skips empty properties", () => {
     };
     const text = getReadKeys("q1");
     expect(text.json, "text: json").toEqual({ name: "q1", title: "Title" });
-    expect(text.keys, "text: keys").toEqual(("allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
-      "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
-      "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
-      "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
-      "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width").split(" "));
+    expect(text.keys, "text: keys").toEqual(textQuestionReadKeys.split(" "));
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
     const checkbox = getReadKeys("q2");
     expect(checkbox.json, "checkbox: json").toEqual({ name: "q2" });
-    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
+    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear allowFiltering choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
-      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
+      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation filterOperators hideIfChoicesEmpty indent isRequired " +
       "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
       "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showKeyboardHints showNoneItem showNumber showOtherItem " +
       "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
@@ -3553,6 +3562,193 @@ describe("toJSON skips empty properties", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+});
+
+describe("toJSON empty check and the observers of a property read", () => {
+  const createSurvey = (): SurveyModel => new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const surveyJson = { pages: [{ name: "page1", elements: [{ type: "text", name: "q1" }] }] };
+  // Every property survey.toJSON() of createSurvey() reads through getPropertyValueCore, per object
+  const surveyReads: { [obj: string]: string } = {
+    survey: "$schema allowResizeComment autoAdvanceAllowComplete autoAdvanceEnabled autoFocusFirstError autoFocusFirstQuestion autoGrowComment " +
+      "backgroundImage backgroundImageAttachment backgroundImageFit backgroundOpacity calculatedValues checkErrorsMode choiceShortcutsEnabled " +
+      "clearInvisibleValues commentAreaRows completedHtmlOnCondition cookieName elements firstPageIsStartPage fitToContainer gridLayoutEnabled " +
+      "headerView locale logoFit logoHeight logoPosition logoWidth matrixDragHandleArea maxCommentLength maxTextLength navigateToUrl " +
+      "navigateToUrlOnCondition navigationButtonsLocation pages partialSendEnabled previewMode progressBarInheritWidthFrom progressBarLocation " +
+      "progressBarNavigationTextLocation progressBarShowNavigationText progressBarShowPageNumbers progressBarType questionDescriptionLocation " +
+      "questionErrorLocation questionOrder questionStartIndex questionTitleLocation questionTitlePattern questionsOnPageMode readOnly readOnlyMode " +
+      "regionalFormat requiredMark showBrandInfo showCompletePage showKeyboardHints showNavigationButtons showPageNumbers showPageTitles " +
+      "showPrevButton showPreviewBeforeComplete showProgressBar showQuestionNumbers showTOC showTimer showTitle sjsVersion storeOthersAsComment " +
+      "surveyId surveyPostId surveyShowDataSaving textUpdateMode timeLimit timeLimitPerPage timerInfoMode timerLocation tocItemComponent " +
+      "tocLocation triggers validateVisitedEmptyFields width widthMode",
+    page1: "allowAdaptiveActions elements enableIf gridLayoutColumns indent innerIndent isRequired maxWidth minWidth name questionErrorLocation " +
+      "questionOrder questionStartIndex questionTitleLocation questionTitleWidth readOnly readOnlyMode requiredIf showNavigationButtons showNumber " +
+      "showQuestionNumbers startWithNewLine state timeLimit visible visibleIf width",
+    q1: textQuestionReadKeys,
+    masksettings: "saveMaskedValue"
+  };
+  const label = (obj: any): string => obj.isSurvey ? "survey" : (obj.name || obj.getType());
+  const expectedSurveyReads = (): Array<string> => {
+    const res = new Array<string>();
+    Object.keys(surveyReads).forEach(obj => surveyReads[obj].split(" ").forEach(name => res.push(obj + "." + name)));
+    return res.sort();
+  };
+  test("inside a dependency collection, the empty properties toJSON reads are collected", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    let updaterCallCount = 0;
+    Base.startCollectDependencies(() => { updaterCallCount++; }, new Base(), "json");
+    let deps: Dependencies;
+    try {
+      expect(survey.toJSON()).toEqual(surveyJson);
+    } finally {
+      deps = Base.finishCollectDependencies();
+    }
+    try {
+      expect(deps.dependencies.map(dep => label(dep.obj) + "." + dep.prop).sort()).toEqual(expectedSurveyReads());
+      q1.visibleIf = "{a} empty";
+      expect(updaterCallCount, "visibleIf was empty during toJSON, its change runs the updater").toBe(1);
+    } finally {
+      deps.dispose();
+    }
+  });
+  test("inside a useCache function, a property toJSON read as empty invalidates the cached result", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    let counter = 0;
+    registerFunction({ name: "toJsonObserversFunc", useCache: true, func: (): any => {
+      counter++;
+      return JSON.stringify(survey.toJSON()).length;
+    } });
+    try {
+      const runner = new ExpressionRunner("toJsonObserversFunc()");
+      const firstLength = runner.runValues({});
+      expect(counter, "the first run calls the function").toBe(1);
+      expect(runner.runValues({}), "the second run").toBe(firstLength);
+      expect(counter, "the second run comes from the cache").toBe(1);
+      q1.visibleIf = "{a} empty";
+      expect(runner.runValues({}), "the JSON has visibleIf").toBeGreaterThan(firstLength);
+      expect(counter, "visibleIf was empty during toJSON, its change invalidates the cache").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("toJsonObserversFunc");
+    }
+  });
+  // getSerializableValue's empty check: ItemValue.toJSON reaches it for every item property,
+  // and with storeLocaleStrings: false the loop does not skip, so every question property reaches it too
+  test.each([
+    ["default options", undefined],
+    ["storeLocaleStrings: false", { storeLocaleStrings: false }]
+  ])("with %s, an empty choice or question property toJSON reads is collected and invalidates a cached result", (_: string, options: any) => {
+    const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    let updaterCallCount = 0;
+    Base.startCollectDependencies(() => { updaterCallCount++; }, new Base(), "json");
+    let deps: Dependencies;
+    try {
+      survey.toJSON(options);
+    } finally {
+      deps = Base.finishCollectDependencies();
+    }
+    let counter = 0;
+    registerFunction({ name: "toJsonObserversItemFunc", useCache: true, func: (): any => {
+      counter++;
+      return JSON.stringify(survey.toJSON(options)).length;
+    } });
+    try {
+      const runner = new ExpressionRunner("toJsonObserversItemFunc()");
+      runner.runValues({});
+      runner.runValues({});
+      expect(counter, "the second run comes from the cache").toBe(1);
+      q1.choices[1].visibleIf = "{a} empty";
+      expect(updaterCallCount, "a choice's visibleIf: the updater runs").toBeGreaterThan(0);
+      runner.runValues({});
+      expect(counter, "a choice's visibleIf: the cache is invalidated").toBe(2);
+      updaterCallCount = 0;
+      q1.visibleIf = "{a} empty";
+      expect(updaterCallCount, "the question's visibleIf: the updater runs").toBeGreaterThan(0);
+      runner.runValues({});
+      expect(counter, "the question's visibleIf: the cache is invalidated").toBe(3);
+    } finally {
+      deps.dispose();
+      FunctionFactory.Instance.unregister("toJsonObserversItemFunc");
+    }
+  });
+  test("under a property-access tracker, toJSON records the properties it reads", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    const changed = new Array<string>();
+    // Labelled after tracking: reading a model's name here would be tracked again
+    const reads = new Array<{ model: Base, name: string }>();
+    class RecordingTracker extends PropertyAccessTracker {
+      public onPropertyAccessed(model: Base, propertyName: string) {
+        if (!this.isTrackingBlocked()) reads.push({ model: model, name: propertyName });
+        super.onPropertyAccessed(model, propertyName);
+      }
+    }
+    const tracker = new RecordingTracker((model: Base, options: any) => { changed.push(label(model) + "." + options.name); });
+    tracker.startTracking();
+    try {
+      expect(survey.toJSON()).toEqual(surveyJson);
+    } finally {
+      tracker.stopTracking();
+    }
+    expect(Array.from(new Set(reads.map(read => label(read.model) + "." + read.name))).sort()).toEqual(expectedSurveyReads());
+    tracker.subscribe();
+    try {
+      q1.visibleIf = "{a} empty";
+      expect(changed, "visibleIf was empty during toJSON, its change notifies the tracker").toEqual(["q1.visibleIf"]);
+    } finally {
+      tracker.unsubscribe();
+    }
+  });
+  test("a wrapper keeps the empty check through getOriginalByProperty", () => {
+    const customName = "tojsonobserverscustom";
+    ComponentCollection.Instance.add({ name: customName, inheritBaseProps: true, questionJSON: { type: "dropdown", choices: [1, 2] } });
+    const spies = new Array<any>();
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: customName, name: "q1", allowClear: false },
+        { type: "matrixdropdown", name: "q2", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }, { name: "c2", title: "Column 2" }] },
+        { type: "multipletext", name: "q3", items: [{ name: "i1", title: "Item 1" }, { name: "i2" }] }
+      ] });
+      const q2 = <any>survey.getQuestionByName("q2");
+      const q3 = <any>survey.getQuestionByName("q3");
+      const wrappers: Array<Base> = [survey.getQuestionByName("q1"), q2.columns[0], q2.columns[1], q3.items[0], q3.items[1]];
+      wrappers.forEach(obj => {
+        expect(obj.getOriginalObj(), label(obj) + " is a wrapper").not.toBe(obj);
+        spies.push(vi.spyOn(obj, "getOriginalByProperty"));
+      });
+      expect(survey.toJSON()).toEqual({ pages: [{ name: "page1", elements: [
+        { type: customName, name: "q1", allowClear: false },
+        { type: "matrixdropdown", name: "q2", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }, { name: "c2", title: "Column 2" }] },
+        { type: "multipletext", name: "q3", items: [{ name: "i1", title: "Item 1" }, { name: "i2" }] }
+      ] }] });
+      wrappers.forEach((obj, index) => {
+        const names = new Set(spies[index].mock.calls.map((call: Array<any>) => call[0]));
+        Serializer.getProperties(obj.getType()).forEach(prop => {
+          if (!prop.isSerializable || prop.isSerializableFunc || prop.onSerializeValue) return;
+          expect(names.has(prop.name), label(obj) + "." + prop.name + " is checked through getOriginalByProperty").toBe(true);
+        });
+      });
+    } finally {
+      spies.forEach(spy => spy.mockRestore());
+      ComponentCollection.Instance.remove(customName);
+    }
+  });
+  test("inside survey.toJSON(), an object with getPropertyValueCoreHandler reads every property through it", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    const keys = new Set<string>();
+    q1.getPropertyValueCoreHandler = (hash: any, key: string): any => {
+      keys.add(key);
+      return hash[key];
+    };
+    try {
+      expect(survey.toJSON()).toEqual(surveyJson);
+    } finally {
+      q1.getPropertyValueCoreHandler = undefined;
+    }
+    expect(Array.from(keys).sort()).toEqual(textQuestionReadKeys.split(" "));
   });
 });
 
@@ -3912,5 +4108,135 @@ describe("A null item in a JSON array", () => {
   test("a nested null inside an array defaultValue is kept", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q", defaultValue: [[null]] }] });
     expect(survey.getQuestionByName("q").defaultValue).toEqual([[null]]);
+  });
+});
+
+describe("A value of the wrong type in the JSON", () => {
+  const incorrectErrors = (survey: SurveyModel) => (survey.jsonErrors || []).filter(e => e.type === "incorrectvalue");
+  test.each([
+    ["question titleLocation", { elements: [{ type: "text", name: "q", title: "T", titleLocation: 1 }] }, "q", "titleLocation"],
+    ["text inputType", { elements: [{ type: "text", name: "q", title: "T", inputType: 1 }] }, "q", "inputType"],
+    ["survey progressBarLocation", { progressBarLocation: true, title: "T", elements: [{ type: "text", name: "q" }] }, "", "progressBarLocation"],
+    ["survey questionErrorLocation", { questionErrorLocation: 1, title: "T", elements: [{ type: "text", name: "q" }] }, "", "questionErrorLocation"],
+    ["survey showQuestionNumbers", { showQuestionNumbers: 1, title: "T", elements: [{ type: "text", name: "q" }] }, "", "showQuestionNumbers"],
+  ])("a non-string %s loads, keeps its default and is reported", (_, json: any, qName, propName) => {
+    const survey = new SurveyModel(json);
+    const obj: any = qName ? survey.getQuestionByName(qName) : survey;
+    const defaultObj: any = qName ? new QuestionTextModel("q") : new SurveyModel();
+    expect(obj[propName]).toBe(defaultObj[propName]);
+    expect(obj.title).toBe("T");
+    const errors = incorrectErrors(survey);
+    expect(errors).toHaveLength(1);
+    expect((<any>errors[0]).property.name).toBe(propName);
+  });
+  test("boolean values the API accepts, and numeric choices, load with no error", () => {
+    [true, false].forEach(val => {
+      const survey = new SurveyModel({ showProgressBar: val, showQuestionNumbers: val, elements: [{ type: "text", name: "q", indent: 5 }] });
+      expect(survey.jsonErrors).toBeFalsy();
+      expect(survey.getQuestionByName("q").indent).toBe(5);
+    });
+  });
+  test("a set property such as acceptedCategories keeps an array value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "file", name: "q", acceptedCategories: ["image", "video"] }] });
+    expect(survey.jsonErrors).toBeFalsy();
+    expect((<any>survey.getQuestionByName("q")).acceptedCategories).toEqual(["image", "video"]);
+  });
+  test("a numeric question, page and panel name loads as a string, and {5} finds the question", () => {
+    const survey = new SurveyModel({
+      pages: [{ name: 1, elements: [
+        { type: "panel", name: 2, elements: [{ type: "text", name: 5 }] },
+        { type: "text", name: "q2", visibleIf: "{5} = 'a'" },
+      ] }],
+    });
+    expect(survey.pages[0].name).toBe("1");
+    expect(survey.getPanelByName("2")).toBeTruthy();
+    const q = survey.getQuestionByName("5");
+    expect(q.name).toBe("5");
+    expect(survey.getQuestionByName("q2").isVisible).toBe(false);
+    q.value = "a";
+    expect(survey.getQuestionByName("q2").isVisible).toBe(true);
+    expect(survey.data).toEqual({ "5": "a" });
+  });
+  test("a name of 0 loads as \"0\", and a boolean or object name loads as no name", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: 0 }, { type: "text", name: true }, { type: "text", name: {} }, { type: "text", name: "q4" },
+    ] });
+    const questions = survey.getAllQuestions();
+    expect(questions).toHaveLength(4);
+    expect(questions.map(q => q.name)).toEqual(["0", "", "", "q4"]);
+  });
+  test("effectiveColSpan from JSON or the Serializer goes to colSpan", () => {
+    const survey = new SurveyModel({ gridLayoutEnabled: true, elements: [
+      { type: "text", name: "q1", effectiveColSpan: 2 },
+      { type: "panel", name: "p1", effectiveColSpan: 2, elements: [{ type: "text", name: "q2" }] },
+      { type: "text", name: "q3" },
+    ] });
+    const q1 = survey.getQuestionByName("q1");
+    const panel = survey.getPanelByName("p1");
+    expect(q1.colSpan).toBe(2);
+    expect(panel.colSpan).toBe(2);
+    expect(q1.toJSON()).toEqual({ name: "q1", colSpan: 2 });
+    const q3 = survey.getQuestionByName("q3");
+    Serializer.findProperty("text", "effectiveColSpan").setValue(q3, 2, null);
+    expect(q3.colSpan).toBe(2);
+    expect(new SurveyModel({ pages: [{ name: "p1", effectiveColSpan: 2, elements: [{ type: "text", name: "q" }] }] }).pages).toHaveLength(1);
+  });
+  test("a page name that does not resolve leaves the question on its page", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1", page: "missing", title: "T" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2", page: "p1" }] },
+    ] });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.page.name).toBe("p1");
+    expect(q1.title).toBe("T");
+    expect(survey.getQuestionByName("q2").page.name).toBe("p1");
+  });
+  test("a page loaded later in the JSON cannot be reached, so the question stays where it is", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1", page: "p2" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2" }] },
+    ] });
+    expect(survey.getQuestionByName("q1").page.name).toBe("p1");
+  });
+  test("a numeric sjsVersion loads", () => {
+    const survey = new SurveyModel({ sjsVersion: 3, elements: [{ type: "text", name: "q" }] });
+    expect(survey.getAllQuestions()).toHaveLength(1);
+  });
+});
+
+describe("Serializer.isCreatableClass and JsonObjectProperty.getObjClassName", () => {
+  test("isCreatableClass answers whether createClass builds an object", () => {
+    expect(["buttongroup", "flowpanel", "imagemap", "text", "Text"].map(name => Serializer.isCreatableClass(name)),
+      "registered classes with a creator").toEqual([true, true, true, true, true]);
+    expect(["", "nosuchclass", "constructor", undefined, null, 5].map(name => Serializer.isCreatableClass(<any>name)),
+      "nothing to create, no throw").toEqual([false, false, false, false, false, false]);
+    expect(Serializer.isCreatableClass("question"), "a class with no creator in its chain").toBe(false);
+    expect(!!Serializer.createClass("question"), "createClass agrees").toBe(false);
+  });
+  test("isCreatableClass and createClass find a creator on an ancestor", () => {
+    Serializer.addClass("textwithoutcreator", [], undefined, "text");
+    try {
+      expect(Serializer.isCreatableClass("textwithoutcreator")).toBe(true);
+      const obj = Serializer.createClass("textwithoutcreator");
+      expect(obj.getType(), "created by the text creator as a custom type").toBe("textwithoutcreator");
+      expect(obj.getTemplate(), "rendered as a text question").toBe("text");
+    } finally {
+      Serializer.removeClass("textwithoutcreator");
+    }
+  });
+  test("getObjClassName completes a JSON type with classNamePart", () => {
+    const triggers = Serializer.findProperty("survey", "triggers");
+    expect(triggers.getObjClassName("setvalue"), "short name").toBe("setvaluetrigger");
+    expect(triggers.getObjClassName("SetValueTrigger"), "full name, lower-cased").toBe("setvaluetrigger");
+    expect(triggers.getObjClassName("triggerx"), "the part anywhere in the name is kept as is").toBe("triggerx");
+    expect(triggers.getObjClassName(""), "empty").toBe("");
+    expect(triggers.getObjClassName(undefined as any), "no type").toBeUndefined();
+    expect(Serializer.findProperty("question", "validators").getObjClassName("expression")).toBe("expressionvalidator");
+  });
+  test("getObjClassName: the property's className wins over the JSON type", () => {
+    const choices = Serializer.findProperty("selectbase", "choices");
+    expect(!!choices.className, "an array of a class").toBe(true);
+    expect(choices.getObjClassName("anything")).toBe(choices.className.toLowerCase());
+    expect(Serializer.findProperty("question", "name").getObjClassName("Text"), "no className and no part").toBe("text");
   });
 });

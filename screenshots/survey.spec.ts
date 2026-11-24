@@ -888,6 +888,51 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-completed-before.png");
     });
 
+    test("Survey complete pages plain text", async ({ page }) => {
+      await page.setViewportSize({ width: 1600, height: 900 });
+      const json = {
+        pages: [{
+          elements: [
+            { type: "text", name: "name", title: "Name" },
+            { type: "checkbox", name: "os", title: "OS", choices: ["Windows", "Linux", "Macintosh OSX"] }
+          ]
+        }]
+      };
+      await initSurvey(page, framework, json);
+      await page.click(".sd-navigation__complete-btn");
+      await compareScreenshot(page, ".sd-root-modern", "survey-completed-plain-text.png");
+      await page.evaluate(() => {
+        document.body.style.setProperty("--sjs-corner-radius", "0px");
+        (window as any).survey.clear();
+        (window as any).survey.isCompletedBefore = true;
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-completed-before-plain-text.png");
+    });
+
+    test("Survey loading page", async ({ page }) => {
+      await page.setViewportSize({ width: 1600, height: 900 });
+      const json = {
+        pages: [{
+          elements: [
+            { type: "text", name: "name", title: "Name" },
+            { type: "checkbox", name: "os", title: "OS", choices: ["Windows", "Linux", "Macintosh OSX"] }
+          ]
+        }]
+      };
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => {
+        (window as any).survey.beginLoading();
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-loading-plain-text.png");
+
+      await page.evaluate(() => {
+        (window as any).survey.endLoading();
+        (window as any).survey.loadingHtml = "<h3>Please wait</h3><p>The survey is still loading.</p>";
+        (window as any).survey.beginLoading();
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-loading.png");
+    });
+
     test("Check survey in compact mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
@@ -1461,10 +1506,8 @@ frameworks.forEach(framework => {
       };
 
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-no-scrolling.png");
       await page.click(".sd-navigation__next-btn");
-      await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling-second-page.png");
     });
 
@@ -1487,7 +1530,6 @@ frameworks.forEach(framework => {
       };
 
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling.png");
     });
     test("Check survey navigation bar top", async({ page }) => {

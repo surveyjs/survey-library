@@ -23,10 +23,7 @@ const initPopupSurvey = async (page, framework, json) => {
       );
     };
     model.onComplete.add(surveyComplete);
-    if (framework === "knockout") {
-      const popupSurvey = new window["Survey"].PopupSurvey(undefined, model);
-      popupSurvey.show();
-    } else if (framework === "react") {
+    if (framework === "react") {
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement").innerHTML = "";
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
@@ -37,23 +34,8 @@ const initPopupSurvey = async (page, framework, json) => {
       })
       }
       ));
-    } else if (framework === "vue") {
-      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-      document.getElementById("surveyElement").innerHTML =
-        "<popup-survey :survey='survey'/>";
-      !!window["vueApp"] && window["vueApp"].$destroy();
-      window["vueApp"] = new window["Vue"]({
-        el: "#surveyElement",
-        data: { survey: model },
-      });
     } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model, true, false);
-    } else if (framework === "jquery-ui") {
-      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-      document.getElementById("surveyElement").innerHTML = "";
-      window["$"]("#surveyElement").PopupSurvey({
-        model: model
-      });
     } else if (framework === "survey-js-ui") {
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement")!.innerHTML = "";

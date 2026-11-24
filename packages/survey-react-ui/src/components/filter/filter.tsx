@@ -1,0 +1,404 @@
+// The Filter Control (#11890). Everything it shows is survey-core's: the chips, Clear All, Save and
+// Filters are actions the question owns (filter-toolbars.ts), drawn with sv-action-bar; a badge's
+// popup is a FilterFieldPopup; the Filters dialog is a FilterModal over a FilterConditionsEditor, and
+// New Preset and Edit Preset are FilterPresetDialogs; the classes are the theme's "filter"
+// entry. This file only lays the parts out and draws the few pieces that are not standard components:
+// a checkbox list entry, the popup's frame, the dialogs' content.
+// Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
+import * as React from "react";
+import {
+  Action, ActionDropdownViewModel, Base, FilterChip, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
+  FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
+  filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
+  filterPresetDialogComponentName, filterSaveAsPopupComponentName
+} from "survey-core";
+import { ReactQuestionFactory } from "../../reactquestion_factory";
+import { ReactElementFactory } from "../../element-factory";
+import { SurveyElementBase, SurveyQuestionElementBase } from "../../reactquestion_element";
+import { ISurveyCreator } from "../../reactquestion";
+import { SurveyPage } from "../../page";
+import { SurveyActionBar } from "../action-bar/action-bar";
+import { SurveyActionBarItem } from "../action-bar/action-bar-item";
+import { List } from "../list/list";
+import { Popup } from "../popup/popup";
+import { SvgIcon } from "../svg-icon/svg-icon";
+
+// The editor survey is rendered as a page, not as a whole Survey (a Survey inside another survey's
+// question would put a <form> inside a <form>), so what the Survey component would answer for its
+// questions is answered here, from the editor survey itself.
+class FilterEditorCreator implements ISurveyCreator {
+  constructor(private survey: SurveyModel) {
+  }
+  public createQuestionElement(question: Question): React.JSX.Element | null {
+    return ReactQuestionFactory.Instance.createQuestion(question.isDefaultRendering() ? question.getTemplate() : question.getComponentName(),
+      { question: question, isDisplayMode: question.isInputReadOnly, creator: this });
+  }
+  public renderError(key: string, error: SurveyError, cssClasses: any, element?: any): React.JSX.Element {
+    return ReactElementFactory.Instance.createElement(this.survey.questionErrorComponent, { key: key, error, cssClasses, element });
+  }
+  public questionTitleLocation(): string {
+    return this.survey.questionTitleLocation;
+  }
+  public questionErrorLocation(): string {
+    return this.survey.questionErrorLocation;
+  }
+}
+
+// What an editor survey is drawn from: a FilterConditionsEditor, or a preset dialog's form or survey.
+interface IFilterEditorSurvey {
+  survey: SurveyModel;
+  isDisposed: boolean;
+}
+// The page of an editor survey: the Filters dialog's fields, a "condition" popup's, and a preset
+// dialog's form and fields.
+class FilterEditorPage extends SurveyElementBase<{ editor: IFilterEditorSurvey, className: string }, any> {
+  private rootRef: React.RefObject<HTMLDivElement> = React.createRef();
+  private creator: FilterEditorCreator;
+  private creatorSurvey: SurveyModel;
+  // The survey whose rootElement this page set, and the element it set: given back on unmount.
+  private rootSurvey: SurveyModel;
+  private rootElement: HTMLElement;
+  private getCreator(survey: SurveyModel): FilterEditorCreator {
+    if (this.creatorSurvey !== survey) {
+      this.creator = new FilterEditorCreator(survey);
+      this.creatorSurvey = survey;
+    }
+    return this.creator;
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.updateRootElement();
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.updateRootElement();
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.clearRootElement();
+  }
+  // The Survey component would set this; a page rendered on its own leaves it to its host. It is
+  // cleared on unmount, unless something else set it in the meantime.
+  private updateRootElement(): void {
+    const editor = this.props.editor;
+    if (!!editor && !editor.isDisposed && !!this.rootRef.current) {
+      if (this.rootSurvey !== editor.survey) {
+        this.clearRootElement();
+      }
+      editor.survey.rootElement = this.rootRef.current;
+      this.rootSurvey = editor.survey;
+      this.rootElement = this.rootRef.current;
+    }
+  }
+  private clearRootElement(): void {
+    const survey = this.rootSurvey;
+    if (!!survey && !survey.isDisposed && survey.rootElement === this.rootElement) {
+      survey.rootElement = undefined;
+    }
+    this.rootSurvey = undefined;
+    this.rootElement = undefined;
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const editor = this.props.editor;
+    if (!editor || editor.isDisposed) return null;
+    const survey = editor.survey;
+    // No page while every field is hidden - Search in Filters found none, or a preset's text stands in
+    // their place: a survey has no current page with nothing visible on it.
+    const page = !!survey.currentPage ? <SurveyPage survey={survey} page={survey.currentPage} css={survey.css} creator={this.getCreator(survey)} /> : null;
+    return <div className={this.props.className} ref={this.rootRef}>{page}</div>;
+  }
+}
+
+// The Filters dialog's content: Search in Filters, the presets with Add New and Edit Selected, the text
+// of a preset that does not decompose with Edit..., "nothing found" and the fields; its footer is the
+// dialog's own. It watches the holder, so an emptied holder unmounts the content before survey-core
+// disposes the dialog's model: a holder never holds a disposed one.
+export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get modal(): FilterModal {
+    const holder = this.props.holder;
+    return !!holder ? holder.modal : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const modal = this.modal;
+    if (!modal) return !!holder ? [holder] : [];
+    return [holder, modal, modal.presetsToolbar, modal.expressionToolbar];
+  }
+  private renderSearch(modal: FilterModal): React.JSX.Element {
+    const css = modal.cssClasses;
+    const searchCss = modal.searchCss;
+    return <div className={css.modalSection}>
+      <div className={searchCss.root}>
+        <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
+        <input type="text" autoComplete="off" className={searchCss.control} value={modal.filterText} placeholder={modal.searchPlaceholder}
+          aria-label={modal.searchPlaceholder} onChange={(e) => { modal.filterText = e.target.value; }} />
+        {modal.showSearchClear ? <SurveyActionBarItem item={modal.searchClearAction} /> : null}
+      </div>
+    </div>;
+  }
+  private renderPresets(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.presetsToolbar.hasVisibleActions) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalSection} role="group" aria-labelledby={modal.presetsTitleId}>
+      <div className={css.modalSectionHeader}>
+        <div className={css.modalSectionTitle} id={modal.presetsTitleId}>{modal.presetsTitle}</div>
+      </div>
+      <SurveyActionBar model={modal.presetsToolbar} />
+    </div>;
+  }
+  private renderExpression(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.showExpression) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalSection + " " + css.modalExpression}>
+      <div className={css.modalSectionTitle}>{modal.expressionTitle}</div>
+      <div className={css.modalExpressionText}>{modal.presetExpression}</div>
+      <SurveyActionBar model={modal.expressionToolbar} />
+    </div>;
+  }
+  private renderNothingFound(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.isNothingFound) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalNothingFound}>
+      <SvgIcon className={css.modalNothingFoundIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
+      <div>{modal.nothingFoundText}</div>
+    </div>;
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const modal = this.modal;
+    if (!modal) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalContent}>
+      {this.renderSearch(modal)}
+      {this.renderPresets(modal)}
+      {this.renderExpression(modal)}
+      {this.renderNothingFound(modal)}
+      <FilterEditorPage editor={modal.editor} className={modal.editorCss} />
+    </div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterModalComponentName,
+  (props) => { return React.createElement(SurveyFilterModal, props); });
+
+// New Preset and Edit Preset: the form - the name and the tagbox of Contains, or the text - and the
+// dialog's survey - the fields' editors in a frame and the AI description with its Create or Edit; the
+// footer is the dialog's own. A form made anew (Edit as Expression, an AI answer) is drawn anew, keyed
+// by its survey's uniqueId: element ids restart in every survey, so a page id would be the same for
+// each new form. The dialog's survey lives as long as the dialog, and its ids keep counting: it needs
+// no key.
+export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get dialog(): FilterPresetDialog {
+    const holder = this.props.holder;
+    return !!holder ? holder.presetDialog : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const dialog = this.dialog;
+    if (!dialog) return !!holder ? [holder] : [];
+    return [holder, dialog];
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const dialog = this.dialog;
+    if (!dialog) return null;
+    const form = dialog.form;
+    // The page is empty with no field picked and no description (see hasSurveyContent).
+    const hasFields = dialog.hasSurveyContent;
+    return <div className={dialog.contentCss}>
+      {!!form ? <FilterEditorPage key={form.uniqueId} editor={{ survey: form, isDisposed: dialog.isDisposed }}
+        className={dialog.formCss} /> : null}
+      {hasFields ? <FilterEditorPage editor={{ survey: dialog.survey, isDisposed: dialog.isDisposed }}
+        className={dialog.editorCss} /> : null}
+    </div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterPresetDialogComponentName,
+  (props) => { return React.createElement(SurveyFilterPresetDialog, props); });
+
+// A badge's popup: the search box (a long list, or one a value can be typed into), a checkbox list's
+// title row with its link, the list or the operator and value, and Apply.
+export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get popup(): FilterFieldPopup {
+    const holder = this.props.holder;
+    return !!holder ? holder.fieldPopup : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const popup = this.popup;
+    if (!popup) return !!holder ? [holder] : [];
+    const res: Array<Base> = [holder, popup.headerToolbar, popup.footerToolbar];
+    if (!!popup.list) res.push(popup.list);
+    return res;
+  }
+  private renderSearch(popup: FilterFieldPopup): React.JSX.Element | null {
+    const list = popup.list;
+    if (!list || !popup.showSearch) return null;
+    const css = popup.cssClasses;
+    return <div className={css.popupSearch}>
+      <SvgIcon className={css.popupSearchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
+      <input type="text" autoComplete="off" className={css.popupSearchInput} value={list.filterString || ""}
+        placeholder={list.filterStringPlaceholder} aria-label={list.filterStringPlaceholder}
+        onChange={(e) => { list.filterString = e.target.value; }}
+        onKeyDown={(e) => { popup.onSearchKeyDown(e.nativeEvent); }} />
+    </div>;
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const popup = this.popup;
+    if (!popup) return null;
+    const css = popup.cssClasses;
+    const body = !!popup.list ? <List model={popup.list}></List> : <FilterEditorPage editor={popup.editor} className={css.editor} />;
+    const footer = popup.footerToolbar.hasActions
+      ? <div className={css.popupFooter}><SurveyActionBar model={popup.footerToolbar} /></div> : null;
+    const header = popup.showHeader ? <div className={css.popupHeader}>
+      <div className={css.popupTitle}>{popup.title}</div>
+      <SurveyActionBar model={popup.headerToolbar} />
+    </div> : null;
+    return <div className={css.popup}>
+      {this.renderSearch(popup)}
+      {header}
+      <div className={css.popupBody}>{body}</div>
+      {footer}
+    </div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterFieldPopupComponentName,
+  (props) => { return React.createElement(SurveyFilterFieldPopup, props); });
+
+// "Save as..."'s popup: the new preset's name and Save.
+export class SurveyFilterSaveAsPopup extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get popup(): FilterSaveAsPopup {
+    const holder = this.props.holder;
+    return !!holder ? holder.saveAsPopup : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const popup = this.popup;
+    if (!popup) return !!holder ? [holder] : [];
+    return [holder, popup.footerToolbar];
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const popup = this.popup;
+    if (!popup) return null;
+    const css = popup.cssClasses;
+    return <div className={css.popup}>
+      <div className={css.popupBody}><FilterEditorPage editor={popup} className={css.editor} /></div>
+      <div className={css.popupFooter}><SurveyActionBar model={popup.footerToolbar} /></div>
+    </div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterSaveAsPopupComponentName,
+  (props) => { return React.createElement(SurveyFilterSaveAsPopup, props); });
+
+// An entry of a checkbox list: drawn checked by the entry's active flag (FilterFieldPopup keeps it).
+// A value the respondent typed has no remove button: a button inside a list option is nested
+// interactive content, and unchecking the value is how it goes. The "Add" entry is its text alone.
+export class SurveyFilterListItem extends SurveyElementBase<{ model: ListModel, item: Action }, any> {
+  protected getStateElement(): Base {
+    return this.props.item;
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const item = this.props.item;
+    if (!item || !item.data || !item.data.popup) return null;
+    const popup: FilterFieldPopup = item.data.popup;
+    const css = popup.cssClasses;
+    const text = <span className={css.listItemText}>{item.title}</span>;
+    if (item.data.isAdd) return <div className={css.listItem}>{text}</div>;
+    const check = <span className={popup.getItemCheckCss(item)} aria-hidden="true">
+      <span className={css.listItemCheckDecorator}>
+        <SvgIcon iconName="icon-check-16x16" size={"auto"} css={css.listItemCheckIcon}></SvgIcon>
+      </span>
+    </span>;
+    return <div className={css.listItem}>{check}{text}</div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterListItemComponentName,
+  (props) => { return React.createElement(SurveyFilterListItem, props); });
+
+// A chip (FilterChip): the standard action button (its trailing chevron is the item's markerIconName)
+// and, while the chip can be cleared, its cross - a button of its own, which the theme draws over the
+// chip's end. Its popup is drawn by the control, outside the chips row (see
+// QuestionFilterModel.popupChips); the chip only shows that the popup is open.
+export class SurveyFilterChip extends SurveyActionBarItem {
+  private viewModel: ActionDropdownViewModel;
+  private get chip(): FilterChip {
+    return this.item as FilterChip;
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.viewModel = new ActionDropdownViewModel(this.item);
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.viewModel.dispose();
+  }
+  renderElement(): React.JSX.Element {
+    const chip = this.chip;
+    const cross = chip.isClearable ? <SurveyActionBarItem item={chip.clearAction} /> : null;
+    return <div className={chip.boxCss}>{this.renderInnerButton()}{cross}</div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterChipComponentName,
+  (props) => { return React.createElement(SurveyFilterChip, props); });
+
+export class SurveyQuestionFilter extends SurveyQuestionElementBase {
+  private chipsRef: React.RefObject<HTMLDivElement> = React.createRef();
+  protected get question(): QuestionFilterModel {
+    return this.questionBase as QuestionFilterModel;
+  }
+  protected getStateElements(): Array<Base> {
+    const q = this.question;
+    if (!q) return [];
+    // A disposed question has released its layout, and asking for it would build a new one.
+    return q.isDisposed ? [q] : [q, q.chipsLayout];
+  }
+  // FilterChipsLayout cuts the chips row to one row, and measures the row again itself whenever it
+  // changes: the renderer only attaches it and detaches it.
+  componentDidMount(): void {
+    super.componentDidMount();
+    const el = this.chipsRef.current;
+    if (!!el && !!this.question && !this.question.isDisposed) {
+      this.question.chipsLayout.attach(el);
+    }
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if (!!this.question && !this.question.isDisposed) {
+      this.question.chipsLayout.detach();
+    }
+  }
+  private renderSearch(): React.JSX.Element | null {
+    const q = this.question;
+    if (!q.showSearch) return null;
+    const css = q.cssClasses;
+    const searchCss = q.searchCss;
+    return <div className={css.searchRow}>
+      <div className={q.searchRootCss}>
+        <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
+        <input type="text" autoComplete="off" className={searchCss.control} value={q.searchString} placeholder={q.searchPlaceholder}
+          aria-label={q.searchLabel} disabled={q.isSearchDisabled}
+          onChange={(e) => { q.searchString = e.target.value; }} />
+        {q.showSearchClear ? <SurveyActionBarItem item={q.searchClearAction} /> : null}
+      </div>
+      <SurveyActionBar model={q.searchToolbar} />
+    </div>;
+  }
+  // The chips' popups are drawn outside the chips row: on a phone the row scrolls sideways, and iOS
+  // Safari keeps a fixed popup inside such a row.
+  protected renderElement(): React.JSX.Element {
+    const q = this.question;
+    const css = q.cssClasses;
+    return <div className={q.getQuestionRootCss()}>
+      {this.renderSearch()}
+      <div className={css.chipsRow}>
+        <div className={q.chipsCss} ref={this.chipsRef}>
+          <SurveyActionBar model={q.chipsToolbar} />
+        </div>
+        <SurveyActionBar model={q.clearToolbar} />
+      </div>
+      <div className={css.popups}>
+        {q.popupChips.map((chip: FilterChip) => <Popup key={chip.id} model={chip.popupModel} />)}
+      </div>
+    </div>;
+  }
+}
+
+ReactQuestionFactory.Instance.registerQuestion("filter",
+  (props) => { return React.createElement(SurveyQuestionFilter, props); });

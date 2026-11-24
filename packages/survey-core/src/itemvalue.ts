@@ -14,6 +14,8 @@ import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
+import type { HashTable } from "./helpers";
 
 interface IItemConditionRun {
   expression: string;
@@ -68,6 +70,11 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text, this) : text;
   }
+  // The owner processes the item's texts, so its context adds the names
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+    const owner = this.locOwner;
+    return !!owner && typeof owner.getTextContextKeys === "function" ? owner.getTextContextKeys(changes) : undefined;
+  }
 
   public static get Separator() {
     return settings.itemValueSeparator;
@@ -109,7 +116,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     const valIsEmpty = Helpers.isValueEmpty(val);
     for (var i = 0; i < items.length; i++) {
       if (valIsEmpty && Helpers.isValueEmpty(items[i].value)) return items[i];
-      if (Helpers.isTwoValueEquals(items[i].value, val, false, true, false)) return items[i];
+      if (Helpers.checkIfValuesEqual(items[i].value, val, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return items[i];
     }
     return null;
   }
@@ -120,9 +127,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var item = ItemValue.getItemByValue(items, val);
     return item !== null ? item.textOrHtml : "";
   }
-  public static locStrsChanged(items: Array<ItemValue>) {
+  public static locStrsChanged(items: Array<ItemValue>, changes?: ChangedKeys) {
     for (var i = 0; i < items.length; i++) {
-      items[i].locStrsChanged();
+      items[i].locStrsChanged(changes);
     }
   }
   public static runConditionsForItems(
@@ -209,7 +216,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   private static runItemCondition(item: ItemValue, runner: ConditionRunner, isVisible: boolean, properties: any): boolean {
     const lastRun = isVisible ? item.lastVisibleConditionRun : item.lastEnableConditionRun;
     if (!!lastRun && lastRun.expression === runner.expression && !runner.isAsync &&
-      Helpers.isTwoValueEquals(lastRun.value, item.value, false, true, false)) {
+      Helpers.checkIfValuesEqual(lastRun.value, item.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
       const owner = item.locOwner;
       if (owner instanceof Question && owner.canSkipItemCondition(runner)) return lastRun.result;
     }
@@ -272,6 +279,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     res.onGetTextCallback = (txt) => {
       return this.onGetText(txt);
     };
+    // An empty text shows the item's own value (or a slider label's format)
+    res.isTextCallbackPure = true;
     return res;
   }
   protected onGetText(text:string):string {
@@ -413,7 +422,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
-      Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) {
+      Helpers.checkIfValuesEqual(this.value, this.locTextValue.getLocaleText(""), { ignoreOrder: false, caseSensitive: true, trimStrings: false }))) {
       return false;
     }
     return true;
@@ -575,8 +584,8 @@ Base.createItemValue = function (source: any, type?: string): any {
   item.setData(source);
   return item;
 };
-Base.itemValueLocStrChanged = function (arr: Array<any>): void {
-  ItemValue.locStrsChanged(arr);
+Base.itemValueLocStrChanged = function (arr: Array<any>, changes?: ChangedKeys): void {
+  ItemValue.locStrsChanged(arr, changes);
 };
 
 JsonObjectProperty.getItemValuesDefaultValue = (val: any, type: string): Array<ItemValue> => {

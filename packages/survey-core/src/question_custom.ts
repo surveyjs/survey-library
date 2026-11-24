@@ -1,4 +1,5 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, NestedElementVisit, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -537,10 +538,10 @@ export abstract class QuestionCustomModelBase extends Question
   protected get supportsQuestionView(): boolean {
     return false;
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.getElement()) {
-      this.getElement().locStrsChanged();
+      this.getElement().locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -818,6 +819,7 @@ export abstract class QuestionCustomModelBase extends Question
 }
 
 export class QuestionCustomModel extends QuestionCustomModelBase {
+  public hasDisplayTexts(): boolean { return !!this.contentQuestion && this.contentQuestion.hasDisplayTexts(); }
   private questionWrapper: Question;
   private hasJSONTitle: boolean;
   public getTemplate(): string {
@@ -835,6 +837,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   public get hasPlainInput(): boolean {
     return !!this.contentQuestion ? this.contentQuestion.hasPlainInput : super.hasPlainInput;
+  }
+  public get isFilterable(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.isFilterable : super.isFilterable;
+  }
+  public get hasNestedFilterFields(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.hasNestedFilterFields : super.hasNestedFilterFields;
   }
   /* The wrapped question decides: a wrapped signaturepad, html or image reports a string value type
      while it excludes itself. */

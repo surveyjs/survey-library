@@ -23,10 +23,10 @@ export var indonesianStrings = {
   sortAZText: "Alfabet, A - Z",
   // [Auto-translated] "Alphabet, Z - A"
   sortZAText: "Alfabet, Z - A",
-  // [Auto-translated] "Newest first"
-  sortNewestFirstText: "Pertama yang terbaru",
-  // [Auto-translated] "Oldest first"
-  sortOldestFirstText: "Pertama kali tertua",
+  // "Newest first"
+  sortNewestFirstText: "Terbaru lebih dulu",
+  // "Oldest first"
+  sortOldestFirstText: "Terlama lebih dulu",
   // [Auto-translated] "Sorted by {0}"
   sortOrderText: "Diurutkan berdasarkan {0}",
   // [Auto-translated] "{0} ({1})"
@@ -35,20 +35,20 @@ export var indonesianStrings = {
   sortOrderNextText: "{0}, lalu {1}",
   // [Auto-translated] "Sort by"
   sortByText: "Urutkan berdasarkan",
-  // [Auto-translated] "Default"
-  sortDefaultText: "Gagal bayar",
+  // "Default"
+  sortDefaultText: "Bawaan",
   // [Auto-translated] "Sort field"
   sortFieldAriaLabel: "Kolom pengurutan",
   // [Auto-translated] "Sort order"
   sortDirectionAriaLabel: "Urutan pengurutan",
   // [Auto-translated] "Add sort level"
   sortAddLevelText: "Tambahkan tingkat pengurutan",
-  // [Auto-translated] "Remove sort level {0}"
-  sortRemoveLevelText: "Hapus {0} tingkat pengurutan",
-  // [Auto-translated] "Sort field {0}"
-  sortLevelFieldAriaLabel: "Urutkan bidang {0}",
-  // [Auto-translated] "Sort order {0}"
-  sortLevelDirectionAriaLabel: "Urutkan urutan {0}",
+  // "Remove sort level {0}"
+  sortRemoveLevelText: "Hapus tingkat pengurutan {0}",
+  // "Sort field {0}"
+  sortLevelFieldAriaLabel: "Kolom pengurutan {0}",
+  // "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Urutan pengurutan {0}",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
   // [Auto-translated] "Add New"
@@ -87,8 +87,8 @@ export var indonesianStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Menjawab pertanyaan {0} / {1}",
-  // [Auto-translated] "Question {0} of {1}"
-  questionPositionProgressText: "Pertanyaan {0} {1}",
+  // "Question {0} of {1}"
+  questionPositionProgressText: "Pertanyaan {0} dari {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
   // "Thank you for completing the survey"
@@ -129,8 +129,8 @@ export var indonesianStrings = {
   maxError: "Nilai tidak boleh lebih besar dari {0}",
   // [Auto-translated] "Invalid input"
   invalidInputError: "Masukan tidak valid",
-  // [Auto-translated] "Numbers are not allowed."
-  textNoDigitsAllow: "Nomor tidak diperbolehkan.",
+  // "Numbers are not allowed."
+  textNoDigitsAllow: "Angka tidak diperbolehkan.",
   // [Auto-translated] "Please complete the value to match the required format."
   incompletePatternError: "Lengkapi nilai agar sesuai dengan format yang diperlukan.",
   // "Please enter at least {0} character(s)."
@@ -165,8 +165,8 @@ export var indonesianStrings = {
   fileSizeUnits: "Byte, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Jumlah maksimum file yang dapat Anda unggah adalah {0}.",
-  // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
-  noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'.",
+  // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
+  noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk event 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
   // [Auto-translated] "The value '{0}' is not one of the available choices."
@@ -273,24 +273,24 @@ export var indonesianStrings = {
   questionTitlePatternText: "Judul pertanyaan",
   // [Auto-translated] "Cancel"
   modalCancelButtonText: "Membatalkan",
-  // [Auto-translated] "Apply"
-  modalApplyButtonText: "Berlaku",
+  // "Apply"
+  modalApplyButtonText: "Terapkan",
   // [Auto-translated] "Type to search..."
   filterStringPlaceholder: "Ketik untuk mencari...",
   // [Auto-translated] "No data to display"
   emptyMessage: "Tidak ada data untuk ditampilkan",
-  // [Auto-translated] "Loading..."
-  loadingPage: "Loading...",
-  // [Auto-translated] "Loading..."
-  loadingData: "Loading...",
+  // "Loading..."
+  loadingPage: "Memuat...",
+  // "Loading..."
+  loadingData: "Memuat...",
   // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Belum ada entri.\nKlik tombol di bawah ini untuk menambahkan entri baru.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Tidak ada entri",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel Baru",
-  // [Auto-translated] "More"
-  more: "Lebih",
+  // "More"
+  more: "Lainnya",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OKE",
   // [Auto-translated] "All choices are selected for ranking"
@@ -303,12 +303,128 @@ export var indonesianStrings = {
   cancel: "Membatalkan",
   // "Create \"{0}\" item..."
   createCustomItem: "Buat item \"{0}\"...",
-  // [Auto-translated] "Table of contents"
-  toc: "Indeks",
+  // "Table of contents"
+  toc: "Daftar isi",
   // [Auto-translated] "Progress bar"
   progressbar: "Bilah kemajuan",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Halaman {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Kosong",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Tidak kosong",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Sama",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Tidak sama",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Berisi",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Tidak mengandung",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Salah satu dari",
+  // "None of"
+  conditionOperatorNoneof: "Tidak satu pun dari",
+  // "All of"
+  conditionOperatorAllof: "Semua dari",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Lebih besar dari",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Kurang dari",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Lebih besar dari atau sama dengan",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Kurang dari atau sama dengan",
+  // [Auto-translated] "Save"
+  filterSave: "Simpan",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filter",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filter: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filter",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Cari",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Cari berdasarkan {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Tampilkan Lebih Banyak",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Tampilkan Lebih Sedikit",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Bersihkan Semua",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Bersihkan {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Preset",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Simpan sebagai...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Simpan",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Tambahkan \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Preset",
+  // "Show {0} items"
+  filterShowResultsCount: "Tampilkan {0} item",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Tampilkan 1 item",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Tampilkan hasil",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Preset Baru",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nama",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Berisi",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Preset dengan nama ini sudah ada.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Tambahkan setidaknya satu kondisi.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Masukkan sebuah ekspresi.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Ekspresi tersebut tidak valid.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Edit sebagai Ekspresi",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Edit sebagai Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Ketik ekspresi di sini...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Edit Preset",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Hapus",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Tambahkan Baru...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Edit Dipilih...",
+  // "{0} Expression"
+  filterPresetExpression: "Ekspresi {0}",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Cari di Filter",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Tidak ada yang ditemukan, coba kata kunci yang berbeda",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Buat preset dengan AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Edit preset dengan AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Misalnya, \"Kopi & Teh dari Jerman\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Buat",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Edit",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Menciptakan...",
+  // "Editing..."
+  filterAiEditing: "Mengedit...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI tidak bisa membuat filter. Coba lagi.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI tidak bisa membuat filter seperti ini.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "memilih",
   // [Auto-translated] "to toggle"
@@ -321,8 +437,8 @@ export var indonesianStrings = {
   keyboardHintSubmitText: "mengajukan",
   // [Auto-translated] "or"
   keyboardHintOrText: "atau",
-  // [Auto-translated] "for a new line"
-  keyboardHintNewLineText: "untuk lini baru",
+  // "for a new line"
+  keyboardHintNewLineText: "untuk baris baru",
   // [Auto-translated] "to next option"
   keyboardHintNextItemText: "ke opsi berikutnya",
   // [Auto-translated] "to move"

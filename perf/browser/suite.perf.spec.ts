@@ -8,6 +8,7 @@ import { summarize, median } from "../harness/stats.ts";
 import { sampleLoop } from "../harness/sample.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { suiteOf, resolveUrl, uiPackage } from "./paths.ts";
+import { exposeMetrics } from "./cdp-metrics.ts";
 
 // The browser suite (03): one fresh context and page per scenario (and per sample of a load scenario), in a browser
 // this file launches. Every request goes to http://perf.local/ and is answered from the target's builds; any other
@@ -40,6 +41,7 @@ async function openPage(): Promise<{ context: BrowserContext, page: Page }> {
   const page = await context.newPage();
   page.on("requestfailed", (r: any) => failedRequests.push(r.url()));
   page.on("pageerror", (e: any) => failedRequests.push("pageerror: " + String(e && e.message)));
+  await exposeMetrics(context, page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(pageUrl);
   const problems = await page.evaluate(() => (window as any).PerfPage.ready());
@@ -110,7 +112,8 @@ async function runLoad(id: string, fixture: any): Promise<any> {
       const { context, page } = await openPage();
       try {
         const r = await page.evaluate((arg: any) => (window as any).PerfPage.loadCounters(arg.id, arg.fixture), { id: id, fixture: fixture });
-        last.heapMB = r.heapMB;
+        last.heap = r.heap;
+        last.durations = r.durations;
         return r.counters;
       } finally {
         await context.close();
@@ -119,7 +122,8 @@ async function runLoad(id: string, fixture: any): Promise<any> {
   }, { warmup: 0, samples: loadOptions.samples, maxMs: loadOptions.maxMs, minSamples: loadOptions.minSamples, now: () => performance.now() });
   if (skipped) return { skipped: skipped };
   const r = Object.assign({}, last, { counters: res.counters,
-    info: { kept: res.samples.length, warmups: 0, wallMs: Math.round(res.wallMs), longTaskMs: longTasks.length ? median(longTasks) : 0, heapMB: last.heapMB } });
+    info: Object.assign({ kept: res.samples.length, warmups: 0, wallMs: Math.round(res.wallMs), longTaskMs: longTasks.length ? median(longTasks) : 0 },
+      last.heap, last.durations) });
   return { entry: entryOf(id, r, res.samples, res.phases) };
 }
 
@@ -127,7 +131,11 @@ test("environment", async({ browserName }, testInfo: any) => {
   const { context, page } = await openPage();
   try {
     const probe = await page.evaluate(() => (window as any).PerfPage.nextPageProbe());
-    const framework = await page.evaluate(() => ({ react: (window as any).React ? (window as any).React.version : undefined }));
+    const framework = await page.evaluate(() => {
+      const W: any = window;
+      return { react: W.React ? W.React.version : undefined, vue: W.Vue ? W.Vue.version : undefined,
+        angular: W.SurveyNgPerf ? W.SurveyNgPerf.version : undefined };
+    });
     await testInfo.attach("perf-environment", { contentType: "application/json",
       body: JSON.stringify({ chromium: browser.version(), framework: framework, nextPageProbe: probe, notInSuite: split.notInSuite }) });
     if (!probe.found) throw new Error("survey.nextPage() from page code: the new page is not in the DOM at the end of the update");

@@ -40,19 +40,35 @@ export class DynamicDataRecordVisibility {
       usedRunners.set(text, runner);
       return runner;
     };
-    const mainRunner = !!expression ? getRunner(expression) : undefined;
-    let scope: IDynamicDataRecordScope;
-    const isChanged = list.setRecordsVisible((index: number): boolean => {
-      const condition = !!readCondition ? readCondition(index) : undefined;
-      if (!!condition && condition.visible === false) return false;
-      const ownRunner = !!condition && !!condition.expression ? getRunner(condition.expression) : undefined;
-      if (!mainRunner && !ownRunner) return true;
-      if (!scope) scope = createScope();
-      scope.item.reset(index, readRecord(index));
-      if (!!mainRunner && mainRunner.runContext(scope.item.getValueGetterContext(), scope.properties) !== true) return false;
-      return !ownRunner || ownRunner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
-    });
+    const isChanged = list.setRecordsVisible(createRecordVisibilityPredicate(expression, readRecord, createScope, readCondition, getRunner));
     this.runners = usedRunners;
     return isChanged;
   }
+}
+/* Whether a record is visible by the expression every record runs and the condition it has of its own,
+   evaluated over the record without an object - what update() writes into the flags, and what a
+   Filter Control's count reads for a record that has no row or panel. getRunner hands one runner per
+   expression text; without it the predicate keeps its own. */
+export function createRecordVisibilityPredicate(expression: string, readRecord: (index: number) => any,
+  createScope: () => IDynamicDataRecordScope, readCondition?: (index: number) => IDynamicDataRecordCondition,
+  getRunner?: (text: string) => ConditionRunner): (index: number) => boolean {
+  if (!getRunner) {
+    const runners = new Map<string, ConditionRunner>();
+    getRunner = (text: string): ConditionRunner => {
+      if (!runners.has(text)) runners.set(text, new ConditionRunner(text));
+      return runners.get(text);
+    };
+  }
+  const mainRunner = !!expression ? getRunner(expression) : undefined;
+  let scope: IDynamicDataRecordScope;
+  return (index: number): boolean => {
+    const condition = !!readCondition ? readCondition(index) : undefined;
+    if (!!condition && condition.visible === false) return false;
+    const ownRunner = !!condition && !!condition.expression ? getRunner(condition.expression) : undefined;
+    if (!mainRunner && !ownRunner) return true;
+    if (!scope) scope = createScope();
+    scope.item.reset(index, readRecord(index));
+    if (!!mainRunner && mainRunner.runContext(scope.item.getValueGetterContext(), scope.properties) !== true) return false;
+    return !ownRunner || ownRunner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
+  };
 }

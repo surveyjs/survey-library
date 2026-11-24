@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
@@ -36,10 +37,10 @@ export class QuestionButtonGroupModel extends dropdownQuestionMixin(QuestionChec
       this.resetReadOnlyText();
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
-    this.dropdownListModelValue?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged(changes);
   }
   public getType(): string {
     return "buttongroup";
@@ -192,6 +193,9 @@ export class ButtonGroupItemModel {
   }
   public get readOnly() {
     return this.question.isInputReadOnly || !this.item.isEnabled;
+  }
+  public get disabled() {
+    return !this.item.isEnabled;
   }
   public get name() {
     return this.question.name + "_" + this.question.id;

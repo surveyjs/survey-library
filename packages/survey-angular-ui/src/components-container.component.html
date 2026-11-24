@@ -1,14 +1,20 @@
 <ng-template #template>
-  <ng-container *ngIf="isNeedRenderWrapper">
-    <div *ngIf="components.length > 0" [class]="'sv-components-column' + ' sv-components-container-' + container">
-      <ng-container *ngFor="let component of components">
+  <ng-container *ngIf="groups.length > 0">
+    <div *ngIf="isNeedRenderWrapper" [class]="'sv-components-column' + ' sv-components-container-' + container">
+      <ng-container *ngTemplateOutlet="content"></ng-container>
+    </div>
+    <ng-container *ngIf="!isNeedRenderWrapper">
+      <ng-container *ngTemplateOutlet="content"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
+<ng-template #content>
+  <ng-container *ngFor="let group of groups; trackBy: trackGroupByKey">
+    <div *ngIf="group.css" [class]="group.css">
+      <ng-container *ngFor="let component of group.elements">
         <ng-template [component]="{ name: component.component, data: { survey: survey, container: container, model: component.data } }"></ng-template>
       </ng-container>
     </div>
-  </ng-container>
-  <ng-container *ngIf="!isNeedRenderWrapper && components.length > 0">
-    <ng-container *ngFor="let component of components">
-      <ng-template [component]="{ name: component.component, data: { survey: survey, container: container, model: component.data } }"></ng-template>
-    </ng-container>
+    <ng-template *ngIf="!group.css" [component]="{ name: group.elements[0].component, data: { survey: survey, container: container, model: group.elements[0].data } }"></ng-template>
   </ng-container>
 </ng-template>

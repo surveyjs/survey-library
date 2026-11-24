@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -37,8 +38,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       this.updateInputPlaceholder(newValue);
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
     this.updateInputPlaceholder(this.placeholder);
   }
@@ -77,12 +78,6 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
 
   public get isNewA11yStructure() {
     return true;
-  }
-  public get a11yQuestionAriaRole(): string | null {
-    return this.searchEnabled ? null : "combobox";
-  }
-  public get a11yInputAriaRole(): string | null {
-    return this.searchEnabled ? "combobox" : null;
   }
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.
@@ -316,7 +311,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
       const surveySettings = this.getSurveySettings();
-      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false, undefined, surveySettings))[0];
+      const item = items.filter(ch => Helpers.checkIfValuesEqual(ch.id, value, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
       if (!item) {
         this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
       }

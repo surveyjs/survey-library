@@ -4,7 +4,7 @@ import { AfterViewChecked, Component, DoCheck, EmbeddedViewRef, OnInit, Template
   template: "",
 })
 
-export class EmbeddedViewContentComponent implements OnInit, AfterViewChecked, DoCheck {
+export class EmbeddedViewContentComponent implements OnInit, DoCheck, AfterViewChecked {
   @ViewChild("template", { read: TemplateRef, static: true }) templateRef!: TemplateRef<HTMLElement>;
   protected embeddedView?: EmbeddedViewRef<HTMLElement>;
   constructor(protected viewContainerRef?: ViewContainerRef) {}

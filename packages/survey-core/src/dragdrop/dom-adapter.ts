@@ -1,6 +1,6 @@
 import { findScrollableParent, isShadowDOM } from "../utils/dom-utils";
-import { IsMobile, IsTouch } from "../utils/devices";
-import { settings, ISurveyEnvironment } from "../settings";
+import { IsTouch } from "../utils/devices";
+import { settings } from "../settings";
 import { IDragDropEngine } from "./engine";
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 

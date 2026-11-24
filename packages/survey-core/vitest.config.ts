@@ -20,6 +20,7 @@ export default defineConfig({
       "tests/dynamic-data/paging-write-costs-helpers.ts",
       "tests/dynamic-data/remote-source-integration-helpers.ts",
       "tests/linter/lint-fixtures.ts",
+      "tests/filter/filter-test-helpers.ts",
       "tests/expressions/oracle/**",
       "node_modules/**",
       "build/**",
@@ -34,6 +35,7 @@ export default defineConfig({
       // The longer path first: the aliases are prefix matches applied in order.
       "survey-core/collaboration": path.resolve(__dirname, "./entries/collaboration.ts"),
       "survey-core/tester": path.resolve(__dirname, "./entries/tester.ts"),
+      "survey-core/query": path.resolve(__dirname, "./entries/query.ts"),
       "survey-core": path.resolve(__dirname, "./entries/index.ts"),
     },
   },

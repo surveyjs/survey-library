@@ -1,3 +1,4 @@
+import type { IDynamicDataFilterField } from "./dynamic-data-filter-fields";
 import type { ISurvey } from "../interfaces/survey-interfaces";
 
 // The data-source contract for DynamicDataList. A source has one read, read(request), and declares
@@ -8,6 +9,8 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //   assigned again;
 // - the write capabilities by the presence of the matching method: a source that has "remove" can
 //   delete a record, one without it cannot, and so on.
+// One read-side method is optional: count(filter), how many records a filter matches, for a source
+// that can count without reading the records. Without it the list counts through read.
 // A missing flag means false. The list falls back to a local implementation for every capability
 // the source does not declare, except a sort a paging source leaves out (see below).
 //
@@ -24,15 +27,23 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     capabilities: { paging: true, filtering: true, sorting: true },
 //     //   request.skip   the first record to return, in the source's filtered and sorted order
 //     //   request.take   how many; 0 means "everything from skip"
-//     //   request.filter the expression text of question.filterExpression, "" for no filter
+//     //   request.filter the expression text of question.filterExpression, "" for no filter. When a
+//     //                  Filter Control filters the question too, it is the authored expression
+//     //                  and the control's combined, each one bracketed:
+//     //                  "({country} = 'de') and ({price} > 10)". Convert it (see below), never
+//     //                  pattern-match it - and expect more requests: every change a control
+//     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
 //     // "hasMore", or from a window that came back shorter than "take".
 //     read: (request) =>
-//       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
-//         .then(r => r.json())
+//       post("/api/orders/query", { ...request, filter: toFilterTree(request.filter) })
 //         .then(r => ({ records: r.items, total: r.total })),
+//     // Optional: how many records a filter matches, without the records - the "Show N items" count
+//     // of a Filter Control's dialog. Without it the list reads { skip: 0, take: 1, filter, sort: [] }
+//     // and keeps the answer's "total".
+//     count: (filter) => fetch(`/api/orders/count?where=${translate(filter)}`).then(r => r.json()),
 //     // The record field that identifies a record: every write below receives record[keyField] as
 //     // its key. Required for writing: a source without it is read-only, whatever methods it has.
 //     keyField: "id",
@@ -76,11 +87,13 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 // dynamic panel): one names a record for the source, the other forbids duplicate answers.
 //
 // The filter is a survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18".
-// The list never parses it. A source that speaks another dialect translates it with the library's
-// own parser and re-renders the operand tree in its dialect:
-//   const operand = new ConditionsParser().parseExpression(request.filter);
-//   const where = operand.toString(op => op.getType() === "variable" ? op.variable : undefined);
-// The callback answers for the nodes the source knows and returns undefined for the rest.
+// The list never parses it. A source sends the server toFilterTree(request.filter) instead of the
+// text: a documented JSON tree (build/filter-tree.schema.json, "survey-core/filter-tree.schema.json")
+// with every value kept as a value, so a server in any language reads it without our parser. A
+// filter the tree cannot express (arithmetic, a function of a field, a function that reads the
+// survey) throws an Error naming the part. A Node server can render the whole request as SQL, a
+// MongoDB query or an OData query with survey-core/query instead. Never paste the expression text,
+// or any value from it, into a query.
 //
 // filtering and sorting mean something only together with paging. A source that does not page
 // answers with every record, and the list filters and sorts that answer itself, whatever the two
@@ -97,8 +110,8 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 // reports the operation "read".
 //
 // Every method may return a value or a Promise. A rejected promise is reported through
-// survey.onDynamicDataError with the operation name; the records the question shows are kept as
-// they are. While a source is attached the question is excluded from survey.data - the records are
+// survey.onDynamicDataError with the operation name, except count's (no count, no error); the
+// records the question shows are kept as they are. While a source is attached the question is excluded from survey.data - the records are
 // the source's, not an answer - and question.isReady is false while a page is being read.
 
 export type SortDirection = "asc" | "desc";
@@ -155,6 +168,13 @@ export interface IDynamicDataSource {
   // { records: array }. Synchronous for in-memory sources, a Promise for a remote one.
   read(request: IDynamicDataReadRequest):
     Array<any> | IDynamicDataReadResult | Promise<Array<any> | IDynamicDataReadResult>;
+  /* Optional: how many records the filter matches - the filter is expression text, as in
+     IDynamicDataReadRequest.filter -, or undefined when that is not known. The list asks it only for
+     a source that pages and filters, for the "Show N items" count of a Filter Control's dialog: the
+     other sources are counted from the records the list holds. Absent -> the list reads
+     { skip: 0, take: 1, filter, sort: [] } and takes the answer's total. A throw or a rejection gives
+     no count, and no error is reported. */
+  count?(filter: string): number | undefined | Promise<number | undefined>;
   // Present -> the record field that identifies a record in the source, and every write below
   // receives record[keyField] as its key. Absent -> the source is read-only (see the header), except
   // for the in-memory sources, which are written by storage index.
@@ -224,4 +244,15 @@ export interface IDynamicDataOwner {
   /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
      survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
   getSurvey?(): ISurvey;
+}
+
+// What a question that can be filtered by a Filter Control answers. The records questions implement
+// it; the control never imports them and asks by capability.
+export interface IDynamicDataFilterSource {
+  getFilterFields(): Array<IDynamicDataFilterField>;
+  setControlFilter(key: string, expression: string): void;
+  getControlFilter(key: string): string;
+  // Optional: how many records there would be if this control filtered by expression - before the
+  // control applies it. undefined (or no method) when the count cannot be known.
+  getControlFilterCount?(key: string, expression: string): Promise<number | undefined>;
 }

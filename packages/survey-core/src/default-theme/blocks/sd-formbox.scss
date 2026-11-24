@@ -2,6 +2,7 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-formbox {
+    outline: none;
     position: static;
     width: 100%;
     box-sizing: border-box;
@@ -41,6 +42,12 @@
     .sd-formbox__input {
         cursor: default;
     }
+}
+.sd-formbox--readonly:where(:focus-within) {
+    background: var(--sjs2-color-component-formbox-focused-bg);
+    box-shadow:
+        var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
+        var(--sjs2-border-effect-component-formbox-a11y);
 }
 .sd-formbox--preview {
     background: none;

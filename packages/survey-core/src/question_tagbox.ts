@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { advanceKeyboardHints, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { property } from "./decorators";
@@ -5,7 +6,6 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
-import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { EventBase } from "./event";
@@ -49,10 +49,10 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
-    this.dropdownListModelValue?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged(changes);
   }
   protected getDefaultItemComponent(): string {
     return "";
@@ -176,9 +176,6 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return this.dropdownRenderState.inputAvailable ? ["enter"] : ["space", "enter"];
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
-  public get a11yInputAriaRole(): string | null {
-    return "combobox";
-  }
   public getControlClass(): string {
     return toCssClasses(
       this.cssClasses.control,
@@ -231,7 +228,7 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       const newArr = [];
       const surveySettings = this.getSurveySettings();
       value.forEach(v => {
-        const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, v, false, false, undefined, surveySettings))[0];
+        const item = items.filter(ch => Helpers.checkIfValuesEqual(ch.id, v, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
         if (!item) {
           newArr.push(new ItemValue(v));
         }

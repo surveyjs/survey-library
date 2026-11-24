@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
@@ -8,14 +9,14 @@ import {
   IPanel,
   IConditionRunner,
   IElement,
-  ISurveyElement,
   IQuestion,
   ISurveyErrorOwner,
   ITitleOwner,
   IProgressInfo,
   ISurvey,
   IFindElement,
-  ISurveyValidation
+  ISurveyValidation,
+  IElementUIState
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
 import { Question } from "./question";
@@ -481,7 +482,10 @@ export class PanelModelBase extends SurveyElement<Question>
     if (["questionStartIndex", "showQuestionNumbers"].indexOf(name) > -1) {
       this.updateVisibleIndexes();
     }
-    if (name === "title") {
+    // At runtime the title refreshes the value from onLocalizableStringRenderedTextChanged. In design mode a
+    // title change resets it, and nothing else does: Creator's translation tab writes hasTextInTitle = true
+    // to keep a title row for a panel whose title is empty in the shown locale, and a locale switch keeps it.
+    if (name === "title" && this.isDesignMode) {
       this.resetHasTextInTitle();
     }
     if (name === "visible") {
@@ -511,6 +515,9 @@ export class PanelModelBase extends SurveyElement<Question>
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.runWithoutAnimations(() => {
       super.setSurveyImpl(value, isLight);
+      if (!!this.survey) {
+        this.resetHasTextInTitle();
+      }
       if (this.isDesignMode)this.onVisibleChanged();
       for (var i = 0; i < this.elements.length; i++) {
         this.elements[i].setSurveyImpl(value, isLight);
@@ -529,16 +536,36 @@ export class PanelModelBase extends SurveyElement<Question>
   @property({ defaultValue: true }) showTitle: boolean;
 
   public get hasTextInTitle(): boolean {
-    return this.getPropertyValue("hasTextInTitle", undefined, (): boolean => !!this.title);
+    return this.getPropertyValue("hasTextInTitle", undefined, (): boolean => this.calcHasTextInTitle());
+  }
+  // The rendered text at runtime: a title that resolves to an empty string renders no title header, and the name
+  // a collapsible panel without a title shows counts. A designer edits the text itself, so there the text counts.
+  private calcHasTextInTitle(): boolean {
+    return this.isDesignMode ? !!this.title : !!this.locTitle.renderedHtml;
   }
   private resetHasTextInTitle(): void {
     this.resetPropertyValue("hasTextInTitle");
   }
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "title" && !this.isDesignMode) {
+      this.refreshLazyPropertyValue("hasTextInTitle", () => this.calcHasTextInTitle());
+    }
+  }
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
+      (this.isDesignMode && !this.isPanel && this.showTitle && this.showEmptyTitlesInDesignMode)
     );
+  }
+  // The survey may override settings.designMode (ISurvey members are optional, so an unset one falls back to the setting).
+  private get showEmptyTitlesInDesignMode(): boolean {
+    const res = this.survey?.showEmptyTitlesInDesignMode;
+    return Helpers.isValueUndefined(res) ? settings.designMode.showEmptyTitles : res;
+  }
+  private get showEmptyDescriptionsInDesignMode(): boolean {
+    const res = this.survey?.showEmptyDescriptionsInDesignMode;
+    return Helpers.isValueUndefined(res) ? settings.designMode.showEmptyDescriptions : res;
   }
   public delete(doDispose: boolean = true): void {
     this.deletePanel();
@@ -572,7 +599,7 @@ export class PanelModelBase extends SurveyElement<Question>
       const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
       let show = this.hasTitle &&
         (hasEnteredDescription ||
-          (this.showDescription && settings.designMode.showEmptyDescriptions));
+          (this.showDescription && this.showEmptyDescriptionsInDesignMode));
       if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
         show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);
       }
@@ -582,14 +609,18 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public localeChanged(): void {
     super.localeChanged();
+    // Not in design mode: see the "title" reset in onPropertyValueChanged
+    if (!this.isDesignMode) {
+      this.resetHasTextInTitle();
+    }
     for (var i = 0; i < this.elements.length; i++) {
       (<Base>(<any>this.elements[i])).localeChanged();
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].locStrsChanged();
+      this.elements[i].locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -1175,13 +1206,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
-  getFirstVisibleQuestion(): Question {
-    const qs = this.questions;
-    for (let i = 0; i < qs.length; i++) {
-      if (qs[i].isVisible) return qs[i];
-    }
-    return null;
-  }
   getFirstVisibleElement(): IElement {
     const els = this.elements;
     for (let i = 0; i < els.length; i++) {
@@ -1197,7 +1221,34 @@ export class PanelModelBase extends SurveyElement<Question>
     const q = this.getFirstQuestionToFocus();
     if (!!q) {
       q.focus();
+      return;
     }
+    // No question to focus: a page that holds only a collapsed panel. Focus its collapse/expand button.
+    const panel = this.getFirstCollapsedPanelToFocus();
+    if (!!panel) {
+      panel.focusCollapseExpandButton();
+    }
+  }
+  private getFirstCollapsedPanelToFocus(): PanelModelBase {
+    const elements = this.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if (!el.isVisible || !el.isPanel) continue;
+      const panel = <PanelModelBase><any>el;
+      if (panel.isCollapsed) {
+        if (panel.hasTitle) return panel;
+        continue;
+      }
+      const nested = panel.getFirstCollapsedPanelToFocus();
+      if (!!nested) return nested;
+    }
+    return null;
+  }
+  public focusCollapseExpandButton(): void {
+    const survey = this.survey as SurveyModel;
+    if (!survey || !this.hasTitle || this.isPage || this.isDesignMode) return;
+    // The page is already rendered when focus runs. A deferred attempt leaves focus on Next and then jumps.
+    SurveyElement.FocusElement(this.ariaTitleId, false, survey.rootElement);
   }
   /**
    * Focuses the first question with a validation error in this panel/page.
@@ -1419,10 +1470,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this._columnsReady = true;
     }
   }
-  private createGridLayoutColumns(): Array<PanelLayoutColumnModel> {
-    this.generateColumns([]);
-    return this._columns;
-  }
   public updateGridColumns(): void {
     this.updateColumns();
     this.elements.forEach(el => {
@@ -1532,16 +1579,21 @@ export class PanelModelBase extends SurveyElement<Question>
   protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
+  // The panel computes its own visibility once at the end of onSurveyLoad. A child's visibility change
+  // during it would only repeat that work (and the parent's), once per child, so it updates the rows only.
+  private surveyLoadScope = new Scope();
   public onSurveyLoad(): void {
     this.runWithoutAnimations(() => {
-      super.onSurveyLoad();
-      for (var i = 0; i < this.elements.length; i++) {
-        this.elements[i].onSurveyLoad();
-      }
-      // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
-      if (this.isColumnsUpdatePending && !!this.survey) {
-        this.updateColumns();
-      }
+      this.surveyLoadScope.run(() => {
+        super.onSurveyLoad();
+        for (var i = 0; i < this.elements.length; i++) {
+          this.elements[i].onSurveyLoad();
+        }
+        // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
+        if (this.isColumnsUpdatePending && !!this.survey) {
+          this.updateColumns();
+        }
+      });
       this.onElementVisibilityChanged(this);
     });
   }
@@ -1711,6 +1763,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private onElementVisibilityChanged(element: any) {
     if (this.isLoadingFromJson || this.isRandomizing) return;
     this.updateRowsVisibility(element);
+    if (element !== this && this.surveyLoadScope.isActive) return;
     this.childVisibilityChanged();
     if (!!this.parent) {
       this.parent.onElementVisibilityChanged(this);
@@ -2441,6 +2494,8 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
       return text;
     };
+    // A collapsible panel without a title shows its name
+    locTitleValue.isTextCallbackPure = true;
     return locTitleValue;
   }
   protected beforeSetVisibleIndex(index: number): number {
@@ -2629,14 +2684,25 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.forcusFirstQuestionOnExpand = focusFirstQuestion;
     super.expand();
   }
+  protected setUIState(data: IElementUIState): void {
+    if (data && data.collapsed !== undefined) {
+      if (data.collapsed) {
+        this.collapse();
+      } else {
+        this.expand(false);
+      }
+    }
+  }
   protected onElementExpanded(elementIsRendered: boolean): void {
     super.onElementExpanded(elementIsRendered);
-    if (!this.forcusFirstQuestionOnExpand) { return; }
+    if (!this.forcusFirstQuestionOnExpand || this.isDesignMode) { return; }
     if (this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
+            // Scroll only. q.focus() runs for Creator property-grid categories too:
+            // it moves the spinedit caret and paints a focus ring on those screenshots.
             this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: getScrollBehavior() } });
           }
         }, elementIsRendered ? 0 : 15);

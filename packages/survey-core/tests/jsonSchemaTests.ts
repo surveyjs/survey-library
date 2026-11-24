@@ -200,4 +200,36 @@ describe("JsonSchemaTests", () => {
     expect(schema.definitions.currencymask.allOf[1].properties.prefix, "the obsolete prefix is not in the schema").toBeUndefined();
     expect(schema.definitions.currencymask.allOf[1].properties.suffix, "the obsolete suffix is not in the schema").toBeUndefined();
   });
+  test("Bug#12385: a string[] property with choices is an array of strings, the choices are the items enum", () => {
+    const schema = Serializer.generateSchema();
+    const prop = schema.definitions.question.properties.filterOperators;
+    expect(prop.type, "filterOperators is array").toBe("array");
+    expect(prop.$ref, "filterOperators has no $ref").toBeUndefined();
+    expect(prop.enum, "the enum is not on the array").toBeUndefined();
+    expect(prop.items.type, "filterOperators items are strings").toBe("string");
+    expect(prop.items.enum, "filterOperators items enum").toEqual(Serializer.findProperty("question", "filterOperators").getChoices(null));
+  });
+  test("Bug#12385: a custom string[] property is an array of strings", () => {
+    Serializer.addProperty("question", { name: "tags:string[]" });
+    try {
+      const schema = Serializer.generateSchema();
+      expect(schema.definitions.question.properties.tags).toEqual({ type: "array", items: { type: "string" } });
+    } finally {
+      Serializer.removeProperty("question", "tags");
+    }
+  });
+  test("Bug#12385: every $ref in the generated schema refers to an existing definition", () => {
+    const schema = Serializer.generateSchema();
+    const unresolved: Array<string> = [];
+    const checkRefs = (node: any, path: string): void => {
+      if (!node || typeof node !== "object") return;
+      if (typeof node.$ref === "string") {
+        const name = node.$ref.indexOf("#/definitions/") === 0 ? node.$ref.substring("#/definitions/".length) : node.$ref;
+        if (!schema.definitions[name]) unresolved.push(path + ": " + node.$ref);
+      }
+      Object.keys(node).forEach(key => checkRefs(node[key], path + "." + key));
+    };
+    checkRefs(schema, "schema");
+    expect(unresolved).toEqual([]);
+  });
 });

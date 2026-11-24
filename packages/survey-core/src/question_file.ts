@@ -1,4 +1,4 @@
-import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
+import { IPlainDataOptions, ISurvey, ISurveyFileCallbacks } from "./base-interfaces";
 import { IQuestionPlainData, Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -8,7 +8,7 @@ import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
-import { classesToSelector, getIdSelector, isElementVisible } from "./utils/dom-utils";
+import { classesToSelector, getIdSelector } from "./utils/dom-utils";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
 import { loadFileFromBase64 } from "./utils/file-utils";
@@ -32,6 +32,7 @@ const customCategory = settings.customFileCategoryName;
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
 export class QuestionFileModelBase extends Question {
+  public hasDisplayTexts(): boolean { return false; }
   // File Upload and Signature Pad already draw their own clear control.
   public get supportClearTitleAction(): boolean {
     return false;
@@ -39,6 +40,12 @@ export class QuestionFileModelBase extends Question {
   // The value is a file a respondent picks from a device or draws on a canvas: a consumer that
   // renders nothing has no way to produce it.
   public get hasPlainInput(): boolean {
+    return false;
+  }
+  // The value is a list of uploaded files (a file question) or a drawing's data URL (a signature pad):
+  // only the question's own UI can produce a value a filter could compare against. The signature pad
+  // inherits it.
+  public get isFilterable(): boolean {
     return false;
   }
   @property() public isUploading: boolean = false;
@@ -169,7 +176,7 @@ export class QuestionFileModelBase extends Question {
 
 export class QuestionFilePage extends Base {
   @propertyArray({}) public items: Array<any>;
-  constructor(private question: QuestionFileModel, private index: number) {
+  constructor(private question: QuestionFileModel, index: number) {
     super();
   }
   protected getIdPrefix(): string { return "sv_sfp"; }
@@ -927,7 +934,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            const newValue = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
+            const newValue = oldValue.filter((f) => !Helpers.checkIfValuesEqual(f, content, { ignoreOrder: true, caseSensitive: false, trimStrings: false }));
             if (isByRespondent) {
               this.value = newValue;
             } else {
@@ -1011,11 +1018,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.previewValue.splice(0, this.previewValue.length);
     if (!this.showPreview || !newValue) return;
     this.prevLoadedPreviewValue = newValue;
-    var newValues = Array.isArray(newValue)
-      ? newValue
-      : !!newValue
-        ? [newValue]
-        : [];
+    // A null item in the value (survey.data, a default value) has no file to preview.
+    var newValues = (Array.isArray(newValue) ? newValue : [newValue]).filter(val => !!val);
 
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
@@ -1084,7 +1088,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
       questionPlainData.isNode = false;
-      var values = Array.isArray(this.value) ? this.value : [this.value];
+      var values = (Array.isArray(this.value) ? this.value : [this.value]).filter(val => !!val);
       questionPlainData.data = values.map((dataValue, index) => {
         return {
           name: index,
@@ -1100,9 +1104,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public getImageWrapperCss(data: any): string {
     return toCssClasses(this.cssClasses.imageWrapper, this.defaultImage(data) && this.cssClasses.imageWrapperDefaultImage);
-  }
-  protected getActionsContainerCss(css: any): string {
-    return toCssClasses(css.actionsContainer, this.isAnswered && css.actionsContainerAnswered);
   }
   private removeFileButtonMap: Map<Object, Action> = new Map<Object, Action>();
   public getRemoveFileButton(item: any): Action {

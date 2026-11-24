@@ -1,8 +1,10 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { DropdownListModel, DropdownRenderState, Helpers } from "survey-core";
 import { BaseAngular } from "../../base-angular";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
   templateUrl: "./dropdown.component.html"
 })
@@ -59,7 +61,7 @@ export class DropdownComponent extends BaseAngular implements OnInit {
     if (!!this.inputElementRef?.nativeElement) {
       const control: any = this.inputElementRef.nativeElement;
       const newValue = this.model.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+      if (!Helpers.checkIfValuesEqual(newValue, control.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
         control.value = this.renderState.inputStringRendered || "";
       }
     }

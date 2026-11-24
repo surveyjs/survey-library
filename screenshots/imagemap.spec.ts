@@ -36,15 +36,12 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await page.waitForTimeout(10);
       await compareScreenshot(page, ".sd-question", "imagemap-idle.png");
 
       await page.hover(".sd-imagemap-svg", { position: { x: 30, y: 30 } });
-      await page.waitForTimeout(10);
       await compareScreenshot(page, ".sd-question", "imagemap-hover.png");
 
       await page.click(".sd-imagemap-svg", { position: { x: 30, y: 30 } });
-      await page.waitForTimeout(10);
       await compareScreenshot(page, ".sd-question", "imagemap-selected.png");
     });
   });

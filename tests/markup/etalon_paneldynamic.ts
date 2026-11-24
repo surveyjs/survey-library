@@ -3,6 +3,22 @@ import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
   [{
+    name: "Test paneldynamic without panels markup",
+    json: {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          panelCount: 0,
+          noEntriesText: "No entries yet.",
+          templateElements: [{ type: "text", name: "q1" }]
+        },
+      ]
+    },
+    snapshot: "paneldynamic-no-panels",
+  },
+  {
     name: "Test paneldynamic with old navigation (progressTop) markup",
     json: {
       elements: [

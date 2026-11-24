@@ -311,6 +311,122 @@ export var haitianCreoleStrings = {
   progressbar: "ba pwogrè",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Paj {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Vid",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Pa vid",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Egal",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Pa egal",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Gen ladan",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Pa gen ladan",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Nenpòt nan",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Okenn nan yo",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Tout",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Pi gwo pase",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Mwens pase",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Pi gran oswa egal a",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Pi piti oswa egal a",
+  // [Auto-translated] "Save"
+  filterSave: "Sove",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtè",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtè: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtè",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Rechèch",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Chèche pa {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Montre plis",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Montre mwens",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Efase Tout",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Klè {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Predefini",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Sove kòm...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Sove",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Ajoute \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Predefini",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Montre {0} atik yo",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Montre 1 atik",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Montre rezilta yo",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Nouvo Preset",
+  // [Auto-translated] "Name"
+  filterPresetName: "Fe-apel",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Gen ladan",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Yon preset ak non sa a deja egziste.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Ajoute omwen yon kondisyon.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Antre yon ekspresyon.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Ekspresyon an pa valab.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Modifye kòm Ekspresyon",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Modifye kòm Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Tape yon ekspresyon isit la...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Modifye Predefini",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Efase",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Ajoute Nouvo...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Edit Chwazi...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Ekspresyon",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Chèche nan Filtè yo",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Pa jwenn anyen, eseye diferan mo kle",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Kreye preset ak AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Modifye preset ak AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Pa egzanp, \"Kafe & Te soti Almay\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Kreye",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Edit",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Kreyasyon...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Edite...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI pa t ka fè yon filtè. Eseye ankò.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI pa t ka fè yon filtè konsa.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "pou chwazi",
   // [Auto-translated] "to toggle"

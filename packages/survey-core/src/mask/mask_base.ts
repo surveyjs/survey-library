@@ -179,11 +179,6 @@ export class InputMaskBase extends Base implements IInputMask {
     if (res === undefined || res === null) return undefined;
     return !isValid || isValid(res) ? res : undefined;
   }
-  // The value the cache already holds, without resolving one. A mask that re-formats an entry
-  // made under the previous locale reads the old defaults here, before the cache is dropped.
-  protected getCachedFormatValue(field: keyof ILocaleData): string {
-    return !!this.formatValues ? this.formatValues[field] : undefined;
-  }
   protected clearFormatValueCache(): void {
     this.formatValues = undefined;
     this.formatValuesLocale = undefined;

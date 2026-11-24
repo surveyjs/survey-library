@@ -28,9 +28,6 @@ export class QuestionImageModel extends QuestionNonValue {
   public getType(): string {
     return "image";
   }
-  public get isCompositeQuestion(): boolean {
-    return false;
-  }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.calculateRenderedMode();
@@ -45,6 +42,7 @@ export class QuestionImageModel extends QuestionNonValue {
     locStr.onGetTextCallback = (text: string): string => {
       return getCorrectImageLink(text, obj.contentMode == "youtube");
     };
+    locStr.isTextCallbackPure = true;
   } } }) imageLink: string;
   /**
    * Specifies a value for the `alt` attribute of the underlying `<img>` element.
@@ -128,6 +126,9 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   public get renderedAltText() {
     return this.altText || this.title;
+  }
+  public get renderedImageURL(): string {
+    return this.getLocStringHtml(this.locImageLink);
   }
 
   public getImageCss(): string {

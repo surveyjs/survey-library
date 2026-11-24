@@ -4,7 +4,7 @@ import { ISurvey, ISurveyVariables } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ExpressionRunner } from "./expressions/expressionRunner";
-import { FunctionFactory } from "./functionsfactory";
+import { canFunctionReadElements, isExpressionReadingElements } from "./functionsfactory";
 import { settings } from "./settings";
 import { ValueScope } from "./utils/scope";
 
@@ -15,11 +15,6 @@ function getFirstPathSegment(name: string): string {
     if (ch === "." || ch === "[") return name.substring(0, i);
   }
   return name;
-}
-// A function registered without resultDependsOn, or with "elements", may read element state
-function canFunctionReadElements(name: string): boolean {
-  const dependsOn = FunctionFactory.Instance.getResultDependsOn(name);
-  return dependsOn !== "parameters" && dependsOn !== "survey";
 }
 
 export class CalculatedValue extends Base {
@@ -109,23 +104,10 @@ export class CalculatedValue extends Base {
   // The survey runs the calculated values before the element conditions of a pass. A function that reads
   // element state (a matrix row's isVisible) gets the state those conditions change, and no changed key
   // tells it, so SurveyModel runs such a value once more when a visibility changed (Bug#12284). It calls
-  // this for the values that ran in the pass only (collectRuns). An unknown function is left out, it only
-  // warns, and so is an async one: a second run sends a second request.
+  // this for the values that ran in the pass only (collectRuns).
   public runAfterVisibilityChanged(properties: HashTable<any>): void {
-    if (!this.isReadingElementState()) return;
+    if (!this.canRunExpression || !this.ensureExpression() || !isExpressionReadingElements(this.expressionRunner)) return;
     this.runExpression(properties);
-  }
-  private isReadingElementState(): boolean {
-    if (!this.canRunExpression || !this.ensureExpression()) return false;
-    const runner = this.expressionRunner;
-    if (!runner.hasFunction() || runner.isAsync) return false;
-    const functionNames = runner.getFunctionNames();
-    if (!functionNames) return false;
-    for (let i = 0; i < functionNames.length; i++) {
-      const name = functionNames[i];
-      if (FunctionFactory.Instance.hasFunction(name) && canFunctionReadElements(name)) return true;
-    }
-    return false;
   }
   public get value(): any {
     if (!this.data) return undefined;
@@ -177,11 +159,9 @@ export class CalculatedValue extends Base {
   private canSkipCalculation(): boolean {
     if (!settings.calculatedValueTrackDependencies || !this.lastRun) return false;
     if (this.lastRun.name !== this.name) return false;
-    if (!Helpers.isTwoValueEquals(this.lastRun.value, this.value, false, true, false)) return false;
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!Helpers.checkIfValuesEqual(this.lastRun.value, this.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return false;
     // A calculated value reads a path under a cleared value ({m.row1} once m is cleared) again
-    return this.canSkipExpressionByKeys(this.expressionRunner, keys, undefined, true);
+    return this.canSkipExpressionByKeys(this.expressionRunner, this.getValueChangedKeys(), undefined, true);
   }
   private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     var variables = this.expressionRunner.getVariables();
@@ -322,7 +302,7 @@ export class CalculatedValue extends Base {
       this.expressionRunner = this.createExpressionRunner(expression);
       this.expressionRunner.onRunComplete = newValue => {
         try {
-          if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
+          if (!Helpers.checkIfValuesEqual(newValue, this.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
             this.setValue(newValue);
           }
           this.lastRun = { name: this.name, value: newValue };

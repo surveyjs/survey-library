@@ -17,10 +17,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       key: key
     });
   }
-  private allowUpdate: boolean = false;
   private update = (stateElement: Base, options: IPropertyValueChangedEvent) => {
     const key = options.name;
-    if (!this.canUsePropInState(key) || !this.allowUpdate) return;
+    if (!this.canUsePropInState(key)) return;
     this.changedStatePropNameValue = key;
     this.setState((state: any) => {
       var newState: { [index: string]: any } = {};
@@ -57,24 +56,30 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return res;
   }
   componentDidMount() {
-    this.enableStateElementsRerenderEvent(this.getStateElements());
-    this.allowUpdate = true;
+    this.syncStateElementsRerenderEvent();
     this.propertyAccessTracker.subscribe();
   }
   componentWillUnmount() {
-    this.disableStateElementsRerenderEvent(this.getStateElements());
-    this.allowUpdate = false;
+    this.disableStateElementsRerenderEvent(Array.from(this.rerenderEventStateElements));
+    this.rerenderEventStateElements.clear();
     this.propertyAccessTracker.unsubscribe();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.propertyAccessTracker.subscribe();
-    this.enableStateElementsRerenderEvent(this.getStateElements());
-    const stateElements = this.getStateElements();
-    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
-    this.prevStateElements = [];
-    this.getStateElements().forEach((el) => {
+    const stateElements = this.syncStateElementsRerenderEvent();
+    stateElements.forEach((el) => {
       el.afterRerender();
     });
+  }
+  private rerenderEventStateElements = new Set<Base>();
+  private syncStateElementsRerenderEvent(): Array<Base> {
+    const stateElements = this.getStateElements();
+    const current = new Set(stateElements);
+    const prev = this.rerenderEventStateElements;
+    this.disableStateElementsRerenderEvent(Array.from(prev).filter(el => !current.has(el)));
+    this.enableStateElementsRerenderEvent(Array.from(current).filter(el => !prev.has(el)));
+    this.rerenderEventStateElements = current;
+    return stateElements;
   }
   private _allowComponentUpdate = true;
   protected allowComponentUpdate() {
@@ -84,13 +89,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected denyComponentUpdate() {
     this._allowComponentUpdate = false;
   }
-  private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    const res = this._allowComponentUpdate && (this.state !== nextState || Object.keys(this.props).some(key => nextProps[key] !== this.props[key]));
-    if (res) {
-      this.prevStateElements = this.getStateElements();
-    }
-    return res;
+    return this._allowComponentUpdate && (this.state !== nextState || Object.keys(this.props).some(key => nextProps[key] !== this.props[key]));
   }
   protected forceHiddenDependencies() {}
   render(): React.JSX.Element | null {
@@ -262,7 +262,7 @@ export class SurveyQuestionUncontrolledElement<
   }
   updateValueOnEvent = (event: any) => {
     if (
-      !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value, false, true, false)
+      !Helpers.checkIfValuesEqual(this.questionBase.value, event.target.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })
     ) {
       this.setValueCore(event.target.value);
     }
@@ -277,7 +277,7 @@ export class SurveyQuestionUncontrolledElement<
     if (!!this.control) {
       const control: any = this.control;
       const newValue = this.getValueCore();
-      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+      if (!Helpers.checkIfValuesEqual(newValue, control.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
         control.value = this.getValue(newValue);
       }
     }

@@ -309,6 +309,122 @@ export var vietnameseSurveyStrings = {
   progressbar: "Thanh tiến trình",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Trang {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Trống rỗng",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Không rỗng",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Equals",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Không bằng",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Chứa",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Không chứa",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Bất kỳ trong số",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Không có gì trong số",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Tất cả",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "lớn hơn",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Ít hơn",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Lớn hơn hoặc bằng",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Nhỏ hơn hoặc bằng",
+  // [Auto-translated] "Save"
+  filterSave: "Lưu",
+  // [Auto-translated] "Filters"
+  filterFilters: "Bộ lọc",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Bộ lọc: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Bộ lọc",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Tìm kiếm",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Tìm kiếm theo {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Xem thêm",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Hiển thị ít hơn",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Xóa tất cả",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Dọn {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Cài đặt sẵn",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Lưu thành...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Lưu",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Thêm \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Cài đặt sẵn",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Hiển thị {0} mặt hàng",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Hiển thị 1 mặt hàng",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Xem kết quả",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Cài đặt sẵn mới",
+  // [Auto-translated] "Name"
+  filterPresetName: "Tên gọi",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Chứa",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Một thiết lập sẵn với tên này đã tồn tại.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Thêm ít nhất một điều kiện.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Nhập một biểu thức.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Biểu thức này không hợp lệ.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Chỉnh sửa dưới dạng biểu thức",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Chỉnh sửa dưới dạng Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Gõ một biểu thức tại đây...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Chỉnh sửa cài đặt sẵn",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Xóa",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Thêm mới...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Chỉnh sửa đã chọn...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Biểu đạt",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Chỉnh sửa...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Tìm kiếm trong bộ lọc",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Không tìm thấy gì, hãy thử các từ khóa khác nhau",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Tạo cài đặt sẵn bằng AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Chỉnh sửa cài đặt sẵn bằng AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Ví dụ, \"Cà phê & Trà từ Đức\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Tạo",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Chỉnh sửa",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Sáng tạo...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Đang chỉnh sửa...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI không thể tạo bộ lọc. Thử lại đi.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI không thể tạo ra bộ lọc cho mô tả này.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "để chọn",
   // [Auto-translated] "to toggle"

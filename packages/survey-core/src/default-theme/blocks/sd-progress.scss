@@ -47,6 +47,11 @@
 
 .sd-body__progress--top {
   margin-bottom: var(--sjs2-spacing-x400);
+}
+
+// Sticky only when the survey scrolls inside its own container (fitToContainer).
+// Without that, page scroll would pin the bar to the viewport.
+.sd-root-modern--full-container .sd-body__progress--top {
   position: sticky;
   top: 0;
   z-index: 50;

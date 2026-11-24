@@ -4244,4 +4244,28 @@ describe("custom questions", () => {
     expect(survey.data, "later inner values still reach the survey").toEqual({ q: { first: "John", last: "Doe" } });
     ComponentCollection.Instance.clear();
   });
+  test("Composite: an inner question is not visible with parents while the composite is in a hidden panel", () => {
+    ComponentCollection.Instance.add({ name: "x-visible", elementsJSON: [{ type: "text", name: "first" }] });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "panel", name: "panel1", visibleIf: "{a} <> 'hidePanel'", elements: [{ type: "x-visible", name: "q" }] }
+        ]
+      });
+      const q = <QuestionCompositeModel>survey.getQuestionByName("q");
+      const inner = q.contentPanel.getQuestionByName("first");
+      expect(inner.isVisibleWithParents, "everything is visible").toBe(true);
+      survey.setValue("a", "hidePanel");
+      expect(inner.isVisible, "the inner question itself is visible").toBe(true);
+      expect(inner.isVisibleWithParents, "the composite's panel is hidden").toBe(false);
+      survey.setValue("a", "");
+      q.visible = false;
+      expect(inner.isVisibleWithParents, "the composite is hidden").toBe(false);
+      q.visible = true;
+      expect(inner.isVisibleWithParents, "visible again").toBe(true);
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
 });

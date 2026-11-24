@@ -1,5 +1,5 @@
-import { Page, Locator } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, getButtonByText, baseTest as test } from "../e2e/helper";
+import { Page, Locator, expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, getButtonByText, resizeToMobile, baseTest as test } from "../e2e/helper";
 
 const title = "Survey Progress Screenshot";
 
@@ -202,10 +202,8 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await page.waitForTimeout(500);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
-      await page.waitForTimeout(500);
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-mobile.png");
     });
 
@@ -221,10 +219,8 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await page.waitForTimeout(500);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
-      await page.waitForTimeout(500);
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile.png");
     });
 
@@ -240,10 +236,8 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await page.waitForTimeout(500);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
-      await page.waitForTimeout(500);
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons-mobile.png");
     });
 
@@ -446,7 +440,6 @@ frameworks.forEach(framework => {
       });
 
       await page.setViewportSize({ width: 1900, height: 1000 });
-      await page.waitForTimeout(500);
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-survey-width-static-1400.png");
     });
 
@@ -523,13 +516,51 @@ frameworks.forEach(framework => {
         }
         window["survey"].currentPageNo = 1;
       });
-      await page.waitForTimeout(500);
+      // Page 2 is rendered. The survey scrolls it to the top on a 1 ms timer after the render, which the resize below outlasts.
+      await expect(page.locator(".sd-element__num").getByText("6.", { exact: true })).toBeVisible();
       await page.setViewportSize({ width: 800, height: 600 });
-      await page.waitForTimeout(500);
       const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
       await scroller.evaluate((el) => el.scrollTo(0, 500));
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, "#surveyElement", "survey-progress-bar-top-pages-sticky.png");
+    });
+
+    test("Check survey progress scrolls away without fit to container", async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 600 });
+      const rows = Array.from({ length: 40 }, (_, index) => `<div>Row ${index + 1}</div>`).join("");
+      await initSurvey(page, framework, {
+        showQuestionNumbers: true,
+        title: "Survey Title",
+        showProgressBar: true,
+        fitToContainer: false,
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              {
+                type: "html",
+                name: "html",
+                titleLocation: "hidden",
+                html: rows
+              }
+            ]
+          },
+          {
+            name: "p2",
+            elements: [{ type: "text", name: "q2" }]
+          }
+        ]
+      });
+      await applyHeaderAccentBackgroundColor(page);
+      const progressBar = page.locator(".sd-progress-buttons");
+      await expect(progressBar).toBeVisible();
+      // The page scrolls. An element screenshot would scroll the progress bar back into view.
+      await page.evaluate(() => {
+        const root = (window as any).survey.rootElement.getRootNode() as Document | ShadowRoot;
+        const row = Array.from(root.querySelectorAll(".sd-question--html div")).find((el) => el.textContent === "Row 16") as HTMLElement;
+        window.scrollTo(0, row.getBoundingClientRect().top + window.scrollY);
+      });
+      await expect(progressBar).not.toBeInViewport();
+      await compareScreenshot(page, undefined, "survey-progress-bar-not-sticky.png");
     });
 
     test("Check survey with progress top questions - sticky", async ({ page }) => {
@@ -573,7 +604,6 @@ frameworks.forEach(framework => {
       const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
       await scroller.evaluate((el) => el.scrollTo(0, 500));
 
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, "#surveyElement", "survey-progress-bar-top-questions-sticky.png");
     });
 
@@ -660,7 +690,6 @@ frameworks.forEach(framework => {
         }
       });
 
-      await page.waitForTimeout(500);
       const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
       await scroller.evaluate((el) => el.scrollTo(0, 300));
 
@@ -785,10 +814,8 @@ frameworks.forEach(framework => {
       // Desktop screenshot
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-background.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await page.waitForTimeout(500);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
-      await page.waitForTimeout(500);
 
       // Mobile screenshot
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile-background.png");
@@ -845,9 +872,7 @@ frameworks.forEach(framework => {
         "progressBarLocation": "top",
         "progressBarShowNavigationText": true,
       });
-      await page.waitForTimeout(100);
       await page.locator(".sv-string-viewer").filter({ hasText: "Yes" }).click();
-      await page.waitForTimeout(100);
 
       await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-top-page-count-change.png");
     });

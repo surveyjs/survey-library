@@ -114,9 +114,11 @@ frameworks.forEach(framework => {
       });
 
       const panelRoot = page.locator(".sd-panel");
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-collapse.png");
       await panelRoot.locator(".sd-panel__title").click();
       await page.hover("body", { position: { x: 0, y: 0 } });
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-expand.png");
     });
 
@@ -143,9 +145,11 @@ frameworks.forEach(framework => {
       });
 
       const panelRoot = page.locator(".sd-panel");
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-collapse-rtl.png");
       await panelRoot.locator(".sd-panel__title").click();
       await page.hover("body", { position: { x: 0, y: 0 } });
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-expand-rtl.png");
 
       await page.setViewportSize({ width: 400, height: 1080 });
@@ -770,7 +774,6 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.waitForTimeout(500);
 
       const panelRoot = page.locator(".sd-panel");
       await getButtonByText(page, "Complete").click();
@@ -830,12 +833,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.waitForTimeout(500);
+      // The first responsiveness pass (a ResizeObserver, then an animation frame) has run: it must not come after the calls below.
+      await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
       await page.evaluate(() => {
         (window as any).survey.setDesignMode(true);
         (window as any).survey.setIsMobile(true);
       });
-      await page.waitForTimeout(500);
       await resetFocusToBody(page);
 
       const panelRoot = page.locator(".sd-body");
@@ -862,10 +865,11 @@ frameworks.forEach(framework => {
           },
         ]
       });
-      await page.waitForTimeout(500);
+      // The survey has rendered, so the page is tall enough to scroll.
+      await expect(page.locator(".sd-panel__title")).toBeVisible();
       await page.evaluate(() => window.scrollBy(0, 400));
-      await page.waitForTimeout(500);
       await page.locator(".sd-panel__title").click({ force: true });
+      await resetFocusToBody(page);
       await compareScreenshot(page, undefined, "panel-scroll-on-expand.png");
     });
   });

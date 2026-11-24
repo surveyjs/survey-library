@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText, loadSurveyLocales } from "../helper";
 
 const title = "Input mask";
 
@@ -34,6 +34,7 @@ frameworks.forEach((framework) => {
     });
 
     test("RTL survey: masked value keeps its field order and the caret stays logical", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await initSurvey(page, framework, {
         locale: "ar",
         autoFocusFirstQuestion: true,
@@ -85,6 +86,7 @@ frameworks.forEach((framework) => {
     });
 
     test("RTL survey: Arabic-Indic digits are accepted and stored as ASCII", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await initSurvey(page, framework, {
         locale: "ar",
         autoFocusFirstQuestion: true,
@@ -207,6 +209,7 @@ frameworks.forEach((framework) => {
           return (window as any).survey.getAllQuestions()[0].value;
         });
       };
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       expect(await page.locator("input").first().inputValue()).toBe("_____");
       expect(await getQuestionValue()).toBeUndefined();
 
@@ -295,6 +298,7 @@ frameworks.forEach((framework) => {
         ]
       });
 
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       expect(await page.locator("input").first().inputValue()).toBe("");
 
       await page.keyboard.press("1");
@@ -325,8 +329,9 @@ frameworks.forEach((framework) => {
         ]
       });
 
-      await page.keyboard.press("Tab");
       const inputElement = page.getByRole("textbox", { name: "q1" });
+      await expect(inputElement).toBeVisible();
+      await page.keyboard.press("Tab");
       expect(await inputElement.inputValue()).toBe("");
 
       let activeElement = await page.evaluate(() => { return (window as any).survey.rootElement.getRootNode().activeElement?.tagName; });

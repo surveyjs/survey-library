@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad, resizeToMobile, baseTest as test } from "../e2e/helper";
 import { registerCustomItemComponent } from "../e2e/registerCustomComponents";
 
 const title = "Dropdown Screenshot";
@@ -104,7 +104,6 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.type("Greece");
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-question", "dropdown-input-position.png");
     });
 
@@ -291,11 +290,9 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.locator(".sd-dropdown__filter-string-input").fill("test");
-      await page.waitForTimeout(100);
       await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-empty-list.png");
       await page.locator(".sd-dropdown__filter-string-input").click();
-      await page.setViewportSize({ width: 300, height: 500 });
-      await page.waitForTimeout(500);
+      await resizeToMobile(page, 300, 500);
       await page.locator(".sd-dropdown__filter-string-input").pressSequentially("1");
       await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-small-window-empty-list.png");
     });
@@ -388,10 +385,8 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.type("a");
-      await page.waitForTimeout(100);
       await compareScreenshot(page, ".sd-dropdown", "dropdown-search-spaces-prefix.png");
       await page.locator(".sd-dropdown__filter-string-input").fill("m");
-      await page.waitForTimeout(100);
       await compareScreenshot(page, ".sd-dropdown", "dropdown-search-spaces-suffix.png");
     });
 
@@ -501,7 +496,6 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-question", "dropdown-question-disabled-long-text.png");
     });
 
@@ -536,7 +530,6 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.type("test");
-      await page.waitForTimeout(500);
       await compareScreenshot(page, page.getByRole("option", { name: 'Create "test" item...' }).locator("div"), "dropdown-custom-list-item.png");
     });
 

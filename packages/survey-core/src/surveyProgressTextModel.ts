@@ -1,5 +1,4 @@
 import { Base } from "./base";
-import { property } from "./decorators";
 import { getLocaleString } from "./surveyStrings";
 import { SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -166,13 +165,48 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     return "progress-" + actualProgressBarType;
   }
 
-  private isProgressBarInContainer(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
-    if (this.survey.state !== "running" || !isStrCiEqual(layoutElement.id, this.getProgressBarComponentName())) return false;
+  // Where the progress bar on the given edge is drawn, or undefined when there is none.
+  // The timer is placed right after it so the two are laid out together.
+  public getProgressLocation(edge: "top" | "bottom"): { container: LayoutElementContainer, index: number } | undefined {
+    if (!this.isProgressBarAvailable() || this.survey.isStartPageActive) return undefined;
+    const placement = this.getProgressPlacement();
+    if (edge === "top") {
+      if (!this.survey.isShowProgressBarOnTop) return undefined;
+      if (placement.tocWithHeaderInContent || placement.isBelowHeader) {
+        return { container: "center", index: placement.isBelowHeader ? 0 : -150 };
+      }
+      return { container: "header", index: -150 };
+    }
+    if (!this.survey.isShowProgressBarOnBottom) return undefined;
+    return placement.tocWithHeaderInContent ? { container: "contentBottom", index: 150 } : { container: "footer", index: 0 };
+  }
+
+  // The progress bar and the timer of one edge form the "progress-top" / "progress-bottom"
+  // group. Only header and footer need it: their elements have no common wrapper, while
+  // center is one wrapper already.
+  public getLayoutElementGroupName(layoutElementId: string, container: LayoutElementContainer): string | undefined {
+    const edge = container === "header" ? "top" : (container === "footer" ? "bottom" : undefined);
+    if (!edge || !this.isTimerShownOnEdge(edge)) return undefined;
+    const location = this.getProgressLocation(edge);
+    if (!location || location.container !== container) return undefined;
+    const isGroupMember = layoutElementId === "timerpanel" || isStrCiEqual(layoutElementId, this.getProgressBarComponentName());
+    return isGroupMember ? "progress-" + edge : undefined;
+  }
+
+  private isTimerShownOnEdge(edge: "top" | "bottom"): boolean {
+    if (this.survey.mode === "display" || this.survey.isStartPageActive) return false;
+    return edge === "top" ? this.survey.isTimerPanelShowingOnTop : this.survey.isTimerPanelShowingOnBottom;
+  }
+
+  private isProgressBarAvailable(): boolean {
+    if (this.survey.state !== "running") return false;
     // singlePage has no screen sequence. questionPerPage and inputPerPage share the
     // screen-position bar, so inputPerPage is not hidden here.
     const isProgressMeaningless = this.survey.questionsOnPageMode == "singlePage";
-    if (isProgressMeaningless && this.survey.progressBarType != "questions") return false;
+    return !(isProgressMeaningless && this.survey.progressBarType != "questions");
+  }
 
+  private getProgressPlacement(): { isBelowHeader: boolean, tocWithHeaderInContent: boolean } {
     const headerLayoutElement = this.survey.findLayoutElement("advanced-header");
     const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
     let isBelowHeader = !advHeader || advHeader.hasBackground;
@@ -182,10 +216,17 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     if (isStrCiEqual(this.survey.progressBarLocation, "belowHeader")) {
       isBelowHeader = true;
     }
+    const tocWithHeaderInContent = !!(this.survey.showTOC && !(advHeader && advHeader.hasBackground) && !this.survey.isStartPageActive);
+    return { isBelowHeader, tocWithHeaderInContent };
+  }
 
-    if (this.survey.showTOC && !(advHeader && advHeader.hasBackground) && !this.survey.isStartPageActive) {
+  private isProgressBarInContainer(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
+    if (!isStrCiEqual(layoutElement.id, this.getProgressBarComponentName()) || !this.isProgressBarAvailable()) return false;
+    const placement = this.getProgressPlacement();
+
+    if (placement.tocWithHeaderInContent) {
       if (container === "center" && this.survey.isShowProgressBarOnTop) {
-        if (!isBelowHeader) {
+        if (!placement.isBelowHeader) {
           layoutElement.index = -150;
         } else {
           delete layoutElement.index;
@@ -199,11 +240,11 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
       return false;
     }
 
-    if (container === "header" && !isBelowHeader) {
+    if (container === "header" && !placement.isBelowHeader) {
       layoutElement.index = -150;
       return this.survey.isShowProgressBarOnTop && !this.survey.isStartPageActive;
     }
-    if (container === "center" && isBelowHeader) {
+    if (container === "center" && placement.isBelowHeader) {
       if (!!layoutElement.index) {
         delete layoutElement.index;
       }

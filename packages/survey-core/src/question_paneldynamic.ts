@@ -1,4 +1,5 @@
-import { HashTable, Helpers } from "./helpers";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
+import { getNameOfSuffixedKey, HashTable, Helpers } from "./helpers";
 import type { QuestionExpressionModel } from "./question_expression";
 import {
   IElement,
@@ -15,7 +16,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, NestedElementVisit, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -28,7 +29,6 @@ import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
-import { AnimationProperty, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { PanelDynamicActions, PanelDynamicTabbedMenuItem } from "./paneldynamic-actions";
 import { PanelDynamicAnimation } from "./paneldynamic-animation";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
@@ -36,11 +36,12 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
+  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, addRecordGetter
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -151,6 +152,12 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   protected updateQuestionFromRecord(question: Question, record: any): void {
     super.updateQuestionFromRecord(question, record);
     question.initDataUI();
+  }
+  // An onUpdatePanelCssClasses handler computes the panel's classes from its record: only the panel's own are dropped.
+  protected onRecordChanged(): void {
+    if (!!this.panel && this.data["hasSurveyHandlers"](["onUpdatePanelCssClasses"])) {
+      this.panel["clearCssClasses"]();
+    }
   }
   /* A question of a new panel takes its record from the survey data (setSurveyImpl), not as a value
      assigned to it: an empty field is taken as it is, a missing comment stays unset, and the value is
@@ -455,6 +462,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    return getFilterFieldsForQuestions(this.template.questions);
+  }
   protected getRecordSortTemplate(): PanelModelBase {
     return this.template;
   }
@@ -746,6 +756,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getValueType(): QuestionValueType {
     return "array";
+  }
+  // A table of its own: its template questions are the filter fields, the panel itself is not one.
+  public get isFilterable(): boolean {
+    return false;
   }
   protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {
@@ -1152,7 +1166,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private raiseCurrentIndexChanged(panel: PanelModel, visibleIndex: number): void {
     if (visibleIndex < 0 || !this.survey) return;
-    this.dynamicPanelCallbacks.dynamicPanelCurrentIndexChanged(this, { panel: panel, visiblePanelIndex: visibleIndex });
+    this.dynamicPanelCallbacks.dynamicPanelCurrentIndexChanged(this, addRecordGetter({ panel: panel, visiblePanelIndex: visibleIndex }, panel));
   }
   /* One change, one event. An operation that may change the current panel - a rebuild of the panels for
      the view, a removal, a move - runs here when the question has a view (without one there is no
@@ -1247,18 +1261,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   public get renderedPanels(): Array<PanelModel> {
     return this._renderedPanels;
-  }
-  // The animation state under the names the question held it by, which the tests read and write.
-  private get leftVisibleIndex(): number { return this.dynamicAnimation.leftVisibleIndex; }
-  private get removedPanelIndex(): number { return this.dynamicAnimation.removedPanelIndex; }
-  private set removedPanelIndex(val: number) { this.dynamicAnimation.removedPanelIndex = val; }
-  private get focusNewPanelCallback(): () => void { return this.dynamicAnimation.focusNewPanelCallback; }
-  private set focusNewPanelCallback(val: () => void) { this.dynamicAnimation.focusNewPanelCallback = val; }
-  private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
-    return this.dynamicAnimation.getAnimationOptions();
-  }
-  get panelsAnimation(): AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>> {
-    return this.dynamicAnimation.panelsAnimation;
   }
 
   public onHidingContent(): void {
@@ -2520,7 +2522,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     let visIndex = -1;
     const removal = this.removeTarget(target, (resolved: IRecordRemoval): boolean => {
       const panel = panelOf(resolved);
-      return !panel || !this.survey || this.dynamicPanelCallbacks.dynamicPanelRemoving(this, resolved.viewIndex, panel);
+      return !panel || !this.survey || this.dynamicPanelCallbacks.dynamicPanelRemoving(this, addRecordGetter({ panelIndex: resolved.viewIndex, panel: panel, allow: true }, panel));
     }, (resolved: IRecordRemoval): IPanelRemoval => {
       const panel = panelOf(resolved);
       visIndex = !!panel ? this.visiblePanelsCore.indexOf(panel) : -1;
@@ -2591,11 +2593,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateFooterActions();
       this.fireCallback(this.panelCountChangedCallback);
       refill();
-      this.notifyOnPanelAddedRemoved(false, removal.viewIndex, panel);
+      this.notifyOnPanelAddedRemoved(false, removal.viewIndex, panel, removal);
     });
   }
   // index: the released meaning of panelIndex (getRecordViewIndex).
-  private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel: PanelModel): void {
+  // removal: the removed panel's, whose record is read from it (getRemovedRecord).
+  private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel: PanelModel, removal?: IRecordRemoval): void {
     // The panel may be gone by now: adding one programmatically while panelCountExpression is
     // set re-evaluates the expression, which drops the panel again before this notification
     if (!panel) return;
@@ -2603,9 +2606,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.survey) {
       const updateIndeces = sQN === "default";
       if (isAdded) {
-        this.dynamicPanelCallbacks.dynamicPanelAdded(this, index, panel, updateIndeces);
+        this.dynamicPanelCallbacks.dynamicPanelAdded(this, addRecordGetter({ panel: panel, panelIndex: index }, panel), updateIndeces);
       } else {
-        this.dynamicPanelCallbacks.dynamicPanelRemoved(this, index, panel, updateIndeces);
+        this.dynamicPanelCallbacks.dynamicPanelRemoved(this, { panel: panel, panelIndex: index, getRecord: (): any => this.getRemovedRecord(removal) }, updateIndeces);
       }
     }
     if (isAdded && !!panel && (sQN === "onpanel" || sQN === "recursive")) {
@@ -2623,15 +2626,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return -1;
   }
-  public locStrsChanged() {
-    super.locStrsChanged();
-    this.locTemplateTitle.strChanged();
+  public locStrsChanged(changes?: ChangedKeys) {
+    super.locStrsChanged(changes);
+    this.locTemplateTitle.strChanged(changes);
     var panels = this.panelsCore;
     for (var i = 0; i < panels.length; i++) {
-      panels[i].locStrsChanged();
+      panels[i].locStrsChanged(changes);
     }
     if (this.tabbedMenu) {
-      this.tabbedMenu.locStrsChanged();
+      this.tabbedMenu.locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -2740,8 +2743,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     key: string,
     postPrefix: string
   ): boolean {
-    if (!key.endsWith(postPrefix)) return false;
-    return !!panel.getQuestionByName(key.substring(0, key.length - postPrefix.length));
+    const name = getNameOfSuffixedKey(key, postPrefix);
+    return !!name && !!panel.getQuestionByName(name);
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     const contextQ = !!context?.isValidator ? context.errorOwner : context;
@@ -2862,9 +2865,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
          record count (recordCount). Without this branch a question that gets its source before its
          first rendering would never build a panel. */
       this.rebuildFromDataList();
-    } else if (this.isPagingActive) {
-      /* The records first, then the panels of the page: the panelCount setter would compare the count
-         with the records the value already holds and build nothing. */
+    } else if (this.hasDataListView) {
+      /* The records first, then the panels the view holds - under paging, the page's: the panelCount
+         setter would compare the count with the records the value already holds and build nothing.
+         A sort or a filter without paging is a view too: a defaultValue applied on load gives the
+         records before this build, and the panelCount branch below would build no panel for them (#12398). */
       const count = this.getPropertyValue("panelCount");
       if (count > 0 && count !== this.storedRecordCount) {
         this.updateBindings("panelCount", count);
@@ -3437,14 +3442,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // A question of a removed panel writes nothing: there is no change to announce.
     const item = <QuestionPanelDynamicItem>(<PanelModel>panel).data;
     if (position < 0 && !!item && this.leftItems.has(item)) return undefined;
-    return {
+    return addRecordGetter({
       question: this,
       panel: panel,
       name: childQuestion.name,
       panelIndex: this.getChangingPanelIndex(<PanelModel>panel, position),
       panelData: this.getPanelItemDataByIndex(position),
       oldValue: childQuestion.value
-    };
+    }, panel);
   }
   /* A panel that is not among the panels yet is being created for its record: its questions' defaults
      are announced under the index the record takes. The template stays at -1. */
@@ -3465,6 +3470,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      getPanelItemDataByIndex reads for it, not the record count. */
   protected getRecordIndexOfUnknownItem(): number {
     return this.getRecordIndexAtCreatedPosition(this.panelsCore.length);
+  }
+  // The template holds no record: getItemData would read the one a panel being created is about to take.
+  protected getItemRecord(item: QuestionRecordItem): any {
+    return (<QuestionPanelDynamicItem>item).panel === this.template ? null : super.getItemRecord(item);
   }
   // A panel without a record reads {}; a matrix row reads null. Both as released.
   getItemData(item: ISurveyData): any {
@@ -3616,6 +3625,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get locNoEntriesText(): LocalizableString {
     return this.getOrCreateLocStr("noEntriesText", false, this.getNoEntriesLocalizationName());
   }
+  public get noEntriesTextId(): string {
+    return this.renderedId + "_noEntriesText";
+  }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;
   }
@@ -3643,10 +3655,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get tabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> | null {
     return this.isRenderModeTab ? this.dynamicActions.tabbedMenu : null;
   }
-  // The menu once it is created, which the tests read.
-  private get tabbedMenuValue(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> {
-    return this.actionsValue?.createdTabbedMenu;
-  }
   private updateTabbedMenuItems(): void {
     this.actionsValue?.updateTabbedMenuItems();
   }
@@ -3669,13 +3677,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public get ariaInvalid() {
     return null;
-  }
-  // The footer update under the names the question held it by: a callback assigned here is the one updateFooterActions runs.
-  private get updateFooterActionsCallback(): () => void {
-    return this.actionsValue?.updateFooterActionsCallback;
-  }
-  private set updateFooterActionsCallback(val: () => void) {
-    this.dynamicActions.updateFooterActionsCallback = val;
   }
   /* The footer follows the question properties it reads by itself (PanelDynamicActions). This update is
      for what is not a property: the current panel's visibleIndex, the panels a build or a removal

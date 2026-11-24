@@ -1,4 +1,4 @@
-import { HashTable, Helpers, ISurveyDateProvider } from "./helpers";
+import { getNameOfSuffixedKey, HashTable, Helpers, ISurveyDateProvider } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Base, ComputedUpdater } from "./base";
@@ -19,6 +19,7 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
+  ISurveyLayoutElementGroup,
   IPlainDataOptions,
   LayoutElementContainer,
   IValueItemCustomPropValues,
@@ -36,11 +37,13 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
+import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { ChangedKeys } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
-import { getLocaleString, surveyLocalization } from "./surveyStrings";
+import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
@@ -79,7 +82,7 @@ import {
   ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
   GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
-  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
+  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, UpdateMatrixCellCssEvent, UpdateMatrixRowCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
@@ -90,7 +93,7 @@ import {
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
   IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
-  DynamicDataErrorEvent
+  DynamicDataErrorEvent, FilterChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -115,9 +118,9 @@ import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, a
 import { IPropertyDefaults, PropertyDefaultsLayer } from "./survey-property-defaults";
 import { propertyDefaultsState } from "./survey-property-defaults-state";
 import DefaultLightTheme from "./themes/default-light";
-import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
+import type { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -837,6 +840,22 @@ export class SurveyModel extends SurveyElementCore
    * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
+  /**
+   * An event that is raised when a cell in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its row's data changes. Use it to override the default CSS classes applied to the cell's `<td>` element.
+   * @see css
+   * @see onUpdateMatrixRowCss
+   */
+  public onUpdateMatrixCellCss: EventBase<SurveyModel, UpdateMatrixCellCssEvent> = this.addEvent<SurveyModel, UpdateMatrixCellCssEvent>();
+  /**
+   * An event that is raised when a row in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its data changes. Use it to override the default CSS classes applied to the row's `<tr>` element.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is raised only in the horizontal layout, where each rendered matrix row represents one record. When [`transposeData`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#transposeData) switches the matrix to the vertical layout, each rendered row represents a matrix column. Use [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss) to style individual matrix cells in that layout.
+   * @see css
+   * @see onUpdateMatrixCellCss
+   */
+  public onUpdateMatrixRowCss: EventBase<SurveyModel, UpdateMatrixRowCssEvent> = this.addEvent<SurveyModel, UpdateMatrixRowCssEvent>();
 
   /**
    * An event that is raised after the survey is rendered to the DOM. Use this event to modify survey markup.
@@ -1067,6 +1086,22 @@ export class SurveyModel extends SurveyElementCore
      a page that could not be read, an edit the server rejected, or a number naming a record the loaded
      page does not hold. The survey does nothing on its own: the records the question shows are kept. */
   public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
+  // An event that is raised whenever a Filter Control composes a new filter expression, whoever
+  // caused it: the end user picked another filter item or typed in the quick search, an authored
+  // defaultItem was applied as the survey loaded, a saved uiState was restored, or the control was
+  // pointed at another source. It answers "the effective filter is now X", not "the respondent
+  // changed something" - that one is onUIStateChanged, which stays silent for an authored default.
+  // A control bound to a Dynamic Matrix or a Dynamic Panel has already re-filtered that question by
+  // the time the event is raised, so a handler that looks into the source sees the records it shows
+  // now. The load-time raise is only observable when the JSON arrives through survey.fromJSON()
+  // after a handler was added: with new SurveyModel(json) the load is over before there is anything
+  // to raise it to.
+  public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
+  // Raised when a Filter Control asks the application's model for a filter (Create and Edit in the
+  // preset dialogs) - see FilterAIRequestEvent. SurveyJS never calls a model: the handler sends systemPrompt
+  // and messages to one and passes the answer to callback. The control offers AI only while this
+  // event has a handler.
+  public onAIFilterRequest: EventBase<SurveyModel, FilterAIRequestEvent> = this.addEvent<SurveyModel, FilterAIRequestEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -1261,7 +1296,6 @@ export class SurveyModel extends SurveyElementCore
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
 
-    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -1346,8 +1380,8 @@ export class SurveyModel extends SurveyElementCore
     if (curPageStateProps.indexOf(name) > -1) {
       this.onStateAndCurrentPageChanged();
     }
-    if (name === "logo" || name === "logoPosition") {
-      this.resetHasLogo();
+    if (name === "logoPosition") {
+      this.updateHasLogo();
     }
     if (name === "backgroundImage") {
       this.resetPropertyValue("renderBackgroundImage");
@@ -1386,9 +1420,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() sjsVersion: string;
   @property() $schema: string;
-  processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
-    throw new Error("Method not implemented.");
-  }
   protected createTryAgainAction(): IAction {
     return <IAction>{
       id: "save-again",
@@ -1406,6 +1437,12 @@ export class SurveyModel extends SurveyElementCore
     return this.getOrCreateLocStr(name, false, locName, (locStr: LocalizableString) => {
       if (reason) {
         locStr.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
+        // It processes the names of its own text. An onProcessHtml handler can read any value: then every
+        // string refreshes (getLocStrChanges)
+        locStr.isTextCallbackPure = true;
+      } else {
+        // processedCompletedHtml processes it, or a condition item's html instead of it
+        locStr.isProcessedByOwner = true;
       }
     });
   }
@@ -1525,6 +1562,12 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see onUpdateQuestionCssClasses
+   * @see onUpdatePanelCssClasses
+   * @see onUpdatePageCssClasses
+   * @see onUpdateChoiceItemCss
+   * @see onUpdateMatrixRowCss
+   * @see onUpdateMatrixCellCss
    */
   public get css(): any {
     if (!this.cssValue) {
@@ -2256,8 +2299,8 @@ export class SurveyModel extends SurveyElementCore
     key: string,
     postPrefix: string
   ): boolean {
-    if (!key.endsWith(postPrefix)) return false;
-    return !!this.getQuestionByValueName(key.substring(0, key.length - postPrefix.length));
+    const name = getNameOfSuffixedKey(key, postPrefix);
+    return !!name && !!this.getQuestionByValueName(name);
   }
   /**
    * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.
@@ -2448,23 +2491,62 @@ export class SurveyModel extends SurveyElementCore
   getLocale(): string {
     return this.locale;
   }
-  public locStrsChanged(): void {
+  // changes: see Base.locStrsChanged. A value change walks the active page only; a page change
+  // refreshes every string of the new page.
+  public locStrsChanged(changes?: ChangedKeys): void {
     if (this.isClearingUnsedValues) return;
-    super.locStrsChanged();
+    super.locStrsChanged(changes);
+    if (!!changes) {
+      this.completedHtmlItemsChanged(changes);
+    }
     if (!this.currentPage) return;
     if (this.isDesignMode) {
+      // Texts are not processed in design mode: every string refreshes, whatever changed
       this.pages.forEach(page => page.locStrsChanged());
     } else {
       var page = this.activePage;
       if (!!page) {
-        page.locStrsChanged();
+        page.locStrsChanged(changes);
       }
+      // Not filtered: an empty navigation title shows the page title and the page number
       const visPages = this.visiblePages;
       for (var i = 0; i < visPages.length; i++) {
         visPages[i].navigationLocStrChanged();
       }
     }
-    this.navigationBarValue?.locStrsChanged();
+    this.navigationBarValue?.locStrsChanged(changes);
+  }
+  // ILocalizableOwner: the survey's context adds no names to its texts
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+    return undefined;
+  }
+  // The complete page shows the html of the first condition item whose expression is true, and
+  // processedCompletedHtml is notified under completedHtml: completedHtml refreshes when an item's html
+  // names or its expression's names changed. Its own names are checked with the other strings.
+  private completedHtmlItemsChanged(changes: ChangedKeys): void {
+    const locStr = this.getLocalizableString("completedHtml");
+    if (!locStr) return;
+    const items: Array<HtmlConditionItem> = this.getPropertyValueWithoutDefault("completedHtmlOnCondition");
+    if (!Array.isArray(items)) return;
+    for (let i = 0; i < items.length; i++) {
+      const locHtml = items[i].locHtml;
+      const names = !!locHtml ? locHtml.getTextNames() : [];
+      if (names.length > 0 && changes.isAnyChanged(names, true) || items[i].isExpressionChanged(changes)) {
+        locStr.strChanged();
+        return;
+      }
+    }
+  }
+  // {q1} shows q1's display value. A choice, row or column text can have names of its own, or come
+  // from another question (carry-forward choices), so it can change without a change of q1.
+  private isDisplayTextValueName(name: string): boolean {
+    if (!name) return false;
+    const questions = this.getQuestionsByValueName(name, true);
+    if (!questions) return false;
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].hasDisplayTexts()) return true;
+    }
+    return false;
   }
   protected getAllChildren(): Base[] {
     let result = super.getAllChildren();
@@ -2559,9 +2641,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  @property({ localizable: { onCreate: (obj: SurveyModel, locStr: LocalizableString) =>
-    locStr.onStringChanged.add(() => obj.resetHasLogo())
-  } }) logo: string;
+  @property({ localizable: true }) logo: string;
   /**
    * A logo width in CSS-accepted values.
    *
@@ -2617,10 +2697,25 @@ export class SurveyModel extends SurveyElementCore
     return !!this.locLogo.renderedHtml;
   }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", undefined, () => this.hasLogoImage && this.logoPosition !== "none");
+    return this.getPropertyValue("hasLogo", undefined, () => this.calcHasLogo());
+  }
+  private calcHasLogo(): boolean {
+    return this.hasLogoImage && this.logoPosition !== "none";
   }
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");
+  }
+  private updateHasLogo(): void {
+    this.refreshLazyPropertyValue("hasLogo", () => this.calcHasLogo());
+  }
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "logo") {
+      this.updateHasLogo();
+    }
+    if (name === "title") {
+      this.updateTitleIsEmpty();
+    }
   }
   public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
@@ -2646,7 +2741,14 @@ export class SurveyModel extends SurveyElementCore
     return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
   }
   public get titleIsEmpty(): boolean {
-    return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
+    return this.getPropertyValue("titleIsEmpty", undefined, () => this.calcTitleIsEmpty());
+  }
+  // The rendered text, as for the logo: dynamic text that resolves to an empty string shows no title
+  private calcTitleIsEmpty(): boolean {
+    return !this.locTitle.renderedHtml;
+  }
+  private updateTitleIsEmpty(): void {
+    this.refreshLazyPropertyValue("titleIsEmpty", () => this.calcTitleIsEmpty());
   }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
@@ -2665,6 +2767,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public get hasTitle(): boolean {
     return this.renderedHasTitle;
+  }
+  public get renderedLogoURL(): string {
+    return this.getLocStringHtml(this.locLogo);
   }
   public get renderedHasLogo(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("logo");
@@ -2840,10 +2945,13 @@ export class SurveyModel extends SurveyElementCore
     this.checkTriggers(this.getFilteredValues(), false);
   }
   public get renderedCompletedHtml(): string {
+    // Read in any case: a render of the complete page is notified under completedHtml when what it
+    // shows can change (completedHtmlItemsChanged), also when a condition item's html is shown
+    const completedHtml = this.completedHtml;
     var item = this.getExpressionItemOnRunCondition(
       this.completedHtmlOnCondition
     );
-    return !!item ? (<HtmlConditionItem>item).html : this.completedHtml;
+    return !!item ? (<HtmlConditionItem>item).html : completedHtml;
   }
   private getExpressionItemOnRunCondition(
     items: Array<ExpressionItem>
@@ -3033,6 +3141,21 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
+  // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
+  // undefined (the default) follows the setting. Design-time options, so not registered in Serializer (not in toJSON).
+  public get showEmptyTitlesInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyTitlesInDesignMode", settings.designMode.showEmptyTitles);
+  }
+  public set showEmptyTitlesInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyTitlesInDesignMode", val);
+  }
+  public get showEmptyDescriptionsInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyDescriptionsInDesignMode", settings.designMode.showEmptyDescriptions);
+  }
+  public set showEmptyDescriptionsInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyDescriptionsInDesignMode", val);
+  }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -3589,6 +3712,8 @@ export class SurveyModel extends SurveyElementCore
       changedKeys.add(key);
     }
     if (changedKeys.size === 0) return;
+    const locStrKeys = createHash();
+    changedKeys.forEach((key: string): void => { locStrKeys[key] = this.getDataValueCore(this.valuesHash, key); });
     const questions = this.getAllQuestions();
     for (let i = 0; i < questions.length; i++) {
       const q = <Question>questions[i];
@@ -3600,7 +3725,7 @@ export class SurveyModel extends SurveyElementCore
         q.updateCommentFromSurvey(this.getComment(valName));
       }
     }
-    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(locStrKeys));
     // Called from code that runs inside a conditions pass (a custom function): ask for one more pass
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
@@ -3720,7 +3845,8 @@ export class SurveyModel extends SurveyElementCore
     this.settingDataScope.run(() => {
       this.updateAllQuestionsValue(clearData);
       this.notifyAllQuestionsOnValueChanged();
-      this.notifyElementsOnAnyValueOrVariableChanged("");
+      // The previous data is gone (assignData resets it first), so which names changed is unknown
+      this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
     });
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
@@ -3889,7 +4015,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  getFilteredValues(): any {
+  getFilteredValues(): { [index: string]: any } {
     const values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     this.addCalculatedValuesIntoFilteredValues(values);
@@ -5249,7 +5375,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
-    let res = this.doCurrentPageComplete(true);
+    this.doCurrentPageComplete(true);
     return this.isCompleted;
   }
   /**
@@ -5267,15 +5393,8 @@ export class SurveyModel extends SurveyElementCore
   private resetNavigationButton() {
     this.isNavigationButtonPressed = false;
   }
-  private mouseDownPage: any = null;
   public nextPageUIClick(): boolean {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return false;
-    this.mouseDownPage = null;
     return this.performNext();
-  }
-  public nextPageMouseDown(): boolean {
-    this.mouseDownPage = this.activePage;
-    return this.navigationMouseDown();
   }
   /**
    * Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
@@ -5499,7 +5618,7 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleElementValue: IElement;
+  private currentSingleElementValue: IElement | undefined;
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
@@ -5518,10 +5637,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleElement(): IElement {
+  public get currentSingleElement(): IElement | undefined {
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
-  public set currentSingleElement(val: IElement) {
+  public set currentSingleElement(val: IElement | undefined) {
     if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
       while(val.parent && val.parent.isPanel) {
         val = <IElement>(<any>val.parent);
@@ -5563,11 +5682,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  public get currentSingleQuestion(): Question {
+  public get currentSingleQuestion(): Question | undefined {
     const res = this.currentSingleElement;
     return !!res && res.isQuestion ? <Question>res : undefined;
   }
-  public set currentSingleQuestion(val: Question) {
+  public set currentSingleQuestion(val: Question | undefined) {
     this.currentSingleElement = val;
   }
   public supportsNestedSingleInput(question: IQuestion): boolean {
@@ -6043,7 +6162,7 @@ export class SurveyModel extends SurveyElementCore
    * To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
    */
   public get processedCompletedBeforeHtml(): string {
-    return this.locCompletedBeforeHtml.textOrHtml;
+    return this.getLocStringHtml(this.locCompletedBeforeHtml);
   }
   /**
    * Returns HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
@@ -6051,7 +6170,7 @@ export class SurveyModel extends SurveyElementCore
    * To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
    */
   public get processedLoadingHtml(): string {
-    return this.locLoadingHtml.textOrHtml;
+    return this.getLocStringHtml(this.locLoadingHtml);
   }
   /**
    * Returns an object that provides information about survey progress.
@@ -6387,8 +6506,10 @@ export class SurveyModel extends SurveyElementCore
   matrixBeforeRowAdded(options: any) {
     this.onMatrixRowAdding.fire(this, options);
   }
-  matrixRowAdded(question: QuestionMatrixDynamicModel, row: any) {
-    this.onMatrixRowAdded.fire(this, { question: question, row: row });
+  // The matrices and the dynamic panel build the options of their events, getRecord included.
+  matrixRowAdded(question: QuestionMatrixDynamicModel, options: any): void {
+    options.question = question;
+    this.onMatrixRowAdded.fire(this, options);
   }
   matrixColumnAdded(question: Question, column: any): void {
     this.onMatrixColumnAdded.fire(this, { question: question, column: column });
@@ -6425,30 +6546,22 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
-  matrixRowRemoved(question: QuestionMatrixDynamicModel, rowIndex: number, row: any) {
-    this.onMatrixRowRemoved.fire(this, {
-      question: question,
-      rowIndex: rowIndex,
-      row: row,
-    });
+  matrixRowRemoved(question: QuestionMatrixDynamicModel, options: any): void {
+    options.question = question;
+    this.onMatrixRowRemoved.fire(this, options);
   }
-  matrixRowRemoving(question: QuestionMatrixDynamicModel, rowIndex: number, row: any): boolean {
-    var options = {
-      question: question,
-      rowIndex: rowIndex,
-      row: row,
-      allow: true,
-    };
+  matrixRowRemoving(question: QuestionMatrixDynamicModel, options: any): boolean {
+    options.question = question;
     this.onMatrixRowRemoving.fire(this, options);
     return options.allow;
   }
-  matrixAllowRemoveRow(question: QuestionMatrixDynamicModel, rowIndex: number, row: any): boolean {
-    const options = { question: question, rowIndex: rowIndex, row: row, allow: true };
+  matrixAllowRemoveRow(question: QuestionMatrixDynamicModel, options: any): boolean {
+    options.question = question;
     this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
-  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, rowIndex: number, row: any, visible: boolean): void {
-    const options = { question: question, rowIndex: rowIndex, row: row, visible: visible, detailPanel: row.detailPanel };
+  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
     this.onMatrixDetailPanelVisibleChanged.fire(this, options);
   }
   matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any): void {
@@ -6459,10 +6572,21 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
+  updateMatrixCellCss(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
+    this.onUpdateMatrixCellCss.fire(this, options);
+  }
+  updateMatrixRowCss(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
+    this.onUpdateMatrixRowCss.fire(this, options);
+  }
   matrixAfterCellRender(options: any): void {
     const evt = this.onAfterRenderMatrixCell;
     if (!evt.isEmpty) {
       options.question = options.cellQuestion?.parentQuestion;
+      // The renderers build these options: the row gives its record.
+      const row = options.row;
+      options.getRecord = (): any => !!row ? row.getRecord() : null;
       evt.fire(this, options);
     }
   }
@@ -6498,13 +6622,15 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
+  dynamicPanelAdded(question: QuestionPanelDynamicModel, options: any, updateIndexes: boolean): void {
     if (!this.isLoadingFromJson && updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
+    options.question = question;
+    this.onDynamicPanelAdded.fire(this, options);
   }
-  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
+  dynamicPanelRemoved(question: QuestionPanelDynamicModel, options: any, updateIndexes: boolean): void {
+    const panel: PanelModel = options.panel;
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
@@ -6512,19 +6638,11 @@ export class SurveyModel extends SurveyElementCore
     if (updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    this.onDynamicPanelRemoved.fire(this, {
-      question: question,
-      panelIndex: panelIndex,
-      panel: panel,
-    });
+    options.question = question;
+    this.onDynamicPanelRemoved.fire(this, options);
   }
-  dynamicPanelRemoving(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): boolean {
-    const options = {
-      question: question,
-      panelIndex: panelIndex,
-      panel: panel,
-      allow: true
-    };
+  dynamicPanelRemoving(question: QuestionPanelDynamicModel, options: any): boolean {
+    options.question = question;
     this.onDynamicPanelRemoving.fire(this, options);
     return options.allow;
   }
@@ -6536,6 +6654,21 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
+  }
+  // ISurveyFilterCallbacks: the Filter Control is a non-value question, so nothing it does reaches
+  // survey.data. Its end-user state travels through uiState instead, and this is how it says so.
+  filterStateChanged(question: IQuestion): void {
+    this.doUIStateChanged("filter", question);
+  }
+  filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void {
+    this.onFilterChanged.fire(this, { question: <Question>question,
+      filterExpression: filterExpression, sourceQuestion: <Question>sourceQuestion });
+  }
+  isAIFilterRequestAvailable(): boolean {
+    return !this.onAIFilterRequest.isEmpty;
+  }
+  aiFilterRequest(options: FilterAIRequestEvent): void {
+    this.onAIFilterRequest.fire(this, options);
   }
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
@@ -6621,10 +6754,6 @@ export class SurveyModel extends SurveyElementCore
     this.heldCompletion = undefined;
     this.doCurrentPageComplete(true);
   }
-  dragAndDropAllow(options: DragDropAllowEvent): boolean {
-    this.onDragDropAllow.fire(this, options);
-    return options.allow;
-  }
   elementContentVisibilityChanged(element: ISurveyElement): void {
     if (this.currentPage) {
       this.currentPage.ensureRowsVisibility();
@@ -6637,7 +6766,7 @@ export class SurveyModel extends SurveyElementCore
   pageShown(page: IPage): void {
     this.doUIStateChanged("shown", page);
   }
-  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }
@@ -6707,6 +6836,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getTitleActionsResult(titleActions, options);
   }
 
+  // Called by the rendered table and, as released, by survey-creator's tests: the row gives its record.
   getUpdatedMatrixRowActions(
     question: QuestionMatrixDropdownModelBase,
     row: any,
@@ -6716,6 +6846,7 @@ export class SurveyModel extends SurveyElementCore
       question: question,
       actions: actions,
       row: row,
+      getRecord: (): any => !!row ? row.getRecord() : null
     };
     this.onGetMatrixRowActions.fire(this, options);
     return options.actions;
@@ -7225,7 +7356,7 @@ export class SurveyModel extends SurveyElementCore
     return options.value;
   }
   private getLocNotification(loc: boolean | "text", value: any, oldValue: any): boolean | "text" {
-    if (loc === false && Helpers.isTwoValueEquals(value, oldValue, false, true, false)) return true;
+    if (loc === false && Helpers.checkIfValuesEqual(value, oldValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return true;
     return loc;
   }
   protected updateQuestionValue(valueName: string, newValue: any) {
@@ -7308,7 +7439,12 @@ export class SurveyModel extends SurveyElementCore
     this.fireOnValueChanged(valueName, newValue, !!questionName ? this.getQuestionByName(questionName) : undefined);
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
-    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName, this.getLocStrChangesByName(valueName, newValue));
+  }
+  private getLocStrChangesByName(name: string, value: any): ChangedKeys {
+    const keys = createHash();
+    keys[name] = value;
+    return this.getLocStrChanges(keys);
   }
   private elementsBindingsScope = new Scope();
   private get isRunningElementsBindings(): boolean {
@@ -7329,18 +7465,67 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
+  // locStrChanges: the names the strings check (getLocStrChanges); undefined refreshes every string
+  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string, locStrChanges?: ChangedKeys) {
     if (this.isEndLoadingFromJson === "processing") return;
     if (this.isRunningConditions) {
       this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
+      this.addDeferredLocStrChanges(locStrChanges);
       return;
     }
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name, questionName);
     }
     if (!this.isEndLoadingFromJson) {
-      this.locStrsChanged();
+      this.locStrsChanged(locStrChanges);
     }
+  }
+  // The names a value change changed, for the strings: keys - { name: value } or { name: { oldValue, newValue } };
+  // no keys - unknown, every string with names refreshes. A handler that can make a text show any value
+  // turns the check off, as onExpressionRunning does for expressions (getValueChangedKeys): undefined
+  // refreshes every string.
+  private getLocStrChanges(keys: any): ChangedKeys {
+    if (this.hasValueDependentTextHandler()) return undefined;
+    if (!keys) return new ChangedKeys();
+    return this.createLocStrChanges(keys);
+  }
+  private hasValueDependentTextHandler(): boolean {
+    return !this.onExpressionRunning.isEmpty || !this.onProcessDynamicText.isEmpty ||
+      !this.onGetQuestionTitle.isEmpty || !this.onProcessHtml.isEmpty;
+  }
+  private createLocStrChanges(keys: any): ChangedKeys {
+    if (!this.isDisplayTextValueNameFunc) {
+      this.isDisplayTextValueNameFunc = (name: string): boolean => this.isDisplayTextValueName(name);
+    }
+    return new ChangedKeys(keys, this.getVariableNamesInfo(), this.isDisplayTextValueNameFunc);
+  }
+  private isDisplayTextValueNameFunc: (name: string) => boolean;
+  // The notifications deferred while conditions run are merged into one: every string > unknown > the keys
+  private deferredLocStrChanges: { changes: ChangedKeys };
+  private addDeferredLocStrChanges(changes: ChangedKeys): void {
+    const deferred = this.deferredLocStrChanges;
+    if (!deferred) {
+      this.deferredLocStrChanges = { changes: !!changes && !changes.isUnknown ? this.copyLocStrChanges(changes) : changes };
+      return;
+    }
+    const current = deferred.changes;
+    if (!current || current.isUnknown) return;
+    if (!changes || changes.isUnknown) {
+      deferred.changes = changes;
+      return;
+    }
+    const keys = changes.keys;
+    for (const key in keys) {
+      current.setKey(key, keys[key]);
+    }
+  }
+  private copyLocStrChanges(changes: ChangedKeys): ChangedKeys {
+    const res = this.createLocStrChanges({});
+    const keys = changes.keys;
+    for (const key in keys) {
+      res.setKey(key, keys[key]);
+    }
+    return res;
   }
   private updateAllQuestionsValue(clearData: boolean) {
     var questions = this.getAllQuestions();
@@ -7418,7 +7603,10 @@ export class SurveyModel extends SurveyElementCore
       isQuestionInvalid = question && !question.validate(false);
     }
     this.triggersRunScope.run(() => {
-      this.triggerKeys = key;
+      // The run works on its own copy: a nested run (for example, the page triggers that a complete
+      // trigger runs) merges plain values into it, and variablesChangedCore() reads its own
+      // { newValue, oldValue } map after this call (Bug#12333)
+      this.triggerKeys = { ...key };
       const properties = this.getFilteredProperties();
       const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
         isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
@@ -7452,10 +7640,7 @@ export class SurveyModel extends SurveyElementCore
       // ('other' choice workflows), so include the related name into the changed keys
       const relatedValue = this.getValue(relatedName);
       triggerKeys[relatedName] = { newValue: relatedValue, oldValue: relatedValue };
-      if (!this.questionTriggersKeys) {
-        this.questionTriggersKeys = {};
-      }
-      this.questionTriggersKeys[relatedName] = relatedValue;
+      this.ensureValueChangedKeys().setKey(relatedName, relatedValue);
     }
     this.runConditionOnValueChanged(name, newValue);
     this.checkTriggers(triggerKeys, false, false, false, relatedName || name);
@@ -7513,27 +7698,40 @@ export class SurveyModel extends SurveyElementCore
         }
         if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
           this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
-          this.notifyElementsOnAnyValueOrVariableChanged("");
+          const deferred = this.deferredLocStrChanges;
+          this.deferredLocStrChanges = undefined;
+          this.notifyElementsOnAnyValueOrVariableChanged("", undefined, !!deferred ? deferred.changes : undefined);
         }
         if (!this.isRunningConditionOnValueChanged) {
-          this.questionTriggersKeys = undefined;
+          this.valueChangedKeys = undefined;
         }
       }
     }
   }
-  private questionTriggersKeys: any;
+  // The names changed in the current value-change pass: one object from the first changed name until the
+  // pass ends. A value set inside the pass adds its name. The question triggers read its keys after the pass.
+  private valueChangedKeys: ChangedKeys;
+  private ensureValueChangedKeys(): ChangedKeys {
+    if (!this.valueChangedKeys) {
+      this.valueChangedKeys = new ChangedKeys({}, this.getVariableNamesInfo());
+    }
+    return this.valueChangedKeys;
+  }
   private conditionOnValueChangedScope = new Scope();
   private get isRunningConditionOnValueChanged(): boolean {
     return this.conditionOnValueChangedScope.isActive;
   }
-  public getValueChangedKeys(): any {
+  // The pass's changed names for the expressions that skip a run when none of their names changed.
+  // undefined runs everything: outside a value-change pass, and while onExpressionRunning has a subscriber.
+  // The triggers check their own keys and are not affected by either rule.
+  public getValueChangedKeys(): ChangedKeys {
     if (!this.isRunningConditionOnValueChanged) return undefined;
     // An onExpressionRunning subscriber can rewrite expressions on the fly, so static
     // dependency analysis of the original expressions is unreliable - run everything
     if (!this.onExpressionRunning.isEmpty) return undefined;
-    return this.questionTriggersKeys;
+    return this.valueChangedKeys;
   }
-  // The skip check's parsed variable names (ValueGetter.isAnyKeyChangedCore), shared by every runner and trigger
+  // The skip check's parsed variable names (ChangedKeys.isAnyChanged), shared by every runner and trigger
   // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
   // An item depends on the name only: settings are read on every call, never kept in it, and an item never
   // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
@@ -7559,11 +7757,9 @@ export class SurveyModel extends SurveyElementCore
         this.changesOnComplete.names[key] = values[key];
       }
     }
-    if (!this.questionTriggersKeys) {
-      this.questionTriggersKeys = {};
-    }
+    const changedKeys = this.ensureValueChangedKeys();
     for (const key in values) {
-      this.questionTriggersKeys[key] = values[key];
+      changedKeys.setKey(key, values[key]);
     }
     if (this.isRunningConditions) {
       // At load, a calculated value's own write in the loop over the calculated values requests no
@@ -7576,7 +7772,7 @@ export class SurveyModel extends SurveyElementCore
     } else {
       this.conditionOnValueChangedScope.run(() => this.runConditions());
       this.runQuestionsTriggers(name, !!name ? values[name] : undefined);
-      this.questionTriggersKeys = undefined;
+      this.valueChangedKeys = undefined;
     }
   }
   private runConditionsCore(properties: any) {
@@ -7605,13 +7801,16 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     const visibilityChangeCount = this.visibilityChangeCount;
-    super.runConditionCore(properties);
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(properties);
-    }
+    const expressionRuns = QuestionExpressionModel.collectRuns(() => {
+      super.runConditionCore(properties);
+      for (let i = 0; i < pages.length; i++) {
+        pages[i].runCondition(properties);
+      }
+    });
     if (visibilityChangeCount !== this.visibilityChangeCount) {
       // A changed value requests another pass, so the conditions that read it run again
       calculatedRuns.forEach(item => item.runAfterVisibilityChanged(properties));
+      expressionRuns.forEach((runProperties, item) => item.runAfterVisibilityChanged(runProperties));
     }
   }
   // Grows when a page, panel or question changes its visibility, or a question its visible rows, columns or inputs
@@ -7664,7 +7863,7 @@ export class SurveyModel extends SurveyElementCore
     let questions = this.getQuestionTriggersList();
     let changeCount = this.questionTriggersChangeCount;
     for (let i = 0; i < questions.length; i++) {
-      questions[i].runTriggers(name, value, this.questionTriggersKeys);
+      questions[i].runTriggers(name, value, this.valueChangedKeys?.keys);
       // A trigger set a value and its handlers changed the list. Walks nest, so the rebuilt list
       // replaces the survey's one and the array this walk iterates is never changed.
       if (changeCount !== this.questionTriggersChangeCount) {
@@ -7827,7 +8026,7 @@ export class SurveyModel extends SurveyElementCore
     this.endLoading();
     this.updateState();
     if (!!this.sjsVersion && !!settings.version) {
-      if (Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+      if (Helpers.compareVerions(String(this.sjsVersion), settings.version) > 0) {
         ConsoleWarnings.warn("The version of the survey JSON schema (v"
           + this.sjsVersion + ") is newer than your current Form Library version ("
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
@@ -8020,14 +8219,15 @@ export class SurveyModel extends SurveyElementCore
   }
   private runConditionsOnComplete(changed: HashTable<any>): void {
     // doComplete() can be called from a handler inside a value change: that change's keys come back after the run.
-    const prevKeys = this.questionTriggersKeys;
-    this.questionTriggersKeys = changed;
+    // The restored object kept its lower-case keys: the run on complete writes into its own object
+    const prevKeys = this.valueChangedKeys;
+    this.valueChangedKeys = new ChangedKeys(changed, this.getVariableNamesInfo());
     try {
       this.runningConditionsOnCompleteScope.run(() => {
         this.conditionOnValueChangedScope.run(() => this.runConditions());
       });
     } finally {
-      this.questionTriggersKeys = prevKeys;
+      this.valueChangedKeys = prevKeys;
     }
   }
   private notifyElementHiddenOnComplete(): void {
@@ -8074,7 +8274,7 @@ export class SurveyModel extends SurveyElementCore
     if (!name || isProtoKey(name.toLowerCase())) return;
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
-    this.notifyElementsOnAnyValueOrVariableChanged(name);
+    this.notifyElementsOnAnyValueOrVariableChanged(name, undefined, this.getLocStrChangesByName(name, newValue));
     if (!this.isTwoValueEqualsInSurvey(oldValue, newValue)) {
       const changed: HashTable<{ newValue: any, oldValue: any }> = {};
       changed[name] = { newValue: newValue, oldValue: oldValue };
@@ -8175,7 +8375,7 @@ export class SurveyModel extends SurveyElementCore
     if (Object.keys(changed).length === 0) return;
     // One notification and one recalculation for the entire batch: elements and expressions never
     // see a state in which a part of the variables is set
-    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(changed));
     this.variablesChangedCore(changed);
   }
   /**
@@ -8372,6 +8572,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel): void {
     page.setSurveyImpl(null);
+    this.questionHashesPanelRemoved(page);
     if (!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
@@ -8658,10 +8859,16 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashes.valueNamesInsensitive = createHash();
   }
   private questionHashesPanelAdded(panel: PanelModelBase) {
-    if (this.isLoadingFromJson) return;
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       this.questionHashesAdded(questions[i]);
+    }
+  }
+  private questionHashesPanelRemoved(panel: PanelModelBase) {
+    const questions = panel.questions;
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      this.questionHashesRemoved(q, q.name, q.getValueName());
     }
   }
   private questionHashesAdded(question: Question) {
@@ -8758,6 +8965,7 @@ export class SurveyModel extends SurveyElementCore
   }
   panelRemoved(panel: PanelModel): void {
     this.dropRemovedQuestionsWithPendingWrites();
+    this.questionHashesPanelRemoved(<PanelModelBase>(<any>panel));
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
@@ -9474,10 +9682,6 @@ export class SurveyModel extends SurveyElementCore
   public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
     return this.elementWrapperDataCore(item, question, "itemvalue", undefined, item);
   }
-  public getMatrixCellTemplateData(cell: any): any {
-    const res: any = cell.question;
-    return this.elementWrapperDataCore(res, res, "cell");
-  }
 
   public searchText(text: string): Array<IFindElement> {
     if (!!text) text = text.toLowerCase();
@@ -9572,6 +9776,29 @@ export class SurveyModel extends SurveyElementCore
       }
     });
     return containerLayoutElements;
+  }
+  // What renderers iterate instead of getContainerContent: neighbouring elements of one
+  // group come as a single part and share a wrapper, the rest come one per part.
+  public getContainerContentGroups(container: LayoutElementContainer): Array<ISurveyLayoutElementGroup> {
+    const result = new Array<ISurveyLayoutElementGroup>();
+    this.getContainerContent(container).forEach(element => {
+      const name = this.getLayoutElementGroupName(element, container);
+      const last = result[result.length - 1];
+      if (!!name && !!last && last.name === name) {
+        last.elements.push(element);
+        return;
+      }
+      result.push(!name ? { key: element.id, elements: [element] } : {
+        key: "sv-components-group-" + name,
+        name: name,
+        css: "sv-components-group sv-components-group--" + name,
+        elements: [element]
+      });
+    });
+    return result;
+  }
+  private getLayoutElementGroupName(element: ISurveyLayoutElement, container: LayoutElementContainer): string | undefined {
+    return this.progressTextModel.getLayoutElementGroupName(element.id, container);
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
     if (visible) {

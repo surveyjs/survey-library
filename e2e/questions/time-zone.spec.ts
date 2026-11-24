@@ -14,7 +14,6 @@ frameworks.forEach((framework) => {
     });
 
     test("Test mask in western timezone", async ({ page }) => {
-      if (framework === "vue") return;
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [

@@ -2,12 +2,12 @@
   <div [class]="survey.logoClassNames">
     <img
     [class]="survey.css.logoImage"
-    [attr.src]="survey.locLogo.renderedHtml | safeUrl"
+    [attr.src]="survey.renderedLogoURL | safeUrl"
     [style.width]="survey.renderedStyleLogoWidth"
     [style.height]="survey.renderedStyleLogoHeight"
     [attr.width]="survey.renderedLogoWidth"
     [attr.height]="survey.renderedLogoHeight"
-    [attr.alt]="survey.locTitle.renderedHtml"
+    role="presentation"
     [style.objectFit]="survey.logoFit"
     />
   </div>

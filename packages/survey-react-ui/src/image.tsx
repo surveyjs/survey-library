@@ -8,17 +8,6 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
   }
-  componentDidMount() {
-    super.componentDidMount();
-    this.question.locImageLink.onChanged = () => {
-      this.forceUpdate();
-    };
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.question.locImageLink.onChanged = () => { };
-  }
-
   protected get question(): QuestionImageModel {
     return this.questionBase as QuestionImageModel;
   }
@@ -34,7 +23,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       control = (
         <img
           className={cssClasses}
-          src={this.question.locImageLink.renderedHtml || null}
+          src={this.question.renderedImageURL || null}
           alt={this.question.renderedAltText}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
@@ -48,7 +37,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       control = (
         <video controls
           className={cssClasses}
-          src={this.question.locImageLink.renderedHtml}
+          src={this.question.renderedImageURL}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
@@ -61,7 +50,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       control = (
         <iframe
           className={cssClasses}
-          src={this.question.locImageLink.renderedHtml}
+          src={this.question.renderedImageURL}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}

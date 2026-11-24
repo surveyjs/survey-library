@@ -212,11 +212,7 @@ frameworks.forEach(framework => {
 
       const progressRootElement = page.locator(".sd-root-modern > .sv-scroll__wrapper > .sv-scroll__scroller > .sv-scroll__container > div > form > .sd-container-modern .sv-components-row ~ div");
 
-      if (framework === "vue") {
-        await expect(progressRootElement.locator(".sd-progress")).toBeVisible();
-      } else {
-        await expect(progressRootElement).toHaveClass(/sd-progress/);
-      }
+      await expect(progressRootElement).toHaveClass(/sd-progress/);
     });
 
     test("check progress bar page 2", async ({ page }) => {

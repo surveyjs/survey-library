@@ -309,6 +309,122 @@ export var greekSurveyStrings = {
   progressbar: "Γραμμή προόδου",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Σελίδα {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Άδειο",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Όχι άδειο",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Ίσον",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Δεν ισούται",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Περιέχει",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Δεν περιέχει",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Οποιοδήποτε από τα",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Κανένα από τα",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Όλα",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Μεγαλύτερο από",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Λιγότερο από",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Μεγαλύτερο ή ίσο με",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Μικρότερο ή ίσο με",
+  // [Auto-translated] "Save"
+  filterSave: "Αποθήκευση",
+  // [Auto-translated] "Filters"
+  filterFilters: "Φίλτρα",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Φίλτρα: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Φίλτρα",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Αναζήτηση",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Αναζήτηση κατά {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Δείτε περισσότερα",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Εμφάνιση λιγότερων",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Καθαρισμός Όλων",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Καθαρό {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Προεπιλογή",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Αποθήκευση ως...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Αποθήκευση",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Πρόσθεσε «{0}»...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Προεπιλογές",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Εμφάνιση {0} αντικειμένων",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Εμφάνιση 1 αντικειμένου",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Εμφάνιση αποτελεσμάτων",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Νέα Προεπιλογή",
+  // [Auto-translated] "Name"
+  filterPresetName: "Όνομα",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Περιέχει",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Υπάρχει ήδη μια προεπιλογή με αυτό το όνομα.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Προσθέστε τουλάχιστον μία προϋπόθεση.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Εισάγετε μια έκφραση.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Η έκφραση δεν είναι έγκυρη.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Επεξεργασία ως Έκφραση",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Επεξεργασία ως Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Πληκτρολογήστε μια έκφραση εδώ...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Επεξεργασία Προεπιλογής",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Διαγραφή",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Προσθήκη Νέου...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Επεξεργασία Επιλεγμένων...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Έκφραση",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Επεξεργασία...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Αναζήτηση σε φίλτρα",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Δεν βρέθηκε τίποτα, δοκίμασε διαφορετικές λέξεις-κλειδιά",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Δημιουργήστε προκαθορισμένες ρυθμίσεις με AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Επεξεργασία προεπιλογής με AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Για παράδειγμα, «Καφές & Τσάι από τη Γερμανία»",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Δημιουργία",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Επεξεργασία",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Δημιουργώντας...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Επεξεργασία...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "Η τεχνητή νοημοσύνη δεν μπόρεσε να φτιάξει φίλτρο. Δοκίμασε ξανά.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Η τεχνητή νοημοσύνη δεν μπόρεσε να φτιάξει φίλτρο αυτής της περιγραφής.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "για να επιλέξετε",
   // [Auto-translated] "to toggle"

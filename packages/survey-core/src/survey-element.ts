@@ -21,15 +21,16 @@ import {
   ISurveySingleInput
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ActionContainer } from "./actions/container";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
-import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { scrollElementToViewCore } from "./utils/scroll-utils";
 import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -96,7 +97,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.setPropertyValue("hasDescription", val);
   }
   protected calcDescriptionVisibility(): boolean {
-    const newDescription = this.description;
+    // The rendered text at runtime: dynamic text that resolves to an empty string shows no description.
+    // A designer edits the text itself, so there the text counts.
+    const newDescription = this.isDesignMode ? this.description : this.locDescription.renderedHtml;
     let showPlaceholder = false;
     if (this.isDesignMode) {
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
@@ -115,12 +118,18 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.resetPropertyValue("hasDescription");
   }
   private updateDescriptionVisibility(): void {
-    if (this.getPropertyValueWithoutDefault("hasDescription") === undefined) return;
-    this.setPropertyValue("hasDescription", this.calcDescriptionVisibility());
+    this.refreshLazyPropertyValue("hasDescription", () => this.calcDescriptionVisibility());
+  }
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "description") {
+      this.updateDescriptionVisibility();
+    }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
-    if (name === "description" || (name === "title" && this.isDesignMode)) {
+    // beforeShowInplaceDescriptionEditorCallback may check the title
+    if (name === "title" && this.isDesignMode) {
       this.updateDescriptionVisibility();
     }
   }
@@ -207,9 +216,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
-  }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
@@ -242,6 +248,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (res !== undefined) return res;
     this.setRootStyle();
     return this.getPropertyValue("effectiveColSpan");
+  }
+  // effectiveColSpan is computed from colSpan. A value set from JSON, the property grid or Serializer goes to colSpan.
+  public set effectiveColSpan(val: number) {
+    this.colSpan = val;
   }
   /**
    * Specifies how many columns this survey element spans in the grid layout. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true` and define the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) array for the parent page or panel.
@@ -414,9 +424,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return true;
   }
-  public get hasStateButton(): boolean {
-    return this.isExpanded || this.isCollapsed;
-  }
   public get uiState(): IElementUIState {
     return this.getUIState();
   }
@@ -491,10 +498,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       Array.prototype.push.apply(titleActions, actions);
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.titleToolbarValue) {
-      this.titleToolbarValue.locStrsChanged();
+      this.titleToolbarValue.locStrsChanged(changes);
     }
     // An error text can interpolate values ({calculatedValue}) the same way a title does.
     // Read the property directly: the errors getter creates the array.
@@ -550,16 +557,39 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
+  // The data context adds its own names ({row}, {panel}, {composite}). They are checked next to the
+  // keys, not merged into them, and the context reads the raw keys
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
-        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
+        const changedKeys = this.getChangedKeys(keys);
+        return super.canSkipExpressionByKeys(runner, changedKeys, vars, isClearedKeyChanged, dataContext.getContextKeys(changedKeys.keys));
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
+  }
+  // ILocalizableOwner: the names the data context adds ({row}, {panel}, {composite}), the way
+  // canSkipExpressionByKeys reads them. Kept for the walk of one value change: every string of the
+  // element is checked against the same changes.
+  private textContextKeys: { changes: ChangedKeys, keys: HashTable<any> };
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+    if (changes.isUnknown) return undefined;
+    const cached = this.textContextKeys;
+    if (!!cached && cached.changes === changes) return cached.keys;
+    let keys: HashTable<any> = undefined;
+    const data: any = this.data;
+    // The survey's context adds no names
+    if (!!data && !data.isSurvey && typeof data.getValueGetterContext === "function") {
+      const dataContext = data.getValueGetterContext();
+      if (typeof dataContext?.getContextKeys === "function") {
+        keys = dataContext.getContextKeys(changes.keys);
+      }
+    }
+    this.textContextKeys = { changes: changes, keys: keys };
+    return keys;
   }
   protected get shouldHandleFocusScroll(): boolean {
     return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;
@@ -577,10 +607,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
-  }
-  /* You shouldn't use this method ever */
-  __setData(data: ISurveyData) {
-    this.surveyDataValue = data;
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;
@@ -638,12 +664,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return true;
   }
   // The element and every element above it are visible. A nested element (a dynamic panel's inner panel,
-  // a matrix cell) has no parent, so the walk goes on through its owner question.
+  // a matrix cell) has no parent, so the walk goes on through its owner question. The parent chain of a
+  // matrix detail panel or a composite's content panel ends before the owner question, and a choice panel's
+  // parent skips it, so the owner is checked on its own there. When the parent leads to the same owner,
+  // the walk reaches it anyway and the extra check is skipped.
   public get isVisibleWithParents(): boolean {
     let el: SurveyElement = this;
     while(!!el) {
       if (!el.isVisible) return false;
-      el = <SurveyElement><any>(el.parent || el.parentQuestion);
+      const owner = <SurveyElement><any>el.parentQuestion;
+      const parent: any = el.parent;
+      if (!!owner && !!parent && parent.parentQuestion !== owner && !owner.isVisibleWithParents) return false;
+      el = <SurveyElement><any>(parent || owner);
     }
     return true;
   }
@@ -797,6 +829,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   protected getValidName(name: string): string {
+    // A number is valid JSON for a name, so it is kept as its string. Any other value that is not a string is not a name.
+    if (typeof name === "number") name = String(name);
+    else if (name !== undefined && name !== null && typeof name !== "string") name = "";
     if (!!name) {
       name = name.trim();
       const sep = settings.itemValueSeparator;
@@ -983,10 +1018,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected get textProcessor(): ITextProcessor {
     return this.textProcessorValue;
   }
-  protected getProcessedHtml(html: string): string {
-    if (!html || !this.textProcessor) return html;
-    return this.textProcessor.processText(html, true);
-  }
   protected onSetData(): void { }
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
@@ -1028,6 +1059,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       survey.pages.forEach((page: IPage) => {
         if (<any>newPage === page.name) newPage = page;
       });
+    }
+    // A page name that does not resolve, such as a page that is not loaded yet, leaves the element where it is.
+    if (!!newPage && typeof newPage.addElement !== "function") {
+      (<any>this).prevSurvey = undefined;
+      return;
     }
 
     if (oldPage === newPage) return;
@@ -1154,7 +1190,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   private setRootStyle() {
-    this.rootStyle = this.calcRootStyle();
+    const style = this.calcRootStyle();
+    if (!Helpers.isTwoValueEquals(this.rootStyle, style)) {
+      this.rootStyle = style;
+    }
   }
   /**
    * A total width, in percent, of the grid layout columns this element occupies, or 0 when the grid layout is disabled.

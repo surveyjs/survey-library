@@ -1,4 +1,4 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionFactory, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, parseValuePath, UnaryOperand, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionFactory, FunctionOperand, getBuiltInVariableNames, IExpressionError, IQuestionValueTypeInfo, isReturnColumnParam, Operand, parseValuePath, UnaryOperand, Variable } from "survey-core";
 import { FUNCTION_NAME_ARGS, FunctionArgNameScope } from "./catalog";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
@@ -7,7 +7,7 @@ import { closestMatch } from "./levenshtein";
 import {
   ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
   ScopeFrameArrayItem, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
-  SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
+  SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord,
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
@@ -129,6 +129,10 @@ export function equalsCI(a: string, b: string): boolean {
   return !!a && !!b && a.toLowerCase() === b.toLowerCase();
 }
 
+// The comment and totals keys are matched case-insensitively, the way an expression resolves a
+// name, so stripCommentSuffix / stripTotalsSuffix do not call the core's case-sensitive
+// Helpers.getNameOfCommentKey. The rest of the rule is the core's: a name that is only the
+// suffix is not a key.
 function endsWithCI(text: string, suffix: string): boolean {
   return !!suffix && text.length > suffix.length && text.toLowerCase().endsWith(suffix.toLowerCase());
 }
@@ -360,7 +364,7 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
 // belongs to: the domain and verdict caches key off record identity. It is a plain record
 // literal (never a model object) that only the value-typing machinery reads.
 function getScopeValueRecord(owner: ElementRecord, name: string, type: string,
-  valueType: ValueTypeInfo, choices?: Array<any>): ElementRecord {
+  valueType: IQuestionValueTypeInfo, choices?: Array<any>): ElementRecord {
   if (!owner.scopeValueRecords) owner.scopeValueRecords = new CIMap<ElementRecord>();
   let record = owner.scopeValueRecords.get(name);
   if (!record) {

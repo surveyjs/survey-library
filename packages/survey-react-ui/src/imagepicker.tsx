@@ -43,7 +43,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     return (
       <div className={this.question.getSelectBaseRootCss()} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
         {items.map((item) => {
-          const src = item.locImageLink.renderedHtml;
+          const src = item.renderedImageURL;
           const width = this.question.renderedImageWidth;
           const height = this.question.renderedImageHeight;
           if (isVideo) {
@@ -122,23 +122,6 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
   protected getStateElement() {
     return this.item;
   }
-  componentDidMount() {
-    super.componentDidMount();
-    this.reactOnStrChanged();
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.item.locImageLink.onChanged = function () { };
-  }
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    this.reactOnStrChanged();
-  }
-  private reactOnStrChanged() {
-    this.item.locImageLink.onChanged = () => {
-      this.setState({ locImageLinkchanged: !!this.state && this.state.locImageLink ? this.state.locImageLink + 1 : 1 });
-    };
-  }
   protected get cssClasses() {
     return this.props.cssClasses;
   }
@@ -193,11 +176,11 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     var style: any = { objectFit: this.question.imageFit };
 
     var control: React.JSX.Element | null = null;
-    if (item.locImageLink.renderedHtml && this.question.contentMode === "image") {
+    if (item.renderedImageURL && this.question.contentMode === "image") {
       control = (
         <img
           className={cssClasses.image}
-          src={item.locImageLink.renderedHtml}
+          src={item.renderedImageURL}
           width={this.question.renderedImageWidth}
           height={this.question.renderedImageHeight}
           alt={item.locText.renderedHtml}
@@ -207,11 +190,11 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         />
       );
     }
-    if (item.locImageLink.renderedHtml && this.question.contentMode === "video") {
+    if (item.renderedImageURL && this.question.contentMode === "video") {
       control = (
         <video controls
           className={cssClasses.image}
-          src={item.locImageLink.renderedHtml}
+          src={item.renderedImageURL}
           width={this.question.renderedImageWidth}
           height={this.question.renderedImageHeight}
           style={style}
@@ -220,7 +203,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         ></video>
       );
     }
-    if (!item.locImageLink.renderedHtml || item.contentNotLoaded) {
+    if (!item.renderedImageURL || item.contentNotLoaded) {
       let style: any = {
         width: this.question.renderedImageWidth,
         height: this.question.renderedImageHeight,

@@ -4,6 +4,27 @@ import { ConsoleWarnings } from "./console-warnings";
 import { getQuestionErrorText } from "./expressions/expressionError";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IValueGetterContext, IValueGetterItem, ValueGetter, VariableGetterContext, parseValuePath } from "./conditions/conditionProcessValue";
+import type { ExpressionRunner } from "./expressions/expressionRunner";
+
+// A function registered without resultDependsOn, or with "elements", may read element state
+export function canFunctionReadElements(name: string): boolean {
+  const dependsOn = FunctionFactory.Instance.getResultDependsOn(name);
+  return dependsOn !== "parameters" && dependsOn !== "survey";
+}
+// The expression calls a registered, non-async function that may read element state (a matrix row's
+// isVisible). The survey runs such an expression once more when a visibility changed in its conditions
+// pass (Bug#12284, Bug#12316). An unknown function is left out, it only warns, and so is an async one:
+// a second run sends a second request.
+export function isExpressionReadingElements(runner: ExpressionRunner): boolean {
+  if (!runner.hasFunction() || runner.isAsync) return false;
+  const functionNames = runner.getFunctionNames();
+  if (!functionNames) return false;
+  for (let i = 0; i < functionNames.length; i++) {
+    const name = functionNames[i];
+    if (FunctionFactory.Instance.hasFunction(name) && canFunctionReadElements(name)) return true;
+  }
+  return false;
+}
 
 export interface IFunctionCachedResult {
   result: any;
@@ -269,9 +290,6 @@ export interface IFunctionParameter {
 }
 export function registerFunction(info: IFunctionRegistration): void {
   FunctionFactory.Instance.register(info);
-}
-export function unregisterFunction(name: string): void {
-  FunctionFactory.Instance.unregister(name);
 }
 
 function getParamsAsArray(value: any, arr: any[]) {
@@ -744,9 +762,12 @@ FunctionFactory.Instance.register({
 });
 
 function dateAdd(params: any[]): any {
-  if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
+  if (!Array.isArray(params) || params.length < 2 || !params[0]) return null;
+  // 0 is a valid amount, so check for a number instead of a truthy value
+  // (getNumber gives NaN for an empty amount); a string amount ("1") must be added as a number, not concatenated.
+  const valToAdd = Helpers.getNumber(params[1]);
+  if (isNaN(valToAdd)) return null;
   const date = createDate("function-dateAdd", params[0]);
-  const valToAdd = params[1];
   const interval = params[2] || "days";
   if (interval === "days") {
     date.setDate(date.getDate() + valToAdd);
@@ -1152,4 +1173,8 @@ export function expressionSurveyCachedValue(name: string, value: any, isVariable
 }
 export function expressionObjectCachedValue(obj: any, name: string, value: any): void {
   FunctionFactory.Instance.addObjectCachedValue(obj, name, value);
+}
+// For internal use: true while expressionObjectCachedValue records object property reads for a running useCache function
+export function isExpressionObjectCacheCollecting(): boolean {
+  return !!FunctionFactory.Instance["objsCachedValues"];
 }

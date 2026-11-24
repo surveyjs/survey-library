@@ -3,7 +3,7 @@ import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { property } from "./decorators";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
-import { calculateIsTablet, IsTouch } from "./utils/devices";
+import { IsTouch } from "./utils/devices";
 
 type DisplayPopupMode = "modal-popup" | "modal-overlay" | "menu-overlay" | "menu-popup-overlay" | "menu-popup";
 export interface IPopupOptionsBase {
@@ -97,6 +97,10 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   @property({ defaultValue: true }) canShrink: boolean;
   @property({ defaultValue: true }) isFocusedContent: boolean;
   @property({ defaultValue: true }) isFocusedContainer: boolean;
+  // A popup under its target hides when the focus leaves it (PopupDropdownViewModel.blur), as a
+  // dropdown's list hides when its input loses the focus: for a popup whose layer lets the clicks
+  // outside it reach the page, so one click both closes it and works.
+  @property({ defaultValue: false }) hideOnFocusOut: boolean;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "tablet-dropdown-overlay" | "dropdown-overlay" | "plain";

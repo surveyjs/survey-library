@@ -290,7 +290,7 @@ export var serbianStrings = {
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nova tabla",
   // [Auto-translated] "More"
-  more: "Viљe",
+  more: "Više",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "U redu",
   // [Auto-translated] "All choices are selected for ranking"
@@ -309,6 +309,122 @@ export var serbianStrings = {
   progressbar: "Traka napretka",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Stranica {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Prazno",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Nije prazno",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Jednaki",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Nije jednako",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Sadrži",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Ne sadrži",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Bilo koja od",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Nijedan od",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Sve od",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Veće od",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Manje od",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Veće ili jednako",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Manje ili jednako",
+  // [Auto-translated] "Save"
+  filterSave: "Sačuvaj",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filteri",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filteri: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filteri",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Pretraga",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Pretraži po {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Prikaži više",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Prikaži manje",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Obriši sve",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Očisti {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Prethodno podešeno",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Sačuvaj kao...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Sačuvaj",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Dodaj \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Predefinisana podešavanja",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Prikaži {0} stavke",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Prikaži 1 predmet",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Prikaži rezultate",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Novi unapred podešen",
+  // [Auto-translated] "Name"
+  filterPresetName: "Ime",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Sadrži",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Preset sa ovim imenom već postoji.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Dodajte bar jedan uslov.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Unesite izraz.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Izraz nije važeći.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Izmeni kao izraz",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Izmeni kao okvir za oznake",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Ovde unesite izraz...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Izmeni unapred podešenu postavku",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Obriši",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Dodaj novo...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Izmeni izabrano...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Izraz",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Izmena...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Pretraži u filterima",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Ništa nije pronađeno, probaj različite ključne reči",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Kreirajte predefinisanu postavku pomoću AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Uređivanje predložaka pomoću veštačke inteligencije",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Na primer, \"Kafa i čaj iz Nemačke\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Kreiraj",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Izmena",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Stvaranje...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Uređivanje...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI nije mogao da napravi filter. Pokušaj ponovo.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI nije mogao da napravi filter ovog opisa.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "da izaberete",
   // [Auto-translated] "to toggle"

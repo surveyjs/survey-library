@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Base } from "./base";
 import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
@@ -7,7 +8,6 @@ import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { getSettingsOfSurvey } from "./survey-settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
-import { toCssClasses } from "./utils/cssClassBuilder";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -16,7 +16,7 @@ import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
   DynamicDataErrorOperation, DynamicDataFieldType, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  ISortCriterion, IDynamicDataSource, SortDirection
+  ISortCriterion, IDynamicDataSource, SortDirection, IDynamicDataFilterSource
 } from "./dynamic-data/dynamic-data-interfaces";
 // For its side effect: the "sortcriterion" serializer class, which sortCriteria loads its items with.
 import "./records/records-sort-criterion";
@@ -25,10 +25,11 @@ import { RecordsPageValidation, IRecordsPageValidationOwner, RecordsPageValidati
 import { createIndexes } from "./dynamic-data/dynamic-data-records";
 import { RecordsPagingController, IRecordsPageState, IRecordsPagingOwner, pagingStateKeys } from "./records/records-paging";
 import { getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import {
   IRecordIndexFollower, RecordIndexEvent, RecordRemap, createLazyRemap, getRecordListChangeEvent, isRecordListChange, toKnownRemap
 } from "./records/records-index-followers";
-import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
+import { IDynamicDataRecordCondition, IDynamicDataRecordScope, createRecordVisibilityPredicate } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { Action } from "./actions/action";
@@ -51,7 +52,6 @@ import { ExpressionRunner } from "./expressions/expressionRunner";
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 // Answers true to stop the walk, as a NestedElementVisit does.
 export type NestedWalkItemVisit = (item: NestedWalkItem, position: number, visible: boolean) => boolean | void;
-import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
 export interface IDynamicDataRecordUniqueness {
@@ -127,7 +127,7 @@ const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "rad
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
  * @since 3.2.2
  */
-export abstract class QuestionRecordsModel extends Question {
+export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -342,16 +342,6 @@ export abstract class QuestionRecordsModel extends Question {
       this._recordTargets = new RecordTargetResolver(this.helperOwner);
     }
     return this._recordTargets;
-  }
-  // The state of the helpers under the names the question held it by, which the record-state tests read.
-  private get hiddenAnswerStates(): Map<any, HashTable<number>> {
-    return !!this._hiddenAnswers ? this._hiddenAnswers.hiddenAnswerStates : undefined;
-  }
-  private get heldRemoveTargets(): Array<IRecordTarget> {
-    return !!this._recordTargets ? this._recordTargets.heldRemoveTargets : undefined;
-  }
-  public get isCompositeQuestion(): boolean {
-    return true;
   }
   public get isContainer(): boolean { return true; }
   public get isAllowTitleLeft(): boolean {
@@ -952,11 +942,6 @@ export abstract class QuestionRecordsModel extends Question {
      pageVisibleIndex. 0 without a list. The questions convert through the two members below. */
   private get pageStartVisibleIndex(): number {
     return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
-  }
-  // The position of an object among the visible objects of the page (QuestionRecordItem.pageVisibleIndex); -1: not shown.
-  protected getItemPageVisibleIndex(item: QuestionRecordItem): number {
-    const visibleIndex = this.getItemVisibleIndex(item);
-    return visibleIndex < 0 ? -1 : this.getPositionAtVisibleIndex(visibleIndex);
   }
   // A position among the visible objects of the page -> the visible index of the whole view; -1 for no position.
   protected getVisibleIndexAtPosition(position: number): number {
@@ -2163,6 +2148,8 @@ export abstract class QuestionRecordsModel extends Question {
      does inside its write. */
   protected removeResolvedRecord(removal: IRecordRemoval): void {
     const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
+    // Not copied: a copy is made only for a handler that calls getRecord (getRemovedRecord).
+    removal.record = this.getListRecordAt(removal.recordIndex);
     this.detachItem(removal);
     let isRefilled = false;
     this.runObjectsFollowingWrite((): void => {
@@ -2317,6 +2304,10 @@ export abstract class QuestionRecordsModel extends Question {
    * Default value: 0 (pagination is disabled)
    *
    * The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @see pageIndex
    * @see pageCount
    * @since 3.2.2
@@ -2352,6 +2343,10 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /**
    * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @see pageSize
    * @see pageCount
    * @since 3.2.2
@@ -2360,6 +2355,10 @@ export abstract class QuestionRecordsModel extends Question {
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   /**
    * Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
+   *
+   * [Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+   *
+   * [Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
    * @see pageSize
    * @see pageIndex
    * @since 3.2.2
@@ -2394,6 +2393,10 @@ export abstract class QuestionRecordsModel extends Question {
    * Assigning an array, adding or removing criteria, or changing an item's `field` or `direction` reapplies sorting. This property reflects the current sort, including changes made by respondents.
    *
    * Sorting changes the display order while preserving the record order in the question's `value`.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see sort
    * @see clearSort
    * @see allowSort
@@ -2407,6 +2410,10 @@ export abstract class QuestionRecordsModel extends Question {
    * Updates [`sortCriteria`](#sortCriteria) and applies sorting without validating the current data page. Available regardless of the [`allowSort`](#allowSort) and [`maxSortLevel`](#maxSortLevel) settings.
    *
    * When an array of sorting criteria is passed, it replaces all existing criteria, and the `direction` and `append` parameters are ignored.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @param fieldOrCriteria A field name or an array of objects with a `field` name and an optional `direction` (`"asc"` or `"desc"`). Criteria are applied in array order; the default direction is `"asc"`.
    * @param direction The sort direction: `"asc"` (default) or `"desc"`. Applies when `fieldOrCriteria` is a field name.
    * @param append Pass `true` to preserve existing criteria and add the field as the last sorting level. If the field is already present, its direction is updated in place. Defaults to `false`, which replaces all existing criteria. Applies when `fieldOrCriteria` is a field name.
@@ -2419,6 +2426,10 @@ export abstract class QuestionRecordsModel extends Question {
    * Clears all sorting criteria and displays data in the original order.
    *
    * Equivalent to setting [`sortCriteria`](#sortCriteria) to an empty array.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see sort
    */
   public clearSort(): void { this.paging.clearSort(); }
@@ -2444,6 +2455,10 @@ export abstract class QuestionRecordsModel extends Question {
    * Sorting in code is available regardless of this property's value.
    *
    * In matrix questions, you can set an individual column's [`allowSort`](/form-library/documentation/api-reference/multi-select-matrix-column-values#allowSort) property to `false` to disable sorting by that column.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see maxSortLevel
    * @see sortCriteria
    * @see sort
@@ -2457,6 +2472,10 @@ export abstract class QuestionRecordsModel extends Question {
    * Each field defines a sorting level. Set this property to a value greater than 1 to enable sorting by multiple fields.
    *
    * This limit applies only to respondent sorting. You can specify more fields in code using [`sortCriteria`](#sortCriteria) or the [`sort()`](#sort) method.
+   *
+   * [Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+   *
+   * [Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
    * @see allowSort
    */
   public get maxSortLevel(): number {
@@ -2481,6 +2500,35 @@ export abstract class QuestionRecordsModel extends Question {
      layer. */
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  /* The entrance a Filter Control bound to this question writes through. It is not filterExpression
+     and never touches it: the authored expression is what this question serializes, and a control
+     must be able to filter without overwriting it. The key is the control's own, so two controls do
+     not overwrite each other, and "" removes the filter that control had set. Control filters are
+     runtime state and are not serialized. */
+  public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
+  public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
+  // How many records would be shown if the control with this key filtered by expression instead of
+  // what it filters by now; undefined when it cannot be known. Nothing is applied.
+  public getControlFilterCount(key: string, expression: string): Promise<number | undefined> {
+    return this.paging.countControlFilter(key, expression, this.isPagingActive ? undefined : this.createRecordShownPredicate());
+  }
+  /* Without paging a record's visibility comes from its row or panel, and only the records of the view
+     have one: a record without one runs the visibility condition here, as its object would once built.
+     Under paging the list's flags are the condition's already, over every record
+     (updatePagedRecordsVisibility). */
+  private createRecordShownPredicate(): (index: number) => boolean {
+    const isShowingAll = this.areInvisibleElementsShowing;
+    const byCondition = createRecordVisibilityPredicate(isShowingAll ? "" : this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName()),
+      (index: number): any => this.getListRecordAt(index), (): IDynamicDataRecordScope => this.createRecordVisibilityScope(this.getDataFilteredProperties()),
+      isShowingAll ? undefined : this.getRecordConditionReader());
+    return (index: number): boolean => {
+      const item = this.getItemByRecordIndex(index);
+      return !!item ? this.isItemVisible(item) : byCondition(index);
+    };
+  }
+  // The fields a Filter Control offers for the records: the matrix columns, the panel template's
+  // questions. A records question with no fields of its own offers none.
+  public getFilterFields(): Array<IDynamicDataFilterField> { return []; }
   public refreshView(): void { this.paging.refreshView(); }
   /* The bar the renderers show: the pager under the records and the sort bar in the header. Created on
      its first read; the question keeps it current through updateRecordsBar(). */
@@ -2612,8 +2660,8 @@ export abstract class QuestionRecordsModel extends Question {
     this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.updateRecordsBar();
   }
   public onSurveyLoad(): void {
@@ -3882,6 +3930,37 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract isItemVisible(item: QuestionRecordItem): boolean;
   // The record an item - a row, a panel - reads and writes.
   public abstract getItemData(item: ISurveyData): any;
+  /* QuestionRecordItem.getRecord: the item's record as stored - the fields without a column or a
+     question included - as a copy, through the item's own record index (getItemData), so it is right
+     on any page, with a filter, a sort and owner-hidden records. The empty results are getItemData's:
+     null for a row without a record (a Multi-Select Matrix row without a value, the total row, a
+     removed row), {} for a panel without one; a Multi-Select Matrix row reads what getRowValue does. */
+  protected getItemRecord(item: QuestionRecordItem): any {
+    return this.copyItemRecord(this.getItemData(item));
+  }
+  // A value of survey elements (Creator) is edited in place: the element itself, as getRowValue gives it.
+  protected copyItemRecord(record: any): any {
+    return this.isValueSurveyElement(this.value) ? record : Helpers.getUnbindValue(record);
+  }
+  private readItemRecord(item: QuestionRecordItem): any {
+    this.checkItemRecordLoaded(item);
+    return this.getItemRecord(item);
+  }
+  /* A row or a panel is built from a record of the loaded window, so a source that pages itself has
+     loaded the record of every object that holds a position. A record outside the window there is a
+     defect in the paging, reported rather than read as null without a word. */
+  private checkItemRecordLoaded(item: QuestionRecordItem): void {
+    if (!this.isRemoteData || this.getItemPosition(item) < 0) return;
+    const index = this.getItemRecordIndex(item);
+    if (index < 0 || index >= this.dataListValue.loadedCount) {
+      ConsoleWarnings.error("The record of a row or a panel of '" + this.name + "' is not loaded: record index " + index + ".");
+    }
+  }
+  /* getRecord of a removed event (onMatrixRowRemoved, onDynamicPanelRemoved): the object has left its
+     array and the record the storage, so the record read before the removal, copied when asked. */
+  protected getRemovedRecord(removal: IRecordRemoval): any {
+    return !!removal && removal.record !== undefined ? this.copyItemRecord(removal.record) : null;
+  }
   /* The index of the item record in the question storage. It is the only index two questions bound
      to one value share: they may create objects for a different set of records (a filtered list) or
      in a different order (a sorted one). A temporary object of the records clean-up answers its own
@@ -4121,7 +4200,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected storeRecordsToCountCore(): void { }
   // The count of the question's own records, as the records source reads it, without composing the array.
   protected getListRecordCount(): number {
-    return this.recordsSource.count;
+    return this.recordsSource.recordCount;
   }
   /* The record counts a read needs, peeked - a read never creates the list. A remote source is counted
      through the list; the question's own source through recordsSource, which has one count for both.
@@ -4411,6 +4490,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   getAllValues(): any {
     return this.data.getItemData(this);
   }
+  /* The stored record of this row or panel, as a copy (see QuestionRecordsModel.getItemRecord). A row's
+     value holds only the fields that have a cell or a detail question; the record holds every field,
+     and no index has to be computed for it. */
+  public getRecord(): any {
+    return !!this.data ? this.data["readItemRecord"](this) : null;
+  }
 
   abstract getComment(name: string): string;
   public setComment(name: string, newValue: string, locNotification: any): void {
@@ -4434,6 +4519,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     this.runTriggersOnSetValue(fieldName, newValue);
     this.notifyRecordWritten();
     this.onRecordWritten(name, isComment);
+    this.onRecordChanged();
   }
   /* Returns undefined to refuse the write. The default hands the owner the field value, unbound: the
      owner stores it, and the question keeps its own. */
@@ -4449,7 +4535,13 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     for (let i = 0; i < questions.length; i++) {
       this.updateQuestionFromRecord(questions[i], record);
     }
+    this.onRecordChanged();
   }
+  /* The record changed: assigned from outside the item or written by one of its questions. What a survey
+     handler computed from it - the classes of a matrix row and its cells, of a Dynamic Panel's panel -
+     is computed again. A rebind is not a change: the object is configured for its new record as a new
+     one is (the creation events). */
+  protected onRecordChanged(): void { }
   protected updateQuestionFromRecord(question: Question, record: any): void {
     const name = question.getValueName();
     question.updateValueFromSurvey(!!record ? record[name] : undefined);
@@ -4598,7 +4690,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     if (questions.length > 1) {
       const surveySettings = getSettingsOfSurvey(this.getSurvey());
       for (let i = 0; i < questions.length; i ++) {
-        if (!Helpers.isTwoValueEquals(questions[i].value, value, false, undefined, undefined, surveySettings)) {
+        if (!Helpers.checkIfValuesEqual(questions[i].value, value, { ignoreOrder: false, settings: surveySettings })) {
           this.runSettingValue((): void => questions[i].updateValueFromSurvey(value));
         }
       }
@@ -4611,13 +4703,6 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     return DynamicDataList.isValueChanged(newValue, oldValue);
   }
 
-  protected getSharedQuestionByName(columnName: string): Question {
-    return this.data.getSharedQuestionFromArray(columnName, this.getIndex());
-  }
-  // The object's position among the visible objects: the page it is on, when the question pages; -1: not shown.
-  public get pageVisibleIndex(): number {
-    return !!this.data ? this.data["getItemPageVisibleIndex"](this) : -1;
-  }
   // The 0-based number the respondent sees for this object's record (getRecordNumberOf).
   protected getOwnRecordNumber(): number {
     return getRecordNumberOf(this);
@@ -4943,4 +5028,17 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     res.items = items;
     return res;
   }
+}
+
+/* getRecord of the options of an event about a row or a panel (RecordEventMixin): the questions build
+   these options and take it from here. It reads when a handler calls it: the cell events fire once
+   per cell, and a copy of the record for each would cost. item: the row, or the panel; a dynamic
+   panel's panel reaches its record through its record item (panel.data). Anything else - a panel
+   that is not a dynamic panel's, no item - reads null. */
+export function addRecordGetter<T>(options: T, item: any): T & { getRecord: () => any } {
+  const recordItem = item instanceof QuestionRecordItem ? item :
+    (!!item && item.data instanceof QuestionRecordItem ? item.data : undefined);
+  const res = <T & { getRecord: () => any }>options;
+  res.getRecord = (): any => !!recordItem ? recordItem.getRecord() : null;
+  return res;
 }

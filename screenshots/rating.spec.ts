@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme, baseTest as test, loadSurveyLocales } from "../e2e/helper";
 
 frameworks.forEach(framework => {
   test.beforeEach(async ({ page }) => {
@@ -196,6 +196,7 @@ frameworks.forEach(framework => {
     });
 
     test("Check big rating in matrix", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await page.setViewportSize({ width: 1000, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -660,6 +661,7 @@ frameworks.forEach(framework => {
     });
 
     test("Check rating rate descriptions in an rtl locale", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await page.setViewportSize({ width: 1000, height: 1080 });
       await initSurvey(page, framework, {
         locale: "he",

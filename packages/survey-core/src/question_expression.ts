@@ -1,10 +1,12 @@
-import { Helpers, createDate } from "./helpers";
+import { HashTable, Helpers, createDate } from "./helpers";
 import { Base } from "./base";
-import { Question } from "./question";
+import { Question, QuestionValueType } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { settings } from "./settings";
+import { isExpressionReadingElements } from "./functionsfactory";
+import { ValueScope } from "./utils/scope";
 
 /**
  * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
@@ -40,6 +42,15 @@ export class QuestionExpressionModel extends Question {
   public get hasInput(): boolean {
     return false;
   }
+  /* The result type of an expression is not known in advance, but a number or a date displayStyle
+     tells what the author expects it to be. The sort labels, the first sort direction and the filter
+     operators of a record field read it. Without one, the base "string" stays (an unknown type). */
+  public getValueType(): QuestionValueType {
+    const style = this.displayStyle;
+    if (style === "decimal" || style === "currency" || style === "percent") return "number";
+    if (style === "date") return "date";
+    return super.getValueType();
+  }
   /**
    * A string that formats a question value. Use `{0}` to reference the question value in the format string.
    * @see displayStyle
@@ -64,6 +75,30 @@ export class QuestionExpressionModel extends Question {
   protected canSkipRunningExpression(propName: string): boolean {
     if (propName === "expression" && !settings.expressionQuestionTrackDependencies) return false;
     return super.canSkipRunningExpression(propName);
+  }
+  private static runsScope = new ValueScope<Map<QuestionExpressionModel, HashTable<any>>>();
+  // The questions that ran their conditions while func runs, with the properties they got. A nested
+  // call collects its own runs, and the outer call does not get them.
+  public static collectRuns(func: () => void): Map<QuestionExpressionModel, HashTable<any>> {
+    const runs = new Map<QuestionExpressionModel, HashTable<any>>();
+    QuestionExpressionModel.runsScope.run(runs, func);
+    return runs;
+  }
+  protected runConditionCore(properties: HashTable<any>): void {
+    QuestionExpressionModel.runsScope.value?.set(this, properties);
+    super.runConditionCore(properties);
+  }
+  // A question placed before the element whose state a function reads (a matrix row's isVisible) runs
+  // its expression before that element's conditions in the same pass, and no changed key tells it, so
+  // SurveyModel runs such an expression once more when a visibility changed (Bug#12316). A changed value
+  // requests another pass, so the conditions that read it run again.
+  public runAfterVisibilityChanged(properties: HashTable<any>): void {
+    const runner = this.getExpressionByProperty("expression");
+    if (!runner || !isExpressionReadingElements(runner)) return;
+    // The page passes one properties object to all its questions, and each sets its own "question" in it
+    const copy = this.getPropertiesCopy(properties);
+    copy["question"] = this;
+    this.runConditionItemCore("expression", copy);
   }
   protected canCollectErrors(): boolean {
     return true;

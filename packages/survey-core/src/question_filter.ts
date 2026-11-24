@@ -1528,7 +1528,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Re-resolves the target and moves the filter with it: the question that is being left is cleared
   // first, so no ghost filter survives a re-pointed target or a target question that went away.
   private updateFilterTarget(): void {
-    if (this.isDesignMode) return;
+    // The designer attaches to no target, but shows the fields of the one named: a new target, or a
+    // change of its fields, redraws the chips.
+    if (this.isDesignMode) {
+      this.updateToolbarsIfFieldsChanged();
+      return;
+    }
     const target = this.filterTarget;
     if (target === this.attachedTarget) {
       this.updateFilterExpression();

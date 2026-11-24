@@ -748,6 +748,26 @@ describe("FilterToolbars: in the designer", () => {
     age.clearAction.action();
     expect([clicked, q.selectedPreset], "#2").toEqual([[undefined], "adults"]);
   });
+  test("a new question to filter brings its fields' badges at once; the target gets no filter", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [
+      { type: "matrixdynamic", name: "m1", columns: [{ name: "country" }, { name: "price" }] },
+      { type: "matrixdynamic", name: "m2", columns: [{ name: "city" }] },
+      { type: "filter", name: "f1" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const writes = [survey.getQuestionByName("m1"), survey.getQuestionByName("m2")]
+      .map((m: any) => vi.spyOn(m, "setControlFilter"));
+    const fieldIds = (): Array<string> => ids(q.chipsToolbar).filter((id: string) => id.indexOf("sv-filter-field-") === 0);
+    expect(fieldIds(), "#1").toEqual([]);
+    q.targetQuestion = "m1";
+    expect(fieldIds(), "#2").toEqual(["sv-filter-field-country", "sv-filter-field-price"]);
+    q.targetQuestion = "m2";
+    expect(fieldIds(), "#3").toEqual(["sv-filter-field-city"]);
+    q.targetQuestion = "";
+    expect(fieldIds(), "#4").toEqual([]);
+    expect(writes.map(w => w.mock.calls.length), "#5").toEqual([0, 0]);
+  });
   test("out of the designer the presets' chip opens its list and reports nothing", () => {
     const survey = new SurveyModel({ elements: [json] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");

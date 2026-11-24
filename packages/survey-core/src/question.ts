@@ -2280,7 +2280,7 @@ export class Question extends SurveyElement<Question>
     if (lastRun.expression !== this.defaultValueExpression) return false;
     const runner = this.getExpressionByProperty("defaultValueExpression");
     if (!runner || runner.isAsync) return false;
-    if (!Helpers.isTwoValueEquals(lastRun.defaultValue, this.defaultValue, false, true, false)) return false;
+    if (!Helpers.checkIfValuesEqual(lastRun.defaultValue, this.defaultValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return false;
     if (!this.isTwoValueEquals(lastRun.value, this.value)) return false;
     // A path under a cleared value ({a.x} once a is cleared) counts as changed
     return this.canSkipExpressionByKeys(runner, keys, undefined, true);
@@ -2840,7 +2840,7 @@ export class Question extends SurveyElement<Question>
   }
   protected checkIfAnswerCorrect(): boolean {
     // caseSensitive is left to the settings: the survey's own value, else the global one
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), undefined, true, this.getSurveySettings());
+    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveySettings() });
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {

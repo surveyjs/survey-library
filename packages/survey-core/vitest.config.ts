@@ -46,6 +46,7 @@ export default defineConfig({
       "survey-core/rich-text": path.resolve(__dirname, "./entries/rich-text.ts"),
       "survey-core/collaboration": path.resolve(__dirname, "./entries/collaboration.ts"),
       "survey-core/tester": path.resolve(__dirname, "./entries/tester.ts"),
+      "survey-core/query": path.resolve(__dirname, "./entries/query.ts"),
       "survey-core": path.resolve(__dirname, "./entries/index.ts"),
     },
   },

@@ -934,7 +934,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            const newValue = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
+            const newValue = oldValue.filter((f) => !Helpers.checkIfValuesEqual(f, content, { ignoreOrder: true, caseSensitive: false, trimStrings: false }));
             if (isByRespondent) {
               this.value = newValue;
             } else {

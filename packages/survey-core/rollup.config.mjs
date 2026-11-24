@@ -74,6 +74,7 @@ const buildPlatformJson = {
       "require": "./rich-text/index.js"
     },
     "./*.css": "./*.css",
+    "./filter-tree.schema.json": "./filter-tree.schema.json",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",
       "require": "./survey.i18n.js"
@@ -90,6 +91,11 @@ const buildPlatformJson = {
       "types": "./typings/entries/tester.d.ts",
       "import": "./fesm/tester.mjs",
       "require": "./tester.js"
+    },
+    "./query": {
+      "types": "./typings/entries/query.d.ts",
+      "import": "./fesm/query.mjs",
+      "require": "./query.js"
     },
     "./themes": {
       "types": "./themes/index.d.ts",
@@ -119,7 +125,11 @@ const buildPlatformJson = {
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/surveyjs/surveyjs.git"
+    "url": "git+https://github.com/surveyjs/survey-library.git",
+    "directory": "packages/survey-core"
+  },
+  "bugs": {
+    "url": "https://github.com/surveyjs/survey-library/issues"
   },
   "typings": "./typings/entries/index.d.ts"
 };
@@ -144,6 +154,7 @@ if (process.env.emitMinified === "true") {
 if (process.env.emitNonSourceFiles === "true") {
   fs.mkdirSync(buildPath, { recursive: true });
   fs.copySync("./README.md", resolve(buildPath, "README.md"));
+  fs.copySync("./src/expressions/filter-tree.schema.json", resolve(buildPath, "filter-tree.schema.json"));
   fs.writeJsonSync(
     resolve(buildPath, "package.json"),
     buildPlatformJson,

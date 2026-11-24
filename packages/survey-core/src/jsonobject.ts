@@ -221,7 +221,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     const dValue = this.getDefaultValue(obj);
     if (dValue !== undefined) {
       if (typeof dValue !== "object") return dValue === value;
-      return Helpers.isTwoValueEquals(value, dValue, false, true, false);
+      return Helpers.checkIfValuesEqual(value, dValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
     }
     return (
       (value === false && this.isBooleanType && !this.defaultValueFunc) ||
@@ -429,7 +429,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public schemaType(): string {
     if (this.className === "choicesByUrl") return undefined;
-    if (this.className === "string") return this.className;
+    if (this.className === "string") return this.isArray ? "array" : this.className;
     if (!!this.className && this.isArray) return "array";
     if (!!this.baseClassName) return "array";
     if (!!this.className) return undefined;
@@ -1495,6 +1495,11 @@ export class JsonMetadata {
       if (propType === "array") {
         if (prop.className === "string") {
           res.items = { type: prop.className };
+          // The choices of a string[] property restrict its items, not the array itself
+          if (!!res.enum) {
+            res.items.enum = res.enum;
+            delete res.enum;
+          }
         } else {
           const refClas = { $ref: this.getChemeRefName(prop.className, isRoot) };
           if (!settings.serialization.itemValueSerializeAsObject && this.isDescendantOf(prop.className, "itemvalue")) {

@@ -18,7 +18,7 @@ export function isTestTypeMismatch(actual: any, expected: any): boolean {
 }
 
 export function isEqualByEngine(actual: any, expected: any, ignoreOrder: boolean): boolean {
-  return Helpers.isTwoValueEquals(actual, expected, ignoreOrder, true, false);
+  return Helpers.checkIfValuesEqual(actual, expected, { ignoreOrder: ignoreOrder, caseSensitive: true, trimStrings: false });
 }
 
 export function isSameTestValue(actual: any, expected: any, ignoreOrder?: boolean): boolean {

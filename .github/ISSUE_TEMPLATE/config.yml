@@ -1,0 +1,10 @@
+# Blank issues stay enabled: AI agents and scripts create issues through `gh issue create`
+# or the REST API, which skip issue forms. See CONTRIBUTING.md for the expected body format.
+blank_issues_enabled: true
+contact_links:
+  - name: Survey Creator issues
+    url: https://github.com/surveyjs/survey-creator/issues
+    about: Report bugs and API gaps in Survey Creator (the form builder) in the survey-creator repository.
+  - name: Security issues
+    url: https://github.com/surveyjs/survey-library/blob/master/CONTRIBUTING.md#how-do-i-submit-a-good-bug-report
+    about: Don't report vulnerabilities in public issues. Email info@devsoftbaltic.com as described in CONTRIBUTING.md.

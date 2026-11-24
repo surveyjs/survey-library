@@ -170,13 +170,13 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
     const stored = [{ a: 1 }, { a: 2 }];
     const source = new ArrayDynamicDataSource((): Array<any> => stored, (): void => { });
     expect(source.read() === stored, "#1").toBe(true);
-    expect(source.count, "#2").toBe(2);
+    expect(source.recordCount, "#2").toBe(2);
     expect(source.readAt(1) === stored[1], "#3").toBe(true);
     expect(source.readAt(2), "#4").toBeUndefined();
     expect(source.readAt(-1), "#5").toBeUndefined();
     expect(hasFixedMembership(source), "#6: it inserts").toBe(false);
     const empty = new ArrayDynamicDataSource((): Array<any> => <any>"not an array", (): void => { });
-    expect(empty.count, "#7: a non-array value counts as empty").toBe(0);
+    expect(empty.recordCount, "#7: a non-array value counts as empty").toBe(0);
   });
   test("read() returns the stored array when it is long enough, else a padded copy of distinct records", () => {
     const store = createPadded([{ a: 1 }, { a: 2 }], 2);
@@ -195,7 +195,7 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
   });
   test("count is the stored length padded up to the minimum, readAt reads a padded position without composing", () => {
     const store = createPadded([{ a: 1 }], 3);
-    expect(store.source.count, "#1").toBe(3);
+    expect(store.source.recordCount, "#1").toBe(3);
     expect(store.source.readAt(0) === store.stored[0], "#2: a stored record").toBe(true);
     expect(store.defaultCalls, "#3: neither count nor a stored index asks for the default record").toBe(0);
     expect(store.source.readAt(1), "#4: a padded position, the default record").toEqual({ d: 1 });
@@ -207,20 +207,20 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
     expect(store.source.readAt(3), "#9: beyond count").toBeUndefined();
     expect(store.source.readAt(-1), "#10").toBeUndefined();
     store.stored = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
-    expect(store.source.count, "#11: a longer array counts itself").toBe(4);
+    expect(store.source.recordCount, "#11: a longer array counts itself").toBe(4);
     expect(store.source.readAt(3), "#12").toEqual({ a: 4 });
   });
   test("a padding source without a default record pads with undefined", () => {
     const source = new ArrayDynamicDataSource((): Array<any> => [], (): void => { }, { getMinCount: (): number => 2 });
     expect(source.read(), "#1").toEqual([undefined, undefined]);
-    expect(source.count, "#2").toBe(2);
+    expect(source.recordCount, "#2").toBe(2);
     expect(source.readAt(1), "#3").toBeUndefined();
   });
   test("inside a batch, count and readAt follow the batch array without padding it again", () => {
     const store = createPadded([{ a: 1 }, { a: 2 }, { a: 3 }], 3);
     store.source.batch((): void => {
       store.source.remove(0);
-      expect(store.source.count, "#1: the removal counts").toBe(2);
+      expect(store.source.recordCount, "#1: the removal counts").toBe(2);
       expect(store.source.readAt(1), "#2").toEqual({ a: 3 });
       expect(store.source.readAt(2), "#3: not padded again").toBeUndefined();
       expect(store.source.read(), "#4").toEqual([{ a: 2 }, { a: 3 }]);
@@ -231,7 +231,7 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
   test("a batch starts from the padded array", () => {
     const store = createPadded([{ a: 1 }, { a: 2 }], 3);
     store.source.batch((): void => {
-      expect(store.source.count, "#1").toBe(3);
+      expect(store.source.recordCount, "#1").toBe(3);
       store.source.update(2, { a: 3 });
     });
     expect(store.stored, "#2: three records are stored").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);

@@ -271,7 +271,8 @@ export class FilterPresetDialog extends Base {
     // The title in a panel of its own, as Contains is: a question that is not in a panel gets a frame,
     // and the mockup has none.
     const elements: Array<any> = [{ type: "panel", name: "presetName", title: this.getString("filterPresetName"), elements: [
-      { type: "text", name: "presetTitle", titleLocation: "hidden", maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }];
+      { type: "text", name: "presetTitle", titleLocation: "hidden", maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping",
+        autocomplete: "off" }] }];
     if (this.buffer.conditions !== null) {
       // The tagbox's hidden title is its accessible name.
       elements.push({ type: "panel", name: "contains", title: this.getString("filterPresetContains"), elements: [

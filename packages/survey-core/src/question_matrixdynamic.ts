@@ -28,7 +28,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf } from "./question_records";
+import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, addRecordGetter } from "./question_records";
 import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
@@ -83,10 +83,12 @@ interface IRowRemoval extends IRecordRemoval {
 // The count properties of the dynamic matrix: getRecordCountNames and the Serializer entries read them.
 const rowCountNames = getRecordCountNamesOf("Row");
 /* RB01: the survey events a new row fires for its cells (canRebindOwnItems). onUpdateQuestionCssClasses
-   too: a cell keeps the classes a handler computed for its record. onAfterRenderQuestionInput fires once
-   per mounted cell editor, and a kept editor is not mounted again for the new record. */
+   onUpdateMatrixCellCss and onUpdateMatrixRowCss too: a cell or row keeps the classes a handler computed for its record.
+   onAfterRenderQuestionInput fires once per mounted cell editor, and a kept editor is not mounted again
+   for the new record. */
 const rowCreationEvents = ["onQuestionCreated", "onMatrixCellCreating", "onMatrixCellCreated", "onMatrixRowAdded", "onAfterRenderMatrixCell",
-  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses"];
+  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses", "onUpdateMatrixCellCss",
+  "onUpdateMatrixRowCss"];
 
 /**
   * A class that describes the Dynamic Matrix question type.
@@ -777,7 +779,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         // Without a view the rows are built in record order: a row's position is its record index.
         // A new row shows its record - the default row record - as the record it stores does.
         for (var i = prevValue; i < val; i++) {
-          this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow() || this.getNewRowValue(i)), this.generatedVisibleRows.length);
+          this.addRowForRecord((): MatrixDynamicRowModel => this.createMatrixRow(this.getValueForNewRow() || this.getNewRowValue(i)), this.generatedVisibleRows.length);
         }
       }
       this.runCondition(this.getDataFilteredProperties());
@@ -788,7 +790,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      do (followRecordsWithObjects). A new row starts with the value Creator gives it, as without a view. */
   private updateRowsForCreatedIndexes(): void {
     this.followRecordsWithObjects((recordIndex: number): void => {
-      this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), recordIndex);
+      this.addRowForRecord((): MatrixDynamicRowModel => this.createMatrixRow(this.getValueForNewRow()), recordIndex);
     });
   }
   /**
@@ -955,7 +957,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        (getRecordViewIndex). */
     const recordIndex = (<MatrixDynamicRowModel>row).rowIndex - 1;
     if (this.lockedRowCount > 0 && recordIndex < this.lockedRowCount) return false;
-    return this.matrixCallbacks.matrixAllowRemoveRow(this, this.getItemViewIndex(row), row);
+    return this.matrixCallbacks.matrixAllowRemoveRow(this, addRecordGetter({ rowIndex: this.getItemViewIndex(row), row: row, allow: true }, row));
   }
   // An add that lands on another page leaves the page shown first (isRecordAddLeavingPage).
   public addRowUI(): void {
@@ -1038,7 +1040,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     // A record the page does not hold has no row, and no event.
     if (this.survey && !!newRow) {
-      this.matrixCallbacks.matrixRowAdded(this, newRow);
+      this.matrixCallbacks.matrixRowAdded(this, addRecordGetter({ row: newRow }, newRow));
     }
     this.onRowsChanged();
     if (!!newRow) return newRow;
@@ -1048,7 +1050,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // QuestionRecordsModel hook: one row for a record at the end of the rows; the rows before it keep their state.
   protected appendItemForRecord(recordIndex: number): void {
     if (!Array.isArray(this.generatedVisibleRows)) return;
-    this.addRowForRecord(this.createMatrixRow(this.getListRecordAt(recordIndex)), recordIndex);
+    this.addRowForRecord((): MatrixDynamicRowModel => this.createMatrixRow(this.getListRecordAt(recordIndex)), recordIndex);
   }
   /* Returns the row of the added record, null when it has none: under paging a record the page does not
      hold - rowsVisibleIf hides it - has no row. Without paging it is the last row (allRows), a hidden
@@ -1088,7 +1090,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const row = this.isPagingActive ? <MatrixDropdownRowModelBase>this.getItemByRecordIndex(this.getLastRowRecordIndex()) || null : rows[rows.length - 1];
     if (this.survey) {
       if (!!row) {
-        this.matrixCallbacks.matrixRowAdded(this, row);
+        this.matrixCallbacks.matrixRowAdded(this, addRecordGetter({ row: row }, row));
       }
       this.onRowsChanged();
     }
@@ -1202,7 +1204,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     try {
       removal = this.removeTarget(target, (resolved: IRecordRemoval): boolean => {
         const row = <MatrixDropdownRowModelBase>resolved.item;
-        return !row || !this.survey || this.matrixCallbacks.matrixRowRemoving(this, target.visibleIndex, row);
+        return !row || !this.survey || this.matrixCallbacks.matrixRowRemoving(this, addRecordGetter({ rowIndex: target.visibleIndex, row: row, allow: true }, row));
       }, (resolved: IRecordRemoval): IRecordRemoval => {
         isStarted = true;
         this.onStartRowAddingRemoving();
@@ -1213,7 +1215,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (!!removal) {
         this.onRowsChanged();
         if (this.survey && !!row) {
-          this.matrixCallbacks.matrixRowRemoved(this, removal.viewIndex, row);
+          this.matrixCallbacks.matrixRowRemoved(this, { rowIndex: removal.viewIndex, row: row, getRecord: (): any => this.getRemovedRecord(removal) });
         }
       }
       this.singleInputOnRemoveItem(target.visibleIndex);
@@ -1666,7 +1668,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.onStartRowAddingRemoving();
         try {
           const newValue = this.getRowValueByIndex(val, newRowCount - 1);
-          this.addRowForRecord(this.createMatrixRow(newValue), newRowCount - 1);
+          this.addRowForRecord((): MatrixDynamicRowModel => this.createMatrixRow(newValue), newRowCount - 1);
         } finally {
           this.unlockResetRenderedTable();
         }

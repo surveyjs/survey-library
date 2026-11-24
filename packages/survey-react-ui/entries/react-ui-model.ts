@@ -25,6 +25,7 @@ export {
   SurveyQuestionCommentItem,
   SurveyQuestionComment,
 } from "../src/reactquestion_comment";
+import "../src/components/rich-text/rich-text-comment";
 export {
   SurveyQuestionCheckbox,
   SurveyQuestionCheckboxItem,

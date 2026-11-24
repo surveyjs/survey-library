@@ -27,6 +27,7 @@
     v-bind:title="item.getTooltip()"
     v-bind:data-sv-tooltip="item.getTooltip()"
     v-bind:aria-checked="item.ariaChecked"
+    v-bind:aria-pressed="item.ariaPressed"
     v-bind:aria-expanded="item.ariaExpanded"
     v-bind:aria-controls="item.ariaControls"
     v-bind:aria-labelledby="item.ariaLabelledBy"

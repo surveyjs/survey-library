@@ -12,6 +12,7 @@ import { englishStrings } from "../src/localization/english";
 import { Base } from "../src/base";
 import { SurveyElement, SurveyElementCore } from "../src/survey-element";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionHtmlModel } from "../src/question_html";
 
 import { describe, test, expect } from "vitest";
 describe("LocalizableString", () => {
@@ -791,6 +792,8 @@ describe("LocalizableString", () => {
     const testerText = new LocalizableTextObjectTester();
     expect(tester.locText.allowLineBreaks).toBeFalsy();
     expect(testerText.locText.allowLineBreaks).toBeTruthy();
+    const htmlQuestion = new QuestionHtmlModel("q1");
+    expect(htmlQuestion.locHtml.allowLineBreaks).toBeTruthy();
   });
   test("Remove locale for en empty string", () => {
     const owner = new LocalizableOwnerTester("");

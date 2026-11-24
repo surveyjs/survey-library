@@ -24,6 +24,7 @@ import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
 import ImageMap from "./Imagemap.vue";
 import Comment from "./Comment.vue";
+import RichTextComment from "./components/rich-text/RichTextComment.vue";
 import Dropdown from "./Dropdown.vue";
 import DropdownSelect from "./DropdownSelect.vue";
 import DropdownOptionItem from "./components/dropdown/OptionItem.vue";
@@ -211,6 +212,7 @@ function registerComponents(
   registerComponent("survey-imagepicker-item", ImagePickerItem);
   registerComponent("survey-imagemap", ImageMap);
   registerComponent("survey-comment", Comment);
+  registerComponent("sv-rich-text", RichTextComment);
   registerComponent("survey-dropdown", Dropdown);
   registerComponent("sv-dropdown-select", DropdownSelect);
   registerComponent("sv-dropdown-option-item", DropdownOptionItem);

@@ -20,6 +20,7 @@
         :placeholder="question.renderedPlaceholder"
         :autocomplete="question.autocomplete"
         :value="question.inputValue"
+        @input="onInput"
         @change="question.onChange"
         @click="question.readOnlyBlocker"
         @pointerdown="question.readOnlyBlocker"
@@ -55,4 +56,9 @@ defineOptions({
 });
 useQuestion<QuestionTextModel>(props, root);
 const inputStyle = computed(() => props.question.inputStyle);
+// React's onChange is the input event. onTyping has to follow it, or a value
+// committed on blur re-renders the dialog and the Apply click never reaches the button.
+function onInput(event: Event): void {
+  if (props.question.isInputTextUpdate) props.question.onChange(event);
+}
 </script>

@@ -158,6 +158,7 @@ export interface IAction {
   isLabel?: boolean;
   needSpace?: boolean;
   ariaChecked?: boolean;
+  ariaPressed?: boolean;
   ariaExpanded?: boolean;
   ariaControls?: string;
   ariaLabelledBy?: string;
@@ -210,6 +211,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property({ defaultValue: false }) needSpace: boolean;
   @property({ defaultValue: false }) isLabel: boolean;
   @property() ariaChecked: boolean;
+  @property() ariaPressed: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
   @property() ariaDescribedBy: string;

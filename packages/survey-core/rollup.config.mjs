@@ -68,6 +68,11 @@ const buildPlatformJson = {
       "import": "./fesm/collaboration/index.mjs",
       "require": "./collaboration/index.js"
     },
+    "./rich-text": {
+      "types": "./typings/entries/rich-text.d.ts",
+      "import": "./fesm/rich-text/index.mjs",
+      "require": "./rich-text/index.js"
+    },
     "./*.css": "./*.css",
     "./filter-tree.schema.json": "./filter-tree.schema.json",
     "./survey.i18n": {

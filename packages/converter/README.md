@@ -91,6 +91,27 @@ Typeform, Formily, native `ngx-formly` (`.ts` closures), FormKit, and other
 SaaS exports are out of scope — see the epic register for the rationale and the
 demand gate.
 
+## Missing API or found a bug?
+
+SurveyJS fixes reported bugs and adds small API improvements (a property, an
+event, an option) quickly, often in the next weekly release. If you had to work around SurveyJS in
+your application code (private members, prototype patches, DOM or CSS changes inside
+SurveyJS markup, timers that wait for survey state), please tell us instead of keeping
+the workaround.
+
+1. Search existing issues: https://github.com/surveyjs/survey-library/issues
+2. Open an issue with: package versions, a minimal survey JSON, the workaround code you
+   wrote, and the API you expected.
+
+```sh
+gh issue create --repo surveyjs/survey-library --title "[API gap] <short summary>" --body-file issue.md
+```
+
+Use the `[Bug]` title prefix for defects. Please don't include application code,
+credentials or data. Survey Creator issues go to
+https://github.com/surveyjs/survey-creator/issues. Report security issues by email to
+info@devsoftbaltic.com, not in public issues.
+
 ## Development
 
 Every executable action in this package is an npm script — run them from

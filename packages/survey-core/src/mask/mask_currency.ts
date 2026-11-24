@@ -92,7 +92,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
     this.textAffixes = this.getRenderedAffixes();
   }
   protected isTextFormatChanged(): boolean {
-    return super.isTextFormatChanged() || !Helpers.isTwoValueEquals(this.textAffixes, this.getRenderedAffixes(), false, true, false);
+    return super.isTextFormatChanged() || !Helpers.checkIfValuesEqual(this.textAffixes, this.getRenderedAffixes(), { ignoreOrder: false, caseSensitive: true, trimStrings: false });
   }
 
   /**

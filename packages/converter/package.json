@@ -18,6 +18,9 @@
     "url": "https://github.com/surveyjs/survey-library.git",
     "directory": "packages/converter"
   },
+  "bugs": {
+    "url": "https://github.com/surveyjs/survey-library/issues"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/typings/index.d.ts",

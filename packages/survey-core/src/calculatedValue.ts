@@ -159,7 +159,7 @@ export class CalculatedValue extends Base {
   private canSkipCalculation(): boolean {
     if (!settings.calculatedValueTrackDependencies || !this.lastRun) return false;
     if (this.lastRun.name !== this.name) return false;
-    if (!Helpers.isTwoValueEquals(this.lastRun.value, this.value, false, true, false)) return false;
+    if (!Helpers.checkIfValuesEqual(this.lastRun.value, this.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return false;
     // A calculated value reads a path under a cleared value ({m.row1} once m is cleared) again
     return this.canSkipExpressionByKeys(this.expressionRunner, this.getValueChangedKeys(), undefined, true);
   }
@@ -302,7 +302,7 @@ export class CalculatedValue extends Base {
       this.expressionRunner = this.createExpressionRunner(expression);
       this.expressionRunner.onRunComplete = newValue => {
         try {
-          if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
+          if (!Helpers.checkIfValuesEqual(newValue, this.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
             this.setValue(newValue);
           }
           this.lastRun = { name: this.name, value: newValue };

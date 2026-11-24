@@ -311,7 +311,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
       const surveySettings = this.getSurveySettings();
-      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false, undefined, surveySettings))[0];
+      const item = items.filter(ch => Helpers.checkIfValuesEqual(ch.id, value, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
       if (!item) {
         this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
       }

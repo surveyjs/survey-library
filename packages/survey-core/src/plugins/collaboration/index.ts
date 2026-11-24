@@ -242,7 +242,7 @@ export class CollaborationPlugin {
     const onValueChanging = (_sender: SurveyModel, o: { name: string, oldValue: any, value: any }) => {
       // Only for a change that is coming: a set to the same value raises onValueChanging
       // and never onValueChanged, and would leave its old value parked here.
-      if (!Helpers.isTwoValueEquals(o.oldValue, o.value, false, true, false)) before.set(o.name, o.oldValue);
+      if (!Helpers.checkIfValuesEqual(o.oldValue, o.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) before.set(o.name, o.oldValue);
     };
     const onValueChanged = (_sender: SurveyModel, o: { name: string, value: any }) => {
       const known = before.has(o.name);

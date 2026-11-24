@@ -363,7 +363,7 @@ export class ChangedKeys {
     const oldValue = this.getValueFromObject(v, name);
     v[keyName] = keyValue["newValue"];
     const newValue = this.getValueFromObject(v, name);
-    return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
+    return !Helpers.checkIfValuesEqual(oldValue, newValue, { ignoreOrder: false, caseSensitive: false, trimStrings: false });
   }
   private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
     const baseName = getUnwrappedBaseName(first);

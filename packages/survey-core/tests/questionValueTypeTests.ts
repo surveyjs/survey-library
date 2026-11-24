@@ -16,7 +16,7 @@ import * as SurveyCore from "survey-core";
 // The question types the tests create register themselves on import.
 import "../src/question_text";
 import "../src/question_comment";
-import "../src/question_expression";
+import { QuestionExpressionModel } from "../src/question_expression";
 import "../src/question_html";
 import "../src/question_image";
 import "../src/question_radiogroup";
@@ -133,6 +133,20 @@ describe("Question.getValueType()", () => {
     ]);
     expect(valueTypes(survey, ["s1", "e1", "c1", "h1", "i1"])).toEqual(
       ["string", "string", "string", "string", "string"]);
+  });
+  test("An expression with a number or a date displayStyle reports that type (#12389)", () => {
+    const survey = createSurvey([
+      { type: "expression", name: "e1", expression: "1 + 1", displayStyle: "decimal" },
+      { type: "expression", name: "e2", expression: "1 + 1", displayStyle: "currency" },
+      { type: "expression", name: "e3", expression: "1 + 1", displayStyle: "percent" },
+      { type: "expression", name: "e4", expression: "today()", displayStyle: "date" },
+      { type: "expression", name: "e5", expression: "1 + 1", displayStyle: "none" },
+    ]);
+    expect(valueTypes(survey, ["e1", "e2", "e3", "e4", "e5"]), "#1").toEqual(
+      ["number", "number", "number", "date", "string"]);
+    const e5 = <QuestionExpressionModel>survey.getQuestionByName("e5");
+    e5.displayStyle = "date";
+    expect(e5.getValueType(), "#2: follows a displayStyle change").toBe("date");
   });
 });
 

@@ -85,7 +85,7 @@ export function getFilterSelectionCondition(field: IDynamicDataFilterField, kind
   const res = getSelectionCondition(field, kind, values);
   if (!res || !shown || shown.operator === res.operator) return res;
   const selection = getFilterFieldSelection(field, kind, shown);
-  return !!selection && Helpers.isTwoValueEquals(selection, values, true) ? Object.assign({}, shown) : res;
+  return !!selection && Helpers.checkIfValuesEqual(selection, values, { ignoreOrder: true }) ? Object.assign({}, shown) : res;
 }
 function getSelectionCondition(field: IDynamicDataFilterField, kind: FilterFieldEditorKind, values: Array<any>): IFilterCondition | undefined {
   if (!Array.isArray(values) || values.length === 0) return undefined;

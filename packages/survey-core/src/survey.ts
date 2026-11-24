@@ -83,7 +83,7 @@ import {
   ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
   GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
-  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
+  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, UpdateMatrixCellCssEvent, UpdateMatrixRowCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
@@ -856,6 +856,22 @@ export class SurveyModel extends SurveyElementCore
    * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
+  /**
+   * An event that is raised when a cell in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its row's data changes. Use it to override the default CSS classes applied to the cell's `<td>` element.
+   * @see css
+   * @see onUpdateMatrixRowCss
+   */
+  public onUpdateMatrixCellCss: EventBase<SurveyModel, UpdateMatrixCellCssEvent> = this.addEvent<SurveyModel, UpdateMatrixCellCssEvent>();
+  /**
+   * An event that is raised when a row in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its data changes. Use it to override the default CSS classes applied to the row's `<tr>` element.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is raised only in the horizontal layout, where each rendered matrix row represents one record. When [`transposeData`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#transposeData) switches the matrix to the vertical layout, each rendered row represents a matrix column. Use [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss) to style individual matrix cells in that layout.
+   * @see css
+   * @see onUpdateMatrixCellCss
+   */
+  public onUpdateMatrixRowCss: EventBase<SurveyModel, UpdateMatrixRowCssEvent> = this.addEvent<SurveyModel, UpdateMatrixRowCssEvent>();
 
   /**
    * An event that is raised after the survey is rendered to the DOM. Use this event to modify survey markup.
@@ -1539,6 +1555,12 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see onUpdateQuestionCssClasses
+   * @see onUpdatePanelCssClasses
+   * @see onUpdatePageCssClasses
+   * @see onUpdateChoiceItemCss
+   * @see onUpdateMatrixRowCss
+   * @see onUpdateMatrixCellCss
    */
   public get css(): any {
     if (!this.cssValue) {
@@ -6544,8 +6566,10 @@ export class SurveyModel extends SurveyElementCore
   matrixBeforeRowAdded(options: any) {
     this.onMatrixRowAdding.fire(this, options);
   }
-  matrixRowAdded(question: QuestionMatrixDynamicModel, row: any) {
-    this.onMatrixRowAdded.fire(this, { question: question, row: row });
+  // The matrices and the dynamic panel build the options of their events, getRecord included.
+  matrixRowAdded(question: QuestionMatrixDynamicModel, options: any): void {
+    options.question = question;
+    this.onMatrixRowAdded.fire(this, options);
   }
   matrixColumnAdded(question: Question, column: any): void {
     this.onMatrixColumnAdded.fire(this, { question: question, column: column });
@@ -6582,30 +6606,22 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
-  matrixRowRemoved(question: QuestionMatrixDynamicModel, rowIndex: number, row: any) {
-    this.onMatrixRowRemoved.fire(this, {
-      question: question,
-      rowIndex: rowIndex,
-      row: row,
-    });
+  matrixRowRemoved(question: QuestionMatrixDynamicModel, options: any): void {
+    options.question = question;
+    this.onMatrixRowRemoved.fire(this, options);
   }
-  matrixRowRemoving(question: QuestionMatrixDynamicModel, rowIndex: number, row: any): boolean {
-    var options = {
-      question: question,
-      rowIndex: rowIndex,
-      row: row,
-      allow: true,
-    };
+  matrixRowRemoving(question: QuestionMatrixDynamicModel, options: any): boolean {
+    options.question = question;
     this.onMatrixRowRemoving.fire(this, options);
     return options.allow;
   }
-  matrixAllowRemoveRow(question: QuestionMatrixDynamicModel, rowIndex: number, row: any): boolean {
-    const options = { question: question, rowIndex: rowIndex, row: row, allow: true };
+  matrixAllowRemoveRow(question: QuestionMatrixDynamicModel, options: any): boolean {
+    options.question = question;
     this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
-  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, rowIndex: number, row: any, visible: boolean): void {
-    const options = { question: question, rowIndex: rowIndex, row: row, visible: visible, detailPanel: row.detailPanel };
+  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
     this.onMatrixDetailPanelVisibleChanged.fire(this, options);
   }
   matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any): void {
@@ -6616,10 +6632,21 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
+  updateMatrixCellCss(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
+    this.onUpdateMatrixCellCss.fire(this, options);
+  }
+  updateMatrixRowCss(question: QuestionMatrixDropdownModelBase, options: any): void {
+    options.question = question;
+    this.onUpdateMatrixRowCss.fire(this, options);
+  }
   matrixAfterCellRender(options: any): void {
     const evt = this.onAfterRenderMatrixCell;
     if (!evt.isEmpty) {
       options.question = options.cellQuestion?.parentQuestion;
+      // The renderers build these options: the row gives its record.
+      const row = options.row;
+      options.getRecord = (): any => !!row ? row.getRecord() : null;
       evt.fire(this, options);
     }
   }
@@ -6655,13 +6682,15 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
+  dynamicPanelAdded(question: QuestionPanelDynamicModel, options: any, updateIndexes: boolean): void {
     if (!this.isLoadingFromJson && updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
+    options.question = question;
+    this.onDynamicPanelAdded.fire(this, options);
   }
-  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
+  dynamicPanelRemoved(question: QuestionPanelDynamicModel, options: any, updateIndexes: boolean): void {
+    const panel: PanelModel = options.panel;
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
@@ -6669,19 +6698,11 @@ export class SurveyModel extends SurveyElementCore
     if (updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    this.onDynamicPanelRemoved.fire(this, {
-      question: question,
-      panelIndex: panelIndex,
-      panel: panel,
-    });
+    options.question = question;
+    this.onDynamicPanelRemoved.fire(this, options);
   }
-  dynamicPanelRemoving(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): boolean {
-    const options = {
-      question: question,
-      panelIndex: panelIndex,
-      panel: panel,
-      allow: true
-    };
+  dynamicPanelRemoving(question: QuestionPanelDynamicModel, options: any): boolean {
+    options.question = question;
     this.onDynamicPanelRemoving.fire(this, options);
     return options.allow;
   }
@@ -6875,6 +6896,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getTitleActionsResult(titleActions, options);
   }
 
+  // Called by the rendered table and, as released, by survey-creator's tests: the row gives its record.
   getUpdatedMatrixRowActions(
     question: QuestionMatrixDropdownModelBase,
     row: any,
@@ -6884,6 +6906,7 @@ export class SurveyModel extends SurveyElementCore
       question: question,
       actions: actions,
       row: row,
+      getRecord: (): any => !!row ? row.getRecord() : null
     };
     this.onGetMatrixRowActions.fire(this, options);
     return options.actions;
@@ -7397,7 +7420,7 @@ export class SurveyModel extends SurveyElementCore
     return options.value;
   }
   private getLocNotification(loc: boolean | "text", value: any, oldValue: any): boolean | "text" {
-    if (loc === false && Helpers.isTwoValueEquals(value, oldValue, false, true, false)) return true;
+    if (loc === false && Helpers.checkIfValuesEqual(value, oldValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return true;
     return loc;
   }
   // The root's elements on a key, copied once a container has nested: a loop over them may change the root's

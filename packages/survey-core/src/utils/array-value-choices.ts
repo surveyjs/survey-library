@@ -42,7 +42,7 @@ export class ArrayValueChoices {
   protected isSameChoices(a: Array<IArrayValueChoice>, b: Array<IArrayValueChoice>): boolean {
     if (a.length !== b.length) return false;
     // Exact: a key renamed by case or by a trailing space is a new choice.
-    const isSame = (x: any, y: any): boolean => x === y || Helpers.isTwoValueEquals(x, y, false, true, false);
+    const isSame = (x: any, y: any): boolean => x === y || Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
     for (let i = 0; i < a.length; i++) {
       if (!isSame(a[i].value, b[i].value) || !isSame(a[i].text, b[i].text)) return false;
     }

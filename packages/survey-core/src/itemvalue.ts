@@ -116,7 +116,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     const valIsEmpty = Helpers.isValueEmpty(val);
     for (var i = 0; i < items.length; i++) {
       if (valIsEmpty && Helpers.isValueEmpty(items[i].value)) return items[i];
-      if (Helpers.isTwoValueEquals(items[i].value, val, false, true, false)) return items[i];
+      if (Helpers.checkIfValuesEqual(items[i].value, val, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return items[i];
     }
     return null;
   }
@@ -216,7 +216,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   private static runItemCondition(item: ItemValue, runner: ConditionRunner, isVisible: boolean, properties: any): boolean {
     const lastRun = isVisible ? item.lastVisibleConditionRun : item.lastEnableConditionRun;
     if (!!lastRun && lastRun.expression === runner.expression && !runner.isAsync &&
-      Helpers.isTwoValueEquals(lastRun.value, item.value, false, true, false)) {
+      Helpers.checkIfValuesEqual(lastRun.value, item.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
       const owner = item.locOwner;
       if (owner instanceof Question && owner.canSkipItemCondition(runner)) return lastRun.result;
     }
@@ -422,7 +422,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
-      Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) {
+      Helpers.checkIfValuesEqual(this.value, this.locTextValue.getLocaleText(""), { ignoreOrder: false, caseSensitive: true, trimStrings: false }))) {
       return false;
     }
     return true;

@@ -524,6 +524,45 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, "#surveyElement", "survey-progress-bar-top-pages-sticky.png");
     });
 
+    test("Check survey progress scrolls away without fit to container", async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 600 });
+      const rows = Array.from({ length: 40 }, (_, index) => `<div>Row ${index + 1}</div>`).join("");
+      await initSurvey(page, framework, {
+        showQuestionNumbers: true,
+        title: "Survey Title",
+        showProgressBar: true,
+        fitToContainer: false,
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              {
+                type: "html",
+                name: "html",
+                titleLocation: "hidden",
+                html: rows
+              }
+            ]
+          },
+          {
+            name: "p2",
+            elements: [{ type: "text", name: "q2" }]
+          }
+        ]
+      });
+      await applyHeaderAccentBackgroundColor(page);
+      const progressBar = page.locator(".sd-progress-buttons");
+      await expect(progressBar).toBeVisible();
+      // The page scrolls. An element screenshot would scroll the progress bar back into view.
+      await page.evaluate(() => {
+        const root = (window as any).survey.rootElement.getRootNode() as Document | ShadowRoot;
+        const row = Array.from(root.querySelectorAll(".sd-question--html div")).find((el) => el.textContent === "Row 16") as HTMLElement;
+        window.scrollTo(0, row.getBoundingClientRect().top + window.scrollY);
+      });
+      await expect(progressBar).not.toBeInViewport();
+      await compareScreenshot(page, undefined, "survey-progress-bar-not-sticky.png");
+    });
+
     test("Check survey with progress top questions - sticky", async ({ page }) => {
       const surveyJson = {
         showQuestionNumbers: true,

@@ -473,7 +473,7 @@ export class QuestionTextModel extends QuestionTextBase {
       }
     }
     this._inputValue = _inputValue;
-    if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
+    if (!Helpers.checkIfValuesEqual(this.value, value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
       this.doNotUpdateInputValue = keepEnteredText;
       this.value = value;
       this.doNotUpdateInputValue = false;
@@ -972,7 +972,7 @@ export class QuestionTextModel extends QuestionTextBase {
   // inputValue because value holds a masked text unmasked, and the way the inputValue setter compares:
   // a number input holds a string.
   private hasUncommittedInput(event: any): boolean {
-    return !Helpers.isTwoValueEquals(this.inputValue, event.target?.value, false, true, false);
+    return !Helpers.checkIfValuesEqual(this.inputValue, event.target?.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false });
   }
   private shouldPreventNumberInput(event: any): boolean {
     const key = event.key;

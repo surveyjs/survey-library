@@ -221,7 +221,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.renderState.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+      if (!Helpers.checkIfValuesEqual(newValue, control.value, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) {
         control.value = this.renderState.inputStringRendered;
       }
     }

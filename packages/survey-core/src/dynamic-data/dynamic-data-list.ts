@@ -180,7 +180,7 @@ export class DynamicDataList {
      want only the count. Inside a batch the source counts the array the batch is building, which the
      owner's storage does not have yet. Any other source is counted by the window the list holds. */
   private get recordCount(): number {
-    if (this.useReadThrough) return (<LocalDynamicDataSource>this._source).count;
+    if (this.useReadThrough) return (<LocalDynamicDataSource>this._source).recordCount;
     return this.records.length;
   }
   public get source(): IDynamicDataSource {
@@ -866,9 +866,9 @@ export class DynamicDataList {
   /* How many records the authored filter and this control filter would leave, without applying it:
      the number a Filter Control shows before its edits are applied. Nothing in the view changes and
      nothing is reported - a count that cannot be had is undefined:
-     - a source that pages and filters is asked once for the total of a one-record window. The read
-       goes to the source directly and not through the channel: the channel keeps one read in flight
-       and would drop the list's own;
+     - a source that pages and filters is asked once: its count(filter) when it has one, else the
+       total of a one-record window. The read goes to the source directly and not through the
+       channel: the channel keeps one read in flight and would drop the list's own;
      - records held here as the whole storage (a source that does not page, or a paging one read whole
        for a view it cannot run) are counted here, exactly;
      - a paging source that cannot filter, while it holds only a page, and a source that sends no
@@ -897,13 +897,14 @@ export class DynamicDataList {
   }
   private countAtSource(filter: string): Promise<number | undefined> {
     return new Promise((resolve: (count: number | undefined) => void): void => {
-      const answer = (data: any): void => {
-        const total = toReadResult(data).total;
+      const source = this._source;
+      const answer = (total: any): void => {
         resolve(typeof total === "number" ? total : undefined);
       };
       try {
-        Promise.resolve(this._source.read({ skip: 0, take: 1, filter: filter, sort: [] }))
-          .then(answer, (): void => { resolve(undefined); });
+        const counted = typeof source.count === "function" ? Promise.resolve(source.count(filter))
+          : Promise.resolve(source.read({ skip: 0, take: 1, filter: filter, sort: [] })).then((data: any): any => toReadResult(data).total);
+        counted.then(answer, (): void => { resolve(undefined); });
       } catch(e) {
         resolve(undefined);
       }

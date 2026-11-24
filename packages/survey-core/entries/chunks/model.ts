@@ -141,6 +141,7 @@ export {
   runBinaryOperator,
   IOperandToStringContext
 } from "../../src/expressions/expressions";
+export { toFilterTree, FilterTreeNode, FilterTreeCondition, FilterTreeOperator } from "../../src/expressions/filter-tree";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
 export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
 export {

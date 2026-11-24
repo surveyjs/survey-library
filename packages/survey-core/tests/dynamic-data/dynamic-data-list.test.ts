@@ -907,6 +907,29 @@ describe("DynamicDataList: asynchronous reading", () => {
     expect(list.getValue(0, "id")).toBe("second");
     expect(list.isLoading).toBe(false);
   });
+  // The docs promise that only the answer to the most recent read() call is shown, so a source may
+  // act on an answer (totals) only for its newest call: an older answer is dropped even when it
+  // arrives first, and stays dropped when the newer read fails.
+  test("a superseded read that answers first is discarded too", async () => {
+    const source = new FakeAsyncSource();
+    const list = new DynamicDataList(source);
+    list.load();
+    source.pendingReads[0].resolve([{ id: "initial" }]);
+    await flush();
+    list.load();
+    list.load();
+    expect(source.pendingReads.length, "#1").toBe(3);
+    source.pendingReads[1].resolve([{ id: "older" }, { id: "older" }]);
+    await flush();
+    expect(list.count, "#2: the older answer is dropped").toBe(1);
+    expect(list.getValue(0, "id"), "#3").toBe("initial");
+    expect(list.isLoading, "#4: the newest read is still in flight").toBe(true);
+    source.pendingReads[2].reject("network");
+    await flush();
+    expect(list.count, "#5: the failed newest read keeps the previous window").toBe(1);
+    expect(list.getValue(0, "id"), "#6").toBe("initial");
+    expect(list.isLoading, "#7").toBe(false);
+  });
   test("a rejected read keeps the previous window", async () => {
     const source = new FakeAsyncSource();
     const list = new DynamicDataList(source);

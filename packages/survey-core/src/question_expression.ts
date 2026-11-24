@@ -1,6 +1,6 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { Base } from "./base";
-import { Question } from "./question";
+import { Question, QuestionValueType } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -41,6 +41,15 @@ export class QuestionExpressionModel extends Question {
   }
   public get hasInput(): boolean {
     return false;
+  }
+  /* The result type of an expression is not known in advance, but a number or a date displayStyle
+     tells what the author expects it to be. The sort labels, the first sort direction and the filter
+     operators of a record field read it. Without one, the base "string" stays (an unknown type). */
+  public getValueType(): QuestionValueType {
+    const style = this.displayStyle;
+    if (style === "decimal" || style === "currency" || style === "percent") return "number";
+    if (style === "date") return "date";
+    return super.getValueType();
   }
   /**
    * A string that formats a question value. Use `{0}` to reference the question value in the format string.

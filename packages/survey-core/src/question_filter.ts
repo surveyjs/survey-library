@@ -217,7 +217,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   // With no target, the fields entries. With one, the target's fields in its order, each as the entry
   // that names it overrides it, then the entries that name no record field of the target: fields of
   // the record it has no column for. An entry naming a column the filter leaves out (allowFiltering:
-  // false) is neither. A target builds its list anew on every call.
+  // false), or a path into one, is neither; a path into a column it offers is a field of the record.
+  // A target builds its list anew on every call.
   private buildFilterFields(): Array<IDynamicDataFilterField> {
     const target = this.filterTarget;
     if (!target) return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());

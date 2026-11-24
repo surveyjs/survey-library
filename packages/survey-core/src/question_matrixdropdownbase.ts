@@ -32,7 +32,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { collectFilterFields, IDynamicDataFilterField, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
+import { addFilterRecordKey, collectFilterFields, collectFilterRecordKeys, IDynamicDataFilterField, IFilterRecordKeys, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
@@ -2784,10 +2784,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     return res;
   }
-  // A column by its name or the key its cells write, filtered or not, or a path into a column's record.
+  // A column by its name or the key its cells write, filtered or not, a child of a column's record by
+  // its path, or a path into a column the filter leaves out (see isRecordFieldName). The walk of the
+  // cell question adds the key its cells write (column.sortField).
   public hasRecordField(name: string): boolean {
-    const keys: Array<string> = [];
-    this.columns.forEach((column: MatrixDropdownColumn): void => { keys.push(column.name, column.sortField); });
+    const keys: IFilterRecordKeys = { keys: [], excluded: [] };
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      addFilterRecordKey(keys, column.name, !column.allowFiltering);
+      collectFilterRecordKeys(keys, column.templateQuestion, "", !column.allowFiltering);
+    });
     return isRecordFieldName(name, keys);
   }
   protected refreshRenderedPage(): void {

@@ -4,22 +4,28 @@ import { Serializer } from "../../src/jsonobject";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { getFilterFieldTitle } from "../../src/dynamic-data/dynamic-data-filter-fields";
+import { ComponentCollection } from "../../src/question_custom";
 import "../../src/question_matrixdynamic";
 import "../../src/question_paneldynamic";
 import "../../src/question_multipletext";
 
 // The fields entries of a control with a target question: an entry named after a field of the target
 // overrides it, any other one is a field of the record the target has no column for.
-function create(fields: Array<any>, columns: Array<any> = [{ name: "country" }, { name: "notes", allowFiltering: false }]): { q: QuestionFilterModel, matrix: any } {
+function create(fields: Array<any>, columns: Array<any> = [{ name: "country" }, { name: "notes", allowFiltering: false }],
+  data: Array<any> = [{ country: "de", total: 5, notes: "x" }, { country: "fr", total: 50, notes: "y" }, { country: "gb", total: 500, notes: "z" }]
+): { q: QuestionFilterModel, matrix: any } {
   const survey = new SurveyModel({ elements: [
     { type: "matrixdynamic", name: "m", columns: columns },
     { type: "filter", name: "f1", targetQuestion: "m", fields: fields }] });
   const matrix: any = survey.getQuestionByName("m");
-  matrix.dataSource = ArrayDynamicDataSource.fromArray([
-    { country: "de", total: 5, notes: "x" }, { country: "fr", total: 50, notes: "y" }, { country: "gb", total: 500, notes: "z" }]);
+  matrix.dataSource = ArrayDynamicDataSource.fromArray(data);
   return { q: <QuestionFilterModel>survey.getQuestionByName("f1"), matrix };
 }
 const names = (q: QuestionFilterModel): Array<string> => q.getFilterFields().map(f => f.name);
+const customers = [
+  { customer: { name: "Ann", country: "de" }, total: 5 },
+  { customer: { name: "Bob", country: "fr" }, total: 50 },
+  { customer: { name: "Cid", country: "de" }, total: 500 }];
 
 describe("Filter fields of a target question", () => {
   test("an entry named after a column overrides its title, operators and quick-filter flag", () => {
@@ -66,6 +72,39 @@ describe("Filter fields of a target question", () => {
     const { q } = create([{ name: "notes" }]);
     expect(names(q)).toEqual(["country"]);
   });
+  test("an entry naming a path into a column the filter offers is a field of the record; it filters and is counted", async () => {
+    const { q, matrix } = create([{ name: "customer.country", title: "Country" }], [{ name: "customer" }], customers);
+    expect(names(q), "#1").toEqual(["customer", "customer.country"]);
+    expect(getFilterFieldTitle(q.getFieldByName("customer.country")), "#2").toBe("Country");
+    expect(await q.countFilterResults("{customer.country} = 'de'"), "#3").toBe(2);
+    q.applyFilter("{customer.country} = 'de'");
+    expect(matrix.visibleRows.length, "#4").toBe(2);
+  });
+  test("an entry naming a path into a column the filter leaves out is ignored", () => {
+    const { q } = create([{ name: "customer.country" }], [{ name: "customer", allowFiltering: false }], customers);
+    expect(names(q), "#1").toEqual([]);
+    expect(q.getFieldOfEntry(q.fields[0]), "#2").toBeUndefined();
+  });
+  test("an entry naming a path into a Dynamic Panel's record question past its items is a field of the record", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", panelCount: 2, templateElements: [{ type: "multipletext", name: "address", items: [{ name: "city" }] }] },
+      { type: "filter", name: "f1", targetQuestion: "p", fields: [{ name: "address.zip", title: "ZIP" }] }] });
+    const panel: any = survey.getQuestionByName("p");
+    panel.value = [{ address: { city: "Berlin", zip: "10115" } }, { address: { city: "Paris", zip: "75001" } }];
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(names(q), "#1").toEqual(["city", "address.zip"]);
+    expect(q.getFieldByName("address.zip").valueName, "#2").toBe("address.zip");
+    q.applyFilter("{address.zip} = '10115'");
+    expect(panel.visiblePanels.length, "#3").toBe(1);
+  });
+  test("a second entry for a nested field is no field of its own", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", templateElements: [{ type: "multipletext", name: "address", items: [{ name: "city" }] }] },
+      { type: "filter", name: "f1", targetQuestion: "p", fields: [{ name: "city", title: "Town" }, { name: "address.city", title: "Other" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(names(q), "#1").toEqual(["city"]);
+    expect(getFilterFieldTitle(q.getFieldByName("address.city")), "#2").toBe("Town");
+  });
   test("an entry finds a nested field of a Dynamic Panel by its path", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "p", templateElements: [{ type: "multipletext", name: "address", items: [{ name: "city" }] }] },
@@ -102,16 +141,29 @@ describe("Filter fields of a target question", () => {
 });
 
 describe("hasRecordField of a target question", () => {
-  test("a matrix: a column by name or valueName, filtered or not, and a path into one", () => {
+  test("a matrix: a column by name or valueName, filtered or not, and a path into one the filter leaves out", () => {
     const { matrix } = create([], [{ name: "country" }, { name: "notes", allowFiltering: false }, { name: "price", valueName: "amount" }]);
-    expect(["country", "notes", "amount", "price", "amount.x", "total", ""].map((n: string) => matrix.hasRecordField(n)))
-      .toEqual([true, true, true, true, true, false, false]);
+    expect(["country", "notes", "amount", "price", "amount.x", "notes.x", "total", ""].map((n: string) => matrix.hasRecordField(n)))
+      .toEqual([true, true, true, true, false, true, false, false]);
   });
-  test("a Dynamic Panel: a template question by name or valueName, and a path into one", () => {
+  test("a Dynamic Panel: a template question by name or valueName, a child's path, and a path into one the filter leaves out", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [
       { type: "text", name: "a", allowFiltering: false }, { type: "text", name: "b", valueName: "bv" },
       { type: "multipletext", name: "address", items: [{ name: "city" }] }] }] });
     const panel: any = survey.getQuestionByName("p");
-    expect(["a", "b", "bv", "address.city", "zip"].map((n: string) => panel.hasRecordField(n))).toEqual([true, true, true, true, false]);
+    expect(["a", "b", "bv", "address.city", "address.zip", "a.x", "zip"].map((n: string) => panel.hasRecordField(n)))
+      .toEqual([true, true, true, true, false, true, false]);
+  });
+  test("a composite in a template: its children's paths are taken, a path into an excluded child too, a path past them is not", () => {
+    ComponentCollection.Instance.add({ name: "customerinfo", elementsJSON: [
+      { type: "text", name: "firstName" }, { type: "text", name: "lastName", allowFiltering: false }] });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "customerinfo", name: "c" }] }] });
+      const panel: any = survey.getQuestionByName("p");
+      expect(["c", "c.firstName", "c.lastName", "c.lastName.x", "c.email"].map((n: string) => panel.hasRecordField(n)))
+        .toEqual([true, true, true, true, false]);
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
   });
 });

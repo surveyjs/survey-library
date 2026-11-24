@@ -241,9 +241,11 @@ export interface IDynamicDataFilterTarget {
   // Optional: how many records there would be if this control filtered by expression - before the
   // control applies it. undefined (or no method) when the count cannot be known.
   getControlFilterCount?(key: string, expression: string): Promise<number | undefined>;
-  // Whether a record field has a column or a template question of this name or value name, a filtered
-  // one or not (allowFiltering: false), or is a path into one. A Filter Control's fields entry that
-  // names no field of the target's list and no record field of this kind is a field of the record
-  // the target has no column for.
+  // Whether a name is a record key this target's questions take: a column's or a template question's
+  // name or value name, or the dotted path of a child of a record question (Multiple Textboxes, a
+  // composite) - filtered or not (allowFiltering: false) - or a path into one the filter leaves out. A
+  // Filter Control's fields entry that names no field of the target's list and no such key is a field
+  // of the record the target has no column for, a path into a key the filter offers included
+  // ("customer.country" next to a "customer" column).
   hasRecordField(name: string): boolean;
 }

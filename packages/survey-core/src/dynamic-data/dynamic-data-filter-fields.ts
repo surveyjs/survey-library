@@ -45,11 +45,6 @@ export function getFilterFieldTitle(field: IDynamicDataFilterField): string {
 // dotted path the expression language reads them with ({address.city}). A question whose value is a
 // table of its own - a nested Dynamic Matrix or Dynamic Panel, a Dropdown Matrix - is neither, and is
 // skipped whole.
-// Whether a name is a record field of a target: one of its keys - a column's or a template question's
-// name or value name - or a path into one ("address.city"). See IDynamicDataFilterTarget.hasRecordField.
-export function isRecordFieldName(name: string, keys: Array<string>): boolean {
-  return !!name && keys.some((key: string): boolean => !!key && (name === key || name.indexOf(key + ".") === 0));
-}
 export function getFilterFieldsForQuestions(questions: Array<Question>): Array<IDynamicDataFilterField> {
   const res = new Array<IDynamicDataFilterField>();
   (questions || []).forEach((question: Question): void => { collectFilterFields(res, question, ""); });
@@ -72,4 +67,38 @@ export function collectFilterFields(res: Array<IDynamicDataFilterField>, questio
   question.getNestedQuestions(false, false).forEach((nested: Question): void => {
     collectFilterFields(res, nested, valueName + ".");
   });
+}
+// The record keys a target's questions take from a Filter Control's fields entries (hasRecordField).
+// keys: what a question is reached by - a column's or a template question's name and value name, and
+// the dotted path of a child of a record question at any depth - filtered or not. excluded: those the
+// filter leaves out (allowFiltering: false); a path into one is taken too.
+export interface IFilterRecordKeys {
+  keys: Array<string>;
+  excluded: Array<string>;
+}
+export function addFilterRecordKey(res: IFilterRecordKeys, key: string, excluded: boolean): void {
+  if (!key) return;
+  res.keys.push(key);
+  if (excluded) {
+    res.excluded.push(key);
+  }
+}
+// Walks a question the way collectFilterFields does and keeps what that one skips. A question the
+// filter leaves out takes every path into it, so its children need no walk.
+export function collectFilterRecordKeys(res: IFilterRecordKeys, question: Question, valuePrefix: string, excluded: boolean): void {
+  if (!question) return;
+  const isExcluded = excluded || !question.allowFiltering;
+  const valueName = valuePrefix + question.getValueName();
+  addFilterRecordKey(res, valueName, isExcluded);
+  if (isExcluded || question.isFilterable || !question.hasNestedFilterFields) return;
+  question.getNestedQuestions(false, false).forEach((nested: Question): void => {
+    collectFilterRecordKeys(res, nested, valueName + ".", false);
+  });
+}
+// Whether a fields entry's name is taken: a key itself, or a path into a key the filter leaves out. A
+// path into a key the filter offers that names no question is a field of its own - the record may hold
+// more under that key than its questions show ("customer.country" next to a "customer" column).
+export function isRecordFieldName(name: string, res: IFilterRecordKeys): boolean {
+  if (!name) return false;
+  return res.keys.indexOf(name) > -1 || res.excluded.some((key: string): boolean => name.indexOf(key + ".") === 0);
 }

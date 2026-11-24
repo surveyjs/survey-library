@@ -14,7 +14,8 @@ import {
 import { getChoicesInfo, getStaticChoiceValues } from "./value-types";
 import { annotateSharedValues, getDataKey, getFrameNames } from "./record-fields";
 import { createRecordScope, createRootScope, generateContainerName, getChildScope, getContainerNestingKind, getDataNestingMode,
-  isInsideRecordScope } from "./data-nesting";
+  isInNestedObject, isInsideRecordScope } from "./data-nesting";
+import { getNameScopeLabel, getRecordNameScope, isNameScopeMode } from "./name-scopes";
 
 const MAX_DEPTH = 128;
 // why a panel's or a page's valueName stores nothing: the hint of a reference to it
@@ -32,6 +33,8 @@ interface WalkState {
   // unnamed one after them (generateContainerName)
   pageNames: Set<string>;
   panelNames: Set<string>;
+  // a nesting mode: the names and the namespace of each name scope but the survey's
+  nameScopeMaps: Map<DataScopeRecord, NameScopeMaps>;
 }
 
 function isNonEmptyString(value: any): boolean {
@@ -122,11 +125,13 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   state.index.allElements.push(record);
   const frame = getCapturingFrame(record.scope);
   if (record.name) {
-    state.index.elementNames.add(record.name, record);
+    addToNameScope(state, record);
     if (frame) {
       getFrameNames(frame).add(record.name, record);
     } else {
-      state.index.byName.add(record.name, record);
+      state.index.flatNames.add(record.name, record);
+      // in a nesting mode the survey's own name scope ends at a container that holds data (O1)
+      if (state.index.byName !== state.index.flatNames && !isInNestedObject(record)) state.index.byName.add(record.name, record);
       // a valueName inside a nesting container keys that container's object, not the survey data
       if (record.valueName && record.dataScope === state.index.rootScope) state.index.byValueName.add(record.valueName, record);
     }
@@ -138,6 +143,49 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
       }
     });
   }
+}
+
+// A nesting mode: the elements of one name scope other than the survey's, and the namespace name/duplicate reads
+// for it, labelled by its owner. They are one map, except for a matrix's record: its namespace holds the matrix's
+// columns too, which write into its rows next to the detail panel's questions, but a column is no element (O9a)
+// and a path of names never finds one.
+interface NameScopeMaps {
+  names: CIMultiMap<ElementRecord>;
+  namespace: CIMultiMap<ElementRecord>;
+}
+function getNameScopeMaps(state: WalkState, scope: DataScopeRecord): NameScopeMaps {
+  let maps = state.nameScopeMaps.get(scope);
+  if (!maps) {
+    const names = new CIMultiMap<ElementRecord>();
+    const isMatrix = scope.kind === "record" && !!scope.recordOwner && !!scope.recordOwner.matrixColumns;
+    maps = { names: names, namespace: isMatrix ? new CIMultiMap<ElementRecord>() : names };
+    state.nameScopeMaps.set(scope, maps);
+    state.index.nameScopes.set(scope, names);
+    state.index.namespaces.push({ label: getNameScopeLabel(scope), map: maps.namespace });
+  }
+  return maps;
+}
+// A nesting mode: an unnamed page or panel that nests, by the name the runtime generates for it (a path of names
+// may start with it). Only a nesting mode generates a key, so "none" never comes here.
+function addGeneratedName(index: SurveyIndex, scope: DataScopeRecord, name: string, record: ElementRecord): void {
+  let names = index.generatedNames.get(scope);
+  if (!names) {
+    names = new CIMultiMap<ElementRecord>();
+    index.generatedNames.set(scope, names);
+  }
+  names.add(name, record);
+}
+// In "none" the survey is the only name scope (elementNames).
+function addToNameScope(state: WalkState, record: ElementRecord): void {
+  const index = state.index;
+  const scope = getRecordNameScope(record, index);
+  if (!isNameScopeMode(index) || scope === index.rootScope) {
+    index.elementNames.add(record.name, record);
+    return;
+  }
+  const maps = getNameScopeMaps(state, scope);
+  maps.names.add(record.name, record);
+  if (maps.namespace !== maps.names) maps.namespace.add(record.name, record);
 }
 
 // Every element of a composite definition's elementsJSON at any depth - inside panels and dynamic-panel
@@ -268,6 +316,7 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   container.dataKey = key;
   container.dataKeySource = valueName ? "valueName" : (record.name ? "name" : "generated");
   container.nestedScope = getChildScope(dataScope, key, record);
+  if (!record.name) addGeneratedName(state.index, dataScope, name, record);
   return container.nestedScope;
 }
 
@@ -315,9 +364,14 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
   const frame: ScopeFrameMatrixRow = { kind: "matrixRow", owner: record, columns: new CIMultiMap<ElementRecord>() };
   record.matrixColumns = frame.columns;
   const rowScope = scope.concat([frame]);
-  state.index.namespaces.push({
-    label: "matrix \"" + (record.name || record.path) + "\"", map: frame.columns,
-  });
+  // in a nesting mode the row's name scope is the namespace: its detail panel's questions, and the columns,
+  // which write into the row next to them (a nesting panel of the detail panel is a scope of its own)
+  const columnNames = isNameScopeMode(state.index) ? getNameScopeMaps(state, getRecordScope(state, record)).namespace : undefined;
+  if (!columnNames) {
+    state.index.namespaces.push({
+      label: "matrix \"" + (record.name || record.path) + "\"", map: frame.columns,
+    });
+  }
   const defaultCellType = (json.cellType || state.index.settings.matrixDefaultCellType).toLowerCase();
   if (Array.isArray(json.columns)) {
     json.columns.forEach((column: any, i: number) => {
@@ -347,6 +401,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       state.index.allElements.push(columnRecord);
       if (columnRecord.name) {
         frame.columns.add(columnRecord.name, columnRecord);
+        if (!!columnNames) columnNames.add(columnRecord.name, columnRecord);
         // a cell writes into the row's record, next to the detail-panel questions
         getRecordScope(state, record).questions.add(columnRecord.name, columnRecord);
       }
@@ -676,15 +731,20 @@ function addInArrayConditionSites(state: WalkState): void {
 
 export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata,
   variablePresets?: SurveyVariablePresets): SurveyIndex {
+  const flatNames = new CIMultiMap<ElementRecord>();
+  const dataNesting = getDataNestingMode(json);
   const index: SurveyIndex = {
     json: json,
-    byName: new CIMultiMap<ElementRecord>(),
+    byName: isNameScopeMode({ dataNesting: dataNesting }) ? new CIMultiMap<ElementRecord>() : flatNames,
+    flatNames: flatNames,
     byValueName: new CIMultiMap<ElementRecord>(),
-    dataNesting: getDataNestingMode(json),
+    dataNesting: dataNesting,
     rootScope: createRootScope(),
     nonNestingKeys: new CIMultiMap<NonNestingKey>(),
     recordScopes: [],
     elementNames: new CIMultiMap<ElementRecord>(),
+    nameScopes: new Map<DataScopeRecord, CIMultiMap<ElementRecord>>(),
+    generatedNames: new Map<DataScopeRecord, CIMultiMap<ElementRecord>>(),
     calculatedValues: new CIMap(),
     calculatedValueList: [],
     triggers: [],
@@ -705,14 +765,15 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   if (!!variablePresets) {
     variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
   }
-  // one namespace for every page, panel and question - a dynamic-panel template shares it, the
-  // way the Creator's designer keeps element names unique across the whole survey
+  // the survey's name scope. In "none" it holds every page, panel and question - a dynamic-panel template
+  // shares it, the way the Creator's designer keeps element names unique across the whole survey
   index.namespaces.push({ label: "", map: index.elementNames });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
     componentFields: new Map<IComponentDef, CIMap<boolean>>(),
     pageNames: new Set<string>(),
     panelNames: new Set<string>(),
+    nameScopeMaps: new Map<DataScopeRecord, NameScopeMaps>(),
   };
 
   const pages = asElementArray(json.pages);
@@ -740,6 +801,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
         };
         dataScope = getChildScope(index.rootScope, key, pageRecord);
         container.nestedScope = dataScope;
+        addGeneratedName(index, index.rootScope, key, pageRecord);
       }
       walkElementsArray(state, inner.elements, inner.key, undefined, [], [], container, dataScope);
     }

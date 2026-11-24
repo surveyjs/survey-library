@@ -23,6 +23,10 @@ function brief(findings: Array<ILintFinding>): Array<string> {
 function refFindings(json: any): Array<ILintFinding> {
   return findingsOf(json, "reference/unknown");
 }
+// a finding with its suggestion: what the author is offered to write instead
+function suggested(findings: Array<ILintFinding>): Array<string> {
+  return findings.map(f => f.ruleId + "/" + f.reason + " @ " + f.path + " -> " + f.suggestion);
+}
 // errors and warnings: a by-name mode under generated names gets its nesting/generated-key hints
 function defects(json: any): Array<ILintFinding> {
   return findingsOf(json).filter(f => f.severity !== "info");
@@ -31,7 +35,6 @@ function defects(json: any): Array<ILintFinding> {
 // test fills is checked too. Every reference the linter resolves names a question there, except the listed ones, each
 // with its reason: those must still name none, so the list shrinks when either side changes. A question the walk finds
 // with nothing after it, the linter resolves.
-const UNTIL_STEP_07 = "until step 07";
 const CONTAINER_KEY = "a container's object: getQuestionByVariable answers questions only";
 const TOTALS_KEY = "a matrix totals key: getQuestionByVariable answers questions and comments only";
 function expectQuestionFound(survey: SurveyModel, ref: string, context: Base, resolved: boolean,
@@ -81,6 +84,17 @@ describe("linter nested data: no false findings", () => {
       { type: "text", name: "r3", visibleIf: "{address.zip} = '1' and {zip} = '1' and {city-Comment} notempty" },
       { type: "text", name: "r4", visibleIf: "{address.city-Comment} notempty", title: "{address.street}, {zip}" },
     );
+    // scoped names (O3): an inner name is not found outside its container; the data path is offered.
+    // {q3} is page2's own: r2 is on page2
+    expect(suggested(findingsOf(json))).toEqual([
+      "reference/unknown/notFound @ pages[1].elements[1].visibleIf -> address.street",
+      "reference/unknown/notFound @ pages[1].elements[3].visibleIf -> address.zip",
+      "reference/unknown/notFound @ pages[1].elements[3].visibleIf -> address.city-Comment",
+      "reference/unknown/notFound @ pages[1].elements[4].title -> address.zip",
+    ]);
+    json.pages[1].elements[1].visibleIf = "{address.street} = 'Main'";
+    json.pages[1].elements[3].visibleIf = "{address.zip} = '1' and {address.city-Comment} notempty";
+    json.pages[1].elements[4].title = "{address.street}, {address.zip}";
     expect(brief(findingsOf(json))).toEqual([]);
   });
   test("each by-name mode with its typical references is clean", () => {
@@ -96,24 +110,33 @@ describe("linter nested data: no false findings", () => {
           { type: "text", name: "q3", visibleIf: "{info.q1} = 'x' and {page1.q0} = 1" },
         ] },
         { name: "page2", elements: [
-          { type: "text", name: "q4", visibleIf: "{page1.info.q1} = 'x' and {q1} = 'x' and {page1} notempty" },
+          { type: "text", name: "q4", visibleIf: "{page1.info.q1} = 'x' and {page1} notempty" },
         ] },
       ],
     };
     expect(brief(defects(json))).toEqual([]);
+    const bareQ1 = (): Array<string> => {
+      const probe = JSON.parse(JSON.stringify(json));
+      probe.pages[1].elements[0].visibleIf = "{q1} = 'x'";
+      return suggested(refFindings(probe));
+    };
+    // scoped names (O3): from page2, q1 is inside page1's object and info's
+    expect(bareQ1()).toEqual(["reference/unknown/notFound @ pages[1].elements[0].visibleIf -> page1.info.q1"]);
     json.dataNesting = "panel";
     // pages do not nest here: {page1.info.q1} names nothing
     json.pages[0].elements[1].elements[1].visibleIf = "{q1} = 'x' and {info.q1} = 'x'";
     json.pages[0].elements[2].visibleIf = "{info.q1} = 'x' and {q0} = 1";
-    json.pages[1].elements[0].visibleIf = "{info.q1} = 'x' and {q1} = 'x'";
+    json.pages[1].elements[0].visibleIf = "{info.q1} = 'x'";
     expect(brief(defects(json))).toEqual([]);
+    expect(bareQ1()).toEqual(["reference/unknown/notFound @ pages[1].elements[0].visibleIf -> info.q1"]);
     expect(brief(refFindings(Object.assign({}, json, { calculatedValues: [{ name: "c", expression: "{page1.info.q1}" }] }))))
       .toEqual(["reference/unknown/notFound @ calculatedValues[0].expression"]);
     json.dataNesting = "page";
     json.pages[0].elements[1].elements[1].visibleIf = "{q1} = 'x' and {page1.q1} = 'x'";
     json.pages[0].elements[2].visibleIf = "{q1} = 'x' and {page1.q0} = 1";
-    json.pages[1].elements[0].visibleIf = "{page1.q1} = 'x' and {q1} = 'x'";
+    json.pages[1].elements[0].visibleIf = "{page1.q1} = 'x'";
     expect(brief(defects(json))).toEqual([]);
+    expect(bareQ1()).toEqual(["reference/unknown/notFound @ pages[1].elements[0].visibleIf -> page1.q1"]);
   });
   test("root elements nest under page1 in the page modes", () => {
     const json = {
@@ -125,7 +148,7 @@ describe("linter nested data: no false findings", () => {
     };
     expect(brief(findingsOf(json, "reference/unknown"))).toEqual([]);
   });
-  test("an inner question with its own valueName answers it inside the container", () => {
+  test("an inner question with its own valueName answers it inside the container, by its data key (O8)", () => {
     const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [
@@ -135,7 +158,14 @@ describe("linter nested data: no false findings", () => {
         { type: "text", name: "q2", visibleIf: "{zip} = 1 and {address.z} = 1" },
       ],
     };
-    expect(brief(refFindings(json))).toEqual([]);
+    const findings = refFindings(json);
+    expect(suggested(findings)).toEqual([
+      "reference/unknown/notFound @ elements[0].elements[1].visibleIf -> z",
+      "reference/unknown/notFound @ elements[1].visibleIf -> address.z",
+    ]);
+    expect(findings[0].hint).toEqual({ reason: SurveyLintHintReasons.questionVariableName, name: "zip", variable: "z" });
+    expect(findings[0].message).toContain("\"zip\" is the name of a question whose data key is \"z\" - reference it as {z}.");
+    expect(findings[1].message).toContain("\"zip\" is a question of panel \"p\" - from here, reference it as {address.z}.");
   });
   test("a container key equal to an inner question's name (4.4) is not reported", () => {
     const json = { dataNesting: "auto",
@@ -179,7 +209,14 @@ describe("linter nested data: no false findings", () => {
         { type: "text", name: "q2", visibleIf: "{kind-Comment} notempty and {address.kind-Comment} notempty and {address.m-total.c} > 1" },
       ],
     };
-    expect(brief(findingsOf(json))).toEqual([]);
+    // the bare names are inner ones (O3): the suggestion respells the root, and the fix keeps the rest
+    const findings = findingsOf(json);
+    expect(suggested(findings)).toEqual([
+      "reference/unknown/notFound @ elements[1].visibleIf -> address.m",
+      "reference/unknown/notFound @ elements[1].visibleIf -> address.mt",
+      "reference/unknown/notFound @ elements[2].visibleIf -> address.kind-Comment",
+    ]);
+    expect(findings[0].fix.edits[0].value).toContain("{address.m.r.c} = 1 and {address.m.r.c} = 1");
   });
 });
 
@@ -309,27 +346,20 @@ describe("linter nested data: runtime parity of references", () => {
     "page1.q0", "page1.address", "page1.address.street", "page1.address.z", "page1.address.zip",
     "page1.address.deep.flat", "page1.address.deep", "address.street", "deep.flat", "page2.q3", "page1.q3",
   ];
-  // Scoped names 05 (O3): the runtime no longer finds a bare name outside its container, nor a question by its
-  // name where an expression reads value names (O8). The linter still does, by the old N11; it follows in step 07
-  // (O7). These are the references where the two differ until then.
-  const linterOnlyFromRoot = ["q0", "street", "zip", "flat", "q3"];
-  const linterOnlyInside = ["zip", "flat", "q3"];
+  // Scoped names (O3, O8): a bare name resolves in its owner's scope and the scopes around it, and an expression
+  // reads data keys. Every page nests here, so the root's site is a calculated value.
   const containersFromRoot = ["page1", "page2", "page1.address", "page1.address.deep"];
   test("from the root, the linter resolves a reference exactly when the runtime gives a value", () => {
     const survey = new SurveyModel(json);
     survey.data = data;
-    const known = knownAs(containersFromRoot, CONTAINER_KEY, knownAs(linterOnlyFromRoot, UNTIL_STEP_07));
+    const known = knownAs(containersFromRoot, CONTAINER_KEY);
     refs.forEach(ref => {
       const runtime = survey.runExpression("{" + ref + "}");
       const lintJson = JSON.parse(JSON.stringify(json));
-      lintJson.pages[1].elements.push({ type: "expression", name: "probe", expression: "{" + ref + "}" });
+      lintJson.calculatedValues = [{ name: "probe", expression: "{" + ref + "}" }];
       const resolved = refFindings(lintJson).length === 0;
       const hasValue = runtime !== undefined && runtime !== null;
-      if (linterOnlyFromRoot.indexOf(ref) > -1) {
-        expect([resolved, hasValue], ref + ": the linter only, until step 07").toEqual([true, false]);
-      } else {
-        expect(resolved, ref + " (runtime: " + JSON.stringify(runtime) + ")").toBe(hasValue);
-      }
+      expect(resolved, ref + " (runtime: " + JSON.stringify(runtime) + ")").toBe(hasValue);
       expectQuestionFound(survey, ref, undefined, resolved, known);
     });
   });
@@ -343,13 +373,8 @@ describe("linter nested data: runtime parity of references", () => {
       const street = survey.getQuestionByName("page1.info.street");
       const runtimeVisible = street.isVisible;
       const resolved = refFindings(runtimeJson).length === 0;
-      if (linterOnlyInside.indexOf(ref) > -1) {
-        expect([resolved, runtimeVisible], ref + ": the linter only, until step 07").toEqual([true, false]);
-      } else {
-        expect(resolved, ref).toBe(runtimeVisible);
-      }
-      expectQuestionFound(survey, ref, street, resolved,
-        knownAs(["address"].concat(containersFromRoot), CONTAINER_KEY, knownAs(linterOnlyInside, UNTIL_STEP_07)));
+      expect(resolved, ref).toBe(runtimeVisible);
+      expectQuestionFound(survey, ref, street, resolved, knownAs(["address"].concat(containersFromRoot), CONTAINER_KEY));
     });
   });
 });
@@ -628,8 +653,12 @@ describe("linter nested data: triggers", () => {
       { type: "setvalue", expression: "{q0} = 5", setToName: "address.stret", setValue: "d" },
     ];
     const findings = findingsOf(json, "trigger/unknown-target");
-    expect(brief(findings)).toEqual(["trigger/unknown-target/segmentNotFound @ triggers[4].setToName"]);
-    expect(findings[0].suggestion).toBe("street");
+    // a bare inner name writes a root key that no question reads (O4a): the data path is offered
+    expect(suggested(findings)).toEqual([
+      "trigger/unknown-target/rootNotFound @ triggers[0].setToName -> address.street",
+      "trigger/unknown-target/rootNotFound @ triggers[3].setToName -> step2.q3",
+      "trigger/unknown-target/segmentNotFound @ triggers[4].setToName -> street",
+    ]);
   });
   test("a trigger loop through a path is found", () => {
     const json: any = exampleSurvey();
@@ -1198,10 +1227,6 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
       const value = survey.runExpression("{" + ref + "}");
       const resolved = refFindings(lintJson).length === 0;
       const hasValue = value !== undefined && value !== null;
-      if (ref === "detail") {
-        expect([resolved, hasValue], ref + ": the linter only, until step 07").toEqual([true, false]);
-        return;
-      }
       expect(resolved, ref + " (runtime: " + JSON.stringify(value) + ")").toBe(hasValue);
       expectQuestionFound(survey, ref, undefined, resolved);
     });
@@ -1248,10 +1273,6 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
       const value = survey.runExpression("{" + ref + "}");
       const resolved = refFindings(lintJson).length === 0;
       const hasValue = value !== undefined && value !== null;
-      if (ref === "detail") {
-        expect([resolved, hasValue], ref + ": the linter only, until step 07").toEqual([true, false]);
-        return;
-      }
       expect(resolved, ref + " (runtime: " + JSON.stringify(value) + ")").toBe(hasValue);
       expectQuestionFound(survey, ref, undefined, resolved, knownAs(["cpk.detail"], CHOICE_PANEL_IN_RECORD));
     });
@@ -1363,22 +1384,22 @@ describe("linter nested data: the second oracle at a choice, a validator and a t
     { name: "a validator's expression, in a nesting panel", path: "elements[2].elements[2].validators[0].expression",
       context: s => (<any>s.getQuestionByName("panel1.kind")).validators[0], known: {} },
     { name: "a choice, in a nesting panel of a dynamic panel's record", path: "elements[3].templateElements[1].elements[1].choices[0].visibleIf",
-      context: s => recordRg(s).choices[0], known: knownAs(["item"], ITEM_VARIABLE, knownAs(["street", "mt.i1"], UNTIL_STEP_07)) },
+      context: s => recordRg(s).choices[0], known: knownAs(["item"], ITEM_VARIABLE) },
     { name: "a validator, in a nesting panel of a dynamic panel's record", path: "elements[3].templateElements[1].elements[1].validators[0].expression",
-      context: s => recordRg(s).validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
+      context: s => recordRg(s).validators[0], known: {} },
     { name: "a choice, in a nesting panel of a dynamic panel's template", path: "elements[3].templateElements[1].elements[1].choices[0].visibleIf",
-      context: s => templateRg(s).choices[0], known: knownAs(["item"], ITEM_VARIABLE, knownAs(["street", "mt.i1"], UNTIL_STEP_07)) },
+      context: s => templateRg(s).choices[0], known: knownAs(["item"], ITEM_VARIABLE) },
     { name: "a validator, in a nesting panel of a dynamic panel's template", path: "elements[3].templateElements[1].elements[1].validators[0].expression",
-      context: s => templateRg(s).validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
-    { name: "a trigger's expression", path: "triggers[0].expression", context: s => s.triggers[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
+      context: s => templateRg(s).validators[0], known: {} },
+    { name: "a trigger's expression", path: "triggers[0].expression", context: s => s.triggers[0], known: {} },
     { name: "a multiple text item's validator", path: "elements[2].elements[3].items[0].validators[0].expression",
-      context: s => (<any>s.getQuestionByName("panel1.mt")).items[0].validators[0], known: knownAs(["street", "mt.i1"], UNTIL_STEP_07) },
+      context: s => (<any>s.getQuestionByName("panel1.mt")).items[0].validators[0], known: {} },
     { name: "a matrix column's choice", path: "elements[4].columns[0].choices[0].visibleIf",
       context: s => (<any>s.getQuestionByName("md")).columns[0].templateQuestion.choices[0],
-      known: knownAs(["item"], ITEM_VARIABLE, knownAs(["row.c2"], ROW_CELL, knownAs(["street", "mt.i1"], UNTIL_STEP_07))) },
+      known: knownAs(["item"], ITEM_VARIABLE, knownAs(["row.c2"], ROW_CELL)) },
     { name: "a matrix column's validator", path: "elements[4].columns[0].validators[0].expression",
       context: s => (<any>s.getQuestionByName("md")).columns[0].validators[0],
-      known: knownAs(["item"], COLUMN_ITEM, knownAs(["row.c2"], ROW_CELL, knownAs(["street", "mt.i1"], UNTIL_STEP_07))) },
+      known: knownAs(["item"], COLUMN_ITEM, knownAs(["row.c2"], ROW_CELL)) },
   ];
   const refs = ["street", "topStreet", "address.street", "z", "address.z", "q1", "item", "st", "in.st", "panel.in.st", "panel.ps",
     "md", "row.c2", "c2", "mt.i1", "address.mt.i1"];

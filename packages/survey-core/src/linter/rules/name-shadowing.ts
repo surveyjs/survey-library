@@ -170,8 +170,9 @@ export const nameShadowingRule: ILintRule = {
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
     // built-in names are only shadowed at the top level: a column or a template question is
-    // addressed through its container's scope, which resolves before the survey does
-    ctx.index.byName.forEach(records => {
+    // addressed through its container's scope, which resolves before the survey does. A question
+    // inside a nesting container shadows the built-in inside that container.
+    ctx.index.flatNames.forEach(records => {
       records.forEach(record => {
         if (record.kind !== "question") return;
         reportBuiltIn(ctx, record.name, "name", record.path + ".name", record);

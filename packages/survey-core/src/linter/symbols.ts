@@ -263,6 +263,11 @@ export interface ParsedRef {
   // the last segment the suggestion replaces, from unknownSegmentIndex on: a dotted suggestion
   // may spell several segments of the reference at once. Unset means that one segment alone.
   suggestionEnd?: number;
+  // the variable the hint quotes (SurveyLintHintReasons.questionVariableName)
+  hintVariable?: string;
+  // a trigger target or a function argument found by a path of names (O2): the element is named by the
+  // last segment, not the first
+  byNamePath?: boolean;
 }
 
 export type ExpressionSiteKind = "condition" | "expression";
@@ -374,9 +379,14 @@ export interface Namespace {
 export interface SurveyIndex {
   json: any;
   // the elements a bare {name} resolves to: survey-level pages, panels and questions. A question
-  // inside a dynamic-panel template or a matrix row is reached through its scope instead. A question
-  // inside a nesting container is here too: the survey answers it by name from anywhere.
+  // inside a dynamic-panel template or a matrix row is reached through its scope instead. In "none" a
+  // question inside a nesting container is here too; in a nesting mode it is not: the survey's own name
+  // scope ends at a container that holds data (scoped names, O1). In "none" this is flatNames itself.
   byName: CIMultiMap<ElementRecord>;
+  // every page, panel and question by name, outside the dynamic-panel templates and matrix rows, in every
+  // mode: byName as "none" fills it. The rules that count declarations read it (a name declared twice,
+  // a built-in shadowed inside a container).
+  flatNames: CIMultiMap<ElementRecord>;
   // the questions writing a key of the survey data itself: a valueName inside a nesting container
   // answers inside that container only
   byValueName: CIMultiMap<ElementRecord>;
@@ -387,10 +397,19 @@ export interface SurveyIndex {
   nonNestingKeys: CIMultiMap<NonNestingKey>;
   // the records of the dynamic panels and matrices (ElementRecord.recordScope), in walk order
   recordScopes: Array<DataScopeRecord>;
-  // every page, panel and question by name, scopes included: element names are unique across the
-  // whole survey - a template or a detail panel is no namespace of its own - and this is the map
-  // name/duplicate reads
+  // the survey's own name scope, the map name/duplicate reads for it. In "none" every page, panel and
+  // question by name, templates and detail panels included: element names are unique across the whole
+  // survey. In a nesting mode only the elements whose name scope is the survey (see nameScopes)
   elementNames: CIMultiMap<ElementRecord>;
+  // a nesting mode only: the elements of each other name scope, by name. A name scope is a data scope
+  // (SN1, O6, O9): a nesting container's object, a dynamic panel's or a matrix's record (its template, its
+  // detail panel). Matrix columns and multiple text items are no elements here (O9a): they keep their
+  // own namespaces.
+  nameScopes: Map<DataScopeRecord, CIMultiMap<ElementRecord>>;
+  // a nesting mode, for the lookups by name only: the unnamed pages and panels that nest, by the name the runtime
+  // generates for them (their key), per name scope; the page the survey creates for root elements is one. No
+  // namespace holds them: a generated name is no name the JSON declares.
+  generatedNames: Map<DataScopeRecord, CIMultiMap<ElementRecord>>;
   calculatedValues: CIMap<CalculatedValueRecord>;
   // every calculated value in declaration order, duplicates included: the map keeps only
   // the first of a repeated name, which is the defect name/duplicate reports

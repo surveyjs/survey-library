@@ -286,6 +286,9 @@ export const SurveyLintHintReasons = Object.freeze({
   // the name is the valueName of a panel or page that stores no object: dataNesting "none", or a
   // panel inside a record
   containerKeyNotNesting: "containerKeyNotNesting",
+  // a nesting mode: the name is a question the reference does not reach by it - one inside another name
+  // scope, or one whose valueName is its data key (O1, O3, O8); the hint's variable reads it from here
+  questionVariableName: "questionVariableName",
 });
 
 // ILintReproduction.reason - what the steps demonstrate.

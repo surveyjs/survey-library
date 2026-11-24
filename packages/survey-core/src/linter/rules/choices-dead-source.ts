@@ -3,9 +3,10 @@ import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { nameCandidates, resolveCarryForwardSource } from "../expression-utils";
 import { getEffectiveType } from "../symbols";
-import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintHintReasons, SurveyLintReasons } from "../reasons";
 import { setFix } from "../fix-utils";
 import { getItemFields } from "../record-fields";
+import { isNameScopeMode } from "../name-scopes";
 
 const reasons = SurveyLintReasons["choices/dead-source"];
 const fixReasons = SurveyLintFixReasons["choices/dead-source"];
@@ -26,17 +27,24 @@ export const choicesDeadSourceRule: ILintRule = {
       const resolved = resolveCarryForwardSource(sourceName, record, ctx.index);
       const source = resolved.source;
       if (!source || (source.kind !== "question" && source.kind !== "column")) {
-        const sourceSuggestion = closestMatch(sourceName, resolved.candidates ||
+        const closest = resolved.suggestion || closestMatch(sourceName, resolved.candidates ||
           nameCandidates(ctx.index, ctx.options, { accepts: rec => rec.kind === "question" }));
+        // a nesting mode: the name as written may be in the pool and still reach nothing from here
+        const sourceSuggestion = isNameScopeMode(ctx.index) && !!closest && closest.toLowerCase() === sourceName.toLowerCase() ? undefined : closest;
+        // a nesting mode: the question another name scope holds by that name
+        const hint = !!resolved.suggestion
+          ? { reason: SurveyLintHintReasons.questionVariableName, name: sourceName, variable: resolved.suggestion } : undefined;
         ctx.report({
           message: "\"" + record.name + "\" copies its choices from \"" + sourceName +
-            "\", but no question with that name exists.",
+            (!!hint ? "\", but it reaches no question by that name. " + resolved.hint
+              : "\", but no question with that name exists."),
           path: path,
           reason: reasons.missing,
           messageData: { name: record.name, source: sourceName },
           elementName: record.name,
           elementType: record.type,
           suggestion: sourceSuggestion,
+          hint: hint,
           fix: setFix(fixReasons.setName, path, sourceSuggestion),
         });
         return;

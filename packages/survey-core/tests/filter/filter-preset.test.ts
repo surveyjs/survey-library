@@ -8,12 +8,15 @@ describe("FilterPreset", () => {
     expect(item.title).toBe("recent");
     expect(new JsonObject().toJsonObject(item)).toEqual({ name: "recent" });
   });
-  test("the allow flags default to true and round-trip", () => {
+  test("the allow flags are undefined by default and are not serialized; true and false round-trip", () => {
     const item = new FilterPreset("a");
-    expect(item.allowEdit, "#1").toBe(true);
-    expect(item.allowDelete, "#2").toBe(true);
-    expect(item.allowCopy, "#3").toBe(true);
+    expect([item.allowEdit, item.allowDelete, item.allowCopy], "#1").toEqual([undefined, undefined, undefined]);
+    expect(new JsonObject().toJsonObject(item), "#2").toEqual({ name: "a" });
     item.allowDelete = false;
-    expect(new JsonObject().toJsonObject(item).allowDelete, "#4").toBe(false);
+    item.allowEdit = true;
+    expect(new JsonObject().toJsonObject(item), "#3").toEqual({ name: "a", allowEdit: true, allowDelete: false });
+    const copy = new FilterPreset("");
+    new JsonObject().toObject({ name: "b", allowEdit: false, allowCopy: true }, copy);
+    expect([copy.allowEdit, copy.allowDelete, copy.allowCopy], "#4").toEqual([false, undefined, true]);
   });
 });

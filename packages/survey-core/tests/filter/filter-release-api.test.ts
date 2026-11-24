@@ -150,7 +150,7 @@ describe("Filter release API: presets as a live list", () => {
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     q.updatePresetFromConditions("adults", "Grown-ups", [{ field: "age", operator: "greater", value: 18 }]);
     expect(q.getPresetByName("adults").expression, "#1: Edit Preset sends the fields' text").toBe("{age}>18");
-    q.updatePreset({ name: "adults", title: "Of age", expression: "{age} > 18", allowEdit: true, allowDelete: true, allowCopy: true });
+    q.updatePreset({ name: "adults", title: "Of age", expression: "{age} > 18" });
     expect([q.getPresetByName("adults").title, q.getPresetByName("adults").expression], "#2").toEqual(["Of age", "{age}>18"]);
     expect(survey.uiState.questions.f1.filter.presets, "#3: no text is saved for a rename").toEqual({ adults: { title: "Of age" } });
   });
@@ -161,9 +161,9 @@ describe("Filter release API: presets as a live list", () => {
     const q1 = <QuestionFilterModel>s1.getQuestionByName("f1");
     q1.updatePreset(<any>{ name: "adults", expression: "{age} > 19" });
     expect(q1.presets[0].locTitle.getJson(), "#1: no title").toEqual({ default: "Adults", de: "Erwachsene" });
-    q1.updatePreset({ name: "adults", title: "", expression: "{age} > 20", allowEdit: true, allowDelete: true, allowCopy: true });
+    q1.updatePreset({ name: "adults", title: "", expression: "{age} > 20" });
     expect(q1.presets[0].locTitle.getJson(), "#2: an empty one").toEqual({ default: "Adults", de: "Erwachsene" });
-    q1.updatePreset({ name: "adults", title: "   ", expression: "{age} > 21", allowEdit: true, allowDelete: true, allowCopy: true });
+    q1.updatePreset({ name: "adults", title: "   ", expression: "{age} > 21" });
     expect(q1.presets[0].locTitle.getJson(), "#3: spaces").toEqual({ default: "Adults", de: "Erwachsene" });
     expect(s1.uiState.questions.f1.filter.presets, "#4: only the text is saved").toEqual({ adults: { expression: "{age} > 21" } });
     const s2 = new SurveyModel(json);
@@ -191,7 +191,7 @@ describe("Filter release API: presets as a live list", () => {
     const s1 = new SurveyModel(json);
     const q1 = <QuestionFilterModel>s1.getQuestionByName("f1");
     q1.addPreset(data("teens", "{age} >= 13 and {age} <= 19"));
-    q1.updatePreset({ name: "adults", title: "Grown-ups", expression: "{age} > 21", allowEdit: true, allowDelete: false, allowCopy: true });
+    q1.updatePreset({ name: "adults", title: "Grown-ups", expression: "{age} > 21", allowDelete: false });
     q1.deletePreset("kids");
     q1.applyPreset("teens");
     const state = s1.uiState;

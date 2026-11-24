@@ -11,12 +11,33 @@ describe("Filter UI permissions", () => {
     expect([q.canAddPresets, q.canEditPreset(adults), q.canDeletePreset(adults), q.canCopyPreset(adults)], "#2").toEqual([false, false, false, false]);
     expect(q.getEditablePresets().map(p => p.name), "#3").toEqual([]);
   });
-  test("a control permission and the preset's own permission are both needed", () => {
-    const q = createFilter({ allowEditPresets: true, allowDeletePresets: true, allowAddPresets: true,
-      presets: [{ name: "a", expression: "{age} > 1", allowEdit: false, allowCopy: false }, { name: "b", expression: "{age} > 2", allowDelete: false }] });
-    const a = q.getPresetByName("a"), b = q.getPresetByName("b");
-    expect([q.canEditPreset(a), q.canDeletePreset(a), q.canCopyPreset(a)], "#1").toEqual([false, true, false]);
-    expect([q.canEditPreset(b), q.canDeletePreset(b), q.canCopyPreset(b)], "#2").toEqual([true, false, true]);
+  test("a preset with no permission of its own follows the control's", () => {
+    const q = createFilter();
+    const adults = q.getPresetByName("adults");
+    expect([q.canEditPreset(adults), q.canDeletePreset(adults), q.canCopyPreset(adults)], "#1").toEqual([false, false, false]);
+    q.allowEditPresets = true;
+    q.allowDeletePresets = true;
+    q.allowAddPresets = true;
+    expect([q.canEditPreset(adults), q.canDeletePreset(adults), q.canCopyPreset(adults)], "#2").toEqual([true, true, true]);
+  });
+  test("a preset's own permission overrides the control's either way", () => {
+    const presets = [{ name: "a", expression: "{age} > 1", allowEdit: false, allowDelete: false, allowCopy: false },
+      { name: "b", expression: "{age} > 2", allowEdit: true, allowDelete: true, allowCopy: true }];
+    const on = createFilter({ allowEditPresets: true, allowDeletePresets: true, allowAddPresets: true, presets: presets });
+    const a = on.getPresetByName("a");
+    expect([on.canEditPreset(a), on.canDeletePreset(a), on.canCopyPreset(a)], "#1: the control allows, the preset does not").toEqual([false, false, false]);
+    const off = createFilter({ presets: presets });
+    const b = off.getPresetByName("b");
+    expect([off.canEditPreset(b), off.canDeletePreset(b), off.canCopyPreset(b)], "#2: the control does not allow, the preset does").toEqual([true, true, true]);
+  });
+  test("resetting a preset brings back a permission the JSON did not set", () => {
+    const q = createFilter();
+    q.updatePreset({ name: "adults", title: "Grown-ups", expression: "{age} > 21", allowEdit: true, allowDelete: false, allowCopy: true });
+    const adults = q.getPresetByName("adults");
+    expect([adults.allowEdit, adults.allowDelete, adults.allowCopy], "#1").toEqual([true, false, true]);
+    q.resetPreset("adults");
+    expect([adults.allowEdit, adults.allowDelete, adults.allowCopy], "#2").toEqual([undefined, undefined, undefined]);
+    expect(adults.toJSON(), "#3").toEqual({ name: "adults", expression: "{age} > 18" });
   });
   test("the respondent's own preset may always be edited and deleted", () => {
     const q = createFilter();

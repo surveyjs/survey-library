@@ -37,11 +37,12 @@ export function getFilterPresetTitleError(value: any, otherTitles: Array<string>
   return isFilterPresetTitleTaken(title, otherTitles) ? getLocaleString("filterPresetTitleExists", locale) : undefined;
 }
 
-// What a preset lets the respondent do to it.
+// What a preset lets the respondent do to it. undefined: what the control allows (allowEditPresets,
+// allowDeletePresets, allowAddPresets); true or false overrides the control either way.
 export interface IFilterPresetPermissions {
-  allowEdit: boolean;
-  allowDelete: boolean;
-  allowCopy: boolean;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  allowCopy?: boolean;
 }
 // The one list of them: whatever copies, compares or stores a preset's permissions goes by it.
 export const filterPresetPermissions: Array<keyof IFilterPresetPermissions> = ["allowEdit", "allowDelete", "allowCopy"];
@@ -50,6 +51,10 @@ export function assignFilterPresetPermissions(dest: Partial<IFilterPresetPermiss
   filterPresetPermissions.forEach((key: keyof IFilterPresetPermissions): void => {
     if (typeof src[key] === "boolean") dest[key] = src[key];
   });
+}
+// Copies all of them as they are, undefined too: what the JSON made a preset, put back or remembered.
+export function copyFilterPresetPermissions(dest: IFilterPresetPermissions, src: IFilterPresetPermissions): void {
+  filterPresetPermissions.forEach((key: keyof IFilterPresetPermissions): void => { dest[key] = src[key]; });
 }
 // The JSON of a preset, and what addPreset() and updatePreset() take.
 export interface IFilterPreset extends IFilterPresetPermissions {
@@ -116,8 +121,10 @@ Serializer.addClass("filterpreset", [
   // survey as the variable context, while its variables are record fields. ":text" is a plain string
   // too; it only gives the expression a multi-line box in Creator.
   { name: "expression:text" },
-  { name: "allowEdit:boolean", default: true },
-  { name: "allowDelete:boolean", default: true },
+  // undefined by default - the control's permission (see IFilterPresetPermissions). defaultFunc, not
+  // default: a boolean with no default treats false as its default and would not serialize it.
+  { name: "allowEdit:boolean", defaultFunc: (): boolean => undefined },
+  { name: "allowDelete:boolean", defaultFunc: (): boolean => undefined },
   // No UI reads canCopyPreset yet: hidden until a preset can be copied.
-  { name: "allowCopy:boolean", default: true, visible: false },
+  { name: "allowCopy:boolean", defaultFunc: (): boolean => undefined, visible: false },
 ], () => new FilterPreset(""));

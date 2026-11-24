@@ -11,7 +11,7 @@ import {
   IElementUIState, IFilterCondition, IFilterElementUIState, IFilterPresetEdit, IFilterSavedPresetState, IFilterState, IFilterUserPresetState
 } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
-import { FilterPreset, IFilterPreset, IFilterPresetPermissions, assignFilterPresetPermissions, filterPresetPermissions } from "./filter/filter-preset";
+import { FilterPreset, IFilterPreset, IFilterPresetPermissions, assignFilterPresetPermissions, copyFilterPresetPermissions, filterPresetPermissions } from "./filter/filter-preset";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-field-popup";
 import { FilterSaveAsPopup } from "./filter/filter-save-as-popup";
@@ -438,16 +438,24 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createAIRequest(): FilterAIRequest {
     return new FilterAIRequest(this);
   }
-  // What the UI lets the respondent do to a preset: the control's permission AND the preset's own. A
-  // preset of the respondent's own may always be changed and deleted. None of it while the presets
-  // are hidden, except editing, which the UI never offers then anyway.
+  // What the UI lets the respondent do to a preset: the preset's own permission where it has one, the
+  // control's otherwise (getPresetPermission). A preset of the respondent's own may always be changed
+  // and deleted. None of it while the presets are hidden, except editing, which the UI never offers
+  // then anyway.
   public canEditPreset(preset: FilterPreset): boolean {
-    return !!preset && (this.isUserPreset(preset) || (this.allowEditPresets && preset.allowEdit));
+    return !!preset && (this.isUserPreset(preset) || this.getPresetPermission(preset.allowEdit, this.allowEditPresets));
   }
   public canDeletePreset(preset: FilterPreset): boolean {
-    return this.showPresets && !!preset && (this.isUserPreset(preset) || (this.allowDeletePresets && preset.allowDelete));
+    return this.showPresets && !!preset && (this.isUserPreset(preset) || this.getPresetPermission(preset.allowDelete, this.allowDeletePresets));
   }
-  public canCopyPreset(preset: FilterPreset): boolean { return this.canAddPresets && !!preset && preset.allowCopy; }
+  // A copy is a new preset: the control's permission to add presets is the one a preset follows.
+  public canCopyPreset(preset: FilterPreset): boolean {
+    return this.showPresets && !!preset && this.getPresetPermission(preset.allowCopy, this.allowAddPresets);
+  }
+  // true or false set on a preset overrides the control either way; undefined is the control's.
+  private getPresetPermission(presetValue: boolean, controlValue: boolean): boolean {
+    return typeof presetValue === "boolean" ? presetValue : !!controlValue;
+  }
   // Whether the respondent added the preset (addPreset) - the author did not.
   public isUserPreset(preset: FilterPreset): boolean { return !!preset && this.userPresetsValue.indexOf(preset) > -1; }
   // Whether an authored preset is not what the JSON says any more: the respondent renamed it or
@@ -1325,21 +1333,22 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // What the author's locks are read from: the JSON's permissions, whatever a restore or
   // updatePreset() made of the preset's own since.
-  private getAuthoredPreset(preset: FilterPreset): { allowEdit: boolean, allowDelete: boolean } {
+  private getAuthoredPreset(preset: FilterPreset): IFilterPresetPermissions {
     return this.originalPresets[preset.name] || preset;
   }
   private rememberOriginal(preset: FilterPreset): void {
     if (!this.originalPresets[preset.name]) {
       const original = <FilterOriginalPreset>{ preset: preset, expression: preset.expression, title: preset.locTitle.getJson() };
-      assignFilterPresetPermissions(original, preset);
+      copyFilterPresetPermissions(original, preset);
       this.originalPresets[preset.name] = original;
     }
   }
-  // Puts into a preset what the JSON made one: the title, the text and the permissions.
+  // Puts into a preset what the JSON made one: the title, the text and the permissions - a permission
+  // the JSON did not set back to undefined.
   private applyOriginal(preset: FilterPreset, original: FilterOriginalPreset): void {
     this.setPresetText(preset.locTitle, original.title);
     preset.expression = original.expression;
-    assignFilterPresetPermissions(preset, original);
+    copyFilterPresetPermissions(preset, original);
   }
   // The preset as the JSON made it, as a FilterPreset of its own, for comparing and reading its title
   // in the current locale. The caller disposes it.
@@ -1678,7 +1687,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // A saved change of a preset comes back as it was saved (restorePresetExpression); a name that no
   // longer resolves to a preset is ignored - the author removed or renamed it - and so is a text that
-  // does not parse. A preset the author has locked (allowEdit false in the JSON) keeps the JSON: the
+  // does not parse. A preset the author has locked (allowEdit false in the JSON - a preset with no
+  // allowEdit follows the control and is not locked) keeps the JSON: the
   // author's lock wins over a change saved before it (the user's call). The control's permission
   // flags are not asked - they are the UI's, and a change made through the API is restored.
   private restorePresets(presets: FilterSavedPresets): void {
@@ -1687,7 +1697,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       const entry = presets[name];
       if (!this.canRestoreSavedPreset(name) || !entry) return;
       const preset = this.getPresetByName(name);
-      if (!this.getAuthoredPreset(preset).allowEdit) return;
+      if (this.getAuthoredPreset(preset).allowEdit === false) return;
       const title = typeof entry.title === "string" ? entry.title.trim() : "";
       if (!!title) {
         this.rememberOriginal(preset);
@@ -1713,7 +1723,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!Array.isArray(names)) return;
     names.forEach((name: string): void => {
       const preset = typeof name === "string" ? this.getPresetByName(name) : undefined;
-      if (!preset || this.isUserPreset(preset) || !this.getAuthoredPreset(preset).allowDelete) return;
+      if (!preset || this.isUserPreset(preset) || this.getAuthoredPreset(preset).allowDelete === false) return;
       if (this.selectedPreset === name) {
         this.setSelectedPreset("");
       }

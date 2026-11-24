@@ -371,7 +371,9 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   }
   public syncVisibleError(visible: boolean): void {
     this.hasVisibleError = visible;
-    if (this.detailRow) this.detailRow.errorIsVisible = visible;
+    if (this.detailRow) {
+      this.detailRow.errorIsVisible = visible;
+    }
   }
   private rootElement: HTMLTableRowElement;
   public setRootElement(val: HTMLTableRowElement): void {
@@ -664,10 +666,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       return;
     if (isShowing) {
       var detailRow = this.createDetailPanelRow(row, this.rows[rowIndex]);
-      if (this.rows[rowIndex].pairedErrorRow) this.rows[rowIndex].pairedErrorRow.detailIsOpen = true;
+      if (this.rows[rowIndex].pairedErrorRow) {
+        this.rows[rowIndex].pairedErrorRow.detailIsOpen = true;
+      }
       this.rows.splice(currentIndex + 1, 0, detailRow);
     } else {
-      if (this.rows[rowIndex].pairedErrorRow) this.rows[rowIndex].pairedErrorRow.detailIsOpen = false;
+      if (this.rows[rowIndex].pairedErrorRow) {
+        this.rows[rowIndex].pairedErrorRow.detailIsOpen = false;
+      }
       this.rows[rowIndex].detailRow = undefined;
       this.rows.splice(panelRowIndex, 1);
     }

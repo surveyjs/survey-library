@@ -2811,11 +2811,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         collectFilterFields(res, column.templateQuestion, "");
       }
     });
-    this.getDetailFilterQuestions().forEach((q: Question): void => {
-      if (!this.isDetailExpression(q)) {
-        collectFilterFields(res, q, "");
-      }
-    });
+    this.getDetailFilterQuestions().forEach((q: Question): void => { collectFilterFields(res, q, ""); });
     return res;
   }
   // A column by its name or the key its cells write, filtered or not, a child of a column's record by
@@ -2834,7 +2830,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     return isRecordFieldName(name, keys);
   }
-  // The detail panel's questions whose key no column has.
+  // The detail panel's questions whose key no column has, without the expressions: hasRecordField must
+  // not take a key getFilterFields does not offer, or a control's fields entry for it is lost.
   private getDetailFilterQuestions(): Array<Question> {
     const template = this.getRecordSortTemplate();
     if (!template) return [];
@@ -2845,7 +2842,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         columnKeys.push(column.templateQuestion.getValueName());
       }
     });
-    return template.questions.filter((q: Question): boolean => columnKeys.indexOf(q.getValueName()) < 0);
+    return template.questions.filter((q: Question): boolean => columnKeys.indexOf(q.getValueName()) < 0 && !this.isDetailExpression(q));
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();

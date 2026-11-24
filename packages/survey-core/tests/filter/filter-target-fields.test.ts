@@ -156,6 +156,14 @@ describe("A matrix detail panel as a source of fields", () => {
     q.applyFilter("{project} = 'A'");
     expect(matrix.visibleRows.length, "#5").toBe(1);
   });
+  test("an entry named after a detail panel expression is a field of the record", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow",
+        detailElements: [{ type: "expression", name: "calc", expression: "1" }] },
+      { type: "filter", name: "f1", targetQuestion: "m", fields: [{ name: "calc", fieldType: "text", inputType: "number" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(names(q), "#1: the expression is no field of the target, so the entry stands on its own").toEqual(["c1", "calc"]);
+  });
 });
 
 describe("A target question that has no hasRecordField", () => {

@@ -873,6 +873,6 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   );
 }
 
-.sd-paneldynamic__panel-wrapper {
-  padding-top: calc(var(--spacing) * 2);
+.sd-panel__expandable-content {
+  padding-top: var(--sjs2-shadcn-card-edge-spacing);
 }

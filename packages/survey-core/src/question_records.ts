@@ -2148,6 +2148,8 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      does inside its write. */
   protected removeResolvedRecord(removal: IRecordRemoval): void {
     const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
+    // Not copied: a copy is made only for a handler that calls getRecord (getRemovedRecord).
+    removal.record = this.getListRecordAt(removal.recordIndex);
     this.detachItem(removal);
     let isRefilled = false;
     this.runObjectsFollowingWrite((): void => {
@@ -3928,6 +3930,37 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   protected abstract isItemVisible(item: QuestionRecordItem): boolean;
   // The record an item - a row, a panel - reads and writes.
   public abstract getItemData(item: ISurveyData): any;
+  /* QuestionRecordItem.getRecord: the item's record as stored - the fields without a column or a
+     question included - as a copy, through the item's own record index (getItemData), so it is right
+     on any page, with a filter, a sort and owner-hidden records. The empty results are getItemData's:
+     null for a row without a record (a Multi-Select Matrix row without a value, the total row, a
+     removed row), {} for a panel without one; a Multi-Select Matrix row reads what getRowValue does. */
+  protected getItemRecord(item: QuestionRecordItem): any {
+    return this.copyItemRecord(this.getItemData(item));
+  }
+  // A value of survey elements (Creator) is edited in place: the element itself, as getRowValue gives it.
+  protected copyItemRecord(record: any): any {
+    return this.isValueSurveyElement(this.value) ? record : Helpers.getUnbindValue(record);
+  }
+  private readItemRecord(item: QuestionRecordItem): any {
+    this.checkItemRecordLoaded(item);
+    return this.getItemRecord(item);
+  }
+  /* A row or a panel is built from a record of the loaded window, so a source that pages itself has
+     loaded the record of every object that holds a position. A record outside the window there is a
+     defect in the paging, reported rather than read as null without a word. */
+  private checkItemRecordLoaded(item: QuestionRecordItem): void {
+    if (!this.isRemoteData || this.getItemPosition(item) < 0) return;
+    const index = this.getItemRecordIndex(item);
+    if (index < 0 || index >= this.dataListValue.loadedCount) {
+      ConsoleWarnings.error("The record of a row or a panel of '" + this.name + "' is not loaded: record index " + index + ".");
+    }
+  }
+  /* getRecord of a removed event (onMatrixRowRemoved, onDynamicPanelRemoved): the object has left its
+     array and the record the storage, so the record read before the removal, copied when asked. */
+  protected getRemovedRecord(removal: IRecordRemoval): any {
+    return !!removal && removal.record !== undefined ? this.copyItemRecord(removal.record) : null;
+  }
   /* The index of the item record in the question storage. It is the only index two questions bound
      to one value share: they may create objects for a different set of records (a filtered list) or
      in a different order (a sorted one). A temporary object of the records clean-up answers its own
@@ -4457,6 +4490,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   getAllValues(): any {
     return this.data.getItemData(this);
   }
+  /* The stored record of this row or panel, as a copy (see QuestionRecordsModel.getItemRecord). A row's
+     value holds only the fields that have a cell or a detail question; the record holds every field,
+     and no index has to be computed for it. */
+  public getRecord(): any {
+    return !!this.data ? this.data["readItemRecord"](this) : null;
+  }
 
   abstract getComment(name: string): string;
   public setComment(name: string, newValue: string, locNotification: any): void {
@@ -4982,4 +5021,17 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     res.items = items;
     return res;
   }
+}
+
+/* getRecord of the options of an event about a row or a panel (RecordEventMixin): the questions build
+   these options and take it from here. It reads when a handler calls it: the cell events fire once
+   per cell, and a copy of the record for each would cost. item: the row, or the panel; a dynamic
+   panel's panel reaches its record through its record item (panel.data). Anything else - a panel
+   that is not a dynamic panel's, no item - reads null. */
+export function addRecordGetter<T>(options: T, item: any): T & { getRecord: () => any } {
+  const recordItem = item instanceof QuestionRecordItem ? item :
+    (!!item && item.data instanceof QuestionRecordItem ? item.data : undefined);
+  const res = <T & { getRecord: () => any }>options;
+  res.getRecord = (): any => !!recordItem ? recordItem.getRecord() : null;
+  return res;
 }

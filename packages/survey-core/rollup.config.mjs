@@ -114,7 +114,11 @@ const buildPlatformJson = {
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/surveyjs/surveyjs.git"
+    "url": "git+https://github.com/surveyjs/survey-library.git",
+    "directory": "packages/survey-core"
+  },
+  "bugs": {
+    "url": "https://github.com/surveyjs/survey-library/issues"
   },
   "typings": "./typings/entries/index.d.ts"
 };

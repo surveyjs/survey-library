@@ -23,7 +23,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/surveyjs/surveyjs.git"
+    "url": "git+https://github.com/surveyjs/survey-library.git",
+    "directory": "packages/survey-vue3-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/surveyjs/survey-library/issues"
   },
   "peerDependencies": {
     "vue": "^3.4.0",

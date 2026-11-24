@@ -106,6 +106,25 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/survey
 - You may want to **include screenshots and animated GIFs** which help you demonstrate the steps or point out the part which the suggestion is related to.
 - **Explain why this enhancement would be useful** to most SurveyJS Form Library users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
+<!-- omit in toc -->
+#### API gaps found while integrating
+
+SurveyJS adds small API improvements (a property, an event, an option) quickly, often in the next weekly release. If you, or an AI coding agent working for you, had to work around SurveyJS in application code (private members, prototype patches, DOM or CSS changes inside SurveyJS markup, timers that wait for survey state), please report the gap instead of keeping the workaround:
+
+- Start the title with the `[API gap]` prefix, for example: `[API gap] Event before a dynamic panel is removed`.
+- Include the package names and versions.
+- Include a **minimal survey JSON** that shows the case.
+- Include the **workaround code** you wrote.
+- Describe the **API you expected** (a property, an event, a method, or an option).
+
+Do not include application code beyond the workaround itself, credentials, or real data.
+
+Issues created through the GitHub CLI (`gh issue create`) or the GitHub API skip the issue forms. They are welcome as long as the body follows the format above:
+
+```sh
+gh issue create --repo surveyjs/survey-library --title "[API gap] <short summary>" --body-file issue.md
+```
+
 ### Your First Code Contribution
 
 SurveyJS Team follows the [GitHub flow](https://docs.github.com/en/get-started/using-github/github-flow) in development. It means that all proposed changes to our codebase should be made via pull requests. Here's how you can contribute to the SurveyJS codebase:

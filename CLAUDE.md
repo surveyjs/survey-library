@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Contribution policy for external contributors: see AGENTS.md.
+
 ## Repository layout
 
 This is a monorepo (npm workspaces are *not* used — each package installs and builds independently). The packages under `packages/` are:

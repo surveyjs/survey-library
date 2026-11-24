@@ -393,9 +393,9 @@ describe("Survey settings", () => {
     expect(survey.getSettings(), "#1: the same object").toBe(view);
     expect(view, "#2: never the global settings").not.toBe(<any>settings);
     expect(view.comparator, "#3: the same group object").toBe(view.comparator);
-    expect(JSON.parse(JSON.stringify(view)), "#4").toEqual({ comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: false, strictEquality: false }, data: { keepEmptyValues: false } });
+    expect(JSON.parse(JSON.stringify(view)), "#4").toEqual({ comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: false, strictEquality: false }, keepEmptyValues: false });
     settings.comparator.trimStrings = false;
-    expect(JSON.parse(JSON.stringify(view)), "#5: read at read time").toEqual({ comparator: { trimStrings: false, caseSensitive: true, numericTextAsText: false, strictEquality: false }, data: { keepEmptyValues: false } });
+    expect(JSON.parse(JSON.stringify(view)), "#5: read at read time").toEqual({ comparator: { trimStrings: false, caseSensitive: true, numericTextAsText: false, strictEquality: false }, keepEmptyValues: false });
     expect({ ...view.comparator }.caseSensitive, "#6: spread").toBe(true);
     expect(() => { (<any>view.comparator).caseSensitive = false; }, "#7").toThrow();
     expect(() => { (<any>view).comparator = {}; }, "#8").toThrow();
@@ -429,6 +429,27 @@ describe("Survey settings", () => {
     expect(isTVisible(survey), "#7").toBe(true);
     const s2 = createWithValue("US", { comparator: { trimStrings: false } });
     expect(s2.getOwnSettings(), "#8: from the constructor").toBe(s2.getSettings());
+  });
+
+  test("keepEmptyValues is a top-level key: an own value, removed by undefined, falls back to the global value", () => {
+    const survey = new SurveyModel(visibleIfJson, { keepEmptyValues: true });
+    const view = survey.getSettings();
+    expect(view.keepEmptyValues, "#1: from the constructor").toBe(true);
+    expect(survey.getOwnSettings(), "#2: an own value").toBe(view);
+    expect(() => { (<any>view).keepEmptyValues = false; }, "#3: read-only").toThrow();
+    const spy = vi.spyOn(survey as any, "runConditions");
+    survey.settings({ keepEmptyValues: true });
+    expect(spy, "#4: the same value again does not re-run").not.toHaveBeenCalled();
+    survey.settings({ keepEmptyValues: undefined });
+    expect(spy, "#5: removing the value re-runs").toHaveBeenCalledTimes(1);
+    expect(survey.getOwnSettings(), "#6: no own settings").toBeUndefined();
+    settings.keepEmptyValues = true;
+    expect(view.keepEmptyValues, "#7: the global value at read time").toBe(true);
+    settings.keepEmptyValues = false;
+    survey.settings(<any>{ data: { keepEmptyValues: true } });
+    expect(warnSpy, "#8: the data group is unknown").toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0][0], "#9").toContain("\"data\"");
+    expect(view.keepEmptyValues, "#10").toBe(false);
   });
 
   test("getSettings() works during construction, before the JSON is loaded", () => {

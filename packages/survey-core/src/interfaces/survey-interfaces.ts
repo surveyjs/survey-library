@@ -98,7 +98,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getOwnSettings(): ISurveySettings;
   // The survey's own property defaults, or undefined. Optional: an owner's getSurvey() can return another object.
   getOwnPropertyDefaults?(): PropertyDefaultsLayer;
-  // A system clear: an empty value set while func runs removes the key even with data.keepEmptyValues on
+  // A system clear: an empty value set while func runs removes the key even with keepEmptyValues on
   runDeletingEmptyValues<T>(func: () => T): T;
   //#endregion
 

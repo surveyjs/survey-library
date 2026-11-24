@@ -14,12 +14,9 @@ export interface ISurveySettingsComparator {
   // The expression operators compare without loose equality, so true = 1 is false (decisions.md, C5)
   strictEquality?: boolean;
 }
-export interface ISurveySettingsData {
-  keepEmptyValues?: boolean;
-}
 export interface ISurveySettings {
   comparator?: ISurveySettingsComparator;
-  data?: ISurveySettingsData;
+  keepEmptyValues?: boolean;
 }
 // The names of SurveyModel's events, read from its member types, so a new event needs no change here.
 // An event is a public member whose type is an Event and whose name starts with "on"; the run-time check in
@@ -48,14 +45,20 @@ export interface ISurveyOptions extends ISurveySettings {
 type DeepRequired<T> = { [K in keyof T]-?: T[K] extends Function ? T[K] : T[K] extends object ? DeepRequired<T[K]> : T[K] };
 const globalSettings: DeepRequired<ISurveySettings> = settings;
 
-type SurveySettingsGroup = keyof ISurveySettings;
-type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNullable<ISurveySettings[G]>]-?: true } };
-// The groups and keys a survey can set for itself. The type makes the build fail when the interface
-// gets a key this list misses.
+// A settings group is an object of keys (comparator); a top-level setting holds a value itself (keepEmptyValues).
+type SurveySettingsGroup = { [G in keyof ISurveySettings]-?: NonNullable<ISurveySettings[G]> extends object ? G : never }[keyof ISurveySettings];
+type SurveySettingsKeys = {
+  [N in keyof ISurveySettings]-?: N extends SurveySettingsGroup ? { [K in keyof NonNullable<ISurveySettings[N]>]-?: true } : true
+};
+// The groups with their keys, and the top-level settings (true), a survey can set for itself. The type makes
+// the build fail when the interface gets a key this list misses.
 const surveySettingsKeys: SurveySettingsKeys = {
   comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true, strictEquality: true },
-  data: { keepEmptyValues: true }
+  keepEmptyValues: true
 };
+function isTopLevelSetting(name: string): boolean {
+  return (<any>surveySettingsKeys)[name] === true;
+}
 const reservedOptionKeys = ["events", "propertyDefaults"];
 // What survey.settings() suggests instead of a reserved option key
 const reservedOptionHints: { [key: string]: string } = {
@@ -125,17 +128,23 @@ export function getSettingsOfSurvey(survey: ISurvey): ISurveySettings {
 
 // One survey's own settings values. Reads fall back to the global settings per key, at read time.
 export class SurveySettingsValues {
-  private values: { [group: string]: { [key: string]: any } } = {};
+  // A group's own values are an object under the group name; a top-level setting's own value is stored by its name.
+  private values: { [name: string]: any } = {};
   private viewValue: ISurveySettings;
   private hasOwnValuesValue: boolean = false;
   // True when the survey sets at least one key itself; kept up to date by merge().
   public get hasOwnValues(): boolean {
     return this.hasOwnValuesValue;
   }
-  public getValue(group: string, key: string): any {
-    const groupValues = this.values[group];
+  // key is omitted for a top-level setting.
+  public getValue(name: string, key?: string): any {
+    if (key === undefined) {
+      const ownVal = this.values[name];
+      return ownVal !== undefined ? ownVal : (<any>globalSettings)[name];
+    }
+    const groupValues = this.values[name];
     const val = !!groupValues ? groupValues[key] : undefined;
-    return val !== undefined ? val : (<any>globalSettings)[group][key];
+    return val !== undefined ? val : (<any>globalSettings)[name][key];
   }
   // The read-only view SurveyModel.getSettings() returns: own enumerable getters, so JSON.stringify,
   // spread and Object.keys see the effective values. It is frozen, so any write throws in strict mode.
@@ -163,6 +172,10 @@ export class SurveySettingsValues {
         this.warnUnknownKey(group);
         continue;
       }
+      if (isTopLevelSetting(group)) {
+        if (this.setOwnValue(this.values, group, value[group])) changed = true;
+        continue;
+      }
       const groupValue = value[group];
       if (groupValue === undefined) {
         if (this.clearGroup(group)) changed = true;
@@ -170,6 +183,7 @@ export class SurveySettingsValues {
       }
       if (!isPlainObject(groupValue)) continue;
       const knownKeys = surveySettingsKeys[group];
+      const groupValues = this.values[group] || {};
       const keys = Object.keys(groupValue);
       for (let j = 0; j < keys.length; j++) {
         const key = keys[j];
@@ -177,11 +191,15 @@ export class SurveySettingsValues {
           this.warnUnknownKey(group + "." + key);
           continue;
         }
-        if (this.setOwnValue(group, key, groupValue[key])) changed = true;
+        if (this.setOwnValue(groupValues, key, groupValue[key])) changed = true;
+      }
+      if (Object.keys(groupValues).length > 0) {
+        this.values[group] = groupValues;
       }
     }
     if (changed) {
-      this.hasOwnValuesValue = Object.keys(this.values).some((group: string): boolean => Object.keys(this.values[group]).length > 0);
+      this.hasOwnValuesValue = Object.keys(this.values).some((name: string): boolean =>
+        isTopLevelSetting(name) || Object.keys(this.values[name]).length > 0);
     }
     return changed;
   }
@@ -194,19 +212,15 @@ export class SurveySettingsValues {
     delete this.values[group];
     return Object.keys(groupValues).length > 0;
   }
-  private setOwnValue(group: string, key: string, val: any): boolean {
-    let groupValues = this.values[group];
+  // values: this.values for a top-level setting, or a group's own values.
+  private setOwnValue(values: { [key: string]: any }, key: string, val: any): boolean {
     if (val === undefined) {
-      if (!groupValues || !hasOwn(groupValues, key)) return false;
-      delete groupValues[key];
+      if (!hasOwn(values, key)) return false;
+      delete values[key];
       return true;
     }
-    if (!groupValues) {
-      groupValues = {};
-      this.values[group] = groupValues;
-    }
-    if (hasOwn(groupValues, key) && groupValues[key] === val) return false;
-    groupValues[key] = val;
+    if (hasOwn(values, key) && values[key] === val) return false;
+    values[key] = val;
     return true;
   }
   private createView(): ISurveySettings {
@@ -214,6 +228,10 @@ export class SurveySettingsValues {
     const groups = Object.keys(surveySettingsKeys);
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i];
+      if (isTopLevelSetting(group)) {
+        Object.defineProperty(res, group, { enumerable: true, get: () => this.getValue(group) });
+        continue;
+      }
       const groupView: any = {};
       const keys = Object.keys(surveySettingsKeys[group]);
       for (let j = 0; j < keys.length; j++) {

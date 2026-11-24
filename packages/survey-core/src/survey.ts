@@ -8301,18 +8301,18 @@ export class SurveyModel extends SurveyElementCore
   private deletingEmptyValuesScope = new Scope();
   // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
   // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
-  // the data even with data.keepEmptyValues on.
+  // the data even with keepEmptyValues on.
   runDeletingEmptyValues<T>(func: () => T): T {
     return this.deletingEmptyValuesScope.run(func);
   }
-  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
   // undefined always removes the key: it is what Question.clearValue() assigns.
   private isEmptyValueKeptOnSetValue(val: any): boolean {
-    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().keepEmptyValues;
   }
   // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
   private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
-    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    if (!name || !this.getSettings().keepEmptyValues) return false;
     return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {

@@ -16,14 +16,14 @@ import { IAction } from "../src/actions/action";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { describe, expect, test, afterEach } from "vitest";
 
-const keepOn = { data: { keepEmptyValues: true } };
+const keepOn = { keepEmptyValues: true };
 const createSurvey = (json: any, isKeepOn: boolean): SurveyModel => isKeepOn ? new SurveyModel(json, keepOn) : new SurveyModel(json);
 const offAndOn = [false, true];
 const caseName = (isKeepOn: boolean): string => isKeepOn ? "the key on" : "the key off";
 const blurText = (q: Question, text: string): void => (<QuestionTextModel>q).onBlur({ target: { value: text } });
 const getClearAction = (q: Question): IAction => <IAction>q.getTitleActions()[0];
 
-describe("data.keepEmptyValues: a respondent's own clear", () => {
+describe("keepEmptyValues: a respondent's own clear", () => {
   offAndOn.forEach(isKeepOn => {
     test("a text question: type a text, then erase it, " + caseName(isKeepOn), () => {
       const survey = createSurvey({ elements: [{ type: "text", name: "q" }] }, isKeepOn);
@@ -226,27 +226,27 @@ describe("data.keepEmptyValues: a respondent's own clear", () => {
     blurText(q, "x");
     blurText(q, "");
     expect(survey.data, "#1: the key is off").toStrictEqual({});
-    survey.settings({ data: { keepEmptyValues: true } });
+    survey.settings({ keepEmptyValues: true });
     blurText(q, "x");
     blurText(q, "");
     expect(survey.data, "#2: the key is on").toStrictEqual({ q: "" });
-    survey.settings({ data: { keepEmptyValues: false } });
+    survey.settings({ keepEmptyValues: false });
     blurText(q, "x");
     blurText(q, "");
     expect(survey.data, "#3: the key is off again").toStrictEqual({});
   });
   describe("the global settings", () => {
-    afterEach(() => { settings.data.keepEmptyValues = false; });
+    afterEach(() => { settings.keepEmptyValues = false; });
     test("a survey without its own value follows the global key at the time of the clear", () => {
       const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] });
-      settings.data.keepEmptyValues = true;
+      settings.keepEmptyValues = true;
       blurText(survey.getQuestionByName("q"), "x");
       blurText(survey.getQuestionByName("q"), "");
       expect(survey.data).toStrictEqual({ q: "" });
     });
     test("a survey's own false wins over the global true", () => {
-      settings.data.keepEmptyValues = true;
-      const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { data: { keepEmptyValues: false } });
+      settings.keepEmptyValues = true;
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] }, { keepEmptyValues: false });
       blurText(survey.getQuestionByName("q"), "x");
       blurText(survey.getQuestionByName("q"), "");
       expect(survey.data).toStrictEqual({});
@@ -254,7 +254,7 @@ describe("data.keepEmptyValues: a respondent's own clear", () => {
   });
 });
 
-describe("data.keepEmptyValues: a system clear removes the key with the key on", () => {
+describe("keepEmptyValues: a system clear removes the key with the key on", () => {
   test("clearIfInvisible: \"onHidden\" hides a question with a value", () => {
     const survey = createSurvey({ clearInvisibleValues: "onHidden", elements: [
       { type: "text", name: "a" },

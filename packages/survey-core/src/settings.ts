@@ -1011,9 +1011,7 @@ export var settings = {
     archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
   },
   customFileCategoryName: "custom",
-  // Stored survey data. keepEmptyValues: a respondent's own clear keeps the question's key in the data with the
-  // empty value its UI produces ("", [] or null). A clear by the survey itself still removes the key.
-  data: {
-    keepEmptyValues: false
-  }
+  // A respondent's own clear keeps the question's key in the survey data with the empty value its UI
+  // produces ("", [] or null). A clear by the survey itself still removes the key.
+  keepEmptyValues: false
 };

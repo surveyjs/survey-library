@@ -7,7 +7,8 @@ import type {
   MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent,
   MatrixCellValidateEvent, GetMatrixRowActionsEvent, MatrixRowDragOverEvent, DynamicPanelModifiedEvent,
   DynamicPanelRemovingEvent, DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent,
-  DynamicPanelItemValueChangedEvent, DynamicPanelCurrentIndexChangedEvent, DynamicPanelGetTabTitleEvent
+  DynamicPanelItemValueChangedEvent, DynamicPanelCurrentIndexChangedEvent, DynamicPanelGetTabTitleEvent,
+  UpdateMatrixCellCssEvent, UpdateMatrixRowCssEvent
 } from "../../src/survey-events-api";
 import type { MatrixDropdownRowModelBase } from "../../src/question_matrixdropdownbase";
 import type { QuestionRecordItem } from "../../src/question_records";
@@ -20,7 +21,8 @@ export const rowEvents: Array<true> = [
   <Extends<MatrixCellCreatedEvent, MatrixRowEventMixin>>true, <Extends<MatrixAfterCellRenderEvent, MatrixRowEventMixin>>true,
   <Extends<MatrixCellValueChangedEvent, MatrixRowEventMixin>>true, <Extends<MatrixCellValueChangingEvent, MatrixRowEventMixin>>true,
   <Extends<MatrixCellValidateEvent, MatrixRowEventMixin>>true, <Extends<GetMatrixRowActionsEvent, MatrixRowEventMixin>>true,
-  <Extends<MatrixRowDragOverEvent, MatrixRowEventMixin>>true
+  <Extends<MatrixRowDragOverEvent, MatrixRowEventMixin>>true, <Extends<UpdateMatrixCellCssEvent, MatrixRowEventMixin>>true,
+  <Extends<UpdateMatrixRowCssEvent, MatrixRowEventMixin>>true
 ];
 export const panelEvents: Array<true> = [
   <Extends<DynamicPanelModifiedEvent, DynamicPanelEventMixin>>true, <Extends<DynamicPanelRemovingEvent, DynamicPanelEventMixin>>true,

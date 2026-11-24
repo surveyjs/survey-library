@@ -731,18 +731,22 @@ export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
    Performance note: while a handler of either event is attached, a Dynamic Matrix with local paging or
    sorting builds new rows on a page change or a sort instead of reusing them.
 
+   The row's data: options.getRecord() (RecordEventMixin) - the row's stored record, the fields without
+   a column included, on any page and with a sort or a filter. It is null for a Multi-Select Matrix row
+   without a value. It reads when it is called, so a handler that does not need it costs nothing.
+
    Example:
      survey.onUpdateMatrixCellCss.add((_, options) => {
-       const record = options.question.value[options.row.getIndex()]; // matrixdropdown: [options.row.rowName]
+       const record = options.getRecord() || {};
        if (options.column.name === "status" && record.status === "failed") options.css += " status--failed";
      });
      survey.onUpdateMatrixRowCss.add((_, options) => {
-       const record = options.question.value[options.row.getIndex()];
+       const record = options.getRecord() || {};
        if (record.isDraft) options.css += " row--draft";
      });
 
    `question` (from MatrixDropdownQuestionEventMixin) is the matrix the cell or row belongs to. */
-export interface UpdateMatrixRowCssEvent extends MatrixDropdownQuestionEventMixin {
+export interface UpdateMatrixRowCssEvent extends MatrixDropdownQuestionEventMixin, MatrixRowEventMixin {
   /**
    * The matrix row being styled or the row that contains the cell.
    */

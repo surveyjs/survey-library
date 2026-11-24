@@ -19,9 +19,9 @@ function createSurvey(json: any, data?: any): SurveyModel {
 function matrixOf(survey: SurveyModel): QuestionMatrixDynamicModel {
   return <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
 }
-// The full stored record of a row, fields without a column too: no new API needed.
+// The full stored record of a row, fields without a column too.
 function recordOf(options: UpdateMatrixRowCssEvent): any {
-  return (options.question.value || [])[options.row.getIndex()] || {};
+  return options.getRecord() || {};
 }
 // A status cell is "failed" when its record says so; a row is "draft" by a field without a column.
 function addStatusHandler(survey: SurveyModel, log?: Array<string>): void {
@@ -91,7 +91,7 @@ describe("onUpdateMatrixCellCss / onUpdateMatrixRowCss", () => {
     expect(rowCalls.length, "#6: the row").toBe(1);
     expect(rowCalls[0].question === matrix && rowCalls[0].row === row, "#7").toBe(true);
     expect(rowCalls[0].css, "#8: the row's default classes").toBe(renderedRow.defaultCss);
-    expect(rowCalls[0].keys, "#9: no cell options for a row").toEqual(["css", "question", "row"]);
+    expect(rowCalls[0].keys, "#9: no cell options for a row").toEqual(["css", "getRecord", "question", "row"]);
   });
   test("each event alone: a cell handler leaves the rows alone, a row handler the cells", () => {
     const plain = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 2));
@@ -216,21 +216,54 @@ describe("onUpdateMatrixCellCss / onUpdateMatrixRowCss", () => {
     expect(choiceCells.map((cell) => hasClass(cell.className, "picked")), "#2").toEqual([true, true]);
     expect(choiceCells.every((cell) => hasClass(cell.className, survey.css.matrixdynamic.itemCell)), "#3: the item cell classes stay").toBe(true);
   });
-  test("a matrixdropdown: the record by the row name", () => {
+  test("a matrixdropdown: getRecord gives the row's value, null for a row without one", () => {
     const survey = createSurvey({ type: "matrixdropdown", rows: ["a", "b"], columns: columns }, { b: { status: "failed", draft: true } });
-    const recordByName = (options: UpdateMatrixRowCssEvent): any => ((<QuestionMatrixDropdownModel>options.question).value || {})[options.row.rowName] || {};
+    const rowValues: Array<any> = [];
     survey.onUpdateMatrixCellCss.add((_, options) => {
-      if (options.column.name === "status" && recordByName(options).status === "failed") options.css += " failed";
+      if (options.column.name === "status" && recordOf(options).status === "failed") options.css += " failed";
     });
     survey.onUpdateMatrixRowCss.add((_, options) => {
-      if (recordByName(options).draft) options.css += " draft";
+      rowValues.push(options.getRecord());
+      if (recordOf(options).draft) options.css += " draft";
     });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     expect(statusFailed(matrix), "#1").toEqual([false, true]);
     expect(rowsDraft(matrix), "#2").toEqual([false, true]);
+    expect(rowValues, "#2a: row a has no value").toEqual([null, { status: "failed", draft: true }]);
     matrix.value = { a: { status: "failed" } };
     expect(statusFailed(matrix), "#3: an assignment").toEqual([true, false]);
     expect(rowsDraft(matrix), "#4").toEqual([false, false]);
+  });
+  test("getRecord: the stored record as a copy, read when called, current after an edit", () => {
+    const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, columns: columns }, records.slice(0, 2));
+    const cellRecords: Array<any> = [];
+    const rowRecords: Array<any> = [];
+    survey.onUpdateMatrixCellCss.add((_, options) => {
+      if (options.column.name === "status") cellRecords.push(options.getRecord());
+    });
+    survey.onUpdateMatrixRowCss.add((_, options) => {
+      const record = options.getRecord();
+      expect(record, "the row's own getRecord").toEqual(options.row.getRecord());
+      record.draft = "changed by the handler";
+      rowRecords.push(record);
+    });
+    const matrix = matrixOf(survey);
+    expect(dataRows(matrix).length, "#0: the table is built").toBe(2);
+    expect(cellRecords, "#1: the cell event").toEqual(records.slice(0, 2));
+    expect(rowRecords.map((record) => record.id), "#2: the row event").toEqual([1, 2]);
+    expect(matrix.value[1].draft, "#3: a copy: the stored record is not changed").toBe(true);
+    matrix.visibleRows[0].getQuestionByColumnName("status").value = "failed";
+    expect(cellRecords[cellRecords.length - 1], "#4: an edit re-runs with the new record").toEqual({ id: 1, status: "failed" });
+    let calls = 0;
+    survey.onUpdateMatrixCellCss.clear();
+    survey.onUpdateMatrixRowCss.clear();
+    survey.onUpdateMatrixRowCss.add((_, options) => { calls++; options.css += " x"; });
+    const getRecord = matrix.visibleRows[0].getRecord;
+    let reads = 0;
+    matrix.visibleRows[0].getRecord = function (): any { reads++; return getRecord.call(this); };
+    matrix.visibleRows[0].getQuestionByColumnName("status").value = "ok";
+    expect(calls, "#5: the handler runs").toBe(1);
+    expect(reads, "#6: a handler that does not call getRecord reads no record").toBe(0);
   });
   test("the vertical layout: the data cells take classes, its rows (columns) take none", () => {
     const survey = createSurvey({ type: "matrixdynamic", rowCount: 0, transposeData: true, columns: columns }, records.slice(0, 2));

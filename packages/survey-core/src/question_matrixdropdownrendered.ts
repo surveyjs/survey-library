@@ -16,6 +16,7 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { ISortCriterion, SortDirection } from "./dynamic-data/dynamic-data-interfaces";
 import { getSortDirectionLocStringName } from "./records/records-sort-directions";
+import { addRecordGetter } from "./question_records";
 
 function getId(id: string, isError: boolean, isDetail: boolean) {
   return id + (isError ? "-error" : "") + (isDetail ? "-detail" : "");
@@ -1308,7 +1309,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.hasCellCssHandler()) {
       renderedRow.customCssCells.forEach((cell: QuestionMatrixDropdownRenderedCell): void => {
         if (!row || cell.row === row) {
-          const options = { row: cell.row, column: cell.column, cellQuestion: cell.question, css: cell.defaultClassName };
+          const options = addRecordGetter({ row: cell.row, column: cell.column, cellQuestion: cell.question, css: cell.defaultClassName }, cell.row);
           this.matrix.matrixCallbacks.updateMatrixCellCss(this.matrix, options);
           renderedRow.setCustomCss(cell.cssKey, options.css !== cell.defaultClassName ? options.css : undefined);
         }
@@ -1316,7 +1317,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     if (renderedRow.isCustomCssRow && (!row || renderedRow.row === row) && this.hasRowCssHandler()) {
       const defaultCss = renderedRow.defaultCss;
-      const options = { row: renderedRow.row, css: defaultCss };
+      const options = addRecordGetter({ row: renderedRow.row, css: defaultCss }, renderedRow.row);
       this.matrix.matrixCallbacks.updateMatrixRowCss(this.matrix, options);
       renderedRow.setCustomCss("rowCss", options.css !== defaultCss ? options.css : undefined);
     }

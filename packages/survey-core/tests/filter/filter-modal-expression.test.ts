@@ -52,6 +52,13 @@ describe("FilterModal: the text of a preset that does not decompose", () => {
     expect([block(modal), shown(modal)], "#4: turned off").toEqual([undefined, ["f0", "f1", "f2"]]);
     modal.dispose();
   });
+  test("the control's own text has no preset to name: the block is titled \"Filter expression\"", () => {
+    const q = control();
+    q.applyFilter("{age} < 18 or {country} = 'de'");
+    const modal = q.createFilterModal();
+    expect(block(modal)).toEqual({ title: "Filter expression", text: "{age} < 18 or {country} = 'de'" });
+    modal.dispose();
+  });
   test("it opens with the control's preset, and Clear All takes it away", () => {
     const q = control();
     q.togglePreset("edges");

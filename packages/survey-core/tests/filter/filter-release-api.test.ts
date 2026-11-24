@@ -143,6 +143,36 @@ describe("Filter release API: presets as a live list", () => {
     expect(q.updatePreset(data("nope", "{age} > 1")), "#3").toBeUndefined();
     expect(q.updatePreset(data("kids", "{age} >")), "#4").toBeUndefined();
   });
+  test("a title alone keeps the text the author wrote, however the fields would write it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", defaultPreset: "adults",
+      fields: [{ name: "age", fieldType: "text", inputType: "number" }], presets: [{ name: "adults", title: "Adults", expression: "{age}>18" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.updatePresetFromConditions("adults", "Grown-ups", [{ field: "age", operator: "greater", value: 18 }]);
+    expect(q.getPresetByName("adults").expression, "#1: Edit Preset sends the fields' text").toBe("{age}>18");
+    q.updatePreset({ name: "adults", title: "Of age", expression: "{age} > 18", allowEdit: true, allowDelete: true, allowCopy: true });
+    expect([q.getPresetByName("adults").title, q.getPresetByName("adults").expression], "#2").toEqual(["Of age", "{age}>18"]);
+    expect(survey.uiState.questions.f1.filter.presets, "#3: no text is saved for a rename").toEqual({ adults: { title: "Of age" } });
+  });
+  test("updatePreset with no title or an empty one keeps the title", () => {
+    const json = { elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }],
+      presets: [{ name: "adults", title: { default: "Adults", de: "Erwachsene" }, expression: "{age} > 18" }] }] };
+    const s1 = new SurveyModel(json);
+    const q1 = <QuestionFilterModel>s1.getQuestionByName("f1");
+    q1.updatePreset(<any>{ name: "adults", expression: "{age} > 19" });
+    expect(q1.presets[0].locTitle.getJson(), "#1: no title").toEqual({ default: "Adults", de: "Erwachsene" });
+    q1.updatePreset({ name: "adults", title: "", expression: "{age} > 20", allowEdit: true, allowDelete: true, allowCopy: true });
+    expect(q1.presets[0].locTitle.getJson(), "#2: an empty one").toEqual({ default: "Adults", de: "Erwachsene" });
+    q1.updatePreset({ name: "adults", title: "   ", expression: "{age} > 21", allowEdit: true, allowDelete: true, allowCopy: true });
+    expect(q1.presets[0].locTitle.getJson(), "#3: spaces").toEqual({ default: "Adults", de: "Erwachsene" });
+    expect(s1.uiState.questions.f1.filter.presets, "#4: only the text is saved").toEqual({ adults: { expression: "{age} > 21" } });
+    const s2 = new SurveyModel(json);
+    s2.uiState = s1.uiState;
+    const q2 = <QuestionFilterModel>s2.getQuestionByName("f1");
+    expect([q2.presets[0].title, q2.presets[0].expression], "#5").toEqual(["Adults", "{age} > 21"]);
+  });
+  test("the designer offers searchFields anew as the fields entries change", () => {
+    expect(Serializer.findProperty("filter", "fields").getDependedProperties().indexOf("searchFields") > -1).toBe(true);
+  });
   test("deletePreset removes the preset; the selected one takes the filter with it", () => {
     const q = createFilter({ defaultPreset: "adults" });
     q.deletePreset("adults");

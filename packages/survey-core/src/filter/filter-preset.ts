@@ -37,14 +37,25 @@ export function getFilterPresetTitleError(value: any, otherTitles: Array<string>
   return isFilterPresetTitleTaken(title, otherTitles) ? getLocaleString("filterPresetTitleExists", locale) : undefined;
 }
 
-// The JSON of a preset, and what addPreset() and updatePreset() take.
-export interface IFilterPreset {
-  name: string;
-  title: string;
-  expression: string;
+// What a preset lets the respondent do to it.
+export interface IFilterPresetPermissions {
   allowEdit: boolean;
   allowDelete: boolean;
   allowCopy: boolean;
+}
+// The one list of them: whatever copies, compares or stores a preset's permissions goes by it.
+export const filterPresetPermissions: Array<keyof IFilterPresetPermissions> = ["allowEdit", "allowDelete", "allowCopy"];
+// Copies the permissions src gives (a boolean each) and leaves dest's others as they are.
+export function assignFilterPresetPermissions(dest: Partial<IFilterPresetPermissions>, src: Partial<IFilterPresetPermissions>): void {
+  filterPresetPermissions.forEach((key: keyof IFilterPresetPermissions): void => {
+    if (typeof src[key] === "boolean") dest[key] = src[key];
+  });
+}
+// The JSON of a preset, and what addPreset() and updatePreset() take.
+export interface IFilterPreset extends IFilterPresetPermissions {
+  name: string;
+  title: string;
+  expression: string;
 }
 // A preset: one saved filter the survey author defines (in JSON or in Creator's property grid), the
 // respondent or the application adds, that the end user applies to the data with a single click by

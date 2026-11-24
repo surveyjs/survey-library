@@ -120,8 +120,11 @@ export class FilterModal extends Base {
   // The text's block: there while there is a text, and Search in Filters looks for nothing - it is no
   // filter to find.
   public get showExpression(): boolean { return !!this.presetExpression && !this.filterText; }
-  // "<Preset> Expression".
-  public get expressionTitle(): string { return this.getString("filterPresetExpression").replace("{0}", this.getPresetTitle()); }
+  // "<Preset> Expression"; "Filter expression" for the control's own text, which no preset names.
+  public get expressionTitle(): string {
+    if (!this.getBufferPreset()) return this.getString("filterPresetExpressionLabel");
+    return this.getString("filterPresetExpression").replace("{0}", this.getPresetTitle());
+  }
   // The conditions the buffer filters by - a preset's that is on as it is, the fields' otherwise -
   // which a new preset starts with.
   public get presetConditions(): Array<IFilterCondition> {

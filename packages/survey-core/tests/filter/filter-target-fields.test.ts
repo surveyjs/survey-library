@@ -140,6 +140,15 @@ describe("Filter fields of a target question", () => {
   });
 });
 
+describe("A target question that has no hasRecordField", () => {
+  test("an entry that names no field of its list is a field of the record", () => {
+    const { q, matrix } = create([{ name: "total", fieldType: "text", inputType: "number" }]);
+    matrix.hasRecordField = undefined;
+    expect(names(q), "#1").toEqual(["country", "total"]);
+    expect(q.getFieldOfEntry(q.fields[0]).name, "#2").toBe("total");
+  });
+});
+
 describe("hasRecordField of a target question", () => {
   test("a matrix: a column by name or valueName, filtered or not, and a path into one the filter leaves out", () => {
     const { matrix } = create([], [{ name: "country" }, { name: "notes", allowFiltering: false }, { name: "price", valueName: "amount" }]);

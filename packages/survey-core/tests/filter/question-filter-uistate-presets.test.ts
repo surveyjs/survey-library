@@ -2,6 +2,7 @@ import { describe, test, expect } from "vitest";
 import { createSurvey, presetList, onCombinedExpressionChanged } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
+import { FilterPreset } from "../../src/filter/filter-preset";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 
 // What uiState keeps of the presets the respondent added, renamed, changed and deleted, and how it
@@ -105,6 +106,53 @@ describe("QuestionFilterModel: what is not restored", () => {
   test("a deleted preset that is on goes off", () => {
     const q = restored({ deletedPresets: ["adults"] }, { defaultPreset: "adults" });
     expect([q.selectedPreset, q.combinedExpression], "#1").toEqual(["", ""]);
+  });
+});
+
+describe("QuestionFilterModel: the author's lock is the JSON's", () => {
+  test("allowEdit a restore took away does not keep the next restore from the preset", () => {
+    const survey = create();
+    const q = control(survey);
+    survey.uiState = { questions: { f1: { filter: { presets: { adults: { title: "Mine", allowEdit: false } } } } } };
+    survey.uiState = { questions: { f1: { filter: { presets: { adults: { title: "Mine 2", expression: "{age} > 30" } } } } } };
+    const adults = q.getPresetByName("adults");
+    expect([adults.title, adults.expression]).toEqual(["Mine 2", "{age} > 30"]);
+  });
+  test("allowDelete a restore took away does not keep the next restore from deleting the preset", () => {
+    const survey = create();
+    const q = control(survey);
+    survey.uiState = { questions: { f1: { filter: { presets: { adults: { allowDelete: false } } } } } };
+    survey.uiState = { questions: { f1: { filter: { deletedPresets: ["adults"] } } } };
+    expect(names(q)).toEqual(["germans", "edges"]);
+  });
+});
+
+describe("QuestionFilterModel: a preset the host puts in place of one the respondent changed", () => {
+  const change = (q: QuestionFilterModel): void => {
+    q.updatePresetFromConditions("adults", "Grown-ups", [{ field: "age", operator: "greater", value: 21 }]);
+  };
+  test("a new preset of the same name spliced in is the author's: not modified, stored as it is", () => {
+    const survey = create();
+    const q = control(survey);
+    change(q);
+    const fresh = new FilterPreset("adults");
+    fresh.title = "Of age";
+    fresh.expression = "{age} > 20";
+    q.presets.splice(0, 1, fresh);
+    expect(q.isPresetModified(fresh), "#1").toBe(false);
+    expect(q.toJSON().presets[0], "#2").toEqual({ name: "adults", title: "Of age", expression: "{age} > 20" });
+    expect(filterState(survey), "#3").toBe(undefined);
+  });
+  test("the same preset moved within the list keeps the respondent's change", () => {
+    const survey = create();
+    const q = control(survey);
+    change(q);
+    const adults = q.getPresetByName("adults");
+    q.presets.splice(0, 1);
+    q.presets.push(adults);
+    expect(q.isPresetModified(adults), "#1").toBe(true);
+    expect(q.toJSON().presets[2], "#2: stored as the JSON made it").toEqual({ name: "adults", title: "Adults", expression: "{age} > 18" });
+    expect(filterState(survey).presets, "#3").toEqual({ adults: { expression: "{age} > 21", title: "Grown-ups" } });
   });
 });
 

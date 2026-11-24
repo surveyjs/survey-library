@@ -245,7 +245,7 @@
   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 }
 
-@container style(--sjs2-is-panelless) {
+@container style(--sjs2-is-panelless: true) {
   .sd-question__header-and-content-container {
     flex-grow: 0;
   }

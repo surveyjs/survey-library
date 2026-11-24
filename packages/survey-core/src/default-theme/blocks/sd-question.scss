@@ -245,6 +245,15 @@
   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 }
 
+@container style(--sjs2-is-panelless: true) {
+  .sd-question__header-and-content-container {
+    flex-grow: 0;
+  }
+  .sd-element--with-frame > div > .sd-question__erbox {
+    border-radius: var(--sjs2-radius-component-panel);
+  }
+}
+
 .sd-question__description--under-input {
   margin-block: var(--sd-question-description-under-input-margin-block);
   padding-inline: var(--sd-question-description-under-input-padding-inline);

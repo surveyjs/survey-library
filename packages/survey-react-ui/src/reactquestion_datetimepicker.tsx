@@ -19,7 +19,7 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
     const q = this.question;
     return q.range ? [q.renderedStartInputValue, q.renderedEndInputValue] : [q.renderedInputValue];
   }
-  private renderInput(index: number, id: string, text: string, placeholder: string): React.JSX.Element {
+  private renderInput(index: number, id: string, placeholder: string): React.JSX.Element {
     const q = this.question;
     return (
       <input
@@ -28,7 +28,6 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
         type="text"
         autoComplete="off"
         className={q.getControlClass()}
-        defaultValue={text}
         placeholder={placeholder}
         disabled={q.isDisabledAttr}
         readOnly={q.isReadOnlyAttr}
@@ -45,11 +44,11 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
       />
     );
   }
-  private renderField(index: number, id: string, text: string, placeholder: string): React.JSX.Element {
+  private renderField(index: number, id: string, placeholder: string): React.JSX.Element {
     const q = this.question;
     return (
       <div key={id} className={q.getFieldClass()}>
-        {this.renderInput(index, id, text, placeholder)}
+        {this.renderInput(index, id, placeholder)}
         <SurveyActionBar model={q.getEditorButtons(index)}></SurveyActionBar>
       </div>
     );
@@ -57,12 +56,12 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
   private renderFields(): React.JSX.Element | Array<React.JSX.Element> {
     const q = this.question;
     if (!q.range) {
-      return this.renderField(0, q.inputId, q.renderedInputValue, q.renderedPlaceholder);
+      return this.renderField(0, q.inputId, q.renderedPlaceholder);
     }
     return [
-      this.renderField(0, q.startInputId, q.renderedStartInputValue, q.renderedStartPlaceholder),
+      this.renderField(0, q.startInputId, q.renderedStartPlaceholder),
       <span key="separator" className={q.cssClasses.rangeSeparator}>{q.rangeSeparatorText}</span>,
-      this.renderField(1, q.endInputId, q.renderedEndInputValue, q.renderedEndPlaceholder)
+      this.renderField(1, q.endInputId, q.renderedEndPlaceholder)
     ];
   }
   protected renderElement(): React.JSX.Element {
@@ -74,11 +73,18 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
       </div>
     );
   }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.syncInputs();
+  }
   componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
+    this.syncInputs();
+  }
+  // The mask writes an entry in progress to the focused input directly; the model gets it on blur.
+  private syncInputs(): void {
     const texts = this.getRenderedTexts();
     this.inputs.forEach((input, index) => {
-      // The mask writes an entry in progress to the focused input directly; the model gets it on blur.
       const isFocused = !!input && input.ownerDocument.activeElement === input;
       if (!!input && !isFocused && index < texts.length && input.value !== texts[index]) {
         input.value = texts[index];

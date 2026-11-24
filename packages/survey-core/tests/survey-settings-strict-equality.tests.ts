@@ -101,7 +101,7 @@ describe("comparator.strictEquality", () => {
       checkBoth("{q} = 1", { q: 1 }, true, true, NUMBER);
     });
     // Only a boolean side is strict: a number against a text that only == reads as that number stays as today
-    // (numeric text is comparator.numericTextAsText's concern, C4)
+    // (numeric text is comparator.numericStringsAsText's concern, C4)
     test("a number against a numeric text keeps loose equality", () => {
       checkBoth("{q} = '.5'", { q: 0.5 }, true, true, NUMBER);
       checkBoth("'.5' = 0.5", {}, true, true);
@@ -111,8 +111,8 @@ describe("comparator.strictEquality", () => {
       checkBoth("{#q} = 0.5", { q: ".5" }, true, true);
       expect(run("{q} contains '.5'", { q: [0.5] }, KEY_ON)).toBe(true);
     });
-    test("with comparator.numericTextAsText on too, a text against a number still converts", () => {
-      const both: ISurveyRuntimeSettings = { comparator: { numericTextAsText: true, strictEquality: true } };
+    test("with comparator.numericStringsAsText on too, a text against a number still converts", () => {
+      const both: ISurveyRuntimeSettings = { comparator: { numericStringsAsText: true, strictEquality: true } };
       expect(run("{q} = '.5'", { q: 0.5 }, both)).toBe(true);
       expect(run("{q} = 5", { q: "5.0" }, both)).toBe(true);
       expect(run("{q} = '5'", { q: "5.0" }, both)).toBe(false);

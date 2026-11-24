@@ -10,7 +10,7 @@ export interface ISurveyRuntimeSettingsComparator {
   trimStrings?: boolean;
   caseSensitive?: boolean;
   // A text that reads as a number is compared as a text with another text (decisions.md, C4)
-  numericTextAsText?: boolean;
+  numericStringsAsText?: boolean;
   // The expression operators compare without loose equality, so true = 1 is false (decisions.md, C5)
   strictEquality?: boolean;
 }
@@ -55,7 +55,7 @@ type RuntimeSettingsKeys = {
 // The groups with their keys, and the top-level settings (true), a survey can set for itself. The type makes
 // the build fail when the interface gets a key this list misses.
 const runtimeSettingsKeys: RuntimeSettingsKeys = {
-  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true, strictEquality: true },
+  comparator: { trimStrings: true, caseSensitive: true, numericStringsAsText: true, strictEquality: true },
   keepEmptyValues: true
 };
 function isTopLevelSetting(name: string): boolean {

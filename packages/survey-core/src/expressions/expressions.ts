@@ -209,7 +209,7 @@ export class BinaryOperand extends Operand {
     return getTextBeforeConversion(op);
   }
   // A text, a variable's text read as a number or a boolean ("true"), or an array with a text item:
-  // not an actual number (comparator.numericTextAsText)
+  // not an actual number (comparator.numericStringsAsText)
   private static isTextSide(op: Operand, value: any, numericText: string | undefined): boolean {
     if (numericText !== undefined || typeof value === "string") return true;
     if (op instanceof Variable && getTextBeforeConversion(op) !== undefined) return true;
@@ -232,7 +232,7 @@ export class BinaryOperand extends Operand {
     const strictCompare = this.requireStrictCompare;
     const runtimeSettings = processValue?.settings;
     if ((leftNumericText !== undefined || rightNumericText !== undefined) &&
-      getRuntimeSetting(runtimeSettings, "comparator", "numericTextAsText")) {
+      getRuntimeSetting(runtimeSettings, "comparator", "numericStringsAsText")) {
       // A variable's text read as a number goes back to the text when the other side is a text too, so the
       // operator compares texts (under the comparator's case and trim rules). Against an actual number
       // (a number literal, a numeric value) the converted value stays. Both sides are decided before either changes.

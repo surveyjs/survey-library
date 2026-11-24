@@ -2858,9 +2858,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
          record count (recordCount). Without this branch a question that gets its source before its
          first rendering would never build a panel. */
       this.rebuildFromDataList();
-    } else if (this.isPagingActive) {
-      /* The records first, then the panels of the page: the panelCount setter would compare the count
-         with the records the value already holds and build nothing. */
+    } else if (this.hasDataListView) {
+      /* The records first, then the panels the view holds - under paging, the page's: the panelCount
+         setter would compare the count with the records the value already holds and build nothing.
+         A sort or a filter without paging is a view too: a defaultValue applied on load gives the
+         records before this build, and the panelCount branch below would build no panel for them (#12398). */
       const count = this.getPropertyValue("panelCount");
       if (count > 0 && count !== this.storedRecordCount) {
         this.updateBindings("panelCount", count);

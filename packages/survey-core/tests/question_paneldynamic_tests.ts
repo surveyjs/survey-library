@@ -11304,6 +11304,22 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     question.refreshView();
     expect(question.filterExpression, "#3: and it is not re-pushed").toBe("");
   });
+  test("#12398 an authored sort and a defaultValue: the first build shows the sorted panels", () => {
+    const question = createQuestion({ sortCriteria: [{ field: "q1" }], defaultValue: cba });
+    expect(values(question), "#1").toEqual(["a", "b", "c"]);
+    question.addPanelUI();
+    expect(question.visiblePanels.length, "#2: one more panel, not all of them at once").toBe(4);
+    expect(question.value.length, "#3").toBe(4);
+  });
+  test("#12398 an authored filter and a defaultValue: the first build shows the panels the filter keeps", () => {
+    const question = createQuestion({ filterExpression: "{q1} <> 'a'", defaultValue: cba });
+    expect(values(question), "#1").toEqual(["c", "b"]);
+  });
+  test("#12398 an authored sort, a panelCount and a defaultPanelValue: the first build shows the panels", () => {
+    const question = createQuestion({ sortCriteria: [{ field: "q1" }], panelCount: 2, defaultPanelValue: { q1: "x" } });
+    expect(values(question), "#1").toEqual(["x", "x"]);
+    expect(question.value.length, "#2").toBe(2);
+  });
 });
 
 describe("paneldynamic: one paging sync per condition run", () => {

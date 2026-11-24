@@ -70,6 +70,10 @@ export class QuestionDateTimePickerModel extends Question {
   @property({ defaultValue: "date" }) pickerType: string;
   @property({ defaultValue: false }) range: boolean;
   @property({ defaultValue: true }) allowClear: boolean;
+  // The clear button lives in the input, not in the question title.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   @property({ localizable: true }) placeholder: string;
   @property({ localizable: true }) startPlaceholder: string;
   @property({ localizable: true }) endPlaceholder: string;

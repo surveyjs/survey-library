@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { Model } from "survey-core";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
 
 function byRule(json: any, ruleId: string): Array<ILintFinding> {
@@ -26,6 +27,68 @@ describe("cycle/calculated-value", () => {
     }, "cycle/calculated-value");
     expect(findings).toHaveLength(1);
     expect(findings[0].message).toContain("references itself");
+  });
+  test("a self-loop that computes from itself does not settle at runtime", () => {
+    const json = { calculatedValues: [{ name: "a", expression: "{a} + 1" }] };
+    const survey = new Model(json);
+    // each pass at load starts from the previous result
+    expect(survey.getVariable("a")).toBeGreaterThan(1);
+    expect(byRule(json, "cycle/calculated-value")).toHaveLength(1);
+  });
+  test("a fallback self-reference settles and is not reported (#12407)", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [
+        { name: "a", expression: "{a} || 'first'" },
+        { name: "b", expression: "{b} || {q1} || 'none'" },
+        { name: "c", expression: "iif({c} empty, 'first', {c})" },
+        { name: "d", expression: "iif({d} notempty, {d}, 'first')" },
+      ],
+    };
+    expect(byRule(json, "cycle/calculated-value")).toHaveLength(0);
+    expect(byRule(json, "cycle/value-write")).toHaveLength(0);
+    const survey = new Model(json);
+    expect(survey.getVariable("a")).toBe("first");
+    expect(survey.getVariable("b")).toBe("none");
+    expect(survey.getVariable("c")).toBe("first");
+    expect(survey.getVariable("d")).toBe("first");
+    survey.setValue("q1", "x");
+    expect(survey.getVariable("a")).toBe("first");
+    expect(survey.getVariable("b")).toBe("none");
+  });
+  test("a fallback in parentheses, with a function, or passing the value through is not reported", () => {
+    expect(byRule({
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [
+        { name: "a", expression: "({a} || today())" },
+        { name: "b", expression: "{b} || 'x' || 'y'" },
+        { name: "c", expression: "{q1} || {c}" },
+        { name: "d", expression: "iif({q1} = 1, {d}, 'other')" },
+      ],
+    }, "cycle/calculated-value")).toHaveLength(0);
+  });
+  test("a self-reference that computes a new value is still a cycle", () => {
+    const findings = byRule({
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [
+        { name: "a", expression: "({a} || 0) + 1" },
+        { name: "b", expression: "iif({b} empty, 1, {b} + 1)" },
+        { name: "c", expression: "iif({c} = 1, 2, 1)" },
+        { name: "d", expression: "sum({d}, 1)" },
+      ],
+    }, "cycle/calculated-value");
+    expect(findings.map(f => f.elementName)).toEqual(["a", "b", "c", "d"]);
+  });
+  test("a loop between two values is still an error when each falls back", () => {
+    const findings = byRule({
+      calculatedValues: [
+        { name: "a", expression: "{b} || 1" },
+        { name: "b", expression: "{a} || 2" },
+      ],
+    }, "cycle/calculated-value");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("loop");
+    expect(findings[0].severity).toBe("error");
   });
   test("three-member cycle reported once", () => {
     const findings = byRule({

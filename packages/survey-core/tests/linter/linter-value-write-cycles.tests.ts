@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { Model } from "survey-core";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
 
 function byRule(json: any, ruleId = "cycle/value-write"): Array<ILintFinding> {
@@ -66,13 +67,6 @@ describe("cycle/value-write - loops between questions", () => {
 });
 
 describe("cycle/value-write - self references", () => {
-  test("resetValueIf reading its own value is flagged", () => {
-    const findings = byRule({
-      elements: [{ type: "text", name: "q13", resetValueIf: "{q13} = 'x'" }],
-    });
-    expect(findings).toHaveLength(1);
-    expect(findings[0].reason).toBe("self");
-  });
   test("{self} in setValueExpression counts as the own value", () => {
     const findings = byRule({
       elements: [{ type: "text", name: "q1", setValueExpression: "{self} + 1" }],
@@ -80,21 +74,105 @@ describe("cycle/value-write - self references", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].reason).toBe("self");
   });
-  test("defaultValueExpression reading its own value is flagged", () => {
-    expect(byRule({
-      elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1} + 1" }],
-    })).toHaveLength(1);
-  });
-  test("setValueIf reading the question it guards is fine alone", () => {
-    // the guard reads q1, the expression writes from elsewhere - still a self edge on q1
+  test("defaultValueExpression computing from its own value is flagged", () => {
     const findings = byRule({
+      elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1} + 1" }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("self");
+    expect(findings[0].message).toContain("previous result");
+  });
+  test("a self-reading setValueExpression rewrites the answer at runtime", () => {
+    const json = { elements: [{ type: "text", name: "q1", setValueExpression: "{q1} + 1" }] };
+    const survey = new Model(json);
+    survey.setValue("q1", 5);
+    expect(survey.getValue("q1")).toBe(6);
+    expect(byRule(json)).toHaveLength(1);
+  });
+});
+
+describe("cycle/value-write - self references that settle (#12407)", () => {
+  test("a fallback defaultValueExpression is not flagged and applies at load", () => {
+    const json = { elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1} || 'n/a'" }] };
+    expect(byRule(json)).toHaveLength(0);
+    expect(new Model(json).getValue("q1")).toBe("n/a");
+  });
+  test("a fallback setValueExpression is not flagged and keeps the answer", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q2" },
+        { type: "text", name: "q1", setValueExpression: "{q1} || {q2}" },
+      ],
+    };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    survey.setValue("q2", "a");
+    expect(survey.getValue("q1")).toBe("a");
+    survey.setValue("q2", "b");
+    expect(survey.getValue("q1")).toBe("a");
+  });
+  test("iif fallbacks on the own value being empty are not flagged", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "q1", defaultValueExpression: "iif({q1} empty, 'n/a', {q1})" },
+        { type: "text", name: "q2", defaultValueExpression: "iif({q2} notempty, {q2}, 'n/a')" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a setValueIf guard reading the own value is not flagged and runs", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "status" },
+        {
+          type: "text", name: "closedAt",
+          setValueIf: "{status} = 'closed' and {closedAt} empty", setValueExpression: "'set'",
+        },
+      ],
+    };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    survey.setValue("status", "closed");
+    expect(survey.getValue("closedAt")).toBe("set");
+    survey.setValue("status", "reopened");
+    expect(survey.getValue("closedAt")).toBe("set");
+  });
+  test("a setValueIf guard reading only the own value is not flagged", () => {
+    expect(byRule({
       elements: [
         { type: "text", name: "q2" },
         { type: "text", name: "q1", setValueIf: "{q1} empty", setValueExpression: "{q2}" },
       ],
-    });
+    })).toHaveLength(0);
+  });
+  test("resetValueIf reading its own value is not flagged and resets the answer", () => {
+    const json = { elements: [{ type: "text", name: "q1", resetValueIf: "{q1} = 'x'" }] };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    survey.setValue("q1", "x");
+    expect(survey.getValue("q1")).toBeUndefined();
+  });
+  test("an expression that only copies its own value is flagged as a no-op", () => {
+    const json = { elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1}" }] };
+    const findings = byRule(json);
     expect(findings).toHaveLength(1);
-    expect(findings[0].reason).toBe("self");
+    expect(findings[0].reason).toBe("copiesItself");
+    expect(findings[0].severity).toBe("warning");
+    expect(findings[0].message).toContain("never");
+    expect(new Model(json).getValue("q1")).toBeUndefined();
+  });
+  test("{self} alone only copies the own value too", () => {
+    const findings = byRule({ elements: [{ type: "text", name: "q1", setValueExpression: "{self}" }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("copiesItself");
+  });
+  test("a calculated value that only copies itself is a warning, not an error", () => {
+    const json = { calculatedValues: [{ name: "c1", expression: "{c1}" }] };
+    expect(byRule(json, "cycle/calculated-value")).toHaveLength(0);
+    const findings = byRule(json);
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("copiesItself");
+    expect(findings[0].severity).toBe("warning");
+    expect(findings[0].path).toBe("calculatedValues[0].expression");
   });
 });
 

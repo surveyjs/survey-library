@@ -225,7 +225,7 @@ All rules are enabled by default.
 | Rule ID | Default severity | Detects |
 | --- | --- | --- |
 | `choices/dead-source` | Error | `choicesFromQuestion` or related properties that cannot supply choices. |
-| `cycle/calculated-value` | Error | Calculated values that depend on one another in a cycle. |
+| `cycle/calculated-value` | Error | Calculated values that depend on one another in a cycle, or a calculated value that computes a new value from itself (for example, `{total} + 1`). A calculated value that reads itself only to keep its value once set (for example, `{createdAt} \|\| today()`) is not reported. |
 | `cycle/trigger` | Warning | Triggers that react to values set by other triggers in a loop. |
 | `element/unknown-type` | Info | An unregistered question or element type. |
 | `expression/syntax` | Error | Expressions that cannot be parsed. |

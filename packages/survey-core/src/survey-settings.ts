@@ -158,7 +158,42 @@ export class SurveySettingsValues {
   // isOptions: the value comes from the constructor, where the reserved option keys are not settings.
   public merge(value: any, isOptions: boolean): boolean {
     if (!isPlainObject(value)) return false;
+    this.warnUnknownKeys(value, isOptions);
     let changed = false;
+    // The names written below come from surveySettingsKeys, never from value: a "__proto__" key in value
+    // cannot reach Object.prototype, and code scanning (CodeQL) sees that no key of value is copied.
+    const groups = Object.keys(surveySettingsKeys);
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      if (!hasOwn(value, group)) continue;
+      const groupValue = value[group];
+      if (isTopLevelSetting(group)) {
+        if (this.setOwnValue(this.values, group, groupValue)) changed = true;
+        continue;
+      }
+      if (groupValue === undefined) {
+        if (this.clearGroup(group)) changed = true;
+        continue;
+      }
+      if (!isPlainObject(groupValue)) continue;
+      const groupValues = this.values[group] || {};
+      const keys = Object.keys(surveySettingsKeys[group]);
+      for (let j = 0; j < keys.length; j++) {
+        const key = keys[j];
+        if (hasOwn(groupValue, key) && this.setOwnValue(groupValues, key, groupValue[key])) changed = true;
+      }
+      if (Object.keys(groupValues).length > 0) {
+        this.values[group] = groupValues;
+      }
+    }
+    if (changed) {
+      this.hasOwnValuesValue = Object.keys(this.values).some((name: string): boolean =>
+        isTopLevelSetting(name) || Object.keys(this.values[name]).length > 0);
+    }
+    return changed;
+  }
+  // Warns, in the order of value, about every key merge() skips. merge() reads only the known keys itself.
+  private warnUnknownKeys(value: any, isOptions: boolean): void {
     const groups = Object.keys(value);
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i];
@@ -172,36 +207,16 @@ export class SurveySettingsValues {
         this.warnUnknownKey(group);
         continue;
       }
-      if (isTopLevelSetting(group)) {
-        if (this.setOwnValue(this.values, group, value[group])) changed = true;
-        continue;
-      }
       const groupValue = value[group];
-      if (groupValue === undefined) {
-        if (this.clearGroup(group)) changed = true;
-        continue;
-      }
-      if (!isPlainObject(groupValue)) continue;
+      if (isTopLevelSetting(group) || !isPlainObject(groupValue)) continue;
       const knownKeys = surveySettingsKeys[group];
-      const groupValues = this.values[group] || {};
       const keys = Object.keys(groupValue);
       for (let j = 0; j < keys.length; j++) {
-        const key = keys[j];
-        if (!hasOwn(knownKeys, key)) {
-          this.warnUnknownKey(group + "." + key);
-          continue;
+        if (!hasOwn(knownKeys, keys[j])) {
+          this.warnUnknownKey(group + "." + keys[j]);
         }
-        if (this.setOwnValue(groupValues, key, groupValue[key])) changed = true;
-      }
-      if (Object.keys(groupValues).length > 0) {
-        this.values[group] = groupValues;
       }
     }
-    if (changed) {
-      this.hasOwnValuesValue = Object.keys(this.values).some((name: string): boolean =>
-        isTopLevelSetting(name) || Object.keys(this.values[name]).length > 0);
-    }
-    return changed;
   }
   private warnUnknownKey(path: string): void {
     ConsoleWarnings.warn("The survey setting \"" + path + "\" is unknown or cannot be set per survey. It is ignored.");

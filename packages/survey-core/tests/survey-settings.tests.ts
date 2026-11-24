@@ -135,6 +135,20 @@ describe("Survey settings", () => {
     expect(warnSpy.mock.calls[0][0], "#10").toContain("\"toString\"");
   });
 
+  test("a __proto__ or constructor key warns and never reaches Object.prototype", () => {
+    const payload = "{ \"caseSensitive\": true, \"polluted\": \"yes\" }";
+    const options = JSON.parse("{ \"__proto__\": " + payload + ", \"constructor\": " + payload +
+      ", \"comparator\": { \"__proto__\": " + payload + ", \"constructor\": " + payload + " } }");
+    const survey = new SurveyModel(visibleIfJson, options);
+    survey.settings(options);
+    expect(({} as any).polluted, "#1: Object.prototype is untouched").toBeUndefined();
+    expect(({} as any).caseSensitive, "#2").toBeUndefined();
+    expect(survey.getOwnSettings(), "#3: the survey sets nothing itself").toBeUndefined();
+    expect(warnSpy, "#4: four keys in the constructor, four in survey.settings()").toHaveBeenCalledTimes(8);
+    expect(warnSpy.mock.calls[0][0], "#5").toContain("\"__proto__\"");
+    expect(warnSpy.mock.calls[3][0], "#6").toContain("\"comparator.constructor\"");
+  });
+
   test("events is reserved: no warning in the constructor, a warning in survey.settings", () => {
     const survey = new SurveyModel(visibleIfJson, <any>{ events: {} });
     expect(warnSpy, "#1").not.toHaveBeenCalled();

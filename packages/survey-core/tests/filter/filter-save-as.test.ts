@@ -18,25 +18,34 @@ function errorsOf(popup: any): Array<string> {
 }
 
 describe("FilterToolbars: Save as", () => {
+  test("saves a filter applied as a text the fields cannot show", () => {
+    const q = createFilter({ allowAddPresets: true });
+    q.applyFilter("{age} > 18 or {country} = 'de'");
+    expect(saveAsOf(q).visible, "#1").toBe(true);
+    const popup = openSaveAs(q);
+    popup.survey.setValue("presetTitle", "Mine");
+    expect(popup.save(), "#2").toBe(true);
+    expect([q.activePreset.title, q.activePreset.expression], "#3").toEqual(["Mine", "{age} > 18 or {country} = 'de'"]);
+  });
   test("stands before Clear All while there are conditions and no preset, where presets may be added", () => {
-    const q = createFilter();
+    const q = createFilter({ allowAddPresets: true });
     const saveAs = saveAsOf(q);
-    expect(ids(q.clearToolbar), "#1").toEqual(["sv-filter-save", "sv-filter-save-as", "sv-filter-clear"]);
+    expect(ids(q.clearToolbar), "#1").toEqual(["sv-filter-save-as", "sv-filter-clear"]);
     expect([saveAs.visible, saveAs.title], "#2: nothing to save").toEqual([false, "Save as..."]);
     q.setFieldCondition("age", "greater", 18);
     expect(saveAs.visible, "#3").toBe(true);
-    q.toggleItem("kids");
+    q.togglePreset("kids");
     expect(saveAs.visible, "#4: a preset is on").toBe(false);
     q.setFieldCondition("age", "less", 5);
-    expect([q.activeItemName, saveAs.visible], "#5: an edit turns the preset off").toEqual(["", true]);
-    q.allowAddItems = false;
+    expect([q.selectedPreset, saveAs.visible], "#5: an edit turns the preset off").toEqual(["", true]);
+    q.allowAddPresets = false;
     expect(saveAs.visible, "#6: presets may not be added").toBe(false);
   });
-  test("none in single mode, in the designer or while the control is read-only", () => {
-    const single = createFilter({ allowMultipleItems: false });
+  test("none while the presets are hidden, in the designer or while the control is read-only", () => {
+    const single = createFilter({ showPresets: false, allowAddPresets: true });
     single.setFieldCondition("age", "greater", 18);
     expect(saveAsOf(single).visible, "#1").toBe(false);
-    const q = createFilter();
+    const q = createFilter({ allowAddPresets: true });
     q.setFieldCondition("age", "greater", 18);
     q.readOnly = true;
     expect(saveAsOf(q).visible, "#2").toBe(false);
@@ -46,7 +55,7 @@ describe("FilterToolbars: Save as", () => {
     expect(saveAsOf(<QuestionFilterModel>survey.getQuestionByName("f1")).visible, "#3").toBe(false);
   });
   test("its popup asks for a name; Save adds a preset of the conditions, turns it on and closes the popup", () => {
-    const q = createFilter();
+    const q = createFilter({ allowAddPresets: true });
     q.setFieldCondition("age", "greater", 60);
     const saveAs = saveAsOf(q);
     const popup = openSaveAs(q);
@@ -56,13 +65,13 @@ describe("FilterToolbars: Save as", () => {
     expect([name.maxLength, name.isVisible], "#3").toEqual([32, true]);
     name.value = " Seniors ";
     popup.footerToolbar.actions[0].action();
-    const item = q.getItemByName("userItem1");
-    expect([item.title, item.expression, q.isUserItem(item)], "#4").toEqual(["Seniors", "{age} > 60", true]);
-    expect([q.activeItemName, saveAs.popupModel.isVisible, saveAs.visible], "#5").toEqual(["userItem1", false, false]);
+    const item = q.getPresetByName("userPreset1");
+    expect([item.title, item.expression, q.isUserPreset(item)], "#4").toEqual(["Seniors", "{age} > 60", true]);
+    expect([q.selectedPreset, saveAs.popupModel.isVisible, saveAs.visible], "#5").toEqual(["userPreset1", false, false]);
     expect(popup.isDisposed, "#6: made when the popup shows, disposed when it hides").toBe(true);
   });
   test("the name is required, at most 32 characters long and no other preset's: nothing is saved otherwise", () => {
-    const q = createFilter();
+    const q = createFilter({ allowAddPresets: true });
     q.setFieldCondition("age", "greater", 60);
     const popup = openSaveAs(q);
     const save = (): void => { popup.footerToolbar.actions[0].action(); };
@@ -74,10 +83,10 @@ describe("FilterToolbars: Save as", () => {
     popup.survey.setValue("presetTitle", "x".repeat(33));
     save();
     expect(errorsOf(popup), "#3").toEqual(["Please enter no more than 32 character(s)."]);
-    expect([q.visibleItems.length, saveAsOf(q).popupModel.isVisible, popup.isDisposed], "#4").toEqual([2, true, false]);
+    expect([q.visiblePresets.length, saveAsOf(q).popupModel.isVisible, popup.isDisposed], "#4").toEqual([2, true, false]);
   });
   test("opens as a sheet on a phone, under the button elsewhere", () => {
-    const q = createFilter();
+    const q = createFilter({ allowAddPresets: true });
     q.setFieldCondition("age", "greater", 60);
     const saveAs = saveAsOf(q);
     saveAs.action();

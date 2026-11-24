@@ -335,8 +335,6 @@ export var simplifiedChineseSurveyStrings = {
   conditionOperatorGreaterorequal: "大于或等于",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "小于或等于",
-  // [Auto-translated] "Save"
-  filterSave: "保存",
   // [Auto-translated] "Filters"
   filterDialogTitle: "筛选器",
   // [Auto-translated] "Search"

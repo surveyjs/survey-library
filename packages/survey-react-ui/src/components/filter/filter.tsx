@@ -366,7 +366,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   }
   private renderSearch(): React.JSX.Element | null {
     const q = this.question;
-    if (!q.showSearch) return null;
+    if (!q.showSearchBar) return null;
     const css = q.cssClasses;
     const searchCss = q.searchCss;
     return <div className={css.searchRow}>

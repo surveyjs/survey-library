@@ -335,8 +335,6 @@ export var finnishSurveyStrings = {
   conditionOperatorGreaterorequal: "Suurempi tai yhtä suuri kuin",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Pienempi tai yhtä suuri kuin",
-  // [Auto-translated] "Save"
-  filterSave: "Tallenna",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Suodattimet",
   // [Auto-translated] "Search"

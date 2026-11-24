@@ -335,8 +335,6 @@ export var teluguStrings = {
   conditionOperatorGreaterorequal: "కంటే ఎక్కువ లేదా సమానం",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "కంటే తక్కువ లేదా సమానం",
-  // [Auto-translated] "Save"
-  filterSave: "సేవ్ చేయండి",
   // [Auto-translated] "Filters"
   filterDialogTitle: "ఫిల్టర్లు",
   // [Auto-translated] "Search"

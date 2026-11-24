@@ -335,8 +335,6 @@ export var ukrainianSurveyStrings = {
   conditionOperatorGreaterorequal: "Більше або дорівнює",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Менше або дорівнює",
-  // [Auto-translated] "Save"
-  filterSave: "Зберегти",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Фільтри",
   // [Auto-translated] "Search"

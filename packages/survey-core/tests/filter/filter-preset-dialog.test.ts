@@ -8,7 +8,7 @@ import { PanelModel } from "../../src/panel";
 // fields' editors, and the checks of its Apply.
 const presets = [{ name: "adults", title: "Adults", expression: "{age} > 18" }];
 function control(over: any = {}): QuestionFilterModel {
-  return createFilter(Object.assign({ items: presets }, over));
+  return createFilter(Object.assign({ presets: presets }, over));
 }
 function panel(dialog: FilterPresetDialog): PanelModel {
   return <PanelModel>dialog.form.getPanelByName("contains");
@@ -86,8 +86,8 @@ describe("FilterPresetDialog: Apply", () => {
     const dialog = q.createAddPresetDialog(conditions);
     dialog.form.setValue("presetTitle", "  German adults ");
     expect(dialog.apply(), "#1").toBe(true);
-    const item = q.visibleItems[1];
-    expect([item.title, item.expression, q.activeItemName], "#2").toEqual(["German adults", "{country} anyof ['de'] and {age} > 18", ""]);
+    const item = q.visiblePresets[1];
+    expect([item.title, item.expression, q.selectedPreset], "#2").toEqual(["German adults", "{country} anyof ['de'] and {age} > 18", ""]);
     dialog.dispose();
   });
   test("a title that is missing, too long or another preset's, and no condition, are errors and add nothing", () => {
@@ -102,7 +102,7 @@ describe("FilterPresetDialog: Apply", () => {
     expect(errors(dialog)[0], "#3").toBe("A preset with this name already exists.");
     tagbox(dialog).value = ["age"];
     dialog.form.setValue("presetTitle", "Mine");
-    expect([dialog.apply(), q.visibleItems.length], "#4: a field with no value is no condition").toEqual([false, 1]);
+    expect([dialog.apply(), q.visiblePresets.length], "#4: a field with no value is no condition").toEqual([false, 1]);
     dialog.dispose();
   });
   test("apply() of a closed dialog does nothing", () => {
@@ -110,6 +110,6 @@ describe("FilterPresetDialog: Apply", () => {
     const dialog = q.createAddPresetDialog(conditions);
     dialog.form.setValue("presetTitle", "Mine");
     dialog.dispose();
-    expect([dialog.apply(), q.visibleItems.length], "#1").toEqual([false, 1]);
+    expect([dialog.apply(), q.visiblePresets.length], "#1").toEqual([false, 1]);
   });
 });

@@ -228,11 +228,13 @@ export { QuestionDropdownModel } from "../../src/question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../src/questionfactory";
 export { QuestionFileModelBase, QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
-// Value exports on purpose: FilterField and FilterItem register themselves with the Serializer as an
+// Value exports on purpose: FilterField and FilterPreset register themselves with the Serializer as an
 // import side effect, and "export type" would not run it.
 export { QuestionFilterModel } from "../../src/question_filter";
 export { FilterField } from "../../src/filter/filter-field";
-export { FilterItem } from "../../src/filter/filter-item";
+export type { IFilterField } from "../../src/filter/filter-field";
+export { FilterPreset } from "../../src/filter/filter-preset";
+export type { IFilterPreset } from "../../src/filter/filter-preset";
 // The rest of the filter is what an application or a renderer uses: the classes and component names
 // the renderers draw, and the types of the question's public API and of onAIFilterRequest. Everything
 // else in src/filter is internal.
@@ -254,7 +256,7 @@ export {
 } from "../../src/filter/filter-ai";
 export { FilterPresetDialog, FilterEditPresetDialog } from "../../src/filter/filter-preset-dialog";
 export type {
-  IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterSavedItemState, IFilterState, IFilterUserItemState
+  IFilterCondition, IFilterElementUIState, IFilterPresetEdit, IFilterSavedPresetState, IFilterState, IFilterUserPresetState
 } from "../../src/interfaces/ui-interfaces";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
@@ -281,7 +283,7 @@ export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dyna
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
   SortDirection,
-  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation, IDynamicDataFilterSource
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation, IDynamicDataFilterTarget
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 export { SurveyTimer } from "../../src/surveytimer";

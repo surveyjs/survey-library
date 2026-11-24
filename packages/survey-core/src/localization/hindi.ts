@@ -335,8 +335,6 @@ export var hindiStrings = {
   conditionOperatorGreaterorequal: "से बड़ा या बराबर",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "से कम या बराबर",
-  // [Auto-translated] "Save"
-  filterSave: "सेव करें",
   // [Auto-translated] "Filters"
   filterDialogTitle: "फिल्टर्स",
   // [Auto-translated] "Search"

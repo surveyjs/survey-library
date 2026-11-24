@@ -335,8 +335,6 @@ export var germanSurveyStrings = {
   conditionOperatorGreaterorequal: "Größer als oder gleich",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Weniger als oder gleich",
-  // [Auto-translated] "Save"
-  filterSave: "Speichern",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filter",
   // [Auto-translated] "Search"

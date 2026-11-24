@@ -335,8 +335,6 @@ export var norwegianSurveyStrings = {
   conditionOperatorGreaterorequal: "Større enn eller lik",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre enn eller lik",
-  // [Auto-translated] "Save"
-  filterSave: "Lagre",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"

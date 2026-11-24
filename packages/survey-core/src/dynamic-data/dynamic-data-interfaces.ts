@@ -234,11 +234,16 @@ export interface IDynamicDataOwner {
 
 // What a question that can be filtered by a Filter Control answers. The records questions implement
 // it; the control never imports them and asks by capability.
-export interface IDynamicDataFilterSource {
+export interface IDynamicDataFilterTarget {
   getFilterFields(): Array<IDynamicDataFilterField>;
   setControlFilter(key: string, expression: string): void;
   getControlFilter(key: string): string;
   // Optional: how many records there would be if this control filtered by expression - before the
   // control applies it. undefined (or no method) when the count cannot be known.
   getControlFilterCount?(key: string, expression: string): Promise<number | undefined>;
+  // Whether a record field has a column or a template question of this name or value name, a filtered
+  // one or not (allowFiltering: false), or is a path into one. A Filter Control's fields entry that
+  // names no field of the target's list and no record field of this kind is a field of the record
+  // the target has no column for.
+  hasRecordField(name: string): boolean;
 }

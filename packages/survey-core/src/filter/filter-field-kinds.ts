@@ -6,7 +6,7 @@ import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { getFieldChoiceItems } from "./filter-expression";
 import { getFilterConditionText, getFilterConditionValueText, getFilterFieldOperators, getFilterFieldPassValue } from "./filter-conditions";
 
-// What a fast mode badge edits its field with. "single" is a list where a click picks one value
+// What a quick filter chip edits its field with. "single" is a list where a click picks one value
 // (equal), "multi" a list of checkboxes (anyof), "boolean" the two checkboxes Yes and No (equal, or
 // notempty with both checked), "condition" an operator and a value.
 export type FilterFieldEditorKind = "boolean" | "multi" | "single" | "condition";
@@ -97,7 +97,7 @@ function getSelectionCondition(field: IDynamicDataFilterField, kind: FilterField
   }
   return undefined;
 }
-// The text of a fast mode badge with a condition, in the words of the editor its popup opens:
+// The text of a quick filter chip with a condition, in the words of the editor its popup opens:
 // "Gender: Female" for one value, "Category: 6" for several, "Quantity: Equals 128" for an operator
 // and a value - and for any condition the field's list editor cannot show. kind is the field's
 // editor when the caller has it already (the chips row reads it for every field on every update).

@@ -1,15 +1,15 @@
 import { describe, test, expect } from "vitest";
-import { FilterItem } from "../../src/filter/filter-item";
+import { FilterPreset } from "../../src/filter/filter-preset";
 import { JsonObject } from "../../src/jsonobject";
 
-describe("FilterItem", () => {
+describe("FilterPreset", () => {
   test("title falls back to name and is not serialized when it does", () => {
-    const item = new FilterItem("recent");
+    const item = new FilterPreset("recent");
     expect(item.title).toBe("recent");
     expect(new JsonObject().toJsonObject(item)).toEqual({ name: "recent" });
   });
   test("the allow flags default to true and round-trip", () => {
-    const item = new FilterItem("a");
+    const item = new FilterPreset("a");
     expect(item.allowEdit, "#1").toBe(true);
     expect(item.allowDelete, "#2").toBe(true);
     expect(item.allowCopy, "#3").toBe(true);

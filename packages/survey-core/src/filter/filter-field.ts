@@ -7,6 +7,7 @@ import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Question, QuestionValueType } from "../question";
 import { QuestionFactory } from "../questionfactory";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
+import { getFilterOperatorChoices } from "./filter-field-properties";
 
 // What a Filter Control gives its fields: the locale chain for the template question's strings and
 // the survey the question needs to resolve choicesByUrl, text processing and the rest.
@@ -14,12 +15,22 @@ export interface IFilterFieldOwner extends ILocalizableOwner {
   getSurvey(live?: boolean): ISurvey;
 }
 
-// One field a Filter Control offers in standalone mode: the author declares it here instead of
-// taking it from a Dynamic Matrix or a Dynamic Panel. fieldType works the way cellType works for a
+// The JSON of a filter field: with a target question, an override of one of its fields or a field of
+// the record the target has no column for; with none, a field of the control's own.
+export interface IFilterField {
+  name: string;
+  title?: string;
+  operators?: Array<string>;
+  showInQuickFilters?: boolean;
+}
+
+// One entry of a Filter Control's fields: a field of its own, or what it says about a field of its
+// target question (see applyTo). The type of a field of its own (fieldType, valueType and the rest)
+// is JSON only, the designer does not offer it. fieldType works the way cellType works for a
 // Matrix Dropdown column: the properties of the question type that supplies the value editor
 // (choices, choicesByUrl, inputType and the rest) are borrowed from that type and defined on the
 // field instance, so they are authored and serialized as if they were the field's own.
-export class FilterField extends Base implements ILocalizableOwner {
+export class FilterField extends Base implements ILocalizableOwner, IFilterField {
   private templateQuestionValue: Question;
   private fieldOwnerValue: IFilterFieldOwner;
 
@@ -93,15 +104,14 @@ export class FilterField extends Base implements ILocalizableOwner {
   // no fieldType exposes none of the fallback text question's properties.
   getDynamicType(): string { return this.fieldType || ""; }
 
-  // Whether this field appears in the Filter Control's fast mode. A bound field (collectFilterFields)
-  // never gets a say - its descriptor leaves showInFastMode undefined, which means "shown" too.
-  public get showInFastMode(): boolean { return this.getPropertyValue("showInFastMode"); }
-  public set showInFastMode(val: boolean) { this.setPropertyValue("showInFastMode", val); }
+  // Whether this field appears in the Filter Control's quick filters.
+  public get showInQuickFilters(): boolean { return this.getPropertyValue("showInQuickFilters"); }
+  public set showInQuickFilters(val: boolean) { this.setPropertyValue("showInQuickFilters", val); }
 
   // The operators the field offers, see getFilterFieldOperators. The field's own property and not the
   // template question's: that one is replaced whenever fieldType changes.
-  public get filterOperators(): Array<string> { return this.getPropertyValue("filterOperators"); }
-  public set filterOperators(val: Array<string>) { this.setPropertyValue("filterOperators", val); }
+  public get operators(): Array<string> { return this.getPropertyValue("operators"); }
+  public set operators(val: Array<string>) { this.setPropertyValue("operators", val); }
 
   public get fieldType(): string { return this.getPropertyValue("fieldType"); }
   public set fieldType(val: string) {
@@ -122,6 +132,18 @@ export class FilterField extends Base implements ILocalizableOwner {
     this.setPropertyValue("valueType", val);
   }
 
+  // A field of the target as this entry overrides it: the entry's title when it has one, its operators
+  // when it names any, and whether the field shows in the quick filters. The type, the choices and the
+  // variable stay the target's.
+  public applyTo(field: IDynamicDataFilterField): IDynamicDataFilterField {
+    const operators = this.operators;
+    return Object.assign({}, field, {
+      locTitle: this.locTitle.isEmpty ? field.locTitle : this.locTitle,
+      operators: Array.isArray(operators) && operators.length > 0 ? operators : field.operators,
+      showInQuickFilters: this.showInQuickFilters
+    });
+  }
+
   // fieldType is the RESOLVED type and not the authored one: a field with no fieldType runs on a
   // text question, so "text" is what supplies its editor. The bound path reports the resolved type
   // too (dynamic-data/dynamic-data-filter-fields.ts, collectFilterFields), and a renderer that switches on fieldType
@@ -134,7 +156,7 @@ export class FilterField extends Base implements ILocalizableOwner {
       valueType: this.valueType, fieldType: this.fieldType || q.getType(), templateQuestion: q,
       // Typeless only when no fieldType was authored - a fieldType that happens to resolve to the
       // same question type ("text") was still a deliberate choice and keeps its full operator set.
-      isTypeless: !this.fieldType, showInFastMode: this.showInFastMode, operators: this.filterOperators
+      isTypeless: !this.fieldType, showInQuickFilters: this.showInQuickFilters, operators: this.operators
     };
   }
 
@@ -215,7 +237,7 @@ export class FilterField extends Base implements ILocalizableOwner {
 
 Serializer.addClass("filterfield", [
   { name: "!name", isUnique: true },
-  { name: "title", serializationProperty: "locTitle", dependsOn: "name", visible: false },
+  { name: "title", serializationProperty: "locTitle", dependsOn: "name" },
   { name: "valueName", visible: false },
   {
     name: "valueType", default: "string", visible: false,
@@ -232,6 +254,8 @@ Serializer.addClass("filterfield", [
     name: "fieldType", default: "", visible: false,
     choices: () => { const res = QuestionFactory.Instance.getAllTypes(); res.splice(0, 0, ""); return res; }
   },
-  { name: "showInFastMode:boolean", default: true, visible: false },
-  { name: "filterOperators:string[]", visible: false },
+  // The operators the field takes, those of the target's field an entry overrides included.
+  // dependsOn: the operators offered are those of the field the entry names (the Creator's details).
+  { name: "operators:string[]", dependsOn: "name", choices: (obj: any): Array<string> => getFilterOperatorChoices(obj) },
+  { name: "showInQuickFilters:boolean", default: true },
 ], () => new FilterField(""));

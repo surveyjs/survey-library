@@ -11,7 +11,7 @@ import { getLocaleString } from "../surveyStrings";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { settings } from "../settings";
 import { toCssClasses } from "../utils/cssClassBuilder";
-import { FilterItem, getUniqueFilterActionId } from "./filter-item";
+import { FilterPreset, getUniqueFilterActionId } from "./filter-preset";
 import { FilterFieldEditorKind } from "./filter-field-kinds";
 import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
@@ -60,44 +60,42 @@ export class FilterChip extends Action {
 // What the toolbars read from the control and call on it. Only the control's public API: the
 // toolbars hold no filter state of their own and decide nothing the control does not answer.
 export interface IFilterToolbarsOwner {
-  visibleItems: Array<FilterItem>;
-  activeItem: FilterItem;
-  toggleItem(item: FilterItem | string): void;
+  visiblePresets: Array<FilterPreset>;
+  activePreset: FilterPreset;
+  togglePreset(preset: FilterPreset | string): void;
   // A button clicked in the designer, where it does nothing of its own: the presets' chip names the
   // preset it shows, every other button - and the presets' chip showing none - the control itself
-  // (item undefined).
-  onDesignItemClick(item?: FilterItem): void;
-  canSaveActiveItem: boolean;
-  saveActiveItem(): void;
-  canAddItems: boolean;
-  canClearActiveItem: boolean;
-  clearActiveItem(): void;
+  // (preset undefined).
+  onDesignPresetClick(preset?: FilterPreset): void;
+  canAddPresets: boolean;
+  canClearFilter: boolean;
+  clearFilter(): void;
   clearFieldCondition(name: string): void;
   isDesignMode: boolean;
   // The control's own readOnly: the buttons are disabled and open nothing (never in the designer).
   isControlReadOnly: boolean;
   isMobile: boolean;
   isLocked: boolean;
-  showSearch: boolean;
+  showSearchBar: boolean;
   searchString: string;
   isSearchDisabled: boolean;
   activeConditionCount: number;
-  isFastModeAvailable: boolean;
-  isAdvancedModeAvailable: boolean;
+  showQuickFilters: boolean;
+  showAllFiltersButton: boolean;
   cssClasses: any;
-  getFastModeFieldStates(): Array<IFilterFieldState>;
+  getQuickFilterFieldStates(): Array<IFilterFieldState>;
   createFieldPopup(name: string, close: () => void): FilterFieldPopup;
   createSaveAsPopup(close: () => void): FilterSaveAsPopup;
   createFilterModal(): FilterModal;
   createAddPresetDialog(conditions: Array<IFilterCondition>, expression?: string): FilterPresetDialog;
-  createEditPresetDialog(itemName: string): FilterEditPresetDialog;
+  createEditPresetDialog(presetName: string): FilterEditPresetDialog;
   getSurveyRootElement(): HTMLElement;
   getLocale(): string;
   // The chips that open a popup, in their order: what a renderer draws the popups from (see
   // FilterToolbars.updatePopupChips).
   popupChips: Array<FilterChip>;
 }
-// What the chips row shows of one fast mode field: the key it is addressed by (getFieldKey), its
+// What the chips row shows of one quick filter field: the key it is addressed by (getFieldKey), its
 // title, the editor its popup opens and its condition's text ("" with no condition).
 export interface IFilterFieldState {
   key: string;
@@ -107,7 +105,7 @@ export interface IFilterFieldState {
 }
 // A row of the presets' list and the preset it picks.
 interface IFilterPresetRow {
-  item: FilterItem;
+  preset: FilterPreset;
   row: Action;
 }
 // The content component of the Filters dialog, of a badge's popup, and the component of a chip.
@@ -119,8 +117,8 @@ export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
 // - the chips row: Filters (when there is no search box to stand next to), the presets' chip, a badge
-//   per fast mode field and "Show More" last;
-// - the clear row: Save (single mode only), "Save as..." and Clear All, at the right end of the chips
+//   per quick filter field and "Show More" last;
+// - the clear row: "Save as..." and Clear All, at the right end of the chips
 //   row;
 // - the search row: Filters, next to the search box.
 // A badge with a condition has a cross that clears it (FilterChip), one without has the chevron of
@@ -140,22 +138,21 @@ export class FilterToolbars {
   private filtersAction: Action;
   private moreAction: Action;
   private searchClearActionValue: Action;
-  private saveAction: Action;
   private saveAsAction: FilterChip;
   private saveAsHolder: FilterEditorHolder;
   private clearAction: Action;
   private fieldChips: { [key: string]: { chip: FilterChip, holder: FilterEditorHolder } } = {};
   private presetChip: FilterChip;
   // The rows of the presets' list, one per visible preset. Compared by object and not by id: a preset
-  // replaced by another one of the same name (a restored uiState, a new items array) has a new row with
+  // replaced by another one of the same name (a restored uiState, a new presets array) has a new row with
   // the same id.
   private presetRows: Array<IFilterPresetRow> = [];
   // The chips that open a popup, as last reported to the owner (see updatePopupChips).
   private popupChips: Array<FilterChip> = [];
   // The chips the row holds, in order.
   private rowChips: Array<Action>;
-  private advancedHolder: FilterEditorHolder;
-  private advancedDialog: PopupModalViewModel;
+  private allFiltersHolder: FilterEditorHolder;
+  private allFiltersDialog: PopupModalViewModel;
   // The one dialog open over the Filters dialog - New Preset or Edit Preset: what the dialog host
   // returned, its model, and the holder it is drawn from.
   private subDialog: PopupModalViewModel;
@@ -277,14 +274,14 @@ export class FilterToolbars {
   // the theme has no styles for the host's "overlay" mode. Any way it closes ends in
   // onHide, and only its main button applies it. With no dialog host (no survey rendered) there is
   // nothing to open, and one dialog is open at a time.
-  public showAdvancedEditor(): void {
-    if (!settings.showDialog || !!this.advancedDialog) return;
+  public showAllFilters(): void {
+    if (!settings.showDialog || !!this.allFiltersDialog) return;
     const modal = this.owner.createFilterModal();
     if (!modal) return;
     const holder = this.createHolder();
     holder.modal = modal;
-    this.advancedHolder = holder;
-    this.advancedDialog = this.openDialog({
+    this.allFiltersHolder = holder;
+    this.allFiltersDialog = this.openDialog({
       componentName: filterModalComponentName,
       data: { holder: holder },
       onApply: (): boolean => {
@@ -293,13 +290,13 @@ export class FilterToolbars {
       },
       onHide: (): void => {
         this.releaseHolder(holder);
-        this.advancedDialog = undefined;
-        this.advancedHolder = undefined;
+        this.allFiltersDialog = undefined;
+        this.allFiltersHolder = undefined;
       },
       title: getLocaleString("filterDialogTitle", this.owner.getLocale()),
-      cssClass: this.getAdvancedDialogCss()
+      cssClass: this.getAllFiltersDialogCss()
     });
-    this.setModalFooter(this.advancedDialog, modal);
+    this.setModalFooter(this.allFiltersDialog, modal);
   }
   // What every dialog of the control shares: a close button, the host's "popup" mode, and no work on
   // cancel - only Apply writes anything. Returns what the dialog host returned.
@@ -343,8 +340,8 @@ export class FilterToolbars {
   // Edit Preset opens only for a preset the respondent may change or delete. One at a time.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void {
     if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
-    const edit = isEdit ? this.owner.createEditPresetDialog(modal.activeItemName) : undefined;
-    if (!!edit && !edit.item) {
+    const edit = isEdit ? this.owner.createEditPresetDialog(modal.selectedPreset) : undefined;
+    if (!!edit && !edit.preset) {
       edit.dispose();
       return;
     }
@@ -387,12 +384,12 @@ export class FilterToolbars {
     if (!!this.subDialog && !!this.subDialog.model) {
       this.subDialog.model.hide();
     }
-    if (!!this.advancedDialog && !!this.advancedDialog.model) {
-      this.advancedDialog.model.hide();
+    if (!!this.allFiltersDialog && !!this.allFiltersDialog.model) {
+      this.allFiltersDialog.model.hide();
     }
   }
   // The frame's classes: a phone's dialog covers the screen.
-  private getAdvancedDialogCss(): string {
+  private getAllFiltersDialogCss(): string {
     return toCssClasses(this.cssClasses.modal, this.owner.isMobile && this.cssClasses.modalMobile);
   }
   private getSubDialogCss(): string {
@@ -402,8 +399,8 @@ export class FilterToolbars {
   // The dialog host does not close a dialog on a rotation or a resize: the open dialogs follow the
   // control's isMobile - their frames and the surveys they show.
   private updateDialogsMode(isMobile: boolean): void {
-    if (!!this.advancedDialog && !!this.advancedDialog.model) {
-      this.advancedDialog.model.cssClass = this.getAdvancedDialogCss();
+    if (!!this.allFiltersDialog && !!this.allFiltersDialog.model) {
+      this.allFiltersDialog.model.cssClass = this.getAllFiltersDialogCss();
     }
     if (!!this.subDialogModel) {
       this.subDialogModel.setIsMobile(isMobile);
@@ -441,14 +438,14 @@ export class FilterToolbars {
       this.subDialog.model.hide();
     }
     this.releaseSubDialog();
-    if (!!this.advancedDialog && !!this.advancedDialog.model) {
-      this.advancedDialog.model.hide();
+    if (!!this.allFiltersDialog && !!this.allFiltersDialog.model) {
+      this.allFiltersDialog.model.hide();
     }
-    if (!!this.advancedHolder) {
-      this.releaseHolder(this.advancedHolder);
+    if (!!this.allFiltersHolder) {
+      this.releaseHolder(this.allFiltersHolder);
     }
-    this.advancedDialog = undefined;
-    this.advancedHolder = undefined;
+    this.allFiltersDialog = undefined;
+    this.allFiltersHolder = undefined;
     const actions: Array<Action> = Object.keys(this.fieldChips).map((key: string): Action => this.takeFieldChip(key));
     if (!!this.presetChip) {
       this.presetChip.popupModel.hide();
@@ -460,7 +457,7 @@ export class FilterToolbars {
       this.saveAsAction.popupModel.hide();
       this.releaseHolder(this.saveAsHolder);
     }
-    [this.filtersAction, this.presetChip, this.moreAction, this.saveAction, this.saveAsAction, this.clearAction,
+    [this.filtersAction, this.presetChip, this.moreAction, this.saveAsAction, this.clearAction,
       this.searchClearActionValue].forEach((a: Action): void => {
       if (!!a) actions.push(a);
     });
@@ -468,7 +465,6 @@ export class FilterToolbars {
     this.presetChip = undefined;
     this.searchClearActionValue = undefined;
     this.moreAction = undefined;
-    this.saveAction = undefined;
     this.saveAsAction = undefined;
     this.saveAsHolder = undefined;
     this.clearAction = undefined;
@@ -502,8 +498,8 @@ export class FilterToolbars {
     holder.cssClasses = this.cssClasses;
     return holder;
   }
-  private get isFiltersShown(): boolean { return this.owner.isAdvancedModeAvailable; }
-  private get isFiltersInSearchRow(): boolean { return this.owner.showSearch; }
+  private get isFiltersShown(): boolean { return this.owner.showAllFiltersButton; }
+  private get isFiltersInSearchRow(): boolean { return this.owner.showSearchBar; }
 
   private updateSearchRow(): void {
     if (!this.searchToolbarValue) return;
@@ -518,12 +514,12 @@ export class FilterToolbars {
   // text changes. A chip that is gone is disposed once the row no longer holds it.
   private updateChipsRow(): void {
     if (!this.chipsToolbarValue) return;
-    const states = this.owner.isFastModeAvailable ? this.owner.getFastModeFieldStates() : [];
-    const items = this.owner.visibleItems;
+    const states = this.owner.showQuickFilters ? this.owner.getQuickFilterFieldStates() : [];
+    const presets = this.owner.visiblePresets;
     const gone = this.takeGoneChips(states);
     const chips: Array<Action> = [];
     if (!this.isFiltersInSearchRow && this.isFiltersShown) chips.push(this.getFiltersAction());
-    if (items.length > 0) chips.push(this.getPresetChip());
+    if (presets.length > 0) chips.push(this.getPresetChip());
     states.forEach((state: IFilterFieldState): void => { chips.push(this.getFieldChip(state.key)); });
     chips.push(this.getMoreAction());
     if (!this.isSameList(this.rowChips, chips)) {
@@ -534,7 +530,7 @@ export class FilterToolbars {
     gone.forEach((chip: Action): void => { chip.dispose(); });
     states.forEach((state: IFilterFieldState): void => { this.updateFieldChip(state); });
     if (!!this.presetChip) {
-      this.updatePresetChip(items);
+      this.updatePresetChip(presets);
     }
     this.updateFiltersAction();
     this.updateOverflow();
@@ -542,29 +538,25 @@ export class FilterToolbars {
   private updateClearRow(): void {
     if (!this.clearToolbarValue) return;
     if (!this.clearAction) {
-      this.saveAction = new Action({ id: "sv-filter-save", appearance: { style: "brand" },
-        visible: false, action: (): void => { this.owner.saveActiveItem(); } });
       this.clearAction = new Action({ id: "sv-filter-clear", iconName: "icon-close-16x16",
         iconSize: "auto", innerCss: this.cssClasses.clear, appearance: { style: "neutral", mode: "tertiary-surface", showBorder: true }, visible: false,
-        action: (): void => { this.owner.clearActiveItem(); } });
+        action: (): void => { this.owner.clearFilter(); } });
       this.saveAsAction = this.createSaveAsAction();
-      this.clearToolbarValue.setItems([this.saveAction, this.saveAsAction, this.clearAction], false);
+      this.clearToolbarValue.setItems([this.saveAsAction, this.clearAction], false);
       this.updatePopupChips();
     }
     // Set on every pass, not once: a locale change runs one (QuestionFilterModel.locStrsChanged).
     const locale = this.owner.getLocale();
-    this.saveAction.title = getLocaleString("filterSave", locale);
     this.saveAsAction.title = getLocaleString("filterSaveAs", locale);
     this.clearAction.title = getLocaleString("filterClearAll", locale);
     const isEditable = !this.owner.isDesignMode && !this.owner.isControlReadOnly;
-    this.saveAction.visible = isEditable && this.owner.canSaveActiveItem;
     // What the respondent set with no preset on - an edit over a preset turns it off - may become a
     // preset of their own.
-    this.saveAsAction.visible = isEditable && this.owner.canAddItems && !this.owner.activeItem && this.owner.activeConditionCount > 0;
+    this.saveAsAction.visible = isEditable && this.owner.canAddPresets && !this.owner.activePreset && this.owner.activeConditionCount > 0;
     if (!this.saveAsAction.visible) {
       this.saveAsAction.popupModel.hide();
     }
-    this.clearAction.visible = isEditable && this.owner.canClearActiveItem;
+    this.clearAction.visible = isEditable && this.owner.canClearFilter;
   }
   // "Save as...": a button whose popup - under it, a sheet on a phone, as a badge's - names the new
   // preset (FilterSaveAsPopup). Drawn as a chip is, with no cross.
@@ -602,13 +594,13 @@ export class FilterToolbars {
     if (!this.filtersAction) {
       // In the designer the button is a picture of itself and reports the click, so the designer can
       // select the control: an action stops the click event, the designer would never see it.
-      // showAdvancedEditor() itself still opens the dialog read-only there.
-      this.filtersAction = new Action({ id: "sv-filter-filters", iconSize: "auto",
+      // showAllFilters() itself still opens the dialog read-only there.
+      this.filtersAction = new Action({ id: "sv-filter-all-filters", iconSize: "auto",
         action: (): void => {
           if (this.owner.isDesignMode) {
-            this.owner.onDesignItemClick();
+            this.owner.onDesignPresetClick();
           } else if (!this.owner.isControlReadOnly) {
-            this.showAdvancedEditor();
+            this.showAllFilters();
           }
         } });
     }
@@ -624,11 +616,11 @@ export class FilterToolbars {
     action.iconName = this.isFiltersInSearchRow ? "icon-filter-24x24" : "icon-filter-16x16";
     const count = this.owner.activeConditionCount;
     const locale = this.owner.getLocale();
-    const filters = getLocaleString("filterFilters", locale);
+    const filters = getLocaleString("filterAllFilters", locale);
     if (this.owner.isMobile && this.isFiltersInSearchRow) {
       action.title = count > 0 ? count.toString() : "";
     } else {
-      action.title = count > 0 ? getLocaleString("filterFiltersCount", locale).replace("{0}", count.toString()) : filters;
+      action.title = count > 0 ? getLocaleString("filterAllFiltersCount", locale).replace("{0}", count.toString()) : filters;
     }
     action.tooltip = filters;
     action.enabled = !this.owner.isControlReadOnly;
@@ -640,7 +632,7 @@ export class FilterToolbars {
           this.layout.isExpanded = !this.layout.isExpanded;
           // It works in the designer too, and reports the click there like the other buttons
           if (this.owner.isDesignMode) {
-            this.owner.onDesignItemClick();
+            this.owner.onDesignPresetClick();
           }
         } });
     }
@@ -697,12 +689,12 @@ export class FilterToolbars {
   private onFieldChipClick(key: string): void {
     // No popup in the designer: its styles are the survey's, and nothing in it would work there.
     if (this.owner.isDesignMode) {
-      this.owner.onDesignItemClick();
+      this.owner.onDesignPresetClick();
       return;
     }
     if (this.owner.isControlReadOnly) return;
     if (this.owner.isLocked) {
-      this.owner.clearActiveItem();
+      this.owner.clearFilter();
       return;
     }
     const popup = this.fieldChips[key].chip.popupModel;
@@ -751,7 +743,7 @@ export class FilterToolbars {
     return new Action({ id: id, iconName: "icon-close-16x16", iconSize: "auto", visible: false,
       innerCss: this.cssClasses.chipClear, appearance: Object.assign({ size: "small" }, appearance), action: (): void => {
         if (this.owner.isDesignMode) {
-          this.owner.onDesignItemClick();
+          this.owner.onDesignPresetClick();
         } else if (!this.owner.isControlReadOnly) {
           clear();
         }
@@ -775,10 +767,10 @@ export class FilterToolbars {
   private getPresetChip(): FilterChip {
     if (!this.presetChip) {
       const popup = createPopupModelWithListModel({ items: [], allowSelection: true, onSelectionChanged: (row: IAction): void => {
-        const item: FilterItem = row.data;
+        const preset: FilterPreset = row.data;
         if (this.owner.isDesignMode || this.owner.isControlReadOnly) return;
-        if (!!item && item !== this.owner.activeItem) {
-          this.owner.toggleItem(item);
+        if (!!preset && preset !== this.owner.activePreset) {
+          this.owner.togglePreset(preset);
         }
       } }, { showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
       // One preset is painted: the pointer moves the focus, a key moves the highlight off the hovered one.
@@ -787,13 +779,13 @@ export class FilterToolbars {
       popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
         options.actions = [];
       });
-      const chip = new FilterChip({ id: "sv-filter-preset", component: filterChipComponentName,
+      const chip = new FilterChip({ id: "sv-filter-presets", component: filterChipComponentName,
         innerCss: toCssClasses(this.cssClasses.chip, this.cssClasses.chipPreset), iconName: "icon-star-16x16", iconSize: "auto",
         activeAppearance: { style: "neutral", mode: "primary" }, action: (): void => { this.onPresetChipClick(); } });
       chip.boxCss = this.cssClasses.chipBox;
       chip.chipCss = toCssClasses(this.cssClasses.chip, this.cssClasses.chipPreset);
-      chip.clearAction = this.createChipClearAction("sv-filter-preset-clear", { style: "neutral", mode: "primary" },
-        (): void => { this.owner.clearActiveItem(); });
+      chip.clearAction = this.createChipClearAction("sv-filter-presets-clear", { style: "neutral", mode: "primary" },
+        (): void => { this.owner.clearFilter(); });
       this.setChipPopup(chip, popup);
       this.presetChip = chip;
     }
@@ -802,7 +794,7 @@ export class FilterToolbars {
   private get presetList(): ListModel { return this.presetChip.popupModel.contentComponentData.model; }
   private onPresetChipClick(): void {
     if (this.owner.isDesignMode) {
-      this.owner.onDesignItemClick(this.owner.activeItem);
+      this.owner.onDesignPresetClick(this.owner.activePreset);
       return;
     }
     if (this.owner.isControlReadOnly) return;
@@ -815,40 +807,40 @@ export class FilterToolbars {
     }
     popup.toggleVisibility();
   }
-  private updatePresetChip(items: Array<FilterItem>): void {
+  private updatePresetChip(presets: Array<FilterPreset>): void {
     const chip = this.presetChip;
-    const active = this.owner.activeItem;
+    const active = this.owner.activePreset;
     const isReadOnly = this.owner.isControlReadOnly;
-    const isOn = !!active && items.indexOf(active) > -1;
-    this.updatePresetRows(items);
+    const isOn = !!active && presets.indexOf(active) > -1;
+    this.updatePresetRows(presets);
     chip.title = isOn ? active.title : getLocaleString("filterPreset", this.owner.getLocale());
     chip.active = isOn;
     this.updateChipClearAction(chip, isOn && !isReadOnly, chip.title);
     chip.markerIconName = !isReadOnly && !isOn ? "icon-chevrondown-16x16" : undefined;
     chip.enabled = !isReadOnly;
-    if (isReadOnly || items.length === 0) {
+    if (isReadOnly || presets.length === 0) {
       chip.popupModel.hide();
     }
-    const selected = this.presetRows.filter((e: IFilterPresetRow): boolean => e.item === active)[0];
+    const selected = this.presetRows.filter((e: IFilterPresetRow): boolean => e.preset === active)[0];
     this.presetList.selectedItem = !!selected ? selected.row : undefined;
   }
   // A row of its own even for a second preset with the same name (an authoring error): the list tells
   // its rows apart by id, and so does a renderer. A row borrows its preset's title, so a retitled preset
   // and a locale change reach it without an update.
-  private updatePresetRows(items: Array<FilterItem>): void {
+  private updatePresetRows(presets: Array<FilterPreset>): void {
     const old = this.presetRows;
-    const rows: Array<IFilterPresetRow> = items.map((item: FilterItem): IFilterPresetRow =>
-      old.filter((e: IFilterPresetRow): boolean => e.item === item)[0] || { item: item, row: undefined });
+    const rows: Array<IFilterPresetRow> = presets.map((preset: FilterPreset): IFilterPresetRow =>
+      old.filter((e: IFilterPresetRow): boolean => e.preset === preset)[0] || { preset: preset, row: undefined });
     const used: { [id: string]: boolean } = {};
     rows.forEach((e: IFilterPresetRow): void => {
       if (!!e.row) used[e.row.id] = true;
     });
     rows.forEach((e: IFilterPresetRow): void => {
       if (!!e.row) return;
-      const id = getUniqueFilterActionId("sv-filter-item-" + e.item.name, (candidate: string): boolean => !!used[candidate]);
+      const id = getUniqueFilterActionId("sv-filter-preset-" + e.preset.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
-      e.row = new Action({ id: id, data: e.item });
-      e.row.locTitle = e.item.locTitle;
+      e.row = new Action({ id: id, data: e.preset });
+      e.row.locTitle = e.preset.locTitle;
     });
     this.presetRows = rows;
     const newRows = rows.map((e: IFilterPresetRow): Action => e.row);

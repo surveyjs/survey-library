@@ -335,8 +335,6 @@ export var catalanSurveyStrings = {
   conditionOperatorGreaterorequal: "Superior o igual a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inferior o igual a",
-  // [Auto-translated] "Save"
-  filterSave: "Guarda",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtres",
   // [Auto-translated] "Search"

@@ -42,12 +42,12 @@ function cleanup(wrapper: VueWrapper<any>): void {
 describe("Filter question", () => {
   it("a change of the chips measures the row again", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
-      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+      presets: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const wrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
     await nextTick();
     const update = vi.spyOn(q.chipsLayout, "update");
-    q.items.splice(0, 2);
+    q.presets.splice(0, 2);
     await nextTick();
     await nextTick();
     expect(update).toHaveBeenCalled();
@@ -76,19 +76,19 @@ describe("Filter question", () => {
     survey.dispose();
   });
   it("typing in the search box sets the search string and the filter expression; its cross clears it", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const wrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
     await nextTick();
     const container = wrapper.element.parentElement;
     const input = container.querySelector(".sd-filter__search input") as HTMLInputElement;
     expect(!!input, "#1: the search box").toBe(true);
-    expect([q.filterExpression, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#2").toEqual(["", false]);
+    expect([q.combinedExpression, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#2").toEqual(["", false]);
     input.value = "ab";
     input.dispatchEvent(new Event("input"));
     await nextTick();
     expect(q.searchString, "#3").toBe("ab");
-    expect(q.filterExpression, "#4: the search filters the records").toContain("ab");
+    expect(q.combinedExpression, "#4: the search filters the records").toContain("ab");
     expect((container.querySelector(".sd-filter__search input") as HTMLInputElement).value, "#5").toBe("ab");
     const clear = container.querySelector(".sd-filter__search .sd-filter__search-clear") as HTMLButtonElement;
     expect(clear.getAttribute("title"), "#6: the cross").toBe("Clear");
@@ -152,9 +152,9 @@ describe("Filter list item", () => {
 
 describe("Filter dialogs", () => {
   it("the Filters dialog shows the search box, the presets with Add New and Edit Selected, a preset's text and the fields", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true,
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, allowAddPresets: true, allowEditPresets: true,
       fields: [{ name: "age", title: "Age" }],
-      items: [{ name: "p", title: "Adults", expression: "{age} > 18" }, { name: "raw", title: "Edges", expression: "{age} < 1 or {age} > 99" }] }] });
+      presets: [{ name: "p", title: "Adults", expression: "{age} > 18" }, { name: "raw", title: "Edges", expression: "{age} < 1 or {age} > 99" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -169,7 +169,7 @@ describe("Filter dialogs", () => {
     expect([container.textContent.indexOf("Add New...") > -1, container.textContent.indexOf("Edit Selected...") > -1], "#4a").toEqual([true, false]);
     const section = container.querySelector(".sd-filter-modal__section[role='group']");
     expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4b: the section is named by its title").toBe("Filter Presets");
-    holder.modal.togglePreset(q.getItemByName("raw"));
+    holder.modal.togglePreset(q.getPresetByName("raw"));
     // A drawn action bar shows a change of its actions' visibility in a microtask (initResponsivityManager).
     await Promise.resolve();
     await nextTick();
@@ -188,8 +188,8 @@ describe("Filter dialogs", () => {
   it("the search box's accessible name and the presets' title are in the survey's locale", async () => {
     surveyLocalization.locales["filterrenderxx"] = { filterSearchLabel: "Suche", filterPresetsTitle: "Vorlagen" };
     try {
-      const survey = new SurveyModel({ locale: "filterrenderxx", elements: [{ type: "filter", name: "f1", showSearch: true,
-        fields: [{ name: "age" }], items: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
+      const survey = new SurveyModel({ locale: "filterrenderxx", elements: [{ type: "filter", name: "f1", showSearchBar: true,
+        fields: [{ name: "age" }], presets: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
       const q = survey.getQuestionByName("f1") as QuestionFilterModel;
       const surveyWrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
       await nextTick();
@@ -212,8 +212,8 @@ describe("Filter dialogs", () => {
     }
   });
   it("Edit Preset shows the form and the fields in a frame - no tabs, no actions; a new form is drawn anew", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],
-      items: [{ name: "a", title: "Adults", expression: "{age} > 18" },
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", allowEditPresets: true, fields: [{ name: "age" }, { name: "name" }],
+      presets: [{ name: "a", title: "Adults", expression: "{age} > 18" },
         { name: "k", title: "Kids", expression: "{age} < 10 and {name} = 'x'" }] }] });
     survey.onAIFilterRequest.add(() => { });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
@@ -247,7 +247,7 @@ describe("Filter dialogs", () => {
     cleanup(wrapper);
   });
   it("Save as draws the name and Save; Save adds the preset and closes the popup", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", allowAddPresets: true, fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     q.setFieldCondition("age", "greater", 60);
     let closed = 0;
@@ -261,7 +261,7 @@ describe("Filter dialogs", () => {
     expect(save.textContent.trim(), "#2").toBe("Save");
     holder.saveAsPopup.survey.setValue("presetTitle", "Seniors");
     save.click();
-    expect([q.visibleItems.map((item) => item.title), q.activeItemName, closed], "#3").toEqual([["Seniors"], "userItem1", 1]);
+    expect([q.visiblePresets.map((item) => item.title), q.selectedPreset, closed], "#3").toEqual([["Seniors"], "userPreset1", 1]);
     cleanup(wrapper);
     holder.saveAsPopup.dispose();
   });
@@ -278,7 +278,7 @@ describe("Filter dialogs", () => {
     holder.fieldPopup.dispose();
   });
   it("Search in Filters looks among the filters, not the records; nothing found says so; its cross clears it", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -379,7 +379,7 @@ describe("The AI description of the preset dialogs", () => {
     return { q: survey.getQuestionByName("f1") as QuestionFilterModel, calls: calls };
   }
   it("New Preset draws the description and its button; the fields and the name once the model answered", async () => {
-    const { q, calls } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const { q, calls } = setup({ presets: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
     const dialog = q.createAddPresetDialog([]);
@@ -412,7 +412,7 @@ describe("The AI description of the preset dialogs", () => {
     cleanup(wrapper);
   });
   it("Edit Preset shows the description and Edit", async () => {
-    const { q } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const { q } = setup({ allowEditPresets: true, presets: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
     const dialog = q.createEditPresetDialog("a");

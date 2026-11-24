@@ -335,8 +335,6 @@ export var vietnameseSurveyStrings = {
   conditionOperatorGreaterorequal: "Lớn hơn hoặc bằng",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Nhỏ hơn hoặc bằng",
-  // [Auto-translated] "Save"
-  filterSave: "Lưu",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Bộ lọc",
   // [Auto-translated] "Search"

@@ -17,9 +17,8 @@ import { getFilterPresetTitleError } from "../../src/filter/filter-preset-dialog
 // without these keys.
 const yy = { completeText: "Fertig" };
 const xx = {
-  filterSave: "Speichern",
-  filterFilters: "Filtern",
-  filterFiltersCount: "Filtern: {0}",
+  filterAllFilters: "Filtern",
+  filterAllFiltersCount: "Filtern: {0}",
   filterDialogTitle: "Filterdialog",
   filterSearchLabel: "Suche",
   filterSearchPlaceholder: "Suche nach {0}",
@@ -74,19 +73,19 @@ const fields = [
 ];
 const presets = [{ name: "adults", title: "Adults", expression: "{age} > 18" }];
 function control(locale: string, over: any = {}): QuestionFilterModel {
-  const json = Object.assign({ type: "filter", name: "f1", fields: fields, items: presets }, over);
+  const json = Object.assign({ type: "filter", name: "f1", fields: fields, presets: presets }, over);
   const survey = new SurveyModel({ locale: locale, elements: [json] });
   return <QuestionFilterModel>survey.getQuestionByName("f1");
 }
 function titleOf(container: ActionContainer, id: string): string {
   return container.getActionById(id).title;
 }
-// The captions of the rows: Filters with its tooltip, Show More, Save, Save as..., Clear All, the
+// The captions of the rows: Filters with its tooltip, Show More, Save as..., Clear All, the
 // presets' chip and its cross, which is on while the preset is.
 function rowCaptions(q: QuestionFilterModel): Array<string> {
-  const filters = q.chipsToolbar.getActionById("sv-filter-filters");
-  const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-preset");
-  return [filters.title, filters.tooltip, titleOf(q.chipsToolbar, "sv-filter-more"), titleOf(q.clearToolbar, "sv-filter-save"),
+  const filters = q.chipsToolbar.getActionById("sv-filter-all-filters");
+  const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-presets");
+  return [filters.title, filters.tooltip, titleOf(q.chipsToolbar, "sv-filter-more"),
     titleOf(q.clearToolbar, "sv-filter-save-as"), titleOf(q.clearToolbar, "sv-filter-clear"), preset.title];
 }
 // What settings.showDialog was asked to show, with a footer the control fills.
@@ -111,37 +110,37 @@ afterAll(() => {
 });
 
 describe("Filter localization: the rows", () => {
-  test("Filters, Show More, Save, Save as..., Clear All and the presets' chip", () => {
+  test("Filters, Show More, Save as..., Clear All and the presets' chip", () => {
     const q = control("filterxx");
-    expect(rowCaptions(q), "#1").toEqual(["Filtern", "Filtern", "Mehr", "Speichern", "Speichern als...", "Alles leeren", "Vorlage"]);
+    expect(rowCaptions(q), "#1").toEqual(["Filtern", "Filtern", "Mehr", "Speichern als...", "Alles leeren", "Vorlage"]);
     q.setFieldCondition("age", "greater", 18);
-    expect(q.chipsToolbar.getActionById("sv-filter-filters").title, "#2").toBe("Filtern: 1");
-    q.toggleItem("adults");
-    const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-preset");
+    expect(q.chipsToolbar.getActionById("sv-filter-all-filters").title, "#2").toBe("Filtern: 1");
+    q.togglePreset("adults");
+    const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-presets");
     expect([preset.clearAction.ariaLabel, preset.clearAction.tooltip], "#3").toEqual(["Adults leeren", "Adults leeren"]);
     q.chipsLayout.isExpanded = true;
     expect(titleOf(q.chipsToolbar, "sv-filter-more"), "#4").toBe("Weniger");
   });
   test("follow a locale change of the survey", () => {
     const q = control("");
-    expect(rowCaptions(q), "#1").toEqual(["All Filters", "All Filters", "Show More", "Save", "Save as...", "Clear All", "Filter Presets"]);
+    expect(rowCaptions(q), "#1").toEqual(["All Filters", "All Filters", "Show More", "Save as...", "Clear All", "Filter Presets"]);
     (<SurveyModel>q.survey).locale = "filterxx";
-    expect(rowCaptions(q), "#2").toEqual(["Filtern", "Filtern", "Mehr", "Speichern", "Speichern als...", "Alles leeren", "Vorlage"]);
+    expect(rowCaptions(q), "#2").toEqual(["Filtern", "Filtern", "Mehr", "Speichern als...", "Alles leeren", "Vorlage"]);
     (<SurveyModel>q.survey).locale = "";
-    expect(rowCaptions(q), "#3").toEqual(["All Filters", "All Filters", "Show More", "Save", "Save as...", "Clear All", "Filter Presets"]);
+    expect(rowCaptions(q), "#3").toEqual(["All Filters", "All Filters", "Show More", "Save as...", "Clear All", "Filter Presets"]);
   });
   test("a locale that does not translate them shows them in English", () => {
     const q = control("filteryy");
-    expect(rowCaptions(q)).toEqual(["All Filters", "All Filters", "Show More", "Save", "Save as...", "Clear All", "Filter Presets"]);
+    expect(rowCaptions(q)).toEqual(["All Filters", "All Filters", "Show More", "Save as...", "Clear All", "Filter Presets"]);
   });
   test("the search box: its placeholder names the fields it searches, and its accessible name", () => {
-    const q = control("filterxx", { showSearch: true, searchFields: ["age"] });
+    const q = control("filterxx", { showSearchBar: true, searchFields: ["age"] });
     expect([q.searchPlaceholder, q.searchLabel], "#1").toEqual(["Suche nach Alter", "Suche"]);
     (<SurveyModel>q.survey).locale = "";
     expect([q.searchPlaceholder, q.searchLabel], "#2").toEqual(["Search by Alter", "Search"]);
   });
   test("the search box's placeholder joins the fields with the locale's \"or\"", () => {
-    const q = control("filterxx", { showSearch: true, searchFields: ["country", "age"] });
+    const q = control("filterxx", { showSearchBar: true, searchFields: ["country", "age"] });
     expect(q.searchPlaceholder, "#1: two fields").toBe("Suche nach Land oder Alter");
     q.searchFields = ["country", "category", "age"];
     expect(q.searchPlaceholder, "#2: three fields").toBe("Suche nach Land, category oder Alter");
@@ -162,7 +161,7 @@ describe("Filter localization: the popups of the chips", () => {
     popup.dispose();
   });
   test("Save as...: the name's placeholder and the button", () => {
-    const q = control("filterxx");
+    const q = control("filterxx", { allowAddPresets: true });
     const popup = q.createSaveAsPopup(() => { });
     const question = popup.survey.getQuestionByName("presetTitle");
     expect([question.title, question.placeholder, titleOf(popup.footerToolbar, "sv-filter-save-as-save")])
@@ -176,7 +175,7 @@ describe("Filter localization: the Filters dialog", () => {
     const dialogs = stubDialogs();
     try {
       const q = control("filterxx");
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const host = dialogs.calls[0];
       const modal = host.options.data.holder.modal;
       expect([host.options.title, titleOf(host.footerToolbar, "sv-filter-modal-clear")], "#1").toEqual(["Filterdialog", "Alles leeren"]);
@@ -190,7 +189,7 @@ describe("Filter localization: the Filters dialog", () => {
       expect(modal.showResultsText, "#5").toBe("1 Zeile zeigen");
       modal.resultCount = 12;
       expect(modal.showResultsText, "#6").toBe("12 Zeilen zeigen");
-      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
       expect(modal.expressionTitle, "#7").toBe("Ausdruck von Adults");
       host.model.hide();
     } finally {
@@ -227,9 +226,9 @@ describe("Filter localization: the preset dialogs", () => {
     dialog.dispose();
   });
   test("Edit Preset: its title and Delete", () => {
-    const q = control("filterxx");
+    const q = control("filterxx", { allowEditPresets: true, allowDeletePresets: true });
     // The dialog edits the preset that is on as it opens.
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     const modal = q.createFilterModal();
     const dialogs = stubDialogs();
     try {

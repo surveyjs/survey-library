@@ -1,5 +1,5 @@
 <div [class]="model.getQuestionRootCss()" #contentElement>
-  <div *ngIf="model.showSearch" [class]="model.cssClasses.searchRow">
+  <div *ngIf="model.showSearchBar" [class]="model.cssClasses.searchRow">
     <div [class]="model.searchRootCss">
       <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="model.cssClasses.searchIcon" sv-ng-svg-icon></svg>
       <input type="text" [class]="model.searchCss.control" [value]="model.searchString" [attr.placeholder]="model.searchPlaceholder"

@@ -335,8 +335,6 @@ export var malaySurveyStrings = {
   conditionOperatorGreaterorequal: "Lebih besar atau sama dengan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Kurang daripada atau sama dengan",
-  // [Auto-translated] "Save"
-  filterSave: "Simpan",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Penapis",
   // [Auto-translated] "Search"

@@ -335,8 +335,6 @@ export var swedishSurveyStrings = {
   conditionOperatorGreaterorequal: "Större än eller lika med",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre än eller lika med",
-  // [Auto-translated] "Save"
-  filterSave: "Spara",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filter",
   // [Auto-translated] "Search"

@@ -10,15 +10,15 @@ const fields = [
   { name: "name" },
   { name: "country", fieldType: "dropdown", choices: [
     { value: "de", text: "Germany" }, { value: "fr", text: "France" }, { value: "gb", text: "Great Britain" }] },
-  { name: "gender", fieldType: "dropdown", choices: ["male", "female"], filterOperators: ["equal"] },
+  { name: "gender", fieldType: "dropdown", choices: ["male", "female"], operators: ["equal"] },
   { name: "age", fieldType: "text", inputType: "number" },
   { name: "active", fieldType: "boolean", labelTrue: "On", labelFalse: "Off" },
   { name: "vip", valueType: "boolean" },
-  { name: "strict", fieldType: "boolean", filterOperators: ["equal"] },
+  { name: "strict", fieldType: "boolean", operators: ["equal"] },
   { name: "nochoices", fieldType: "dropdown" }
 ];
 function control(): QuestionFilterModel {
-  return createFilter({ fields: fields, items: [] });
+  return createFilter({ fields: fields, presets: [] });
 }
 function field(q: QuestionFilterModel, name: string): any {
   return q.getFieldByName(name);
@@ -38,14 +38,14 @@ describe("Filter field kinds: the editor a badge opens", () => {
     expect(q.getFieldEditorKind("nosuchfield"), "#9").toBe(undefined);
   });
   test("a boolean with its own true and false values filters by them", () => {
-    const q = createFilter({ fields: [{ name: "b", fieldType: "boolean", valueTrue: "Y", valueFalse: "N" }], items: [] });
+    const q = createFilter({ fields: [{ name: "b", fieldType: "boolean", valueTrue: "Y", valueFalse: "N" }], presets: [] });
     const f = field(q, "b");
     expect(getFilterFieldListItems(f), "#1").toEqual([{ value: "Y", text: "Yes" }, { value: "N", text: "No" }]);
     expect(getFilterSelectionCondition(f, "boolean", ["N"]), "#2").toEqual({ field: "b", operator: "equal", value: "N" });
     expect(getFilterChipText(f, { field: "b", operator: "equal", value: "Y" }), "#3").toBe("b: Yes");
   });
   test("a boolean field without equal edits as a condition", () => {
-    const q = createFilter({ fields: [{ name: "b", fieldType: "boolean", filterOperators: ["notempty"] }], items: [] });
+    const q = createFilter({ fields: [{ name: "b", fieldType: "boolean", operators: ["notempty"] }], presets: [] });
     expect(getFilterFieldEditorKind(field(q, "b"))).toBe("condition");
   });
 });
@@ -117,41 +117,41 @@ describe("Filter field kinds: the badge's text", () => {
   test("the fields toolbar reads the kind and the text in one pass", () => {
     const q = control();
     q.setFieldCondition("country", "anyof", ["de", "gb"]);
-    const state = q.getFastModeFieldStates().filter((s) => s.key === "country")[0];
+    const state = q.getQuickFilterFieldStates().filter((s) => s.key === "country")[0];
     expect(state, "#1").toEqual({ key: "country", title: "country", kind: "multi", text: "country: 2" });
   });
 });
 
 describe("QuestionFilterModel: activeConditionCount and isLocked", () => {
   test("the conditions the filter is made of, a raw preset counting as one", () => {
-    const q = createFilter({ items: [{ name: "two", expression: "{age} > 18 and {country} = 'de'" },
+    const q = createFilter({ presets: [{ name: "two", expression: "{age} > 18 and {country} = 'de'" },
       { name: "raw", expression: "{age} < 18 or {age} > 35" }] });
     expect(q.activeConditionCount, "#1").toBe(0);
-    q.toggleItem("two");
+    q.togglePreset("two");
     expect(q.activeConditionCount, "#2").toBe(2);
-    q.toggleItem("raw");
+    q.togglePreset("raw");
     expect(q.activeConditionCount, "#3").toBe(1);
     q.setFieldCondition("age", "greater", 40);
     expect(q.activeConditionCount, "#4: the edit turned the preset off").toBe(1);
     q.clearConditions();
     expect(q.activeConditionCount, "#5").toBe(0);
   });
-  test("only an active preset with no conditions to show locks the quick filters; an edit unlocks them; single mode never locks", () => {
+  test("only an active preset with no conditions to show locks the quick filters; an edit unlocks them; hidden presets never lock", () => {
     const raw = { name: "raw", expression: "{age} < 18 or {age} > 35" };
-    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }, raw] });
+    const q = createFilter({ presets: [{ name: "adults", expression: "{age} > 18" }, raw] });
     expect(q.isLocked, "#1").toBe(false);
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     expect(q.isLocked, "#2: the badges show what it filters by").toBe(false);
-    q.toggleItem("raw");
+    q.togglePreset("raw");
     expect(q.isLocked, "#3").toBe(true);
     q.setFieldCondition("age", "greater", 30);
     expect(q.isLocked, "#4").toBe(false);
-    expect(createFilter({ allowMultipleItems: false, items: [raw] }).isLocked, "#5").toBe(false);
+    expect(createFilter({ showPresets: false, presets: [raw], defaultPreset: "raw" }).isLocked, "#5").toBe(false);
   });
   test("the search box does not unlock: it is no condition and is applied over the preset", () => {
-    const q = createFilter({ showSearch: true, items: [{ name: "raw", expression: "{age} < 18 or {age} > 35" }] });
-    q.toggleItem("raw");
+    const q = createFilter({ showSearchBar: true, presets: [{ name: "raw", expression: "{age} < 18 or {age} > 35" }] });
+    q.togglePreset("raw");
     q.searchString = "an";
-    expect([q.activeItemName, q.isLocked, q.activeConditionCount]).toEqual(["raw", true, 1]);
+    expect([q.selectedPreset, q.isLocked, q.activeConditionCount]).toEqual(["raw", true, 1]);
   });
 });

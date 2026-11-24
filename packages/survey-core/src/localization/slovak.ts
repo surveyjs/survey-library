@@ -335,8 +335,6 @@ export var slovakSurveyStrings = {
   conditionOperatorGreaterorequal: "Väčšie alebo rovné",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Menšie alebo rovné",
-  // [Auto-translated] "Save"
-  filterSave: "Uložiť",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"

@@ -335,8 +335,6 @@ export var georgianSurveyStrings = {
   conditionOperatorGreaterorequal: "მეტია ან ტოლია",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "ნაკლები ან ტოლია",
-  // [Auto-translated] "Save"
-  filterSave: "შენახვა",
   // [Auto-translated] "Filters"
   filterDialogTitle: "ფილტრები",
   // [Auto-translated] "Search"

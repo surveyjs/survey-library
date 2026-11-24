@@ -335,8 +335,6 @@ export var dutchSurveyStrings = {
   conditionOperatorGreaterorequal: "Groter dan of gelijk aan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Minder dan of gelijk aan",
-  // [Auto-translated] "Save"
-  filterSave: "Opslaan",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filters",
   // [Auto-translated] "Search"

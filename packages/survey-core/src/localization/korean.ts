@@ -335,8 +335,6 @@ export var koreanStrings = {
   conditionOperatorGreaterorequal: "크거나 같음",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "이하",
-  // [Auto-translated] "Save"
-  filterSave: "저장",
   // [Auto-translated] "Filters"
   filterDialogTitle: "필터",
   // [Auto-translated] "Search"

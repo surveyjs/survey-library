@@ -335,8 +335,6 @@ export var danishSurveyStrings = {
   conditionOperatorGreaterorequal: "Større end eller lig med",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre end eller lig med",
-  // [Auto-translated] "Save"
-  filterSave: "Gem",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"

@@ -109,7 +109,7 @@ describe("getFilterFieldOperators: the operators the author allows", () => {
   const dropdown = (operators: Array<string>): IDynamicDataFilterField => {
     const f = new FilterField("f");
     f.fieldType = "dropdown";
-    f.filterOperators = operators;
+    f.operators = operators;
     return f.getFilterField();
   };
   test("only the allowed operators, and the first of them is the default when the natural one is not allowed", () => {

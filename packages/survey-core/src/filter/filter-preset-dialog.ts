@@ -7,8 +7,8 @@ import { Question } from "../question";
 import { getLocaleString } from "../surveyStrings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
-import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
-import { FilterItem } from "./filter-item";
+import { IFilterCondition, IFilterPresetEdit } from "../interfaces/ui-interfaces";
+import { FilterPreset } from "./filter-preset";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
 import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { ExpressionRunner } from "../expressions/expressionRunner";
@@ -22,9 +22,9 @@ import "../question_tagbox";
 
 // What the preset dialogs read from the control and call on it: the control's public API only.
 export interface IFilterPresetDialogOwner extends IFilterConditionsEditorOwner {
-  visibleItems: Array<FilterItem>;
+  visiblePresets: Array<FilterPreset>;
   getAllFieldKeys(): Array<string>;
-  addItem(title: string, conditions: Array<IFilterCondition>, options?: { expression?: string }): FilterItem;
+  addPresetFromConditions(title: string, conditions: Array<IFilterCondition>, options?: { expression?: string }): FilterPreset;
   parseExpressionConditions(text: string): Array<IFilterCondition> | null;
   getConditionsExpression(conditions: Array<IFilterCondition>): string;
   // a preset's filter may be written or changed with AI
@@ -56,7 +56,7 @@ export function getFilterPresetTitleError(value: any, otherTitles: Array<string>
 // text, which expression holds: one that does not decompose always is, any other when the respondent
 // asks for it (editAsText).
 export interface IFilterPresetBuffer {
-  item?: FilterItem;
+  preset?: FilterPreset;
   title: string;
   conditions: Array<IFilterCondition> | null;
   expression?: string;
@@ -157,9 +157,9 @@ export class FilterPresetDialog extends Base {
     this.saveBuffer();
     if (!this.validateBuffer()) return false;
     if (this.isTextMode) {
-      this.owner.addItem(this.buffer.title.trim(), [], { expression: this.buffer.expression });
+      this.owner.addPresetFromConditions(this.buffer.title.trim(), [], { expression: this.buffer.expression });
     } else {
-      this.owner.addItem(this.buffer.title.trim(), this.buffer.conditions);
+      this.owner.addPresetFromConditions(this.buffer.title.trim(), this.buffer.conditions);
     }
     return true;
   }
@@ -209,7 +209,7 @@ export class FilterPresetDialog extends Base {
   }
   // The titles the preset's may not repeat.
   protected getOtherTitles(): Array<string> {
-    return this.owner.visibleItems.map((item: FilterItem): string => item.title);
+    return this.owner.visiblePresets.map((preset: FilterPreset): string => preset.title);
   }
   // Called after every change the respondent makes in the form or the editors, and after an AI answer.
   protected onChanged(): void { }
@@ -423,71 +423,71 @@ export class FilterPresetDialog extends Base {
 
 // What the Edit Preset dialog reads from the control and calls on it besides what adding takes.
 export interface IFilterEditPresetDialogOwner extends IFilterPresetDialogOwner {
-  getEditableItems(): Array<FilterItem>;
-  getItemConditions(name: string): Array<IFilterCondition> | null;
-  canEditItem(item: FilterItem): boolean;
-  canDeleteItem(item: FilterItem): boolean;
-  applyItemEdits(edits: Array<IFilterItemEdit>): void;
+  getEditablePresets(): Array<FilterPreset>;
+  getPresetConditions(name: string): Array<IFilterCondition> | null;
+  canEditPreset(preset: FilterPreset): boolean;
+  canDeletePreset(preset: FilterPreset): boolean;
+  applyPresetEdits(edits: Array<IFilterPresetEdit>): void;
 }
 
 // The Edit Preset dialog: the preset picked in the Filters dialog (Edit Selected..., Edit... at its
-// text), if the respondent may change or delete it (getEditableItems), in New Preset's form - read-only
+// text), if the respondent may change or delete it (getEditablePresets), in New Preset's form - read-only
 // where it may not be edited, as text where it does not decompose. Delete, where the preset may be
 // deleted (canDelete), takes it away at once (deletePreset) and the dialog closes. Apply checks the
-// preset and writes it as one change (applyItemEdits) - once the respondent changed it: a preset nobody
+// preset and writes it as one change (applyPresetEdits) - once the respondent changed it: a preset nobody
 // touched is what the control has, so an authored title longer than a typed one may be, or one two
 // authored presets share, does not keep the dialog open. Nothing reaches the control before either.
 export class FilterEditPresetDialog extends FilterPresetDialog {
   private isTouched: boolean;
 
-  constructor(owner: IFilterEditPresetDialogOwner, itemName: string) {
+  constructor(owner: IFilterEditPresetDialogOwner, presetName: string) {
     super(owner);
     this.isTouched = false;
-    const item = owner.getEditableItems().filter((i: FilterItem): boolean => i.name === itemName)[0];
-    if (!!item) {
-      const conditions = owner.getItemConditions(item.name);
-      this.showBuffer({ item: item, title: item.title, conditions: conditions,
-        expression: conditions === null ? (item.expression || "").trim() : undefined });
+    const preset = owner.getEditablePresets().filter((i: FilterPreset): boolean => i.name === presetName)[0];
+    if (!!preset) {
+      const conditions = owner.getPresetConditions(preset.name);
+      this.showBuffer({ preset: preset, title: preset.title, conditions: conditions,
+        expression: conditions === null ? (preset.expression || "").trim() : undefined });
     }
   }
   public getType(): string { return "filtereditpresetdialog"; }
   public get title(): string { return this.getString("filterEditPreset"); }
   // The preset edited; undefined for a name that is no preset the respondent may change or delete:
   // there is nothing to show then, and the control does not open the dialog.
-  public get item(): FilterItem { return !!this.buffer ? this.buffer.item : undefined; }
+  public get preset(): FilterPreset { return !!this.buffer ? this.buffer.preset : undefined; }
   public get isReadOnly(): boolean {
-    return !!this.item && !this.editOwner.canEditItem(this.item);
+    return !!this.preset && !this.editOwner.canEditPreset(this.preset);
   }
   // Whether the footer has Delete, in Cancel's place.
-  public get canDelete(): boolean { return !!this.item && this.editOwner.canDeleteItem(this.item); }
+  public get canDelete(): boolean { return !!this.preset && this.editOwner.canDeletePreset(this.preset); }
   // Deletes the preset, whatever was typed and while Edit waits for the model too; true when it did -
   // the dialog closes then.
   public deletePreset(): boolean {
     if (this.isDisposed || !this.canDelete) return false;
-    this.editOwner.applyItemEdits([{ name: this.item.name, isDeleted: true }]);
+    this.editOwner.applyPresetEdits([{ name: this.preset.name, isDeleted: true }]);
     return true;
   }
   // Checks the preset and writes it. false keeps the dialog open: while Edit waits for the model
   // (canApply), and with the errors shown in the form.
   public apply(): boolean {
     if (this.isDisposed || !this.canApply) return false;
-    if (!this.item || this.isReadOnly || !this.isTouched) return true;
+    if (!this.preset || this.isReadOnly || !this.isTouched) return true;
     this.saveBuffer();
     if (!this.validateBuffer()) return false;
-    const edit: IFilterItemEdit = { name: this.item.name, title: this.buffer.title.trim() };
+    const edit: IFilterPresetEdit = { name: this.preset.name, title: this.buffer.title.trim() };
     if (this.isTextMode) {
       edit.expression = (this.buffer.expression || "").trim();
     } else {
       edit.conditions = this.buffer.conditions;
     }
-    this.editOwner.applyItemEdits([edit]);
+    this.editOwner.applyPresetEdits([edit]);
     return true;
   }
 
   // The preset may keep its own title.
   protected getOtherTitles(): Array<string> {
-    const item = this.item;
-    return this.owner.visibleItems.filter((i: FilterItem): boolean => i !== item).map((i: FilterItem): string => i.title);
+    const preset = this.preset;
+    return this.owner.visiblePresets.filter((i: FilterPreset): boolean => i !== preset).map((i: FilterPreset): string => i.title);
   }
   protected onChanged(): void {
     this.isTouched = true;

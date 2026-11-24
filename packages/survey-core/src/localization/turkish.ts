@@ -335,8 +335,6 @@ export var turkishSurveyStrings = {
   conditionOperatorGreaterorequal: "Büyük veya eşit",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Küçük veya eşit",
-  // [Auto-translated] "Save"
-  filterSave: "Kaydet",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtreler",
   // [Auto-translated] "Search"

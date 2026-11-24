@@ -98,31 +98,31 @@ describe("FilterField: fieldType", () => {
     field.fieldType = "text";
     expect(field.getFilterField().isTypeless, "#1: text was authored, not defaulted").toBeFalsy();
   });
-  test("showInFastMode defaults to true and is not serialized", () => {
+  test("showInQuickFilters defaults to true and is not serialized", () => {
     const field = new FilterField("age");
-    expect(field.showInFastMode, "#1").toBe(true);
-    expect(field.getFilterField().showInFastMode, "#2").toBe(true);
+    expect(field.showInQuickFilters, "#1").toBe(true);
+    expect(field.getFilterField().showInQuickFilters, "#2").toBe(true);
     expect(new JsonObject().toJsonObject(field), "#3").toEqual({ name: "age" });
   });
-  test("showInFastMode false round-trips through JSON", () => {
+  test("showInQuickFilters false round-trips through JSON", () => {
     const field = new FilterField("age");
-    field.showInFastMode = false;
+    field.showInQuickFilters = false;
     const json = new JsonObject().toJsonObject(field);
-    expect(json, "#1").toEqual({ name: "age", showInFastMode: false });
+    expect(json, "#1").toEqual({ name: "age", showInQuickFilters: false });
     const loaded = new FilterField("");
     new JsonObject().toObject(json, loaded);
-    expect(loaded.showInFastMode, "#2").toBe(false);
-    expect(loaded.getFilterField().showInFastMode, "#3").toBe(false);
+    expect(loaded.showInQuickFilters, "#2").toBe(false);
+    expect(loaded.getFilterField().showInQuickFilters, "#3").toBe(false);
   });
-  test("filterOperators is the field's own property, with or without a fieldType, and round-trips through JSON", () => {
+  test("operators is the field's own property, with or without a fieldType, and round-trips through JSON", () => {
     const field = new FilterField("");
-    new JsonObject().toObject({ name: "country", fieldType: "dropdown", choices: [1, 2], filterOperators: ["anyof"] }, field);
-    expect(field.filterOperators, "#1").toEqual(["anyof"]);
+    new JsonObject().toObject({ name: "country", fieldType: "dropdown", choices: [1, 2], operators: ["anyof"] }, field);
+    expect(field.operators, "#1").toEqual(["anyof"]);
     expect(field.getFilterField().operators, "#2").toEqual(["anyof"]);
-    expect(new JsonObject().toJsonObject(field).filterOperators, "#3").toEqual(["anyof"]);
+    expect(new JsonObject().toJsonObject(field).operators, "#3").toEqual(["anyof"]);
     field.fieldType = "";
-    expect(field.filterOperators, "#4: kept when the template question is replaced").toEqual(["anyof"]);
-    expect(new JsonObject().toJsonObject(new FilterField("age")).filterOperators, "#5: not emitted when not set").toBe(undefined);
+    expect(field.operators, "#4: kept when the template question is replaced").toEqual(["anyof"]);
+    expect(new JsonObject().toJsonObject(new FilterField("age")).operators, "#5: not emitted when not set").toBe(undefined);
   });
   test("fieldType is read before the type-specific keys whatever the JSON order", () => {
     const field = new FilterField("");

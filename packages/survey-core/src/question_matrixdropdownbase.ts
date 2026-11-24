@@ -32,7 +32,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
+import { collectFilterFields, IDynamicDataFilterField, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
@@ -2783,6 +2783,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
     });
     return res;
+  }
+  // A column by its name or the key its cells write, filtered or not, or a path into a column's record.
+  public hasRecordField(name: string): boolean {
+    const keys: Array<string> = [];
+    this.columns.forEach((column: MatrixDropdownColumn): void => { keys.push(column.name, column.sortField); });
+    return isRecordFieldName(name, keys);
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();

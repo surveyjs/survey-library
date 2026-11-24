@@ -337,8 +337,6 @@ export var portugueseBrSurveyStrings = {
   conditionOperatorGreaterorequal: "Maior ou igual a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Menor ou igual a",
-  // [Auto-translated] "Save"
-  filterSave: "Salvar",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtros",
   // [Auto-translated] "Search"

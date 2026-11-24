@@ -335,8 +335,6 @@ export var hebrewSurveyStrings = {
   conditionOperatorGreaterorequal: "גדול או שווה ל-",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "קטן או שווה ל-",
-  // [Auto-translated] "Save"
-  filterSave: "שמור",
   // [Auto-translated] "Filters"
   filterDialogTitle: "מסננים",
   // [Auto-translated] "Search"

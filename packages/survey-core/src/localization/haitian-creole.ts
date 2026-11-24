@@ -337,8 +337,6 @@ export var haitianCreoleStrings = {
   conditionOperatorGreaterorequal: "Pi gran oswa egal a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Pi piti oswa egal a",
-  // [Auto-translated] "Save"
-  filterSave: "Sove",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtè",
   // [Auto-translated] "Search"

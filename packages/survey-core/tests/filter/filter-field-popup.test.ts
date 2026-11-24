@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { createFilter } from "./filter-test-helpers";
+import { createFilter, onCombinedExpressionChanged } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterFieldPopup } from "../../src/filter/filter-field-popup";
@@ -9,17 +9,17 @@ const fields = [
   { name: "name" },
   { name: "country", fieldType: "dropdown", choices: [
     { value: "de", text: "Germany" }, { value: "fr", text: "France" }, { value: "gb", text: "Great Britain" }] },
-  { name: "gender", fieldType: "dropdown", choices: ["male", "female"], filterOperators: ["equal"] },
+  { name: "gender", fieldType: "dropdown", choices: ["male", "female"], operators: ["equal"] },
   { name: "age", fieldType: "text", inputType: "number" },
   { name: "active", fieldType: "boolean", labelTrue: "On", labelFalse: "Off" },
-  { name: "strict", fieldType: "boolean", filterOperators: ["equal"] },
+  { name: "strict", fieldType: "boolean", operators: ["equal"] },
   { name: "product", fieldType: "dropdown", choices: ["Chai", "Beer"], allowCustomChoices: true },
-  { name: "pick", fieldType: "dropdown", choices: ["Chai", "Beer"], allowCustomChoices: true, filterOperators: ["equal"] },
+  { name: "pick", fieldType: "dropdown", choices: ["Chai", "Beer"], allowCustomChoices: true, operators: ["equal"] },
   { name: "many", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f", "g"] },
   { name: "few", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f"] }
 ];
 function control(over: any = {}): QuestionFilterModel {
-  return createFilter(Object.assign({ fields: fields, items: [] }, over));
+  return createFilter(Object.assign({ fields: fields, presets: [] }, over));
 }
 // A popup together with the number of times it asked to be closed.
 function open(q: QuestionFilterModel, key: string): { popup: FilterFieldPopup, closed: () => number } {
@@ -80,15 +80,15 @@ describe("FilterFieldPopup: a condition", () => {
     expect(popup.list, "#2").toBe(undefined);
     popup.editor.survey.getQuestionByName("f0_operator").value = "greater";
     popup.editor.survey.getQuestionByName("f0_value").value = 30;
-    expect(q.filterExpression, "#3").toBe("");
+    expect(q.combinedExpression, "#3").toBe("");
     expect(popup.footerToolbar.actions.map((a: Action) => a.title), "#4").toEqual(["Apply"]);
     popup.footerToolbar.actions[0].action();
-    expect(q.filterExpression, "#5").toBe("{age} > 30");
+    expect(q.combinedExpression, "#5").toBe("{age} > 30");
     expect(closed(), "#6").toBe(1);
     popup.dispose();
   });
-  test("a field fast mode does not show gets no popup", () => {
-    const q = control({ fields: [{ name: "age", showInFastMode: false }] });
+  test("a field the quick filters do not show gets no popup", () => {
+    const q = control({ fields: [{ name: "age", showInQuickFilters: false }] });
     expect(q.createFieldPopup("age", () => { }), "#1").toBe(undefined);
   });
 });
@@ -108,11 +108,11 @@ describe("FilterFieldPopup: a single pick", () => {
     popup.dispose();
   });
   test("picking the picked value changes nothing", () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: fields, items: [] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: fields, presets: [] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     q.setFieldCondition("gender", "equal", "male");
     let events = 0;
-    survey.onFilterChanged.add(() => { events++; });
+    onCombinedExpressionChanged(q, () => { events++; });
     const { popup } = open(q, "gender");
     popup.list.onItemClick(item(popup, "male"));
     expect(events).toBe(0);

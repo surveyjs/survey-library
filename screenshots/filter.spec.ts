@@ -17,11 +17,14 @@ const columns = [
 ];
 const json = (filterProps: any = {}, extraColumns: Array<any> = []): any => ({
   elements: [
-    Object.assign({ type: "filter", name: "f1", source: "m", items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, filterProps),
+    Object.assign({ type: "filter", name: "f1", targetQuestion: "m", presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, filterProps),
     { type: "matrixdynamic", name: "m", columns: columns.concat(extraColumns),
       defaultValue: [{ country: "de", age: 30, name: "Ann", product: "p1" }, { country: "fr", age: 12, name: "Bob", product: "p2" }] }
   ]
 });
+// The respondent's permissions on presets are off by default: a scenario that adds, edits or deletes one
+// turns them on.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
 const longColumns = (): Array<any> => {
   const res: Array<any> = [];
   for (let i = 1; i <= 10; i++) {
@@ -104,21 +107,21 @@ frameworks.forEach(framework => {
 
     test("quick filters row", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json(editable));
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-chips.png");
       await page.evaluate(() => { (<any>window).survey.getQuestionByName("f1").setFieldCondition("country", "anyof", ["de"]); });
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-chips-active.png");
-      await page.evaluate(() => { (<any>window).survey.getQuestionByName("f1").toggleItem("adults"); });
+      await page.evaluate(() => { (<any>window).survey.getQuestionByName("f1").togglePreset("adults"); });
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-chips-active-preset.png");
     });
 
     test("the presets' list and Save as...", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await initSurvey(page, framework, json({ items: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
-        { name: "kids", title: "Kids", expression: "{age} < 18" }], defaultItem: "kids" }));
+      await initSurvey(page, framework, json(Object.assign({ presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
+        { name: "kids", title: "Kids", expression: "{age} < 18" }], defaultPreset: "kids" }, editable)));
       await page.locator(".sd-filter .sd-filter__chip--preset").click();
       await popupWith(page, ".sv-list").waitFor({ state: "visible" });
       await settleMenu(page, popupWith(page, ".sv-list"));
@@ -128,7 +131,7 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         const q = (<any>window).survey.getQuestionByName("f1");
-        q.clearActiveItem();
+        q.clearFilter();
         q.setFieldCondition("country", "anyof", ["de"]);
       });
       await page.locator(".sd-filter").getByRole("button", { name: "Save as..." }).click();
@@ -138,7 +141,7 @@ frameworks.forEach(framework => {
 
     test("quick filters row with the search box", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await initSurvey(page, framework, json({ showSearch: true }));
+      await initSurvey(page, framework, json({ showSearchBar: true }));
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-search.png");
     });
@@ -190,7 +193,7 @@ frameworks.forEach(framework => {
     // A read-only control: the chips are disabled, and the active preset's chip still shows it is on.
     test("a read-only control", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await initSurvey(page, framework, json({ readOnly: true, defaultItem: "adults", showSearch: true }));
+      await initSurvey(page, framework, json({ readOnly: true, defaultPreset: "adults", showSearchBar: true }));
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-chips-read-only.png");
     });
@@ -199,7 +202,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.evaluate(() => { document.body.setAttribute("dir", "rtl"); });
       // The search box has the icon whose padding faces the box's edge.
-      await initSurvey(page, framework, json({ showSearch: true, defaultItem: "adults" }));
+      await initSurvey(page, framework, json(Object.assign({ showSearchBar: true, defaultPreset: "adults" }, editable)));
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-search-rtl.png");
       await openFilters(page);
@@ -211,7 +214,7 @@ frameworks.forEach(framework => {
 
     test("the Filters dialog and the preset dialogs", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json(editable));
       await openFilters(page);
       await settleDialog(page, popupWith(page, ".sd-filter-modal__content"));
       await compareScreenshot(page, popupWith(page, ".sd-filter-modal__content"), "filter-modal.png");
@@ -240,7 +243,7 @@ frameworks.forEach(framework => {
     test("Edit Preset", async ({ page }) => {
       // Tall enough for the whole dialog: at 900 it scrolls and cuts the footer.
       await page.setViewportSize({ width: 1280, height: 1300 });
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json(editable));
       await openFilters(page);
       const dialog = await openEditPreset(page, "Adults");
       await settleDialog(page, dialog);
@@ -252,7 +255,7 @@ frameworks.forEach(framework => {
     test("Edit Preset: the AI description", async ({ page }) => {
       // Tall enough for the whole dialog: the description is under the fields.
       await page.setViewportSize({ width: 1280, height: 1300 });
-      await initSurvey(page, framework, json({ items: [{ name: "grownups", title: "Grown-ups", expression: "{age} > 18" }] }));
+      await initSurvey(page, framework, json(Object.assign({ presets: [{ name: "grownups", title: "Grown-ups", expression: "{age} > 18" }] }, editable)));
       await page.evaluate(() => { (<any>window).survey.onAIFilterRequest.add(() => { }); });
       await openFilters(page);
       const dialog = await openEditPreset(page, "Grown-ups");
@@ -264,7 +267,7 @@ frameworks.forEach(framework => {
     // On a phone a chip's popup is a sheet, which keeps the focus to itself: every shot starts anew.
     async function initPhone(page: Page): Promise<void> {
       await page.setViewportSize({ width: 375, height: 667 });
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json(editable));
       await page.evaluate(() => { (<any>window).survey.setIsMobile(true); });
     }
     test("on a phone: the quick filters row", async ({ page }) => {

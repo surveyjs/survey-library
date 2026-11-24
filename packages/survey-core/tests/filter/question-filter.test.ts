@@ -18,7 +18,7 @@ describe("QuestionFilterModel", () => {
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     // The quick search state the control will also hold (Task T9) cannot be called "searchText":
     // Base.searchText(text, founded) is an existing method that panel.ts calls on every element.
-    q.activeItemName = "nosuchitem";
+    q.applyPreset("nosuchitem");
     expect(survey.data, "#1").toEqual({});
     expect(q.getAllErrors(), "#2").toHaveLength(0);
   });
@@ -36,15 +36,15 @@ describe("QuestionFilterModel", () => {
     expect(survey.getQuestionByName("f1").no, "#1").toBe("");
     expect(survey.getQuestionByName("t2").no, "#2: the next question keeps its number").toBe("2.");
   });
-  test("fields and items load and save", () => {
+  test("fields and presets load and save", () => {
     const json = { type: "filter", name: "f1",
       fields: [{ name: "country", fieldType: "dropdown", choices: ["de", "fr"] }, { name: "age" }],
-      items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" };
+      presets: [{ name: "adults", expression: "{age} > 18" }], defaultPreset: "adults" };
     const survey = new SurveyModel({ elements: [json] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     expect(q.fields, "#1").toHaveLength(2);
-    expect(q.items[0].expression, "#2").toBe("{age} > 18");
-    expect(q.toJSON().items[0].expression, "#3").toBe("{age} > 18");
+    expect(q.presets[0].expression, "#2").toBe("{age} > 18");
+    expect(q.toJSON().presets[0].expression, "#3").toBe("{age} > 18");
   });
   test("the theme's filter classes reach the control", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1" }] });
@@ -52,17 +52,15 @@ describe("QuestionFilterModel", () => {
     expect([q.cssClasses.root, q.cssClasses.chips, q.cssClasses.chipOverflow, q.cssClasses.popup])
       .toEqual(["sd-filter", "sd-filter__chips", "sd-filter__chip--overflow", "sd-filter-popup"]);
   });
-  test("the authoring properties are visible; standalone-only and inert ones stay hidden", () => {
+  test("the authoring properties are visible; a preset's allowCopy stays hidden", () => {
     const visibility = (className: string, names: Array<string>): Array<boolean> =>
       names.map((name: string): boolean => Serializer.findProperty(className, name).visible);
-    const filterShown = ["source", "items", "defaultItem", "allowMultipleItems", "allowAddItems",
-      "showSearch", "searchFields", "allowFastMode", "allowAdvancedMode"];
-    const filterHidden = ["fields", "allowReorderItems", "allowChangeSearchFields"];
+    const filterShown = ["targetQuestion", "presets", "defaultPreset", "showPresets", "allowAddPresets", "allowEditPresets",
+      "allowDeletePresets", "showSearchBar", "searchFields", "searchPlaceholder", "showQuickFilters", "showAllFiltersButton", "fields"];
     expect(visibility("filter", filterShown), "#1").toEqual(filterShown.map(() => true));
-    expect(visibility("filter", filterHidden), "#2").toEqual(filterHidden.map(() => false));
     const itemShown = ["name", "title", "expression", "allowEdit", "allowDelete"];
-    expect(visibility("filteritem", itemShown), "#3").toEqual(itemShown.map(() => true));
-    expect(visibility("filteritem", ["allowCopy"]), "#4").toEqual([false]);
+    expect(visibility("filterpreset", itemShown), "#3").toEqual(itemShown.map(() => true));
+    expect(visibility("filterpreset", ["allowCopy"]), "#4").toEqual([false]);
   });
   test("the Question properties a control has no use for are hidden, and the JSON still keeps them", () => {
     const json = { type: "filter", name: "f1", title: "Filter", errorLocation: "top", setValueIf: "{t} = 1" };
@@ -74,26 +72,26 @@ describe("QuestionFilterModel", () => {
     expect(hidden.filter((name: string): boolean => Serializer.findProperty("filter", name).isVisible("", q)), "#1").toEqual([]);
     expect(survey.toJSON().pages[0].elements[0], "#2").toEqual(json);
   });
-  test("defaultItem offers the presets by name", () => {
+  test("defaultPreset offers the presets by name", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1",
-      items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} < 12" }] }] });
+      presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} < 12" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const choices = Serializer.findProperty("filter", "defaultItem").getChoices(q);
+    const choices = Serializer.findProperty("filter", "defaultPreset").getChoices(q);
     expect(choices, "#1: none, then the presets").toEqual(["", { value: "adults", text: "Adults" }, { value: "kids", text: "kids" }]);
   });
-  test("the empty choice of defaultItem is the designer's only: no linter finding, no schema enum", () => {
-    expect(Serializer.findProperty("filter", "defaultItem").getChoices(null), "#1").toEqual([]);
-    const result = lintSurvey({ elements: [{ type: "filter", name: "f1", defaultItem: "adults",
-      items: [{ name: "adults", expression: "{age} > 18" }] }] });
+  test("the empty choice of defaultPreset is the designer's only: no linter finding, no schema enum", () => {
+    expect(Serializer.findProperty("filter", "defaultPreset").getChoices(null), "#1").toEqual([]);
+    const result = lintSurvey({ elements: [{ type: "filter", name: "f1", defaultPreset: "adults",
+      presets: [{ name: "adults", expression: "{age} > 18" }] }] });
     expect(result.findings.filter(f => f.ruleId === "property/invalid-value").map(f => f.message), "#2").toEqual([]);
     const schema = Serializer.generateSchema("filter");
     expect(JSON.stringify(schema).indexOf("\"enum\":[\"\"]"), "#3").toBe(-1);
   });
-  test("searchFields offers the source's columns in the designer", () => {
+  test("searchFields offers the target's columns in the designer", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({ elements: [
-      { type: "filter", name: "f1", source: "m", showSearch: true },
+      { type: "filter", name: "f1", targetQuestion: "m", showSearchBar: true },
       { type: "matrixdynamic", name: "m", columns: [{ name: "country", title: "Country", cellType: "dropdown" }, { name: "age", cellType: "text" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     const choices = Serializer.findProperty("filter", "searchFields").getChoices(q);
@@ -101,7 +99,7 @@ describe("QuestionFilterModel", () => {
   });
   test("searchFields tells nested fields of one name apart and keeps the paths the control resolves", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "filter", name: "f1", source: "p", showSearch: true, searchFields: ["work.city"] },
+      { type: "filter", name: "f1", targetQuestion: "p", showSearchBar: true, searchFields: ["work.city"] },
       { type: "paneldynamic", name: "p", templateElements: [
         { type: "multipletext", name: "home", items: [{ name: "city", title: "City" }] },
         { type: "multipletext", name: "work", items: [{ name: "city", title: "City" }] },
@@ -111,25 +109,25 @@ describe("QuestionFilterModel", () => {
     expect(choices.map((c: any) => c.value), "#1").toEqual(["home.city", "work.city", "zip"]);
     expect(choices.map((c: any) => c.text), "#2").toEqual(["City (home.city)", "City (work.city)", "zip"]);
     const survey2 = new SurveyModel({ elements: [
-      { type: "filter", name: "f1", source: "m", showSearch: true, searchFields: ["x", "nosuch"] },
+      { type: "filter", name: "f1", targetQuestion: "m", showSearchBar: true, searchFields: ["x", "nosuch"] },
       { type: "matrixdynamic", name: "m", columns: [{ name: "c", title: "Code", valueName: "x" }] }] });
     const choices2 = prop.getChoices(survey2.getQuestionByName("f1"));
     expect(choices2, "#3: a valueName from the JSON stays, a name of no field does not")
       .toEqual([{ value: "c", text: "Code" }, { value: "x", text: "Code (x)" }]);
   });
-  test("allowAddItems is shown only with multiple presets; searchFields only with search", () => {
+  test("allowAddPresets is shown only with the presets shown; searchFields only with the search bar", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1" }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const allowAddItems = Serializer.findProperty("filter", "allowAddItems");
+    const allowAddPresets = Serializer.findProperty("filter", "allowAddPresets");
     const searchFields = Serializer.findProperty("filter", "searchFields");
-    expect([allowAddItems.isVisible("", q), searchFields.isVisible("", q)], "#1").toEqual([true, false]);
-    q.allowMultipleItems = false;
-    q.showSearch = true;
-    expect([allowAddItems.isVisible("", q), searchFields.isVisible("", q)], "#2").toEqual([false, true]);
+    expect([allowAddPresets.isVisible("", q), searchFields.isVisible("", q)], "#1").toEqual([true, false]);
+    q.showPresets = false;
+    q.showSearchBar = true;
+    expect([allowAddPresets.isVisible("", q), searchFields.isVisible("", q)], "#2").toEqual([false, true]);
   });
   test("the new property types keep the JSON", () => {
-    const json = { type: "filter", name: "f1", source: "m", defaultItem: "adults", searchFields: ["age"],
-      items: [{ name: "adults", expression: "{age} > 18\nand {age} < 99" }] };
+    const json = { type: "filter", name: "f1", targetQuestion: "m", defaultPreset: "adults", searchFields: ["age"],
+      presets: [{ name: "adults", expression: "{age} > 18\nand {age} < 99" }] };
     const survey = new SurveyModel({ elements: [json] });
     expect(survey.toJSON().pages[0].elements[0], "#1").toEqual(json);
   });

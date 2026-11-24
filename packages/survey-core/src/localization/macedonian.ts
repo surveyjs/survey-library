@@ -335,8 +335,6 @@ export var macedonianSurveyStrings = {
   conditionOperatorGreaterorequal: "Поголемо или еднакво на",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Помалку или еднакво на",
-  // [Auto-translated] "Save"
-  filterSave: "Зачувај",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Филтри",
   // [Auto-translated] "Search"

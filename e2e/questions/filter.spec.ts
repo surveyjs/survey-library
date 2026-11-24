@@ -14,13 +14,16 @@ const columns = [
 ];
 const json = (extraColumns: Array<any> = [], filterProps: any = {}): any => ({
   elements: [
-    Object.assign({ type: "filter", name: "f1", source: "m", items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, filterProps),
+    Object.assign({ type: "filter", name: "f1", targetQuestion: "m", presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, filterProps),
     { type: "matrixdynamic", name: "m", columns: columns.concat(extraColumns),
       defaultValue: [{ country: "de", age: 30, name: "Ann" }, { country: "fr", age: 12, name: "Bob" }, { country: "it", age: 45, name: "Dan" }] }
   ]
 });
 const nameColumn = { name: "name", title: "Name", cellType: "text" };
-const twoPresets = { items: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
+// The respondent's permissions on presets are off by default: a scenario that adds, edits or deletes one
+// turns them on.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
+const twoPresets = { presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "kids", title: "Kids", expression: "{age} < 18" }] };
 const longColumns = (): Array<any> => {
   const res: Array<any> = [];
@@ -36,7 +39,7 @@ async function getVisibleRowCount(page: Page): Promise<number> {
 }
 // The presets the control shows: the authored ones not deleted, then the respondent's own.
 async function getItemTitles(page: Page): Promise<Array<string>> {
-  return await page.evaluate(() => (window as any).survey.getQuestionByName("f1").visibleItems.map((item: any) => item.title));
+  return await page.evaluate(() => (window as any).survey.getQuestionByName("f1").visiblePresets.map((item: any) => item.title));
 }
 // js-ui draws the survey in a shadow root: there document.activeElement is its host.
 async function hasFocus(container: Locator): Promise<boolean> {
@@ -152,7 +155,7 @@ frameworks.forEach((framework) => {
     // As a dropdown's list: a chip's menu covers nothing but itself and hides as the focus leaves it,
     // so one click outside it both closes it and works.
     test("one click outside a chip's menu closes it and reaches what it clicked", async ({ page }) => {
-      await initSurvey(page, framework, json([], Object.assign({ showSearch: true }, twoPresets)));
+      await initSurvey(page, framework, json([], Object.assign({ showSearchBar: true }, twoPresets)));
       const popup = popupWith(page, ".sd-filter-popup");
       const list = popupWith(page, ".sv-list");
       await chip(page, "Country").click();
@@ -224,7 +227,7 @@ frameworks.forEach((framework) => {
 
     // As the mockup: Save as... and Clear All stand at the chips row's end, 16px after the chips.
     test("Save as... and Clear All stand 16px after the chips", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("age", "greater", 18); });
       const saveAs = page.locator(".sd-filter__save-as");
       await expect(saveAs).toBeVisible();
@@ -235,7 +238,7 @@ frameworks.forEach((framework) => {
     // As the mockup's phone: the chips, Save as... and Clear All are one row that scrolls sideways, the
     // buttons 16px after the last chip; the chips have the whole width.
     test("on a phone Save as... and Clear All follow the last chip in the row that scrolls sideways", async ({ page }) => {
-      await initPhone(page, framework, json(longColumns()));
+      await initPhone(page, framework, json(longColumns(), editable));
       await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("age", "greater", 18); });
       const row = page.locator(".sd-filter__chips-row");
       const lastChip = page.locator(".sd-filter__chips .sd-filter__chip").last();
@@ -323,7 +326,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Save as... adds the chips' conditions as a preset and turns it on", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       const saveAs = page.locator(".sd-filter").getByRole("button", { name: "Save as..." });
       await expect(saveAs, "nothing to save").toBeHidden();
       await pick(page, "Country", "Germany");
@@ -380,7 +383,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Add New... opens New Preset", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       const dialog = await openFilters(page);
       await dialog.getByRole("button", { name: "Add New..." }).click();
       const presetDialog = popupWith(page, ".sd-filter-preset-dialog__form");
@@ -389,7 +392,7 @@ frameworks.forEach((framework) => {
     });
 
     test("a preset is saved from the Filters dialog", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       // The chip's condition is what the new preset contains.
       await chip(page, "Country").click();
       const popup = popupWith(page, ".sd-filter-popup");
@@ -411,7 +414,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Edit Preset: Apply renames the preset picked, Delete takes it away", async ({ page }) => {
-      await initSurvey(page, framework, json([], twoPresets));
+      await initSurvey(page, framework, json([], Object.assign({}, twoPresets, editable)));
       const dialog = await openFilters(page);
       const editSelected = dialog.getByRole("button", { name: "Edit Selected..." });
       await expect(editSelected, "no preset picked").toBeHidden();
@@ -437,37 +440,25 @@ frameworks.forEach((framework) => {
       await expect(popupWith(page, ".sv-list").getByRole("menuitemradio")).toHaveText(["Grown-ups"]);
     });
 
-    // Save and Clear All are there in single-preset mode: with several presets, a chip's edit turns the
-    // preset off. There the preset can't be taken off: Clear All drops the edits and the preset filters again.
-    test("the quick row's Save writes a chip's edit into the active preset, and Clear All drops an edit", async ({ page }) => {
-      await initSurvey(page, framework, json([], { allowMultipleItems: false,
-        items: [{ name: "germans", title: "Germans", expression: "{country} anyof ['de']" }], defaultItem: "germans" }));
+    // With the presets hidden defaultPreset is only the filter the control starts with: a chip's edit
+    // turns the preset off and keeps its conditions, nothing saves into it, and Clear All clears it all.
+    test("with the presets hidden a chip's edit keeps the default preset's conditions, and Clear All clears them", async ({ page }) => {
+      await initSurvey(page, framework, json([], { showPresets: false,
+        presets: [{ name: "germans", title: "Germans", expression: "{country} anyof ['de']" }], defaultPreset: "germans" }));
       expect(await getVisibleRowCount(page)).toBe(1);
-      const save = page.locator(".sd-filter").getByRole("button", { name: "Save", exact: true });
       const clear = page.locator(".sd-filter .sd-filter__clear");
-      await expect(save).toBeHidden();
       await pick(page, "Country", "France");
-      expect(await getVisibleRowCount(page)).toBe(2);
-      await expect(save, "the active preset is changed").toBeVisible();
-      await save.click();
-      await expect(save).toBeHidden();
-      const expression = await page.evaluate(() => (window as any).survey.getQuestionByName("f1").items[0].expression);
-      expect(expression).toContain("de");
-      expect(expression).toContain("fr");
-      expect(await getVisibleRowCount(page)).toBe(2);
-
-      await pick(page, "Country", "Italy");
-      expect(await getVisibleRowCount(page)).toBe(3);
+      expect(await getVisibleRowCount(page), "Germany and France").toBe(2);
+      await expect(page.locator(".sd-filter").getByRole("button", { name: "Save", exact: true }), "no Save").toHaveCount(0);
       await expect(clear).toBeVisible();
       await clear.click();
       await expect(clear).toBeHidden();
-      await expect(save).toBeHidden();
-      expect(await getVisibleRowCount(page), "the saved preset filters again").toBe(2);
+      expect(await getVisibleRowCount(page), "nothing brings the hidden preset back").toBe(3);
     });
 
     test("the search box filters the matrix", async ({ page }) => {
       // Only the names: "an" is also in "Germany".
-      await initSurvey(page, framework, json([nameColumn], { showSearch: true, searchFields: ["name"] }));
+      await initSurvey(page, framework, json([nameColumn], { showSearchBar: true, searchFields: ["name"] }));
       const input = page.locator(".sd-filter .sd-filter__search input");
       await expect(input).toBeVisible();
       await input.fill("an");

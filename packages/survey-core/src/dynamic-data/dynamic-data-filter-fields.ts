@@ -27,9 +27,9 @@ export interface IDynamicDataFilterField {
   // own signal to tell "authored text" from "defaulted to text" - a typeless boolean loses the
   // ordering operators its text editor would take. undefined = not typeless.
   isTypeless?: boolean;
-  // Whether the field appears in the Filter Control's fast (single-field) mode. undefined = shown,
-  // the same as true; only a standalone FilterField ever sets it, a bound field never opts out.
-  showInFastMode?: boolean;
+  // Whether the field appears in the Filter Control's quick filters. undefined = shown, the same as
+  // true; only the control's fields entries set it, a field a target reports on its own never opts out.
+  showInQuickFilters?: boolean;
   // The operators the author allows for the field (filterOperators of the question, the column or the
   // standalone field), in the order a condition editor lists them. undefined or [] = every operator
   // the field's value editor takes.
@@ -45,6 +45,11 @@ export function getFilterFieldTitle(field: IDynamicDataFilterField): string {
 // dotted path the expression language reads them with ({address.city}). A question whose value is a
 // table of its own - a nested Dynamic Matrix or Dynamic Panel, a Dropdown Matrix - is neither, and is
 // skipped whole.
+// Whether a name is a record field of a target: one of its keys - a column's or a template question's
+// name or value name - or a path into one ("address.city"). See IDynamicDataFilterTarget.hasRecordField.
+export function isRecordFieldName(name: string, keys: Array<string>): boolean {
+  return !!name && keys.some((key: string): boolean => !!key && (name === key || name.indexOf(key + ".") === 0));
+}
 export function getFilterFieldsForQuestions(questions: Array<Question>): Array<IDynamicDataFilterField> {
   const res = new Array<IDynamicDataFilterField>();
   (questions || []).forEach((question: Question): void => { collectFilterFields(res, question, ""); });

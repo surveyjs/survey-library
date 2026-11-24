@@ -335,8 +335,6 @@ export var polishSurveyStrings = {
   conditionOperatorGreaterorequal: "Większe lub równe",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mniejsze lub równe",
-  // [Auto-translated] "Save"
-  filterSave: "Zapisz",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtry",
   // [Auto-translated] "Search"

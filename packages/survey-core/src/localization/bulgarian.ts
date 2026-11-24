@@ -335,8 +335,6 @@ export var bulgarianStrings = {
   conditionOperatorGreaterorequal: "По-голямо или равно на",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "По-малко или равно на",
-  // [Auto-translated] "Save"
-  filterSave: "Запази",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Филтри",
   // [Auto-translated] "Search"

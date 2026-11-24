@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { createFilter } from "./filter-test-helpers";
+import { createFilter, onCombinedExpressionChanged } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterEditPresetDialog } from "../../src/filter/filter-preset-dialog";
@@ -14,13 +14,15 @@ const presets = [
   { name: "fixed", expression: "{age} > 1", allowEdit: false, allowDelete: false },
   { name: "locked", expression: "{age} > 2", allowEdit: false },
   { name: "kept", expression: "{age} > 3", allowDelete: false }];
+// The respondent may add, edit and delete presets here: the permissions are off by default.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
 function control(over: any = {}): QuestionFilterModel {
-  return createFilter(Object.assign({ items: presets }, over));
+  return createFilter(Object.assign({ presets: presets }, editable, over));
 }
 function trackEvents(q: QuestionFilterModel): { filter: number, uiState: number } {
   const survey = <SurveyModel>q.survey;
   const res = { filter: 0, uiState: 0 };
-  survey.onFilterChanged.add(() => { res.filter++; });
+  onCombinedExpressionChanged(q, () => { res.filter++; });
   survey.onUIStateChanged.add((_, o) => { if (o.changedProperty === "filter") res.uiState++; });
   return res;
 }
@@ -39,16 +41,16 @@ describe("FilterEditPresetDialog: the preset", () => {
   test("opens on the named preset: its name, its fields and their conditions", () => {
     const q = control();
     const dialog = q.createEditPresetDialog("germans");
-    expect([dialog.title, dialog.item.name, dialog.form.getValue("presetTitle"), picked(dialog)], "#1")
+    expect([dialog.title, dialog.preset.name, dialog.form.getValue("presetTitle"), picked(dialog)], "#1")
       .toEqual(["Edit Preset", "germans", "germans", ["country"]]);
-    expect(dialog.editor.getConditions(), "#2").toEqual(q.getItemConditions("germans"));
+    expect(dialog.editor.getConditions(), "#2").toEqual(q.getPresetConditions("germans"));
     dialog.dispose();
   });
   test("nothing to edit for a name that is no preset the respondent may change or delete", () => {
     const q = control();
     ["fixed", "nosuchpreset", ""].forEach((name: string): void => {
       const dialog = q.createEditPresetDialog(name);
-      expect([dialog.item, dialog.form, dialog.editor, dialog.canDelete], name).toEqual([undefined, undefined, undefined, false]);
+      expect([dialog.preset, dialog.form, dialog.editor, dialog.canDelete], name).toEqual([undefined, undefined, undefined, false]);
       expect(dialog.apply(), name + ": Apply closes it, writing nothing").toBe(true);
       dialog.dispose();
     });
@@ -76,37 +78,37 @@ describe("FilterEditPresetDialog: Delete", () => {
   });
   test("deletes the preset at once, as one change - what was typed is dropped - and the dialog may close", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     const events = trackEvents(q);
     const dialog = q.createEditPresetDialog("adults");
     setTitle(dialog, "Mine");
     expect(dialog.deletePreset(), "#1").toBe(true);
-    expect([q.getItemByName("adults"), q.activeItemName, q.filterExpression], "#2").toEqual([undefined, "", ""]);
+    expect([q.getPresetByName("adults"), q.selectedPreset, q.combinedExpression], "#2").toEqual([undefined, "", ""]);
     expect(events, "#3").toEqual({ filter: 1, uiState: 1 });
     dialog.dispose();
   });
   test("nothing for a preset that may not be deleted, nor once the dialog is gone", () => {
     const q = control();
     const kept = q.createEditPresetDialog("kept");
-    expect([kept.deletePreset(), !!q.getItemByName("kept")], "#1").toEqual([false, true]);
+    expect([kept.deletePreset(), !!q.getPresetByName("kept")], "#1").toEqual([false, true]);
     kept.dispose();
     const adults = q.createEditPresetDialog("adults");
     adults.dispose();
-    expect([adults.deletePreset(), !!q.getItemByName("adults")], "#2").toEqual([false, true]);
+    expect([adults.deletePreset(), !!q.getPresetByName("adults")], "#2").toEqual([false, true]);
   });
 });
 
 describe("FilterEditPresetDialog: Apply", () => {
   test("writes the preset as one change; the preset that is on filters by its new conditions", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     const events = trackEvents(q);
     const dialog = q.createEditPresetDialog("adults");
     dialog.editor.survey.getQuestionByName("f0_value").value = 21;
     setTitle(dialog, "Over 21");
-    expect(q.filterExpression, "#1: nothing before Apply").toBe("{age} > 18");
+    expect(q.combinedExpression, "#1: nothing before Apply").toBe("{age} > 18");
     expect(dialog.apply(), "#2").toBe(true);
-    expect([q.filterExpression, q.getItemByName("adults").title], "#3").toEqual(["{age} > 21", "Over 21"]);
+    expect([q.combinedExpression, q.getPresetByName("adults").title], "#3").toEqual(["{age} > 21", "Over 21"]);
     expect(events, "#4").toEqual({ filter: 1, uiState: 1 });
     dialog.dispose();
   });
@@ -125,7 +127,7 @@ describe("FilterEditPresetDialog: Apply", () => {
     dialog.dispose();
   });
   test("a preset the respondent did not touch is not checked: its title does not hold Apply back", () => {
-    const q = control({ items: [
+    const q = control({ presets: [
       { name: "long", title: "Customers who ordered in the last thirty days", expression: "{age} > 1" },
       { name: "a", title: "Same", expression: "{age} > 2" }, { name: "b", title: "Same", expression: "{age} > 3" }] });
     const events = trackEvents(q);
@@ -141,7 +143,7 @@ describe("FilterEditPresetDialog: Apply", () => {
     const dialog = q.createEditPresetDialog("adults");
     setTitle(dialog, "Mine");
     dialog.dispose();
-    expect([q.getItemByName("adults").title, dialog.apply()], "#1").toEqual(["Adults", false]);
+    expect([q.getPresetByName("adults").title, dialog.apply()], "#1").toEqual(["Adults", false]);
   });
 });
 
@@ -151,7 +153,7 @@ describe("FilterEditPresetDialog: editing with AI", () => {
     { name: "raw", expression: "{age} > 1 or {age} < 0" },
     { name: "locked", expression: "{age} > 2", allowEdit: false }];
   function open(withHandler: boolean = true, selected: string = "a1"): { q: QuestionFilterModel, dialog: FilterEditPresetDialog, calls: Array<any> } {
-    const q = createFilter({ items: aiPresets });
+    const q = createFilter(Object.assign({ presets: aiPresets }, editable));
     const calls: Array<any> = [];
     if (withHandler) {
       (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
@@ -194,7 +196,7 @@ describe("FilterEditPresetDialog: editing with AI", () => {
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
     expect(dialog.apply(), "#1").toBe(true);
-    expect(q.getItemConditions("a1"), "#2").toEqual([{ field: "country", operator: "anyof", value: ["fr"] }, { field: "age", operator: "greater", value: 18 }]);
+    expect(q.getPresetConditions("a1"), "#2").toEqual([{ field: "country", operator: "anyof", value: ["fr"] }, { field: "age", operator: "greater", value: 18 }]);
     dialog.dispose();
   });
   test("a description alone is no change: nothing written", () => {
@@ -202,7 +204,7 @@ describe("FilterEditPresetDialog: editing with AI", () => {
     const events = trackEvents(q);
     dialog.aiPrompt.prompt = "grown-ups";
     expect(dialog.apply(), "#1").toBe(true);
-    expect([events, q.getItemConditions("a1"), q.isItemModified(q.getItemByName("a1"))], "#2")
+    expect([events, q.getPresetConditions("a1"), q.isPresetModified(q.getPresetByName("a1"))], "#2")
       .toEqual([{ filter: 0, uiState: 0 }, [{ field: "age", operator: "greater", value: 18 }], false]);
     dialog.dispose();
   });
@@ -223,7 +225,7 @@ describe("FilterEditPresetDialog: one survey for the fields and the description"
     { name: "a1", title: "Adults", expression: "{age} > 18" },
     { name: "locked", expression: "{age} > 2", allowEdit: false }];
   function open(selected: string = "a1"): { q: QuestionFilterModel, dialog: FilterEditPresetDialog, calls: Array<any> } {
-    const q = createFilter({ items: aiPresets });
+    const q = createFilter(Object.assign({ presets: aiPresets }, editable));
     const calls: Array<any> = [];
     (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
     return { q: q, dialog: q.createEditPresetDialog(selected), calls: calls };
@@ -273,7 +275,7 @@ describe("FilterEditPresetDialog: one survey for the fields and the description"
 describe("FilterEditPresetDialog: while Edit waits for the model", () => {
   const aiPresets = [{ name: "a1", title: "Adults", expression: "{age} > 18" }];
   function open(): { q: QuestionFilterModel, dialog: FilterEditPresetDialog, calls: Array<any> } {
-    const q = createFilter({ items: aiPresets });
+    const q = createFilter(Object.assign({ presets: aiPresets }, editable));
     const calls: Array<any> = [];
     (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
     return { q: q, dialog: q.createEditPresetDialog("a1"), calls: calls };
@@ -284,7 +286,7 @@ describe("FilterEditPresetDialog: while Edit waits for the model", () => {
     dialog.aiPrompt.prompt = "adults from France";
     dialog.aiPrompt.request();
     expect([dialog.canApply, dialog.apply()], "#1").toEqual([false, false]);
-    expect(q.getItemConditions("a1"), "#2").toEqual([{ field: "age", operator: "greater", value: 18 }]);
+    expect(q.getPresetConditions("a1"), "#2").toEqual([{ field: "age", operator: "greater", value: 18 }]);
     calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
     expect(dialog.canApply, "#3").toBe(true);
     dialog.dispose();
@@ -296,6 +298,6 @@ describe("FilterEditPresetDialog: while Edit waits for the model", () => {
     expect(dialog.deletePreset(), "#1").toBe(true);
     dialog.dispose();
     expect(() => calls[0].callback(answer("{age} < 10")), "#2").not.toThrow();
-    expect(q.visibleItems.length, "#3").toBe(0);
+    expect(q.visiblePresets.length, "#3").toBe(0);
   });
 });

@@ -147,7 +147,7 @@ describe("A Filter Control's count and the rows a visibility condition hides", (
     return new SurveyModel({ elements: [
       Object.assign({ type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.age} > 3", columns: [{ name: "age", cellType: "text" }],
         defaultValue: ages() }, over),
-      { type: "filter", name: "f1", source: "m" }] });
+      { type: "filter", name: "f1", targetQuestion: "m" }] });
   }
   test("a non-paged Dynamic Matrix: 3 of 10 rows hidden", async () => {
     const survey = createMatrixSurvey();
@@ -171,7 +171,7 @@ describe("A Filter Control's count and the rows a visibility condition hides", (
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "p", templateVisibleIf: "{panel.age} > 3", templateElements: [{ type: "text", name: "age" }],
         defaultValue: ages() },
-      { type: "filter", name: "f1", source: "p" }] });
+      { type: "filter", name: "f1", targetQuestion: "p" }] });
     const panel = <any>survey.getQuestionByName("p");
     const q = <any>survey.getQuestionByName("f1");
     expect(panel.visiblePanels.length, "#1").toBe(7);
@@ -205,36 +205,36 @@ describe("A Filter Control's count and the rows a visibility condition hides", (
 // the visibility condition for those, as Apply would.
 describe("A Filter Control's count and the records with no row or panel", () => {
   const ages = (): Array<any> => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((age: number): any => ({ age: age }));
-  const preset = { items: [{ name: "older", expression: "{age} > 5" }], defaultItem: "older" };
+  const preset = { presets: [{ name: "older", expression: "{age} > 5" }], defaultPreset: "older" };
   test("a non-paged Dynamic Matrix: the rows the active preset keeps out were never built", async () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.age} > 3", columns: [{ name: "age", cellType: "text" }], defaultValue: ages() },
-      Object.assign({ type: "filter", name: "f1", source: "m" }, preset)] });
+      Object.assign({ type: "filter", name: "f1", targetQuestion: "m" }, preset)] });
     const matrix = <any>survey.getQuestionByName("m");
     const q = <any>survey.getQuestionByName("f1");
     expect(matrix.visibleRows.length, "#1: the preset's rows").toBe(5);
     expect(await q.countFilterResults(""), "#2: no conditions").toBe(7);
     expect(await q.countFilterResults("{age} < 6"), "#3").toBe(2);
-    q.clearActiveItem();
+    q.clearFilter();
     expect(matrix.visibleRows.length, "#4: what Apply shows").toBe(7);
   });
   test("a non-paged Dynamic Panel: the panels the active preset keeps out were never built", async () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "p", templateVisibleIf: "{panel.age} > 3", templateElements: [{ type: "text", name: "age" }] },
-      Object.assign({ type: "filter", name: "f1", source: "p" }, preset)] });
+      Object.assign({ type: "filter", name: "f1", targetQuestion: "p" }, preset)] });
     survey.data = { p: ages() };
     const panel = <any>survey.getQuestionByName("p");
     const q = <any>survey.getQuestionByName("f1");
     expect(panel.visiblePanels.length, "#1: the preset's panels").toBe(5);
     expect(await q.countFilterResults(""), "#2: no conditions").toBe(7);
-    q.clearActiveItem();
+    q.clearFilter();
     expect(panel.visiblePanels.length, "#3: what Apply shows").toBe(7);
   });
   test("a row kept out by the filter while the condition's other question changes", async () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "min", defaultValue: 3 },
       { type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.age} > {min}", columns: [{ name: "age", cellType: "text" }], defaultValue: ages() },
-      { type: "filter", name: "f1", source: "m" }] });
+      { type: "filter", name: "f1", targetQuestion: "m" }] });
     const matrix = <any>survey.getQuestionByName("m");
     const q = <any>survey.getQuestionByName("f1");
     expect(matrix.visibleRows.length, "#1: every row built, 3 hidden").toBe(7);

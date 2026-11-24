@@ -335,8 +335,6 @@ export var estonianSurveyStrings = {
   conditionOperatorGreaterorequal: "Suurem või võrdne",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Väiksem või võrdne",
-  // [Auto-translated] "Save"
-  filterSave: "Salvesta",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtrid",
   // [Auto-translated] "Search"

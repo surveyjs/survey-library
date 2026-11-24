@@ -335,8 +335,6 @@ export var swahiliStrings = {
   conditionOperatorGreaterorequal: "Zaidi ya au sawa na",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Chini au sawa na",
-  // [Auto-translated] "Save"
-  filterSave: "Hifadhi",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Vichujio",
   // [Auto-translated] "Search"

@@ -32,7 +32,7 @@ describe("SurveyQuestionFilter", () => {
   });
   it("a change of the chips measures the row again", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
-      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+      presets: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -42,7 +42,7 @@ describe("SurveyQuestionFilter", () => {
     });
     const update = vi.spyOn(q.chipsLayout, "update");
     // The row is measured from a MutationObserver, whose callback runs in a microtask.
-    await act(async () => { q.items.splice(0, 2); });
+    await act(async () => { q.presets.splice(0, 2); });
     expect(update).toHaveBeenCalled();
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
@@ -66,7 +66,7 @@ describe("SurveyQuestionFilter", () => {
     survey.dispose();
   });
   it("typing in the search box sets the search string and the filter expression; its cross clears it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -76,13 +76,13 @@ describe("SurveyQuestionFilter", () => {
     });
     const input = container.querySelector(".sd-filter__search input") as HTMLInputElement;
     expect(!!input, "#1: the search box").toBe(true);
-    expect([q.filterExpression, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#2").toEqual(["", false]);
+    expect([q.combinedExpression, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#2").toEqual(["", false]);
     act(() => {
       input.value = "ab";
       Simulate.change(input);
     });
     expect(q.searchString, "#3").toBe("ab");
-    expect(q.filterExpression, "#4: the search filters the records").toContain("ab");
+    expect(q.combinedExpression, "#4: the search filters the records").toContain("ab");
     expect((container.querySelector(".sd-filter__search input") as HTMLInputElement).value, "#5").toBe("ab");
     const clear = container.querySelector(".sd-filter__search .sd-filter__search-clear") as HTMLButtonElement;
     expect(clear.getAttribute("title"), "#6: the cross").toBe("Clear");
@@ -94,7 +94,7 @@ describe("SurveyQuestionFilter", () => {
     survey.dispose();
   });
   it("Search in Filters looks among the filters, not the records; nothing found says so; its cross clears it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -124,9 +124,9 @@ describe("SurveyQuestionFilter", () => {
     container.remove();
   });
   it("the Filters dialog shows the search box, the presets with Add New and Edit Selected, a preset's text and the fields", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true,
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearchBar: true, allowAddPresets: true, allowEditPresets: true,
       fields: [{ name: "age", title: "Age" }],
-      items: [{ name: "p", title: "Adults", expression: "{age} > 18" }, { name: "raw", title: "Edges", expression: "{age} < 1 or {age} > 99" }] }] });
+      presets: [{ name: "p", title: "Adults", expression: "{age} > 18" }, { name: "raw", title: "Edges", expression: "{age} < 1 or {age} > 99" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -145,7 +145,7 @@ describe("SurveyQuestionFilter", () => {
     const section = container.querySelector(".sd-filter-modal__section[role='group']");
     expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4b: the section is named by its title").toBe("Filter Presets");
     // A drawn action bar shows a change of its actions' visibility in a microtask (initResponsivityManager).
-    await act(async () => { holder.modal.togglePreset(q.getItemByName("raw")); });
+    await act(async () => { holder.modal.togglePreset(q.getPresetByName("raw")); });
     const expression = container.querySelector(".sd-filter-modal__expression");
     expect([container.textContent.indexOf("Edit Selected...") > -1, !!container.querySelector(".sd-filter-modal__preset.sd-action--active")], "#4c").toEqual([true, true]);
     expect([expression.querySelector(".sd-filter-modal__section-title").textContent, expression.querySelector(".sd-filter-modal__expression-text").textContent,
@@ -161,8 +161,8 @@ describe("SurveyQuestionFilter", () => {
   it("the search box's accessible name and the presets' title are in the survey's locale", () => {
     surveyLocalization.locales["filterrenderxx"] = { filterSearchLabel: "Suche", filterPresetsTitle: "Vorlagen" };
     try {
-      const survey = new SurveyModel({ locale: "filterrenderxx", elements: [{ type: "filter", name: "f1", showSearch: true,
-        fields: [{ name: "age" }], items: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
+      const survey = new SurveyModel({ locale: "filterrenderxx", elements: [{ type: "filter", name: "f1", showSearchBar: true,
+        fields: [{ name: "age" }], presets: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
       const q = survey.getQuestionByName("f1") as QuestionFilterModel;
       const container = document.createElement("div");
       document.body.appendChild(container);
@@ -230,8 +230,8 @@ describe("SurveyQuestionFilter", () => {
 
 describe("SurveyFilterPresetDialog", () => {
   it("Edit Preset shows the form and the fields in a frame - no tabs, no actions; a new form is drawn anew", () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],
-      items: [{ name: "a", title: "Adults", expression: "{age} > 18" },
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", allowEditPresets: true, fields: [{ name: "age" }, { name: "name" }],
+      presets: [{ name: "a", title: "Adults", expression: "{age} > 18" },
         { name: "k", title: "Kids", expression: "{age} < 10 and {name} = 'x'" }] }] });
     survey.onAIFilterRequest.add(() => { });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
@@ -332,7 +332,7 @@ describe("SurveyFilterListItem", () => {
 
 describe("SurveyFilterFieldPopup", () => {
   it("Save as draws the name and Save; Save adds the preset and closes the popup", () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", allowAddPresets: true, fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     q.setFieldCondition("age", "greater", 60);
     let closed = 0;
@@ -349,7 +349,7 @@ describe("SurveyFilterFieldPopup", () => {
     expect(save.textContent, "#2").toBe("Save");
     act(() => { holder.saveAsPopup.survey.setValue("presetTitle", "Seniors"); });
     act(() => { save.click(); });
-    expect([q.visibleItems.map((item) => item.title), q.activeItemName, closed], "#3").toEqual([["Seniors"], "userItem1", 1]);
+    expect([q.visiblePresets.map((item) => item.title), q.selectedPreset, closed], "#3").toEqual([["Seniors"], "userPreset1", 1]);
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
@@ -435,7 +435,7 @@ describe("The AI description of the preset dialogs", () => {
     container.remove();
   }
   it("New Preset draws the description and its button; the fields and the name once the model answered", () => {
-    const { q, calls, container } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const { q, calls, container } = setup({ presets: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
     const dialog = q.createAddPresetDialog([]);
@@ -468,7 +468,7 @@ describe("The AI description of the preset dialogs", () => {
     cleanup(container);
   });
   it("Edit Preset shows the description and Edit", () => {
-    const { q, container } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const { q, container } = setup({ allowEditPresets: true, presets: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
     const dialog = q.createEditPresetDialog("a");

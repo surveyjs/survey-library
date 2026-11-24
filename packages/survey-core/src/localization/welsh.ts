@@ -335,8 +335,6 @@ export var welshSurveyStrings = {
   conditionOperatorGreaterorequal: "Yn fwy na neu'n hafal i",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Llai na neu'n hafal i",
-  // [Auto-translated] "Save"
-  filterSave: "Cadw",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Hidlwyr",
   // [Auto-translated] "Search"

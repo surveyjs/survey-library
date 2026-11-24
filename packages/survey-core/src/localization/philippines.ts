@@ -335,8 +335,6 @@ export var philippinesStrings = {
   conditionOperatorGreaterorequal: "Mas malaki o katumbas ng",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mas mababa o katumbas ng",
-  // [Auto-translated] "Save"
-  filterSave: "I-save",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Mga Filter",
   // [Auto-translated] "Search"

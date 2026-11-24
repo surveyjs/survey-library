@@ -25,7 +25,7 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
   getFieldEditorKind(name: string): FilterFieldEditorKind;
   setFieldCondition(name: string, operator: string, value?: any): void;
   clearFieldCondition(name: string): void;
-  createFastModeEditor(name: string): FilterConditionsEditor;
+  createQuickFilterEditor(name: string): FilterConditionsEditor;
   canEditConditionsInUI: boolean;
   cssClasses: any;
 }
@@ -39,7 +39,7 @@ export const filterPopupSearchMinItemCount = 7;
 // text. A value the respondent typed has no button of its own: unchecked, it is dropped.
 export const filterListItemComponentName = "sv-filter-list-item";
 
-// The content of a fast mode badge's popup: a checkbox list's title row with Select All, the field's
+// The content of a quick filter chip's popup: a checkbox list's title row with Select All, the field's
 // editor and a row with Apply. An operator and a value, and a single pick, have no title row: the
 // chip's cross clears the field. Nothing reaches the control until Apply (or a pick in a "single" list): closing the
 // popup any other way drops what was changed in it. The editor depends on the field (see
@@ -70,7 +70,7 @@ export class FilterFieldPopup extends Base {
     this.footerToolbarValue.locOwner = owner;
     this.footerToolbarValue.setActionsAppearance(filterPopupFooterAppearance);
     if (this.kind === "condition") {
-      this.editorValue = owner.createFastModeEditor(key);
+      this.editorValue = owner.createQuickFilterEditor(key);
     } else {
       this.listValue = this.createList();
       this.selectConditionValues();

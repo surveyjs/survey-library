@@ -335,8 +335,6 @@ export var serbianStrings = {
   conditionOperatorGreaterorequal: "Veće ili jednako",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Manje ili jednako",
-  // [Auto-translated] "Save"
-  filterSave: "Sačuvaj",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filteri",
   // [Auto-translated] "Search"

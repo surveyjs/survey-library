@@ -335,8 +335,6 @@ export var urduSurveyStrings = {
   conditionOperatorGreaterorequal: "زیادہ یا مساوی",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "کم یا برابر",
-  // [Auto-translated] "Save"
-  filterSave: "محفوظ کریں",
   // [Auto-translated] "Filters"
   filterDialogTitle: "فلٹرز",
   // [Auto-translated] "Search"

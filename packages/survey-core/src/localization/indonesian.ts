@@ -335,8 +335,6 @@ export var indonesianStrings = {
   conditionOperatorGreaterorequal: "Lebih besar dari atau sama dengan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Kurang dari atau sama dengan",
-  // [Auto-translated] "Save"
-  filterSave: "Simpan",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filter",
   // [Auto-translated] "Search"

@@ -335,8 +335,6 @@ export var frenchSurveyStrings = {
   conditionOperatorGreaterorequal: "Supérieur ou égal à",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inférieur ou égal à",
-  // [Auto-translated] "Save"
-  filterSave: "Enregistrer",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtres",
   // [Auto-translated] "Search"

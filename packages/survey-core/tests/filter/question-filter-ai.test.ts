@@ -22,7 +22,7 @@ describe("QuestionFilterModel: whether it may ask AI", () => {
     expect(q.canRequestAI, "#2").toBe(true);
   });
   test("asking needs no presets that may be added", () => {
-    expect([withAI({ allowAddItems: false }).q.canRequestAI, withAI({ allowMultipleItems: false }).q.canRequestAI]).toEqual([true, true]);
+    expect([withAI({ allowAddPresets: false }).q.canRequestAI, withAI({ showPresets: false }).q.canRequestAI]).toEqual([true, true]);
   });
   test("never in the designer", () => {
     const survey = new SurveyModel();

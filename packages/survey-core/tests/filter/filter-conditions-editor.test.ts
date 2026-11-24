@@ -23,7 +23,7 @@ describe("FilterConditionsEditor: the editor survey", () => {
     const survey = createSurvey();
     survey.locale = "de";
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     const s = editor.survey;
     expect(s.pages.length, "#1").toBe(1);
     expect(s.showNavigationButtons, "#2").toBe(false);
@@ -40,26 +40,26 @@ describe("FilterConditionsEditor: the editor survey", () => {
   });
   test("an unknown field name gives no editor", () => {
     const q = createControl();
-    expect(q.createFastModeEditor("unknown") === undefined, "#1").toBe(true);
-    expect(q.createFastModeEditor("") === undefined, "#2").toBe(true);
+    expect(q.createQuickFilterEditor("unknown") === undefined, "#1").toBe(true);
+    expect(q.createQuickFilterEditor("") === undefined, "#2").toBe(true);
   });
-  test("a field hidden from fast mode gives no fast mode editor", () => {
-    const q = createFilter({ fields: [{ name: "name" }, { name: "country", showInFastMode: false }] });
-    expect(q.createFastModeEditor("country") === undefined, "#1").toBe(true);
-    const editor = q.createFastModeEditor("name");
+  test("a field hidden from the quick filters gives no quick filter editor", () => {
+    const q = createFilter({ fields: [{ name: "name" }, { name: "country", showInQuickFilters: false }] });
+    expect(q.createQuickFilterEditor("country") === undefined, "#1").toBe(true);
+    const editor = q.createQuickFilterEditor("name");
     expect(!!editor, "#2: a shown field still gets one").toBe(true);
     editor.dispose();
   });
-  test("the second field of a duplicate valueName gives no fast mode editor", () => {
+  test("the second field of a duplicate valueName gives no quick filter editor", () => {
     const q = createFilter({ fields: [{ name: "country" }, { name: "country2", valueName: "country" }] });
-    expect(q.createFastModeEditor("country2") === undefined, "#1").toBe(true);
-    const editor = q.createFastModeEditor("country");
+    expect(q.createQuickFilterEditor("country2") === undefined, "#1").toBe(true);
+    const editor = q.createQuickFilterEditor("country");
     expect(!!editor, "#2: the first one does").toBe(true);
     editor.dispose();
   });
   test("operator titles are the English labels in the operators' order", () => {
     const q = createControl();
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     const choices = (<any>operatorQ(editor)).choices;
     expect(choices.map((c) => c.value), "#1").toEqual(q.getFieldOperators("country"));
     const titles: { [op: string]: string } = {};
@@ -70,7 +70,7 @@ describe("FilterConditionsEditor: the editor survey", () => {
     expect(titles["notequal"], "#5").toBe("Does not equal");
     expect(titles["anyof"], "#6").toBe("Any of");
     expect(titles["noneof"], "#7").toBe("None of");
-    const ageEditor = q.createFastModeEditor("age");
+    const ageEditor = q.createQuickFilterEditor("age");
     const ageTitles: { [op: string]: string } = {};
     (<any>operatorQ(ageEditor)).choices.forEach((c) => { ageTitles[c.value] = c.text; });
     expect(ageTitles["greater"], "#8").toBe("Greater than");
@@ -82,11 +82,11 @@ describe("FilterConditionsEditor: the editor survey", () => {
 
 describe("FilterConditionsEditor: prefill", () => {
   test("from the active preset's conditions", () => {
-    const q = createControl({ items: [{ name: "adults", expression: "{age} > 18 and {country} = 'de'" }] });
-    const age = q.createFastModeEditor("age");
+    const q = createControl({ presets: [{ name: "adults", expression: "{age} > 18 and {country} = 'de'" }] });
+    const age = q.createQuickFilterEditor("age");
     expect(operatorQ(age).value, "#1").toBe("greater");
     expect(valueQ(age).value, "#2").toBe(18);
-    const country = q.createFastModeEditor("country");
+    const country = q.createQuickFilterEditor("country");
     expect(operatorQ(country).value, "#3").toBe("equal");
     expect(valueQ(country).value, "#4").toBe("de");
     expect(valueQ(country).getType(), "#5").toBe("dropdown");
@@ -96,45 +96,45 @@ describe("FilterConditionsEditor: prefill", () => {
   });
   test("a field with no condition starts with its default operator and no value", () => {
     const q = createControl();
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     expect(operatorQ(editor).value, "#1").toBe(getFilterFieldDefaultOperator(q.getFieldByName("country")));
     expect(valueQ(editor).isEmpty(), "#2").toBe(true);
     editor.dispose();
   });
   test("a preset that does not decompose opens empty and reports isRawExpression", () => {
-    const q = createControl({ items: [{ name: "edges", expression: "{age} < 18 or {age} > 35" }], defaultItem: "edges" });
-    const editor = q.createFastModeEditor("age");
+    const q = createControl({ presets: [{ name: "edges", expression: "{age} < 18 or {age} > 35" }], defaultPreset: "edges" });
+    const editor = q.createQuickFilterEditor("age");
     expect(editor.isRawExpression, "#1").toBe(true);
     expect(operatorQ(editor).value, "#2").toBe(getFilterFieldDefaultOperator(q.getFieldByName("age")));
     expect(valueQ(editor).isEmpty(), "#3").toBe(true);
-    expect(q.filterExpression, "#4: nothing written").toBe("{age} < 18 or {age} > 35");
+    expect(q.combinedExpression, "#4: nothing written").toBe("{age} < 18 or {age} > 35");
     editor.dispose();
   });
 });
 
-describe("FilterConditionsEditor: fast mode writes on apply()", () => {
+describe("FilterConditionsEditor: a quick filter writes on apply()", () => {
   test("nothing is written until apply(); apply() writes the field's condition", () => {
     const q = createFilter();
-    const editor = q.createFastModeEditor("age");
+    const editor = q.createQuickFilterEditor("age");
     operatorQ(editor).value = "greater";
     valueQ(editor).value = 21;
-    expect(q.filterExpression, "#1: not applied yet").toBe("");
+    expect(q.combinedExpression, "#1: not applied yet").toBe("");
     editor.apply();
-    expect(q.filterExpression, "#2").toBe("{age} > 21");
+    expect(q.combinedExpression, "#2").toBe("{age} > 21");
     expect(q.getFieldCondition("age"), "#3").toEqual({ field: "age", operator: "greater", value: 21 });
     operatorQ(editor).value = "less";
     expect(valueQ(editor).value, "#4: same editor type - the value is kept").toBe(21);
     editor.apply();
-    expect(q.filterExpression, "#5").toBe("{age} < 21");
+    expect(q.combinedExpression, "#5").toBe("{age} < 21");
     editor.dispose();
   });
   test("anyof on a dropdown field edits with a checkbox; changing the editor type drops the value", () => {
     const q = createFilter();
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     operatorQ(editor).value = "equal";
     valueQ(editor).value = "de";
     editor.apply();
-    expect(q.filterExpression, "#1").toBe("{country} = 'de'");
+    expect(q.combinedExpression, "#1").toBe("{country} = 'de'");
     operatorQ(editor).value = "anyof";
     const value = valueQ(editor);
     expect(value.getType(), "#2").toBe("checkbox");
@@ -142,23 +142,23 @@ describe("FilterConditionsEditor: fast mode writes on apply()", () => {
     expect(value.isEmpty(), "#4: dropdown -> checkbox does not keep the value").toBe(true);
     editor.apply();
     expect(q.getFieldCondition("country"), "#5: the condition is cleared with it").toBe(undefined);
-    expect(q.filterExpression, "#6").toBe("");
+    expect(q.combinedExpression, "#6").toBe("");
     value.value = ["fr"];
     editor.apply();
-    expect(q.filterExpression, "#7").toBe("{country} anyof ['fr']");
+    expect(q.combinedExpression, "#7").toBe("{country} anyof ['fr']");
     editor.dispose();
   });
   test("empty hides the value question and sets the condition", () => {
     const q = createFilter();
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     operatorQ(editor).value = "empty";
     expect(valueQ(editor).isVisible, "#1").toBe(false);
     editor.apply();
     expect(q.getFieldCondition("country"), "#2").toEqual({ field: "country", operator: "empty", value: undefined });
-    expect(q.filterExpression, "#3").toBe("{country} empty");
+    expect(q.combinedExpression, "#3").toBe("{country} empty");
     operatorQ(editor).value = "notempty";
     editor.apply();
-    expect(q.filterExpression, "#4").toBe("{country} notempty");
+    expect(q.combinedExpression, "#4").toBe("{country} notempty");
     operatorQ(editor).value = "equal";
     expect(valueQ(editor).isVisible, "#5").toBe(true);
     editor.apply();
@@ -166,46 +166,46 @@ describe("FilterConditionsEditor: fast mode writes on apply()", () => {
     editor.dispose();
   });
   test("clearing the value removes the condition", () => {
-    const q = createControl({ items: [{ name: "adults", expression: "{age} > 18 and {country} = 'de'" }] });
-    const editor = q.createFastModeEditor("country");
+    const q = createControl({ presets: [{ name: "adults", expression: "{age} > 18 and {country} = 'de'" }] });
+    const editor = q.createQuickFilterEditor("country");
     valueQ(editor).clearValue();
     editor.apply();
     expect(q.getFieldCondition("country"), "#1").toBe(undefined);
-    expect(q.filterExpression, "#2: the preset's other condition stays").toBe("{age} > 18");
+    expect(q.combinedExpression, "#2: the preset's other condition stays").toBe("{age} > 18");
     editor.dispose();
   });
   test("a change that leaves no condition where there was none writes nothing", () => {
     const q = createControl();
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     operatorQ(editor).value = "notequal";
     editor.apply();
     expect(q.ownConditions, "#1").toBe(undefined);
-    expect(q.filterExpression, "#2").toBe("{age} > 18");
-    expect(q.activeItemName, "#3: the preset is still on").toBe("adults");
+    expect(q.combinedExpression, "#2").toBe("{age} > 18");
+    expect(q.selectedPreset, "#3: the preset is still on").toBe("adults");
     editor.dispose();
   });
   test("an untouched editor's apply() writes nothing", () => {
     const q = createControl();
-    const editor = q.createFastModeEditor("age");
+    const editor = q.createQuickFilterEditor("age");
     editor.apply();
     expect(q.ownConditions, "#1").toBe(undefined);
-    expect(q.activeItemName, "#2").toBe("adults");
+    expect(q.selectedPreset, "#2").toBe("adults");
     editor.dispose();
   });
   test("a bound control's field is edited the same way", () => {
     const survey = createBound();
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     operatorQ(editor).value = "equal";
     valueQ(editor).value = "fr";
     editor.apply();
-    expect(q.filterExpression, "#1").toBe("{country} = 'fr'");
+    expect(q.combinedExpression, "#1").toBe("{country} = 'fr'");
     expect((<any>survey.getQuestionByName("m")).visibleRows.length, "#2").toBe(1);
     editor.dispose();
   });
   test("multi-value values are written in the field's choice order, unknown values after them", () => {
     const q = createFilter();
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     operatorQ(editor).value = "anyof";
     valueQ(editor).value = ["gb", "de"];
     editor.apply();
@@ -218,22 +218,22 @@ describe("FilterConditionsEditor: fast mode writes on apply()", () => {
 });
 
 describe("FilterConditionsEditor: a field with one allowed operator", () => {
-  const countryOnlyAnyOf = (): any => ({ name: "country", fieldType: "dropdown", choices: ["de", "fr", "gb"], filterOperators: ["anyof"] });
-  test("fast mode: no operator dropdown, the checkboxes alone; the first checked one writes anyof", () => {
-    const q = createFilter({ items: [], fields: [countryOnlyAnyOf(), { name: "age", fieldType: "text", inputType: "number" }] });
-    const editor = q.createFastModeEditor("country");
+  const countryOnlyAnyOf = (): any => ({ name: "country", fieldType: "dropdown", choices: ["de", "fr", "gb"], operators: ["anyof"] });
+  test("a quick filter: no operator dropdown, the checkboxes alone; the first checked one writes anyof", () => {
+    const q = createFilter({ presets: [], fields: [countryOnlyAnyOf(), { name: "age", fieldType: "text", inputType: "number" }] });
+    const editor = q.createQuickFilterEditor("country");
     expect(operatorQ(editor).isVisible, "#1").toBe(false);
     expect(operatorQ(editor).value, "#2").toBe("anyof");
     expect(valueQ(editor).getType(), "#3").toBe("checkbox");
-    expect(q.filterExpression, "#4: nothing checked, no filter yet").toBe("");
+    expect(q.combinedExpression, "#4: nothing checked, no filter yet").toBe("");
     valueQ(editor).value = ["fr"];
     editor.apply();
-    expect(q.filterExpression, "#5").toBe("{country} anyof ['fr']");
+    expect(q.combinedExpression, "#5").toBe("{country} anyof ['fr']");
     editor.dispose();
   });
-  test("advanced mode hides it the same way and keeps it for a field with several operators", () => {
-    const q = createFilter({ items: [], fields: [countryOnlyAnyOf(), { name: "age", fieldType: "text", inputType: "number" }] });
-    const editor = q.createAdvancedModeEditor();
+  test("the Filters dialog hides it the same way and keeps it for a field with several operators", () => {
+    const q = createFilter({ presets: [], fields: [countryOnlyAnyOf(), { name: "age", fieldType: "text", inputType: "number" }] });
+    const editor = q.createAllFiltersEditor();
     expect(operatorQ(editor, 0).isVisible, "#1").toBe(false);
     expect(operatorQ(editor, 1).isVisible, "#2").toBe(true);
     editor.dispose();
@@ -246,7 +246,7 @@ describe("FilterConditionsEditor: read-only", () => {
     survey.setDesignMode(true);
     survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const editor = q.createFastModeEditor("age");
+    const editor = q.createQuickFilterEditor("age");
     expect(editor.survey.mode, "#1").toBe("display");
     operatorQ(editor).value = "greater";
     valueQ(editor).value = 21;
@@ -258,7 +258,7 @@ describe("FilterConditionsEditor: read-only", () => {
 describe("FilterConditionsEditor: dispose", () => {
   test("dispose() disposes the editor survey and stops writing", () => {
     const q = createFilter();
-    const editor = q.createFastModeEditor("age");
+    const editor = q.createQuickFilterEditor("age");
     const s = editor.survey;
     const operator = operatorQ(editor);
     const value = valueQ(editor);
@@ -269,7 +269,7 @@ describe("FilterConditionsEditor: dispose", () => {
     value.value = 21;
     editor.apply();
     expect(q.ownConditions, "#3: a disposed editor writes nothing").toBe(undefined);
-    expect(q.filterExpression, "#4").toBe("");
+    expect(q.combinedExpression, "#4").toBe("");
     editor.dispose();
   });
 });
@@ -278,7 +278,7 @@ describe("FilterConditionsEditor: rendering the rebuilt value question", () => {
     settings.animationEnabled = true;
     try {
       const q = createControl();
-      const editor = q.createFastModeEditor("age");
+      const editor = q.createQuickFilterEditor("age");
       const panel = <PanelModel>editor.survey.getPanelByName("f0");
       panel.enableOnElementRerenderedEvent();
       expect(panel.animationAllowed, "#1: animations do run in the editor").toBe(true);
@@ -294,14 +294,14 @@ describe("FilterConditionsEditor: rendering the rebuilt value question", () => {
 });
 describe("FilterConditionsEditor: the editor survey inside another survey", () => {
   test("renders compact: no frames of its own", () => {
-    const editor = createControl().createFastModeEditor("age");
+    const editor = createControl().createQuickFilterEditor("age");
     expect(editor.survey.isCompact, "#1").toBe(true);
     editor.dispose();
   });
   test("its popups measure the window, not the host survey's root: a survey is often shorter than the screen", () => {
     const q = createControl();
     (<any>q.survey).rootElement = document.createElement("div");
-    const editor = q.createFastModeEditor("country");
+    const editor = q.createQuickFilterEditor("country");
     const popup = (<any>valueQ(editor)).dropdownListModel.popupModel;
     popup.isVisible = true;
     const area = !!popup.getAreaCallback ? popup.getAreaCallback(document.createElement("div")) : undefined;

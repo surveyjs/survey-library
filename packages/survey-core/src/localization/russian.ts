@@ -335,8 +335,6 @@ export var russianSurveyStrings = {
   conditionOperatorGreaterorequal: "Больше или равно",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Меньше или равно",
-  // [Auto-translated] "Save"
-  filterSave: "Сохранить",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Фильтры",
   // [Auto-translated] "Search"

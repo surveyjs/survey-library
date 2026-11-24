@@ -335,8 +335,6 @@ export var hungarianSurveyStrings = {
   conditionOperatorGreaterorequal: "Nagyobb vagy egyenlő",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Kisebb vagy egyenlő",
-  // [Auto-translated] "Save"
-  filterSave: "Mentés",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Szűrők",
   // [Auto-translated] "Search"

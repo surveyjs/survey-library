@@ -335,8 +335,6 @@ export var japaneseSurveyStrings = {
   conditionOperatorGreaterorequal: "以下以上",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "以下",
-  // [Auto-translated] "Save"
-  filterSave: "保存",
   // [Auto-translated] "Filters"
   filterDialogTitle: "フィルター",
   // [Auto-translated] "Search"

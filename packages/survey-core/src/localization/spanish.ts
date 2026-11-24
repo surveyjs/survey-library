@@ -335,8 +335,6 @@ export var spanishSurveyStrings = {
   conditionOperatorGreaterorequal: "Mayor o igual a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Menor o igual a",
-  // [Auto-translated] "Save"
-  filterSave: "Guardar",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtros",
   // [Auto-translated] "Search"

@@ -335,8 +335,6 @@ export var slovenianStrings = {
   conditionOperatorGreaterorequal: "Večje ali enako",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Manjše ali enako",
-  // [Auto-translated] "Save"
-  filterSave: "Shrani",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtri",
   // [Auto-translated] "Search"

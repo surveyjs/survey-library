@@ -13,8 +13,10 @@ const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "germans", expression: "{country} = 'de'" },
   { name: "edges", expression: "{age} < 18 or {age} > 35" }];
+// The respondent may add, edit and delete presets here: the permissions are off by default.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
 function control(over: any = {}): QuestionFilterModel {
-  return createFilter(Object.assign({ items: presets }, over));
+  return createFilter(Object.assign({ presets: presets }, editable, over));
 }
 function addPreset(modal: FilterModal): Action {
   return <Action>modal.presetsToolbar.getActionById("sv-filter-modal-add-preset");
@@ -24,7 +26,7 @@ function editSelected(modal: FilterModal): Action {
 }
 // The presets' pills, the one on marked with *.
 function chips(modal: FilterModal): Array<string> {
-  return modal.presetsToolbar.actions.filter((a: Action): boolean => a.id.indexOf("sv-filter-modal-item-") === 0)
+  return modal.presetsToolbar.actions.filter((a: Action): boolean => a.id.indexOf("sv-filter-modal-preset-") === 0)
     .map((a: Action): string => a.title + (a.active ? "*" : ""));
 }
 // A stand-in for the dialog host, as in filter-toolbars.test.ts: the options it was given, its footer,
@@ -47,52 +49,52 @@ describe("FilterModal: Add New and Edit Selected", () => {
   test("after the presets' pills: Add New where presets may be added, Edit Selected while the preset picked may be changed", () => {
     const q = control();
     const modal = q.createFilterModal();
-    expect(ids(modal.presetsToolbar), "#1").toEqual(["sv-filter-modal-item-adults", "sv-filter-modal-item-germans", "sv-filter-modal-item-edges",
+    expect(ids(modal.presetsToolbar), "#1").toEqual(["sv-filter-modal-preset-adults", "sv-filter-modal-preset-germans", "sv-filter-modal-preset-edges",
       "sv-filter-modal-add-preset", "sv-filter-modal-edit-preset"]);
     expect([addPreset(modal).title, addPreset(modal).iconName, addPreset(modal).visible], "#2").toEqual(["Add New...", "icon-plus-24x24", true]);
     expect([editSelected(modal).title, editSelected(modal).iconName, editSelected(modal).visible], "#3").toEqual(["Edit Selected...", "icon-edit-24x24", false]);
-    modal.togglePreset(q.getItemByName("adults"));
+    modal.togglePreset(q.getPresetByName("adults"));
     expect(editSelected(modal).visible, "#4: a preset picked").toBe(true);
-    modal.togglePreset(q.getItemByName("adults"));
+    modal.togglePreset(q.getPresetByName("adults"));
     expect(editSelected(modal).visible, "#5").toBe(false);
     modal.dispose();
-    const noAdd = control({ allowAddItems: false }).createFilterModal();
+    const noAdd = control({ allowAddPresets: false }).createFilterModal();
     expect(addPreset(noAdd).visible, "#6").toBe(false);
     noAdd.dispose();
-    const fixedControl = control({ items: [{ name: "a", expression: "{age} > 1", allowEdit: false, allowDelete: false }] });
+    const fixedControl = control({ presets: [{ name: "a", expression: "{age} > 1", allowEdit: false, allowDelete: false }] });
     const fixed = fixedControl.createFilterModal();
-    fixed.togglePreset(fixedControl.getItemByName("a"));
+    fixed.togglePreset(fixedControl.getPresetByName("a"));
     expect([addPreset(fixed).visible, editSelected(fixed).visible], "#7").toEqual([true, false]);
     fixed.dispose();
   });
   test("the pills are round, the one picked dark; Add New and Edit Selected are the small actions they stand with", () => {
     const q = control();
     const modal = q.createFilterModal();
-    modal.togglePreset(q.getItemByName("adults"));
-    const adults = modal.presetsToolbar.getActionById("sv-filter-modal-item-adults");
+    modal.togglePreset(q.getPresetByName("adults"));
+    const adults = modal.presetsToolbar.getActionById("sv-filter-modal-preset-adults");
     expect(adults.getActionBarItemCss().split(" "), "#1").toEqual(expect.arrayContaining(["sd-action--neutral", "sd-action--primary", "sd-action--small", "sd-filter-modal__preset"]));
     expect(addPreset(modal).getActionBarItemCss().split(" ").indexOf("sd-filter-modal__preset"), "#2").toBe(-1);
     modal.dispose();
   });
-  test("neither in single mode, nor in the designer", () => {
-    const single = control({ allowMultipleItems: false }).createFilterModal();
+  test("neither while the presets are hidden, nor in the designer", () => {
+    const single = control({ showPresets: false }).createFilterModal();
     expect([addPreset(single).visible, editSelected(single).visible], "#1").toEqual([false, false]);
     single.dispose();
     const survey = new SurveyModel();
     survey.setDesignMode(true);
-    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }], items: presets, defaultItem: "adults" }] });
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }], presets: presets, defaultPreset: "adults" }] });
     const designer = (<QuestionFilterModel>survey.getQuestionByName("f1")).createFilterModal();
     expect([addPreset(designer).visible, editSelected(designer).visible], "#2").toEqual([false, false]);
     designer.dispose();
   });
   test("a new preset starts with what the buffer filters by", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     const modal = q.createFilterModal();
     expect(modal.presetConditions, "#1: the preset on").toEqual([{ field: "age", operator: "greater", value: 18 }]);
-    modal.togglePreset(q.getItemByName("edges"));
+    modal.togglePreset(q.getPresetByName("edges"));
     expect(modal.presetConditions, "#2: one that does not decompose").toEqual([]);
-    modal.togglePreset(q.getItemByName("edges"));
+    modal.togglePreset(q.getPresetByName("edges"));
     modal.editor.survey.getQuestionByName("f2_operator").value = "less";
     modal.editor.survey.getQuestionByName("f2_value").value = 5;
     expect(modal.presetConditions, "#3: the fields").toEqual([{ field: "age", operator: "less", value: 5 }]);
@@ -105,8 +107,8 @@ describe("FilterToolbars: the preset dialogs", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
-      q.toggleItem("adults");
-      q.showAdvancedEditor();
+      q.togglePreset("adults");
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
       addPreset(modal).action();
       const o = dialogs.calls[1].options;
@@ -116,8 +118,8 @@ describe("FilterToolbars: the preset dialogs", () => {
       expect([dialog instanceof FilterEditPresetDialog, dialog.editor.getConditions()], "#2")
         .toEqual([false, [{ field: "age", operator: "greater", value: 18 }]]);
       expect(ids(dialogs.calls[1].footerToolbar), "#3").toEqual(["sv-filter-preset-cancel", "sv-filter-preset-apply"]);
-      modal.togglePreset(q.getItemByName("adults"));
-      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
       editSelected(modal).action();
       expect(dialogs.calls.length, "#4").toBe(2);
     } finally {
@@ -128,18 +130,18 @@ describe("FilterToolbars: the preset dialogs", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
       q.showPresetDialog(modal, false);
       const host = dialogs.calls[1];
       const dialog: FilterPresetDialog = host.options.data.holder.presetDialog;
       (<Action>host.footerToolbar.getActionById("sv-filter-preset-apply")).action();
-      expect([dialog.isDisposed, q.visibleItems.length], "#1").toEqual([false, 3]);
+      expect([dialog.isDisposed, q.visiblePresets.length], "#1").toEqual([false, 3]);
       dialog.form.setValue("presetTitle", "Mine");
       dialog.form.getQuestionByName("presetFields").value = ["age"];
       dialog.editor.survey.getQuestionByName("f0_value").value = 3;
       (<Action>host.footerToolbar.getActionById("sv-filter-preset-apply")).action();
-      expect([dialog.isDisposed, host.options.data.holder.presetDialog, q.visibleItems[3].expression], "#2").toEqual([true, undefined, "{age} = 3"]);
+      expect([dialog.isDisposed, host.options.data.holder.presetDialog, q.visiblePresets[3].expression], "#2").toEqual([true, undefined, "{age} = 3"]);
       expect(chips(modal), "#3").toEqual(["Adults", "germans", "edges", "Mine"]);
       q.showPresetDialog(modal, false);
       expect(dialogs.calls.length, "#4: it opens again").toBe(3);
@@ -151,7 +153,7 @@ describe("FilterToolbars: the preset dialogs", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
       q.showPresetDialog(modal, false);
       const add = dialogs.calls[1];
@@ -159,14 +161,14 @@ describe("FilterToolbars: the preset dialogs", () => {
       dialog.form.setValue("presetTitle", "Mine");
       dialog.form.getQuestionByName("presetFields").value = ["age"];
       (<Action>add.footerToolbar.getActionById("sv-filter-preset-cancel")).action();
-      expect([dialog.isDisposed, q.visibleItems.length, chips(modal).length], "#1").toEqual([true, 3, 3]);
-      modal.togglePreset(q.getItemByName("germans"));
+      expect([dialog.isDisposed, q.visiblePresets.length, chips(modal).length], "#1").toEqual([true, 3, 3]);
+      modal.togglePreset(q.getPresetByName("germans"));
       editSelected(modal).action();
       const host = dialogs.calls[2];
       const edit: FilterEditPresetDialog = host.options.data.holder.presetDialog;
       edit.form.setValue("presetTitle", "Germans");
       host.cancel();
-      expect([edit.isDisposed, q.getItemByName("germans").title, chips(modal)], "#2").toEqual([true, "germans", ["Adults", "germans*", "edges"]]);
+      expect([edit.isDisposed, q.getPresetByName("germans").title, chips(modal)], "#2").toEqual([true, "germans", ["Adults", "germans*", "edges"]]);
     } finally {
       dialogs.restore();
     }
@@ -175,23 +177,23 @@ describe("FilterToolbars: the preset dialogs", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
-      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
       editSelected(modal).action();
       const host = dialogs.calls[1];
       const dialog: FilterEditPresetDialog = host.options.data.holder.presetDialog;
-      expect([host.options.title, dialog.item.name], "#1").toEqual(["Edit Preset", "adults"]);
+      expect([host.options.title, dialog.preset.name], "#1").toEqual(["Edit Preset", "adults"]);
       dialog.editor.survey.getQuestionByName("f0_value").value = 30;
       dialog.form.setValue("presetTitle", "Over 30");
       host.apply();
       expect([chips(modal), modal.editor.getConditions()], "#2").toEqual([["Over 30*", "germans", "edges"], [{ field: "age", operator: "greater", value: 30 }]]);
-      expect(q.activeItemName, "#3: the control has nothing applied yet").toBe("");
+      expect(q.selectedPreset, "#3: the control has nothing applied yet").toBe("");
       q.showPresetDialog(modal, true);
       const deleted: FilterEditPresetDialog = dialogs.calls[2].options.data.holder.presetDialog;
       (<Action>dialogs.calls[2].footerToolbar.getActionById("sv-filter-preset-delete")).action();
-      expect([chips(modal), modal.activeItemName, modal.editor.getConditions()], "#4").toEqual([["germans", "edges"], "", []]);
-      expect([deleted.isDisposed, q.visibleItems.length], "#5: Delete closes the dialog").toEqual([true, 2]);
+      expect([chips(modal), modal.selectedPreset, modal.editor.getConditions()], "#4").toEqual([["germans", "edges"], "", []]);
+      expect([deleted.isDisposed, q.visiblePresets.length], "#5: Delete closes the dialog").toEqual([true, 2]);
     } finally {
       dialogs.restore();
     }
@@ -199,10 +201,10 @@ describe("FilterToolbars: the preset dialogs", () => {
   test("Edit Preset's footer: Delete on the left while the preset may be deleted, Cancel otherwise; Apply on the right", () => {
     const dialogs = stubDialogs();
     try {
-      const q = control({ items: presets.concat([{ name: "kept", expression: "{age} > 3", allowDelete: false }]) });
-      q.showAdvancedEditor();
+      const q = control({ presets: presets.concat([{ name: "kept", expression: "{age} > 3", allowDelete: false }]) });
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
-      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
       editSelected(modal).action();
       const footer: ActionContainer = dialogs.calls[1].footerToolbar;
       expect(ids(footer), "#1").toEqual(["sv-filter-preset-delete", "sv-filter-preset-apply"]);
@@ -210,7 +212,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       expect([del.title, del.iconName, Object.assign({}, del.appearance)], "#2: the footer gives its size")
         .toEqual(["Delete", "icon-delete-24x24", { style: "alert", mode: "secondary" }]);
       dialogs.calls[1].cancel();
-      modal.togglePreset(q.getItemByName("kept"));
+      modal.togglePreset(q.getPresetByName("kept"));
       editSelected(modal).action();
       expect(ids(dialogs.calls[2].footerToolbar), "#3").toEqual(["sv-filter-preset-cancel", "sv-filter-preset-apply"]);
       dialogs.calls[2].cancel();
@@ -221,14 +223,14 @@ describe("FilterToolbars: the preset dialogs", () => {
   test("Edit Preset does not open without a preset the respondent may change or delete", () => {
     const dialogs = stubDialogs();
     try {
-      const q = control({ items: presets.concat([{ name: "fixed", expression: "{age} > 1", allowEdit: false, allowDelete: false }]) });
-      q.showAdvancedEditor();
+      const q = control({ presets: presets.concat([{ name: "fixed", expression: "{age} > 1", allowEdit: false, allowDelete: false }]) });
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
       q.showPresetDialog(modal, true);
-      modal.togglePreset(q.getItemByName("fixed"));
+      modal.togglePreset(q.getPresetByName("fixed"));
       q.showPresetDialog(modal, true);
       expect(dialogs.calls.length, "#1").toBe(1);
-      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
       q.showPresetDialog(modal, true);
       expect(dialogs.calls.length, "#2: it opens for one that may").toBe(2);
     } finally {
@@ -240,7 +242,7 @@ describe("FilterToolbars: the preset dialogs", () => {
     try {
       const q = control();
       const modal = q.createFilterModal();
-      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getPresetByName("adults"));
       editSelected(modal).action();
       const dialog = dialogs.calls[0];
       const model = dialog.options.data.holder.presetDialog;
@@ -261,11 +263,11 @@ describe("FilterToolbars: Edit Preset while Edit waits for the model", () => {
   test("its Apply is off until the answer comes", () => {
     const dialogs = stubDialogs();
     try {
-      const q = control({ items: [{ name: "a1", title: "Adults", expression: "{age} > 18" }] });
+      const q = control({ presets: [{ name: "a1", title: "Adults", expression: "{age} > 18" }] });
       const calls: Array<any> = [];
       (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
       const modal = q.createFilterModal();
-      modal.togglePreset(q.getItemByName("a1"));
+      modal.togglePreset(q.getPresetByName("a1"));
       editSelected(modal).action();
       const edit: FilterEditPresetDialog = dialogs.calls[0].options.data.holder.presetDialog;
       const apply: Action = dialogs.calls[0].footerToolbar.actions[1];

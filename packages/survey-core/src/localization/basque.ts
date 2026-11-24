@@ -335,8 +335,6 @@ export var basqueSurveyStrings = {
   conditionOperatorGreaterorequal: "Handiagoa edo berdina",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Txikiagoa edo berdina",
-  // [Auto-translated] "Save"
-  filterSave: "Gorde",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Iragazkiak",
   // [Auto-translated] "Search"

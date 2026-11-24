@@ -335,8 +335,6 @@ export var lithuaniaSurveyStrings = {
   conditionOperatorGreaterorequal: "Didesnis arba lygus",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mažiau arba lygu",
-  // [Auto-translated] "Save"
-  filterSave: "Išsaugoti",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtrai",
   // [Auto-translated] "Search"

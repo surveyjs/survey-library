@@ -17,7 +17,7 @@ function item(popup: FilterFieldPopup, title: string): Action {
 function designControl(): QuestionFilterModel {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
-  survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: fields, showSearch: true }] });
+  survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: fields, showSearchBar: true }] });
   return <QuestionFilterModel>survey.getQuestionByName("f1");
 }
 
@@ -29,7 +29,7 @@ describe("Filter Control: the renderers' classes", () => {
     expect(q.getQuestionRootCss(), "#2").toBe("sd-filter sd-filter--mobile");
   });
   test("the search box's root: the text input's root and the control's own class", () => {
-    const q = createFilter({ fields: fields, showSearch: true });
+    const q = createFilter({ fields: fields, showSearchBar: true });
     expect(q.searchCss.root.length > 0, "#0: the survey's text root").toBe(true);
     expect(q.searchRootCss, "#1").toBe(q.searchCss.root + " sd-filter__search");
   });
@@ -45,7 +45,7 @@ describe("Filter Control: the renderers' classes", () => {
     expect((<any>q).toolbarsValue?.layoutValue, "#5: no new layout").toBeUndefined();
   });
   test("a list entry's check: checked by its active flag, read-only in the designer", () => {
-    const q = createFilter({ fields: fields, items: [] });
+    const q = createFilter({ fields: fields, presets: [] });
     q.setFieldCondition("country", "anyof", ["fr"]);
     const popup = q.createFieldPopup("country", () => { });
     expect(popup.getItemCheckCss(item(popup, "Germany")), "#1").toBe("sd-checkbox sd-filter-popup__check");
@@ -80,11 +80,11 @@ describe("Filter Control: the renderers' classes", () => {
 
 describe("Filter Control: the search boxes' disabled state", () => {
   test("the control's box is off in the designer only", () => {
-    expect(createFilter({ fields: fields, showSearch: true }).isSearchDisabled, "#1").toBe(false);
+    expect(createFilter({ fields: fields, showSearchBar: true }).isSearchDisabled, "#1").toBe(false);
     expect(designControl().isSearchDisabled, "#2").toBe(true);
   });
   test("the Filters dialog's Search in Filters looks among the fields of a read-only dialog too: it changes nothing", () => {
-    const locked = createFilter({ fields: fields, showSearch: true, readOnly: true });
+    const locked = createFilter({ fields: fields, showSearchBar: true, readOnly: true });
     const lockedModal = locked.createFilterModal();
     lockedModal.filterText = "zzz";
     expect([lockedModal.isReadOnly, lockedModal.isNothingFound], "#1").toEqual([true, true]);

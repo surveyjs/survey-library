@@ -26,7 +26,7 @@ const columns = [
 ];
 function createSurvey(filter: any = {}): SurveyModel {
   const elements: Array<any> = [{ type: "matrixdynamic", name: "m", columns: columns },
-    Object.assign({ type: "filter", name: "f", source: "m" }, filter)];
+    Object.assign({ type: "filter", name: "f", targetQuestion: "m" }, filter)];
   for (let i = 1; i <= 10; i++) {
     elements.push({ type: "text", name: "t" + i });
   }
@@ -38,7 +38,7 @@ function createSurvey(filter: any = {}): SurveyModel {
   survey.getQuestionByName("m").value = records;
   return survey;
 }
-const preset = { items: [{ name: "p", expression: "{country} = 'de' and {qty} > 5 and {tags} anyof ['a']" }], defaultItem: "p" };
+const preset = { presets: [{ name: "p", expression: "{country} = 'de' and {qty} > 5 and {tags} anyof ['a']" }], defaultPreset: "p" };
 
 interface ICost { conditionJson: number, sourceFields: number, controlFields: number, toolbarUpdates: number, properties: Array<string> }
 function measure(survey: SurveyModel, fn: () => void): ICost {
@@ -83,7 +83,7 @@ describe("QuestionFilterModel: the work one survey value change costs", () => {
       });
       test("one pass over the toolbars reads the field list once and each field's condition json once", () => {
         const { survey, q } = create();
-        const cost = measure(survey, () => { q.allowAddItems = false; });
+        const cost = measure(survey, () => { q.allowAddPresets = true; });
         expect(cost.toolbarUpdates, "#1").toBe(1);
         expect(cost.conditionJson, "#2: one per field").toBeLessThanOrEqual(columns.length);
         expect(cost.sourceFields, "#3").toBeLessThanOrEqual(1);

@@ -335,8 +335,6 @@ export var icelandicSurveyStrings = {
   conditionOperatorGreaterorequal: "Stærri eða jafnt og",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Minna en eða jafnt",
-  // [Auto-translated] "Save"
-  filterSave: "Vista",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Síur",
   // [Auto-translated] "Search"

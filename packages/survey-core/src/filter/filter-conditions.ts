@@ -109,7 +109,7 @@ function narrowTypelessOperators(names: Array<string>, valueType: string): Array
 // (QuestionFilterModel.updateToolbars): its operators and its editor's kind, by the field's
 // descriptor - the pass reads the field list once, so a field is the same object for all of it. Kept
 // for the length of the synchronous call and dropped at its end, never longer: a bound field list can
-// change with no notification (see filterExpressionParseCache), and a change of the source, its
+// change with no notification (see filterExpressionParseCache), and a change of the target, its
 // columns or the locale comes as a pass of its own. A call inside a running pass shares its cache.
 let filterFieldPassCache: { [name: string]: Map<IDynamicDataFilterField, any> };
 export function runWithFilterFieldCache(fn: () => void): void {

@@ -1,5 +1,6 @@
 import type { ChangedKeys } from "./conditions/conditionProcessValue";
-import { Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { Base } from "./base";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
 import type { LocalizableString } from "./localizablestring";
@@ -7,10 +8,10 @@ import type { Question } from "./question";
 import { Helpers, HashTable } from "./helpers";
 import { ISurveyImpl } from "./base-interfaces";
 import {
-  IElementUIState, IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterSavedItemState, IFilterState, IFilterUserItemState
+  IElementUIState, IFilterCondition, IFilterElementUIState, IFilterPresetEdit, IFilterSavedPresetState, IFilterState, IFilterUserPresetState
 } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
-import { FilterItem } from "./filter/filter-item";
+import { FilterPreset, IFilterPreset } from "./filter/filter-preset";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-field-popup";
 import { FilterSaveAsPopup } from "./filter/filter-save-as-popup";
@@ -30,17 +31,27 @@ import {
 } from "./filter/filter-conditions";
 import { FilterFieldEditorKind, getFilterChipText, getFilterFieldEditorKind } from "./filter/filter-field-kinds";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dynamic-data-filter-fields";
-import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataFilterTarget } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 import { toCssClasses } from "./utils/cssClassBuilder";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
-type FilterSavedItems = { [name: string]: IFilterSavedItemState };
+type FilterSavedPresets = { [name: string]: IFilterSavedPresetState };
 // The operators whose value is a set of values - see isSameConditionSet().
-// The source is always the question findQuestionByName returns, asked by capability - see filterSource.
-type FilterSourceQuestion = Question & IDynamicDataFilterSource;
+// The target is always the question findQuestionByName returns, asked by capability - see filterTarget.
+type FilterTargetQuestion = Question & IDynamicDataFilterTarget;
 const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
 
+// A JSON definition in an array the host assigns, made the object of its class; an object is kept.
+function toFilterObjects(val: Array<any>, className: string): Array<any> {
+  if (!Array.isArray(val)) return val;
+  return val.map((item: any): any => {
+    if (!item || item instanceof Base) return item;
+    const obj = Serializer.createClass(className);
+    new JsonObject().toObject(item, obj);
+    return obj;
+  });
+}
 // The Filter Control. It descends from QuestionNonValue because it is a control and not an answer:
 // it never assigns this.value, so it stays out of survey.data, out of the condition editor and out
 // of validation. What the end user does with it is UI state, not survey data.
@@ -50,21 +61,24 @@ export class QuestionFilterModel extends QuestionNonValue {
   // no extra serializable "dirty" property is needed.
   private authoredSearchFields: Array<string>;
   // How many runBatch()/holdChanges() calls are in progress. While one is, a recomposed expression
-  // is not written into the source, onFilterChanged is not raised and onUIStateChanged is only
+  // is not written into the target and onUIStateChanged is only
   // noted (uiStateChangedInBatch) - see runBatch().
   private batchLevel: number = 0;
   private uiStateChangedInBatch: boolean = false;
   // The part of a restored uiState that has to be checked against the fields - the unsaved edits'
   // expression, saved presets and the respondent's own presets - when it arrives before the bound
-  // source does: with no source there is nothing to check it against, and checking it against
-  // nothing would drop all of it. Applied as the source attaches, in the same write - see
-  // updateFilterSource().
+  // target does: with no target there is nothing to check it against, and checking it against
+  // nothing would drop all of it. Applied as the target attaches, in the same write - see
+  // updateFilterTarget().
   private pendingExpression: string;
-  private pendingItems: FilterSavedItems;
-  private pendingUserItems: Array<IFilterUserItemState>;
-  // A renamed preset does not move defaultItem here: Creator does it inside the rename's undo step,
+  private pendingPresets: FilterSavedPresets;
+  private pendingUserPresets: Array<IFilterUserPresetState>;
+  // ownRawExpression is a text applyFilter() took while the target was not there: the fields to tell it
+  // by were not known yet (decomposeProvisionalFilter).
+  private isOwnRawProvisional: boolean = false;
+  // A renamed preset does not move defaultPreset here: Creator does it inside the rename's undo step,
   // and a change made from this handler would be an undo step of its own.
-  private onItemPropertyChanged = (): void => {
+  private onPresetPropertyChanged = (): void => {
     this.updateFilterExpression();
     this.updateToolbars();
   };
@@ -81,9 +95,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.createNewArray("fields",
       (field: FilterField): void => { this.onFieldAdded(field); },
       (field: FilterField): void => { this.onFieldRemoved(field); });
-    this.createNewArray("items",
-      (item: FilterItem): void => { this.onItemAdded(item); },
-      (item: FilterItem): void => { this.onItemRemoved(item); });
+    this.createNewArray("presets",
+      (preset: FilterPreset): void => { this.onPresetAdded(preset); },
+      (preset: FilterPreset): void => { this.onPresetRemoved(preset); });
   }
   public getType(): string { return "filter"; }
   // The one place this control parts company with html and image: it does have a title.
@@ -94,62 +108,55 @@ export class QuestionFilterModel extends QuestionNonValue {
   // JSON (setValueIf, defaultValueExpression) or a call from the host.
   protected canSetValueToSurvey(): boolean { return false; }
 
-  public get source(): string { return this.getPropertyValue("source", ""); }
-  public set source(val: string) { this.setPropertyValue("source", val); }
+  public get targetQuestion(): string { return this.getPropertyValue("targetQuestion", ""); }
+  public set targetQuestion(val: string) { this.setPropertyValue("targetQuestion", val); }
 
+  // Both take JSON definitions as well as instances, as choices take plain values: a definition becomes
+  // a FilterField or a FilterPreset.
   public get fields(): Array<FilterField> { return this.getPropertyValue("fields"); }
-  public set fields(val: Array<FilterField>) { this.setPropertyValue("fields", val); }
+  public set fields(val: Array<FilterField>) { this.setPropertyValue("fields", toFilterObjects(val, "filterfield")); }
 
-  public get items(): Array<FilterItem> { return this.getPropertyValue("items"); }
-  public set items(val: Array<FilterItem>) { this.setPropertyValue("items", val); }
+  public get presets(): Array<FilterPreset> { return this.getPropertyValue("presets"); }
+  public set presets(val: Array<FilterPreset>) { this.setPropertyValue("presets", toFilterObjects(val, "filterpreset")); }
 
-  public get defaultItem(): string { return this.getPropertyValue("defaultItem", ""); }
-  public set defaultItem(val: string) { this.setPropertyValue("defaultItem", val); }
+  public get defaultPreset(): string { return this.getPropertyValue("defaultPreset", ""); }
+  public set defaultPreset(val: string) { this.setPropertyValue("defaultPreset", val); }
 
-  public get allowMultipleItems(): boolean { return this.getPropertyValue("allowMultipleItems"); }
-  public set allowMultipleItems(val: boolean) { this.setPropertyValue("allowMultipleItems", val); }
+  public get showPresets(): boolean { return this.getPropertyValue("showPresets"); }
+  public set showPresets(val: boolean) { this.setPropertyValue("showPresets", val); }
 
-  public get allowAddItems(): boolean { return this.getPropertyValue("allowAddItems"); }
-  public set allowAddItems(val: boolean) { this.setPropertyValue("allowAddItems", val); }
+  // The respondent's permissions in the UI (canAddPresets, canEditPreset, canDeletePreset): the
+  // methods of the API do not ask them.
+  public get allowAddPresets(): boolean { return this.getPropertyValue("allowAddPresets"); }
+  public set allowAddPresets(val: boolean) { this.setPropertyValue("allowAddPresets", val); }
+  public get allowEditPresets(): boolean { return this.getPropertyValue("allowEditPresets"); }
+  public set allowEditPresets(val: boolean) { this.setPropertyValue("allowEditPresets", val); }
+  public get allowDeletePresets(): boolean { return this.getPropertyValue("allowDeletePresets"); }
+  public set allowDeletePresets(val: boolean) { this.setPropertyValue("allowDeletePresets", val); }
 
-  public get allowReorderItems(): boolean { return this.getPropertyValue("allowReorderItems"); }
-  public set allowReorderItems(val: boolean) { this.setPropertyValue("allowReorderItems", val); }
-
-  public get showSearch(): boolean { return this.getPropertyValue("showSearch"); }
-  public set showSearch(val: boolean) { this.setPropertyValue("showSearch", val); }
+  public get showSearchBar(): boolean { return this.getPropertyValue("showSearchBar"); }
+  public set showSearchBar(val: boolean) { this.setPropertyValue("showSearchBar", val); }
 
   public get searchFields(): Array<string> { return this.getPropertyValue("searchFields"); }
-  // Deliberately not guarded by allowChangeSearchFields: that is an end-user permission and it
-  // lives on setSearchFields() alone. This setter is also how JsonObject.toObject writes the
-  // authored value, so guarding it would make loading order-dependent and would silently drop
-  // searchFields from a survey that also sets allowChangeSearchFields to false. A renderer must
-  // call setSearchFields(), never assign this.
   public set searchFields(val: Array<string>) {
     if (Helpers.isTwoValueEquals(val, this.searchFields)) return;
     this.setPropertyValue("searchFields", val);
     this.raiseUIStateChanged();
   }
 
-  public get allowChangeSearchFields(): boolean { return this.getPropertyValue("allowChangeSearchFields"); }
-  public set allowChangeSearchFields(val: boolean) { this.setPropertyValue("allowChangeSearchFields", val); }
+  public get showQuickFilters(): boolean { return this.getPropertyValue("showQuickFilters"); }
+  public set showQuickFilters(val: boolean) { this.setPropertyValue("showQuickFilters", val); }
 
-  public get allowFastMode(): boolean { return this.getPropertyValue("allowFastMode"); }
-  public set allowFastMode(val: boolean) { this.setPropertyValue("allowFastMode", val); }
+  public get showAllFiltersButton(): boolean { return this.getPropertyValue("showAllFiltersButton"); }
+  public set showAllFiltersButton(val: boolean) { this.setPropertyValue("showAllFiltersButton", val); }
 
-  public get allowAdvancedMode(): boolean { return this.getPropertyValue("allowAdvancedMode"); }
-  public set allowAdvancedMode(val: boolean) { this.setPropertyValue("allowAdvancedMode", val); }
-
-  // At least one mode is always available: turning allowFastMode off does not leave the control
-  // with none to fall back to, so it holds fast mode open whenever advanced mode is off too.
-  public get isFastModeAvailable(): boolean { return this.allowFastMode || !this.allowAdvancedMode; }
-  public get isAdvancedModeAvailable(): boolean { return this.allowAdvancedMode; }
-  // Fast mode's field list: every field the control offers, minus a standalone one that opted
-  // itself out (showInFastMode: false - a bound field never does), and with a duplicate valueName
+  // The quick filters' field list: every field the control offers, minus one its fields entry opted
+  // out (showInQuickFilters: false), and with a duplicate valueName
   // collapsed to its first field, the same one getFieldByName's dotted-path lookup would reach -
   // so both modes edit the same field, never two different ones that happen to share a name.
-  public getFastModeFields(): Array<IDynamicDataFilterField> {
+  public getQuickFilterFields(): Array<IDynamicDataFilterField> {
     return this.collapseDuplicateValueNames(this.getFilterFields().filter(
-      (field: IDynamicDataFilterField): boolean => field.showInFastMode !== false));
+      (field: IDynamicDataFilterField): boolean => field.showInQuickFilters !== false));
   }
   private collapseDuplicateValueNames(fields: Array<IDynamicDataFilterField>): Array<IDynamicDataFilterField> {
     const firstByValueName = getFieldsByValueName(fields);
@@ -167,26 +174,32 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.raiseUIStateChanged();
   }
 
-  // The composed output of the control. Not registered either: it is computed, never authored.
+  // The filter alone: the selected preset's text or the control's own filter. Not registered either,
+  // like the two below: they are computed, never authored.
   public get filterExpression(): string { return this.getPropertyValue("filterExpression", ""); }
+  // The quick search as an expression over searchFields.
+  public get searchExpression(): string { return this.getPropertyValue("searchExpression", ""); }
+  // What the target question is filtered by: the filter and the search, each bracketed, an empty one
+  // left out.
+  public get combinedExpression(): string { return this.getPropertyValue("combinedExpression", ""); }
 
-  // The key this control's filter lives under on the source. Neither the name nor the id: both can
-  // be reassigned while the filter is on the source, and the detach that follows would then clear a
+  // The key this control's filter lives under on the target. Neither the name nor the id: both can
+  // be reassigned while the filter is on the target, and the detach that follows would then clear a
   // key nothing was written under. uniqueId is fixed for the life of the object.
   private get controlFilterKey(): string { return "filterControl:" + this.uniqueId; }
-  // The source this control is currently writing into. Detaching goes through this and never
-  // through a fresh lookup by name: once source has been re-pointed, or the source question has
+  // The target this control is currently writing into. Detaching goes through this and never
+  // through a fresh lookup by name: once targetQuestion has been re-pointed, or the target question has
   // been renamed, the lookup no longer finds the question that still carries the filter, and it
   // would stay filtered forever with nothing left to clear it.
-  private attachedSource: FilterSourceQuestion;
-  // The question source names, if it can be filtered by a control. Asked by capability, the way the
-  // data list asks a source whether it has "remove": the control imports none of the records questions.
+  private attachedTarget: FilterTargetQuestion;
+  // The question targetQuestion names, if it can be filtered by a control. Asked by capability, the way the
+  // data list asks a target whether it has "remove": the control imports none of the records questions.
   // A control taken off its page keeps its data, so without the parent check it would still find a
-  // source - and filter it from outside the survey - the next time it re-resolves one.
-  private get filterSource(): FilterSourceQuestion {
-    const q: any = !!this.data && !!this.parent ? this.data.findQuestionByName(this.source) : undefined;
+  // target - and filter it from outside the survey - the next time it re-resolves one.
+  private get filterTarget(): FilterTargetQuestion {
+    const q: any = !!this.data && !!this.parent ? this.data.findQuestionByName(this.targetQuestion) : undefined;
     return !!q && typeof q.getFilterFields === "function" && typeof q.setControlFilter === "function"
-      ? <FilterSourceQuestion>q : undefined;
+      ? <FilterTargetQuestion>q : undefined;
   }
 
   // Standalone or bound: one uniform field list, so nothing downstream has to know which one it is.
@@ -194,11 +207,49 @@ export class QuestionFilterModel extends QuestionNonValue {
   public getFilterFields(): Array<IDynamicDataFilterField> {
     return this.passFields || this.buildFilterFields();
   }
-  // A bound source builds its list anew on every call.
+  // With no target, the fields entries. With one, the target's fields in its order, each as the entry
+  // that names it overrides it, then the entries that name no record field of the target: fields of
+  // the record it has no column for. An entry naming a column the filter leaves out (allowFiltering:
+  // false) is neither. A target builds its list anew on every call.
   private buildFilterFields(): Array<IDynamicDataFilterField> {
-    const source = this.filterSource;
-    if (!!source) return source.getFilterFields();
-    return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());
+    const target = this.filterTarget;
+    if (!target) return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());
+    const used: Array<FilterField> = [];
+    const res = target.getFilterFields().map((field: IDynamicDataFilterField): IDynamicDataFilterField => {
+      const entry = this.findFieldEntry(field);
+      if (!entry) return field;
+      used.push(entry);
+      return entry.applyTo(field);
+    });
+    this.fields.forEach((entry: FilterField): void => {
+      if (!!entry.name && used.indexOf(entry) < 0 && !target.hasRecordField(entry.name)) {
+        res.push(entry.getFilterField());
+      }
+    });
+    return res;
+  }
+  // The entry for a field of the target: by the field's name, then by its value name (a nested
+  // field's path), as getFieldByName finds a field.
+  private findFieldEntry(field: IDynamicDataFilterField): FilterField {
+    const fields = this.fields;
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].name === field.name) return fields[i];
+    }
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].name === field.valueName) return fields[i];
+    }
+    return undefined;
+  }
+  // The field a fields entry stands for: the target's it overrides, the record field it adds or, with
+  // no target, its own; undefined for an entry the control ignores. The designer offers an entry's
+  // operators by it.
+  public getFieldOfEntry(entry: FilterField): IDynamicDataFilterField {
+    if (!entry || this.fields.indexOf(entry) < 0) return undefined;
+    const target = this.filterTarget;
+    if (!target) return entry.getFilterField();
+    const field = target.getFilterFields().filter((f: IDynamicDataFilterField): boolean => this.findFieldEntry(f) === entry)[0];
+    if (!!field) return entry.applyTo(field);
+    return !entry.name || target.hasRecordField(entry.name) ? undefined : entry.getFilterField();
   }
   // The name first - that is what a standalone field is authored and searched by - and the
   // valueName after it. A bound nested field is named by its leaf ("city") and reached by its dotted
@@ -209,7 +260,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!name) return undefined;
     return this.findFieldInList(this.getFilterFields(), name);
   }
-  // Takes the field list instead of rebuilding it: a bound control asks its source for the whole
+  // Takes the field list instead of rebuilding it: a bound control asks its target for the whole
   // list on every call, and getSearchFields() would otherwise pay for it once per name, inside
   // runCondition, on every survey value change.
   private findFieldInList(fields: Array<IDynamicDataFilterField>, name: string): IDynamicDataFilterField {
@@ -232,100 +283,131 @@ export class QuestionFilterModel extends QuestionNonValue {
     names.forEach((n: string) => { const f = this.findFieldInList(all, n); if (!!f) res.push(f); });
     return res;
   }
-  public setSearchFields(val: Array<string>): void {
-    if (!this.allowChangeSearchFields) return;
-    this.searchFields = val;
-  }
 
-  // A preset the respondent deleted is not found: for everything that looks presets up it is gone.
-  // The respondent's own presets are found after the authored ones.
-  public getItemByName(name: string): FilterItem {
-    if (!name || this.deletedItemNames.indexOf(name) > -1) return undefined;
-    const items = this.items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].name === name) return items[i];
+  // presets is the live list: the authored presets the respondent did not delete, then the
+  // respondent's own and the ones the application added.
+  public getPresetByName(name: string): FilterPreset {
+    if (!name) return undefined;
+    const presets = this.presets;
+    for (let i = 0; i < presets.length; i++) {
+      if (presets[i].name === name) return presets[i];
     }
-    return this.findUserItem(name);
+    return undefined;
   }
-  private findUserItem(name: string): FilterItem {
-    return this.userItemsValue.filter((item: FilterItem): boolean => item.name === name)[0];
-  }
-  // The active item is held by name and not by object: the name is what uiState saves, what
-  // defaultItem speaks in, and it degrades correctly - a deleted item simply stops being found,
-  // with no dangling reference and no cleanup in the array's onRemove.
-  public get activeItemName(): string { return this.getPropertyValue("activeItemName", ""); }
-  // A preset that becomes active, or stops being active, replaces the whole filter: the edits were
-  // made over the previous preset and mean nothing over the next one.
-  public set activeItemName(val: string) {
+  // The selected preset by name, or "". Held by name and not by object: the name is what uiState
+  // saves, what defaultPreset speaks in, and it degrades correctly - a deleted preset simply stops
+  // being found. Read-only: applyPreset() selects, applyFilter() and clearFilter() unselect.
+  public get selectedPreset(): string { return this.getPropertyValue("selectedPreset", ""); }
+  // A preset that is selected, or stops being selected, replaces the whole filter: the control's
+  // own filter was made over the previous one and means nothing over the next.
+  private setSelectedPreset(val: string): void {
     val = val || "";
-    if (val === this.activeItemName) return;
-    this.setPropertyValue("activeItemName", val);
-    this.setOwnConditions(undefined);
+    if (val === this.selectedPreset) return;
+    this.setPropertyValue("selectedPreset", val);
+    this.setOwnFilter(undefined, undefined);
     this.updateFilterExpression();
     this.raiseUIStateChanged();
   }
-  public get activeItem(): FilterItem {
-    // Single mode: there is one filter and it is always on - the authored default when it names an
-    // item, the first item otherwise. activeItemName plays no part here: there is no list to pick
-    // from, so nothing the respondent does can change it.
-    if (!this.allowMultipleItems) return this.getItemByName(this.defaultItem) || this.items[0];
-    return this.getItemByName(this.activeItemName);
+  public get activePreset(): FilterPreset { return this.getPresetByName(this.selectedPreset); }
+  public applyPreset(name: string): void {
+    if (this.isDesignMode || !this.getPresetByName(name)) return;
+    this.runBatch((): void => { this.setSelectedPreset(name); }, true);
   }
-  public set activeItem(val: FilterItem) { this.activeItemName = !!val ? val.name : ""; }
+  // The control's own filter, as text: one the fields can show becomes their conditions (the chips
+  // show them), any other is kept as it is and filters as it is. A text that does not parse changes
+  // nothing.
+  public applyFilter(expression: string): void {
+    if (this.isDesignMode) return;
+    const text = (expression || "").trim();
+    if (!!text && !canParseFilterExpression(text)) return;
+    this.runBatch((): void => {
+      this.setSelectedPreset("");
+      const before = this.getOwnFilterKey();
+      this.setOwnFilterText(text);
+      if (this.getOwnFilterKey() !== before) {
+        this.raiseUIStateChanged();
+      }
+    }, true);
+  }
+  // A text that parses (or "") as the control's own filter: conditions where the fields show it,
+  // the text as it is otherwise - also one that names a record key no field has. Before the target
+  // is there the fields are not known: the text is kept and decomposed as the target attaches.
+  private setOwnFilterText(text: string): void {
+    const isReady = this.isFieldListReady;
+    const conditions = !text ? [] : isReady ? this.decomposeExpression(text) : null;
+    if (conditions === null) {
+      this.setOwnFilter(undefined, text);
+      this.isOwnRawProvisional = !isReady;
+    } else {
+      this.setOwnFilter(normalizeFilterConditions(conditions, this.getFilterFields()), undefined);
+    }
+  }
+  // No preset and no filter of the control's own; the search stays. Restored conditions still
+  // waiting for a bound target are a filter of its own too and go with it (setOwnFilter drops them).
+  public clearFilter(): void {
+    if (this.isDesignMode) return;
+    this.runBatch((): void => {
+      this.setSelectedPreset("");
+      const before = this.getOwnFilterKey();
+      this.setOwnFilter(undefined, undefined);
+      if (this.getOwnFilterKey() !== before) {
+        this.raiseUIStateChanged();
+      }
+    }, true);
+  }
+  // Whether clearFilter() has anything to clear: a "Clear" button shown by it is shown exactly when
+  // clicking it does something. A name no preset answers to (the host took the preset away)
+  // filters nothing.
+  public get canClearFilter(): boolean {
+    if (this.pendingExpression !== undefined || this.ownRawExpression !== undefined) return true;
+    if (!!this.activePreset) return true;
+    return (this.ownConditions || []).length > 0;
+  }
+  // A text the fields cannot show (applyFilter, a restore): it is the filter as it is, and the chips
+  // show nothing of it. Mutually exclusive with ownConditions.
+  public get ownRawExpression(): string { return this.getPropertyValue("ownRawExpression", undefined); }
+  // What the own filter is, to tell a change from none: a write that changes nothing raises nothing.
+  private getOwnFilterKey(): string {
+    return JSON.stringify([this.ownConditions, this.ownRawExpression, this.pendingExpression]);
+  }
+  // The own filter is conditions or a text, never both; no conditions ([]) is no filter, the same as
+  // undefined. Whatever decides the filter now supersedes restored edits still waiting for a target.
+  private setOwnFilter(conditions: Array<IFilterCondition>, raw: string): void {
+    this.isOwnRawProvisional = false;
+    this.setOwnConditions(!!conditions && conditions.length > 0 ? conditions : undefined);
+    if (raw !== this.ownRawExpression) {
+      this.setPropertyValue("ownRawExpression", raw);
+    }
+  }
   // In the designer the buttons do nothing of their own: they call this callback instead - with the
-  // preset the presets' chip shows (the default one), with no item for any other button. Creator sets it to select the
+  // preset the presets' chip shows (the default one), with no preset for any other button. Creator sets it to select the
   // control or open the preset's settings, the way it sets setCanShowOptionItemCallback on a select
   // question; the buttons stop the click event, so the designer's own click handler never runs.
-  private designItemClickCallback: (item?: FilterItem) => void;
-  public setDesignItemClickCallback(callback: (item?: FilterItem) => void): void {
-    this.designItemClickCallback = callback;
+  private designPresetClickCallback: (preset?: FilterPreset) => void;
+  public setDesignPresetClickCallback(callback: (preset?: FilterPreset) => void): void {
+    this.designPresetClickCallback = callback;
   }
-  public onDesignItemClick(item?: FilterItem): void {
-    if (!!this.designItemClickCallback) {
-      this.designItemClickCallback(item);
+  public onDesignPresetClick(preset?: FilterPreset): void {
+    if (!!this.designPresetClickCallback) {
+      this.designPresetClickCallback(preset);
     }
   }
-  // Clicking an item applies it; clicking the item that is already applied removes the filter.
-  public toggleItem(item: FilterItem | string): void {
-    if (!this.allowMultipleItems) return;
-    const name = typeof item === "string" ? item : (!!item ? item.name : "");
+  // A click on a preset in the UI: the selected one is unselected, and the filter goes with it.
+  public togglePreset(preset: FilterPreset | string): void {
+    const name = typeof preset === "string" ? preset : (!!preset ? preset.name : "");
     if (!name) return;
-    this.activeItemName = name === this.activeItemName ? "" : name;
-  }
-  // "Clear the filter": no preset and no edits of the respondent's own. It resets the edits even
-  // when no preset is active - the activeItemName setter would see no change there and keep them -
-  // and in single mode, where the preset cannot be taken off and its text becomes the filter again.
-  // Restored conditions still waiting for a bound source are edits too and go with them
-  // (setOwnConditions drops them); restored saved presets are not edits and stay.
-  public clearActiveItem(): void {
-    if (!this.canClearActiveItem) return;
-    if (!!this.activeItemName) {
-      this.activeItemName = "";
-      return;
+    if (name === this.selectedPreset) {
+      this.clearFilter();
+    } else {
+      this.applyPreset(name);
     }
-    this.setOwnConditions(undefined);
-    this.updateFilterExpression();
-    this.raiseUIStateChanged();
-  }
-  // Whether clearActiveItem() has anything to clear. It is that method's own guard, so a "Clear"
-  // button shown by it is shown exactly when clicking it does something. Cleared conditions ([])
-  // with no preset under them filter nothing - the same as no edits at all - so they are not
-  // something to clear; over a preset (single mode too) they are: clearing brings its text back. A
-  // name no item answers to (the host took the preset away) filters nothing either.
-  public get canClearActiveItem(): boolean {
-    if (this.pendingExpression !== undefined) return true;
-    if (!!this.activeItemName && !!this.getItemByName(this.activeItemName)) return true;
-    const own = this.ownConditions;
-    return own !== undefined && (own.length > 0 || !!this.activeItem);
   }
   // The list a renderer shows: the authored presets the respondent did not delete, then the
-  // respondent's own. Single mode has no list.
-  public get visibleItems(): Array<FilterItem> {
-    if (!this.allowMultipleItems) return [];
-    if (this.deletedItemNames.length === 0 && this.userItemsValue.length === 0) return this.items;
-    return this.items.filter((item: FilterItem): boolean => this.deletedItemNames.indexOf(item.name) < 0).concat(this.userItemsValue);
+  // respondent's own. None while the presets are hidden.
+  public get visiblePresets(): Array<FilterPreset> {
+    return this.showPresets ? this.presets : [];
   }
-  public get canAddItems(): boolean { return this.allowMultipleItems && this.allowAddItems; }
+  public get canAddPresets(): boolean { return this.showPresets && this.allowAddPresets; }
   // Whether the application answers AI requests (survey.onAIFilterRequest has a handler): a preset
   // dialog then offers to write or change a preset's filter with AI. Never in the designer. Read when
   // a dialog opens.
@@ -342,175 +424,215 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createAIRequest(): FilterAIRequest {
     return new FilterAIRequest(this);
   }
-  public get canReorderItems(): boolean { return this.allowMultipleItems && this.allowReorderItems; }
-  // The spec's rule: what may be done to an item is its own permission AND the control-level
-  // setting. Single mode has no list, so nothing may be added to it or reordered in it, but the one
-  // item it holds is still editable if it says so.
-  public canEditItem(item: FilterItem): boolean { return !!item && item.allowEdit; }
-  public canDeleteItem(item: FilterItem): boolean { return this.allowMultipleItems && !!item && item.allowDelete; }
-  public canCopyItem(item: FilterItem): boolean { return this.canAddItems && !!item && item.allowCopy; }
-  // Whether the respondent added the preset (addItem) - the author did not.
-  public isUserItem(item: FilterItem): boolean { return !!item && this.userItemsValue.indexOf(item) > -1; }
-  // Whether an authored preset is not what the JSON says any more: the respondent renamed it or
-  // changed its conditions (updateItem, or Save in single mode). A preset of the respondent's own has
-  // nothing to differ from.
-  public isItemModified(item: FilterItem): boolean {
-    return !!item && !this.isUserItem(item) && !!this.originalItems[item.name];
+  // What the UI lets the respondent do to a preset: the control's permission AND the preset's own. A
+  // preset of the respondent's own may always be changed and deleted. None of it while the presets
+  // are hidden, except editing, which the UI never offers then anyway.
+  public canEditPreset(preset: FilterPreset): boolean {
+    return !!preset && (this.isUserPreset(preset) || (this.allowEditPresets && preset.allowEdit));
   }
-  public canResetItem(item: FilterItem): boolean { return !this.isDesignMode && this.isItemModified(item); }
+  public canDeletePreset(preset: FilterPreset): boolean {
+    return this.showPresets && !!preset && (this.isUserPreset(preset) || (this.allowDeletePresets && preset.allowDelete));
+  }
+  public canCopyPreset(preset: FilterPreset): boolean { return this.canAddPresets && !!preset && preset.allowCopy; }
+  // Whether the respondent added the preset (addPreset) - the author did not.
+  public isUserPreset(preset: FilterPreset): boolean { return !!preset && this.userPresetsValue.indexOf(preset) > -1; }
+  // Whether an authored preset is not what the JSON says any more: the respondent renamed it or
+  // changed its conditions (updatePreset). A preset of the respondent's own has
+  // nothing to differ from.
+  public isPresetModified(preset: FilterPreset): boolean {
+    return !!preset && !this.isUserPreset(preset) && !!this.originalPresets[preset.name];
+  }
+  public canResetPreset(preset: FilterPreset): boolean { return !this.isDesignMode && this.isPresetModified(preset); }
   // The presets Edit Preset opens for: those the respondent may change or delete. None in the designer,
-  // and none in single mode, which has no list.
-  public getEditableItems(): Array<FilterItem> {
+  // and none while the presets are hidden.
+  public getEditablePresets(): Array<FilterPreset> {
     if (this.isDesignMode) return [];
-    return this.visibleItems.filter((item: FilterItem): boolean => this.canEditItem(item) || this.canDeleteItem(item));
+    return this.visiblePresets.filter((preset: FilterPreset): boolean => this.canEditPreset(preset) || this.canDeletePreset(preset));
   }
   // What a preset is in the JSON - its title and its conditions, null for a preset that does not
-  // decompose - whatever the respondent changed since: what resetItem() brings back. A preset of the
-  // respondent's own is what it is. Its text: getOriginalItemExpression().
-  public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null } {
-    const item = this.getItemByName(name);
-    if (!item) return undefined;
-    if (!this.isItemModified(item)) return { title: item.title, conditions: this.parseItemConditions(item) };
-    const original = this.createOriginalItem(item.name);
-    const res = { title: original.title, conditions: this.parseItemConditions(original) };
+  // decompose - whatever the respondent changed since: what resetPreset() brings back. A preset of the
+  // respondent's own is what it is. Its text: getOriginalPresetExpression().
+  public getOriginalPresetState(name: string): { title: string, conditions: Array<IFilterCondition> | null } {
+    const preset = this.getPresetByName(name);
+    if (!preset) return undefined;
+    if (!this.isPresetModified(preset)) return { title: preset.title, conditions: this.parsePresetConditions(preset) };
+    const original = this.createOriginalPreset(preset.name);
+    const res = { title: original.title, conditions: this.parsePresetConditions(original) };
     original.dispose();
     return res;
   }
-  // The text a preset has in the JSON, whatever the respondent changed since: what resetItem() brings
+  // The text a preset has in the JSON, whatever the respondent changed since: what resetPreset() brings
   // back. A preset of the respondent's own is what it is. "" for no preset.
-  public getOriginalItemExpression(name: string): string {
-    const item = this.getItemByName(name);
-    if (!item) return "";
-    const original = this.isItemModified(item) ? this.originalItems[item.name].expression : item.expression;
+  public getOriginalPresetExpression(name: string): string {
+    const preset = this.getPresetByName(name);
+    if (!preset) return "";
+    const original = this.isPresetModified(preset) ? this.originalPresets[preset.name].expression : preset.expression;
     return (original || "").trim();
   }
-  // Whether a title and filter are what the JSON made the preset, which resetItem() brings back.
+  // Whether a title and filter are what the JSON made the preset, which resetPreset() brings back.
   // expression - a preset edited as text - is compared with the JSON's text
   // (as conditions where both decompose: their order is no change). Otherwise conditions null - a
   // preset that does not decompose - compares only with an original that does not decompose either.
   // A preset of the respondent's own is compared with what it is.
-  public isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, expression?: string): boolean {
-    const original = this.getOriginalItemState(name);
+  public isOriginalPresetState(name: string, title: string, conditions: Array<IFilterCondition> | null, expression?: string): boolean {
+    const original = this.getOriginalPresetState(name);
     if (!original) return true;
     if ((title || "").trim() !== original.title) return false;
-    if (expression !== undefined) return this.isSameExpression(expression, this.getOriginalItemExpression(name));
+    if (expression !== undefined) return this.isSameExpression(expression, this.getOriginalPresetExpression(name));
     if (conditions === null || original.conditions === null) return conditions === original.conditions;
     return this.isSameConditionSet(normalizeFilterConditions(conditions, this.getFilterFields()), original.conditions);
   }
-  // A preset of the respondent's own (the Filters dialog's Add New, "Save as..."): what it filters by and a
-  // title. It goes after every other preset and is not turned on. What it filters by is conditions,
-  // normalized as an edit is, or a text (options.expression) - one that decomposes is normalized and
-  // composed the same way, any other is kept as typed. Nothing is added where presets cannot be
-  // added, in the designer, for conditions none of which the fields can hold, or for a text that is
-  // empty or does not parse: a preset that filters by nothing is no preset.
-  public addItem(title: string, conditions: Array<IFilterCondition>, options?: { expression?: string }): FilterItem {
-    if (!this.canAddItems || this.isDesignMode) return undefined;
-    const expression = this.composeItemExpression(conditions, !!options ? options.expression : undefined);
+  // Adds a preset to presets and returns it. A name that is empty or taken (a deleted authored preset's
+  // too: a name is what uiState holds) and a text that is empty or does not parse add nothing: a preset
+  // that filters by nothing is no preset. The permissions of the respondent are not asked: they are the
+  // UI's. Nothing in the designer.
+  public addPreset(data: IFilterPreset): FilterPreset {
+    if (this.isDesignMode || !data || typeof data.name !== "string" || !data.name || this.isPresetNameUsed(data.name)) return undefined;
+    const expression = this.toPresetExpression(data.expression);
     if (expression === undefined) return undefined;
-    const item = this.createUserItem(this.getNewItemName(), title, expression);
-    this.updateToolbars();
-    this.raiseUIStateChanged();
-    return item;
-  }
-  // A preset's new title and filter (Edit Preset): conditions, or a text (expression) for
-  // a preset edited as text, by the rules of addItem(). Neither keeps the filter it has, and so do
-  // conditions none of which the fields can hold and a text that is empty or does not parse; an empty
-  // title keeps the title. An authored preset remembers what the JSON made it before its first
-  // change - resetItem() puts that back - and a change that brings it back to that is a reset. A
-  // preset that is on filters by its new filter at once: one write, one onFilterChanged and one
-  // onUIStateChanged, none of them for a change that changes nothing.
-  public updateItem(name: string, title: string, conditions?: Array<IFilterCondition>, expression?: string): void {
-    const item = this.getItemByName(name);
-    if (!item || this.isDesignMode || !this.canEditItem(item)) return;
-    const text = (title || "").trim();
-    const next = conditions !== undefined || expression !== undefined ? this.composeItemExpression(conditions, expression) : undefined;
-    const isTitleChanged = !!text && text !== item.title;
-    const isConditionsChanged = next !== undefined && !this.isSameExpression(next, item.expression);
-    if (!isTitleChanged && !isConditionsChanged) return;
+    const preset = new FilterPreset(data.name);
+    this.setPresetText(preset.locTitle, typeof data.title === "string" ? data.title.trim() : "");
+    preset.expression = expression;
+    this.assignPresetPermissions(preset, data);
+    this.userPresetsValue.push(preset);
     this.runBatch((): void => {
-      const isUser = this.isUserItem(item);
-      if (!isUser) {
-        this.rememberOriginal(item);
-      }
-      if (isTitleChanged) {
-        this.setItemText(item.locTitle, text);
-        if (!isUser) {
-          this.savedItemTitles[item.name] = text;
-        }
-      }
-      if (isConditionsChanged) {
-        item.expression = next;
-      }
-      if (!isUser && this.isSameAsOriginal(item)) {
-        this.restoreOriginal(item);
-      }
+      this.presets.push(preset);
       this.updateToolbars();
       this.raiseUIStateChanged();
     }, true);
+    return preset;
+  }
+  // Replaces the title, text and permissions of the preset data.name names. An authored preset
+  // remembers what the JSON made it before its first change - resetPreset() puts that back - and a
+  // change that brings it back to that is a reset. A selected preset filters by its new text at once:
+  // one write into the target and one onUIStateChanged, none of them for a change that changes nothing.
+  public updatePreset(data: IFilterPreset): FilterPreset {
+    const preset = !!data && typeof data.name === "string" ? this.getPresetByName(data.name) : undefined;
+    if (!preset || this.isDesignMode) return undefined;
+    const expression = this.toPresetExpression(data.expression);
+    if (expression === undefined) return undefined;
+    const before = JSON.stringify(this.getPresetJson(preset));
+    this.runBatch((): void => {
+      const isUser = this.isUserPreset(preset);
+      if (!isUser) {
+        this.rememberOriginal(preset);
+      }
+      const title = typeof data.title === "string" ? data.title.trim() : "";
+      if (title !== preset.title) {
+        this.setPresetText(preset.locTitle, title);
+        if (!isUser) {
+          this.savedPresetTitles[preset.name] = title;
+        }
+      }
+      preset.expression = expression;
+      this.assignPresetPermissions(preset, data);
+      if (!isUser && this.isSameAsOriginal(preset)) {
+        this.restoreOriginal(preset);
+      }
+      if (JSON.stringify(this.getPresetJson(preset)) !== before) {
+        this.updateToolbars();
+        this.raiseUIStateChanged();
+      }
+    }, true);
+    return preset;
+  }
+  // A preset of the respondent's own (the Filters dialog's Add New, "Save as..."): what it filters by and
+  // a title, under a name of its own. What it filters by is conditions, normalized as an edit is, or a
+  // text (options.expression) - one that decomposes is normalized and composed the same way, any other is
+  // kept as typed. Nothing for conditions none of which the fields can hold.
+  public addPresetFromConditions(title: string, conditions: Array<IFilterCondition>, options?: { expression?: string }): FilterPreset {
+    const expression = this.composePresetExpression(conditions, !!options ? options.expression : undefined);
+    if (expression === undefined) return undefined;
+    return this.addPreset({ name: this.getNewPresetName(), title: title, expression: expression, allowEdit: true, allowDelete: true, allowCopy: true });
+  }
+  // A preset's new title and filter (Edit Preset): conditions, or a text (expression) for a preset edited
+  // as text. Neither keeps the filter it has, and so do conditions none of which the fields can hold and a
+  // text that is empty or does not parse; an empty title keeps the title.
+  public updatePresetFromConditions(name: string, title: string, conditions?: Array<IFilterCondition>, expression?: string): void {
+    const preset = this.getPresetByName(name);
+    if (!preset) return;
+    const next = conditions !== undefined || expression !== undefined ? this.composePresetExpression(conditions, expression) : undefined;
+    this.updatePreset({ name: name, title: (title || "").trim() || preset.title, expression: next !== undefined ? next : preset.expression,
+      allowEdit: preset.allowEdit, allowDelete: preset.allowDelete, allowCopy: preset.allowCopy });
+  }
+  // A preset filters by a text that parses; "" filters by nothing and is no preset.
+  private toPresetExpression(text: any): string {
+    const res = typeof text === "string" ? text.trim() : "";
+    return !!res && canParseFilterExpression(res) ? res : undefined;
+  }
+  private assignPresetPermissions(preset: FilterPreset, data: IFilterPreset): void {
+    if (typeof data.allowEdit === "boolean") preset.allowEdit = data.allowEdit;
+    if (typeof data.allowDelete === "boolean") preset.allowDelete = data.allowDelete;
+    if (typeof data.allowCopy === "boolean") preset.allowCopy = data.allowCopy;
+  }
+  private getPresetJson(preset: FilterPreset): any {
+    return { title: preset.locTitle.getJson(), expression: preset.expression, allowEdit: preset.allowEdit, allowDelete: preset.allowDelete, allowCopy: preset.allowCopy };
   }
   // Brings an authored preset back to what the JSON made it: its title and its expression. A preset
   // that is on filters by it at once.
-  public resetItem(name: string): void {
-    const item = this.getItemByName(name);
-    if (!this.canResetItem(item)) return;
+  public resetPreset(name: string): void {
+    const preset = this.getPresetByName(name);
+    if (!this.canResetPreset(preset)) return;
     this.runBatch((): void => {
-      this.restoreOriginal(item);
+      this.restoreOriginal(preset);
       this.updateToolbars();
       this.raiseUIStateChanged();
     }, true);
   }
-  // Deletes a preset (Edit Preset's Delete). The respondent's own goes away, and is disposed once the
-  // toolbars have let go of its chip; an authored one is only hidden - items is the author's JSON - and
-  // remembered as deleted. A preset that is on goes off, and the filter with it: there is nothing left
-  // to filter by.
-  public deleteItem(name: string): void {
-    const item = this.getItemByName(name);
-    if (!item || this.isDesignMode || !this.canDeleteItem(item)) return;
-    const isUser = this.isUserItem(item);
+  // Removes a preset from presets. The respondent's own is disposed once the toolbars have let go of its
+  // chip; an authored one's name is remembered as deleted, so uiState can tell it from one never there.
+  // A preset that is selected is unselected, and the filter with it: there is nothing left to filter by.
+  public deletePreset(name: string): void {
+    const preset = this.getPresetByName(name);
+    if (!preset || this.isDesignMode) return;
+    const isUser = this.isUserPreset(preset);
     this.runBatch((): void => {
-      if (this.activeItemName === name) {
-        this.activeItemName = "";
+      if (this.selectedPreset === name) {
+        this.setSelectedPreset("");
       }
       if (isUser) {
-        this.userItemsValue.splice(this.userItemsValue.indexOf(item), 1);
-        this.onItemRemoved(item);
+        this.userPresetsValue.splice(this.userPresetsValue.indexOf(preset), 1);
       } else {
-        this.deletedItemNames.push(name);
-        this.updateFilterExpression();
+        this.deletedPresetNames.push(name);
+        delete this.originalPresets[name];
+        delete this.savedPresetTitles[name];
       }
+      this.removeFromPresets(preset);
+      this.updateFilterExpression();
       this.updateToolbars();
       this.raiseUIStateChanged();
     }, true);
     if (isUser) {
-      item.dispose();
+      preset.dispose();
     }
   }
   // Edit Preset's Apply and Delete: the changes of the presets as one change - one write into the
-  // source and one onFilterChanged if the filter that applies changed, one onUIStateChanged - and
+  // target if the filter that applies changed, one onUIStateChanged - and
   // nothing for no change. Each preset is deleted, or reset first and then given its new title and
   // filter.
-  public applyItemEdits(edits: Array<IFilterItemEdit>): void {
+  public applyPresetEdits(edits: Array<IFilterPresetEdit>): void {
     if (this.isDesignMode || !Array.isArray(edits)) return;
     this.runBatch((): void => {
-      edits.forEach((edit: IFilterItemEdit): void => {
+      edits.forEach((edit: IFilterPresetEdit): void => {
         if (!edit) return;
         if (edit.isDeleted) {
-          this.deleteItem(edit.name);
+          this.deletePreset(edit.name);
           return;
         }
         if (edit.isReset) {
-          this.resetItem(edit.name);
+          this.resetPreset(edit.name);
         }
         if (edit.title !== undefined || edit.conditions !== undefined || edit.expression !== undefined) {
-          this.updateItem(edit.name, edit.title, edit.conditions, edit.expression);
+          this.updatePresetFromConditions(edit.name, edit.title, edit.conditions, edit.expression);
         }
       });
     }, true);
   }
 
-  // The respondent's own conditions, edited over the active preset. undefined means "no edits":
-  // the preset's text then applies verbatim. [] is a real state and not the same thing - the
-  // respondent cleared the preset's conditions and nothing is filtered by it any more. Not
+  // The control's own filter as the fields show it: conditions an edit in a chip or in the Filters
+  // dialog made, or a text applyFilter() took that decomposes. undefined means none - the selected
+  // preset's text, if there is one, applies verbatim; no conditions are kept as undefined, not []
+  // (setOwnFilter). Never together with ownRawExpression. Not
   // registered in the serializer: it is runtime state, like searchString. Every edit writes a new
   // array, never mutates the one in place, so the property change is what a renderer sees - see
   // setOwnConditions().
@@ -530,16 +652,24 @@ export class QuestionFilterModel extends QuestionNonValue {
   // What the editors, the field popups and the Filters dialog read: the conditions can be edited, and
   // the UI is not locked. The one rule of the UI's read-only state.
   public get canEditConditionsInUI(): boolean { return this.canEditConditions && !this.isControlReadOnly; }
-  // The active preset applies as text that has no conditions to show: an "or", a function, a
-  // comparison of two fields. A renderer warns with it that the first edit starts from nothing.
+  // The filter applies as text that has no conditions to show - an "or", a function, a comparison
+  // of two fields: the selected preset's or the control's own (applyFilter). A renderer warns with
+  // it that the first edit starts from nothing.
   public get isRawExpression(): boolean {
-    if (!this.activeItem || this.ownConditions !== undefined) return false;
-    return this.parseActiveItemConditions() === null;
+    if (this.ownRawExpression !== undefined) return true;
+    if (!this.activePreset || this.ownConditions !== undefined) return false;
+    return this.parseActivePresetConditions() === null;
+  }
+  // The conditions the filter is made of now: the control's own, or the selected preset's; null for
+  // a text the fields cannot show.
+  private getCurrentConditions(): Array<IFilterCondition> | null {
+    if (this.ownRawExpression !== undefined) return null;
+    return this.ownConditions !== undefined ? this.ownConditions : this.parseActivePresetConditions();
   }
   public getFieldCondition(name: string): IFilterCondition {
     const field = this.getFieldByName(name);
     if (!field) return undefined;
-    const conditions = this.ownConditions !== undefined ? this.ownConditions : this.parseActiveItemConditions();
+    const conditions = this.getCurrentConditions();
     const condition = (conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0];
     return !!condition ? this.copyCondition(condition) : undefined;
   }
@@ -569,72 +699,19 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.editConditions((conditions: Array<IFilterCondition>): Array<IFilterCondition> =>
       conditions.filter((c: IFilterCondition): boolean => c.field !== field.valueName));
   }
-  // With a preset active this is "clear its conditions": the preset stays active and filters
-  // nothing until it is clicked again or another one is.
+  // Over a selected preset this unselects it, as any edit does, and leaves no conditions.
   public clearConditions(): void {
     this.editConditions((): Array<IFilterCondition> => []);
   }
-  // Whether the respondent's edits are a real change to the active preset's own conditions, and
-  // not merely the absence of any edit yet (ownConditions undefined). Compared as a set and not by
-  // position: setFieldCondition can leave a condition at a different index than the preset held it
-  // at (a new field is appended, not inserted where the preset would show it), and that reordering
-  // is not a change of what the preset means. A preset that does not decompose
-  // (parseActiveItemConditions() === null, an "or", a function, a comparison of two fields) can
-  // never equal any own conditions, so any edit over it - even [] - is a real change. No active
-  // preset reports false here even with edits of its own: there is nothing to save them into.
-  public get isActiveItemModified(): boolean {
-    const item = this.activeItem;
-    if (!item || this.ownConditions === undefined) return false;
-    const preset = this.parseActiveItemConditions();
-    if (preset === null) return true;
-    return !this.isSameConditionSet(this.ownConditions, preset);
-  }
-  // allowEdit is the preset's own permission; design mode never composes an expression, so nothing
-  // saved there could be seen or filtered by anyway.
-  public get canSaveActiveItem(): boolean {
-    if (this.isDesignMode) return false;
-    const item = this.activeItem;
-    return !!item && item.allowEdit && this.isActiveItemModified;
-  }
-  // Writes the respondent's edits back into the preset's own expression and forgets them as edits:
-  // from here on the preset's text IS what was asked for, so ownConditions goes back to undefined
-  // and isActiveItemModified reports false again. The search box is never part of it: conditions
-  // only ever compose from ownConditions, never from calcSearchExpression(). item.expression is set
-  // through its own property (registered, serializable) and not through some parallel "saved text"
-  // slot - a runtime change to an existing serializable property, not a new one, so nothing new
-  // reaches survey JSON beyond what item.expression already was free to hold; uiState stores that
-  // text as items.<name>.expression. The edits are checked against the fields the control has now, which may not be the
-  // ones they were made over (a bound control re-pointed at another source): a condition on a field
-  // that is gone is not saved - it composes into nothing anyway - and when none is left of edits that
-  // had some, nothing is saved at all, by the same rule restoreItems() follows: rewriting the preset
-  // to "" would turn it into "no filter", which nobody asked for.
-  public saveActiveItem(): void {
-    if (!this.canSaveActiveItem) return;
-    const item = this.activeItem;
-    const fields = this.getFilterFields();
-    const conditions = normalizeFilterConditions(this.ownConditions, fields);
-    if (conditions.length === 0 && this.ownConditions.length > 0) return;
-    this.rememberOriginal(item);
-    item.expression = conditionsToExpression(conditions, fields);
-    this.setOwnConditions(undefined);
-    // item.expression's own onItemPropertyChanged already recomposed the expression once; this
-    // second call is only a no-op safety net for the (should not happen) case where resetting
-    // ownConditions changes what calcConditionsExpression reads. updateFilterExpression() itself
-    // only applies to the source and reports onFilterChanged when the composed text actually
-    // differs from what is already there, so a normal save - where the two compositions read the
-    // same - raises neither call twice nor at all.
-    this.updateFilterExpression();
-    this.raiseUIStateChanged();
-  }
-  // Fast mode: one field, written when the editor is applied (the Apply of the field's popup).
+  // A quick filter: one field, written when the editor is applied (the Apply of the field's popup).
   // Read-only where conditions cannot be edited - the edits would be refused anyway, and an editor
   // that looks editable and changes nothing is worse than one that says so. An apply that leaves the
   // field with no condition where it had none writes nothing: clearing it would still be an edit,
-  // which turns an active preset off. The caller owns the editor and disposes it. A field fast mode
-  // does not show (showInFastMode: false, or a duplicate valueName collapsed into its first field)
-  // gets none: its condition is changed in advanced mode only.
-  public createFastModeEditor(name: string): FilterConditionsEditor {
-    if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
+  // which turns an active preset off. The caller owns the editor and disposes it. A field the quick filters
+  // do not show (showInQuickFilters: false, or a duplicate valueName collapsed into its first field)
+  // gets none: its condition is changed in the Filters dialog only.
+  public createQuickFilterEditor(name: string): FilterConditionsEditor {
+    if (!this.isQuickFilterField(this.getFieldByName(name))) return undefined;
     return new FilterConditionsEditor(this, [name], {
       readOnly: !this.canEditConditionsInUI,
       onApply: (conditions: Array<IFilterCondition>): void => {
@@ -643,36 +720,36 @@ export class QuestionFilterModel extends QuestionNonValue {
       }
     });
   }
-  // The content of a fast mode badge's popup - see FilterFieldPopup. close is how the popup's own
+  // The content of a quick filter chip's popup - see FilterFieldPopup. close is how the popup's own
   // buttons close it (the toolbar hides its PopupModel). The caller owns it and disposes it. undefined
-  // for a field fast mode does not show, as with createFastModeEditor.
+  // for a field the quick filters do not show, as with createQuickFilterEditor.
   // The content of "Save as..."'s popup: the name of a new preset of the respondent's own, made of
   // the conditions they set. Nothing where presets cannot be added.
   public createSaveAsPopup(close: () => void): FilterSaveAsPopup {
-    if (!this.canAddItems || this.isDesignMode) return undefined;
+    if (!this.canAddPresets || this.isDesignMode) return undefined;
     return new FilterSaveAsPopup(this, close);
   }
   public createFieldPopup(name: string, close: () => void): FilterFieldPopup {
-    if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
+    if (!this.isQuickFilterField(this.getFieldByName(name))) return undefined;
     return new FilterFieldPopup(this, name, close);
   }
   // By name and valueName and not by object: a standalone field's descriptor is rebuilt on every
   // getFilterFields() call, so the two lists never share an object.
-  private isFastModeField(field: IDynamicDataFilterField): boolean {
+  private isQuickFilterField(field: IDynamicDataFilterField): boolean {
     if (!field) return false;
-    return this.getFastModeFields().some((f: IDynamicDataFilterField): boolean =>
+    return this.getQuickFilterFields().some((f: IDynamicDataFilterField): boolean =>
       f.name === field.name && f.valueName === field.valueName);
   }
-  // Advanced mode: every field - those fast mode hides too, a duplicate valueName still collapsed
+  // The Filters dialog: every field - those the quick filters hide too, a duplicate valueName still collapsed
   // to its first field - and the search box on top when there is one. Nothing is written while it
   // is edited; apply() writes all of it as one change, cancel() writes nothing. Read-only where
-  // conditions cannot be edited, as in fast mode. An editor is given even when
-  // isAdvancedModeAvailable is false: that flag tells a renderer whether to offer the mode, it is
+  // conditions cannot be edited, as in the quick filters. An editor is given even when
+  // showAllFiltersButton is false: that flag tells a renderer whether to offer the button, it is
   // not a permission the model enforces. The caller owns the editor and disposes it.
-  public createAdvancedModeEditor(): FilterConditionsEditor {
+  public createAllFiltersEditor(): FilterConditionsEditor {
     return new FilterConditionsEditor(this, this.getAllFieldKeys(), {
       readOnly: !this.canEditConditionsInUI,
-      showSearch: this.showSearch,
+      showSearch: this.showSearchBar,
       searchString: this.searchString,
       searchPlaceholder: this.searchPlaceholder,
       showFieldTitles: true,
@@ -681,7 +758,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       }
     });
   }
-  // The fields of the Filters dialog: every field, as in advanced mode, each in the form of its kind
+  // The fields of the Filters dialog: every field, as in the Filters dialog, each in the form of its kind
   // (checkboxes, a tagbox, Yes and No, an operator and a value), with no search box of its own - the
   // dialog's "Search in Filters" looks among them (setFilterText). It writes nothing: the dialog reads its conditions
   // (FilterModal) and is told of every change through onFieldChanged.
@@ -715,11 +792,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // The Edit Preset dialog of the named preset - see FilterEditPresetDialog. The caller owns it and
   // disposes it.
-  public createEditPresetDialog(itemName: string): FilterEditPresetDialog {
-    return new FilterEditPresetDialog(this, itemName);
+  public createEditPresetDialog(presetName: string): FilterEditPresetDialog {
+    return new FilterEditPresetDialog(this, presetName);
   }
   // Every field by the name the editors reach it back by, in the order the Filters dialog shows them -
-  // the fields a preset can be made of: those fast mode hides too, a duplicate valueName collapsed to
+  // the fields a preset can be made of: those the quick filters hide too, a duplicate valueName collapsed to
   // its first field.
   public getAllFieldKeys(): Array<string> {
     const all = this.getFilterFields();
@@ -741,13 +818,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     return undefined;
   }
   // The name a renderer addresses a field by in every call that takes one (getFieldCondition,
-  // createFastModeEditor, ...), by the rule above. A renderer that used field.name would reach the
+  // createQuickFilterEditor, ...), by the rule above. A renderer that used field.name would reach the
   // first of two bound nested fields sharing a leaf name from both badges.
   public getFieldKey(field: IDynamicDataFilterField): string {
     return !!field ? this.findFieldKey(this.getFilterFields(), field) : undefined;
   }
-  // Advanced mode's apply(): the editor's conditions replace the own ones and its search text
-  // replaces searchString, as one change - one write into the source, one onFilterChanged and one
+  // The Filters dialog's apply(): the editor's conditions replace the own ones and its search text
+  // replaces searchString, as one change - one write into the target and one
   // onUIStateChanged, none of them when nothing changed. Not over conditions that cannot be edited:
   // the editor is read-only there and never calls this, but the rule belongs to the control.
   // conditions is undefined when the respondent changed no field, only the search box: the editor
@@ -765,71 +842,81 @@ export class QuestionFilterModel extends QuestionNonValue {
       }
     }, true);
   }
-  // The state the Filters dialog opens with: the active preset while it is as it was (its own text
-  // applies, conditions undefined), or the conditions that apply instead ([] for none), and the
-  // search text. Single mode has no preset to pick: its state is its edits over the one preset,
-  // undefined while there are none.
+  // The state the Filters dialog opens with: the selected preset (its own text applies, conditions
+  // undefined), the control's own text that the fields cannot show (expression), or the conditions
+  // that apply ([] for none), and the search text.
   public getFilterState(): IFilterState {
-    const own = this.ownConditions;
     const searchString = this.searchString;
-    if (!this.allowMultipleItems) return { activeItemName: "", conditions: own, searchString: searchString };
-    if (own === undefined && !!this.activeItem) return { activeItemName: this.activeItemName, conditions: undefined, searchString: searchString };
-    return { activeItemName: "", conditions: own !== undefined ? [].concat(own) : [], searchString: searchString };
+    if (this.ownRawExpression !== undefined) {
+      return { selectedPreset: "", conditions: undefined, expression: this.ownRawExpression, searchString: searchString };
+    }
+    const own = this.ownConditions;
+    if (own === undefined && !!this.activePreset) return { selectedPreset: this.selectedPreset, conditions: undefined, searchString: searchString };
+    return { selectedPreset: "", conditions: [].concat(own || []), searchString: searchString };
   }
-  // The text of the preset a state applies as it is (conditions undefined), when that text does not
-  // decompose: what the Filters dialog shows of it, and what Add New Preset opened over it starts
-  // with. "" for any other state. Single mode's one preset is always the one it applies.
-  public getRawItemExpression(state: IFilterState): string {
-    if (!state || state.conditions !== undefined) return "";
-    const item = this.allowMultipleItems ? this.getItemByName(state.activeItemName) : this.activeItem;
-    if (!item || this.parseItemConditions(item) !== null) return "";
-    return (item.expression || "").trim();
+  // The text a state applies as it is, when the fields cannot show it: the control's own text, or the
+  // text of the preset it selects (conditions undefined) when that text does not decompose - what
+  // the Filters dialog shows of it, and what Add New Preset opened over it starts with. "" for any
+  // other state.
+  public getRawPresetExpression(state: IFilterState): string {
+    if (!state) return "";
+    if (state.expression !== undefined) return state.expression;
+    if (state.conditions !== undefined) return "";
+    const preset = this.getPresetByName(state.selectedPreset);
+    if (!preset || this.parsePresetConditions(preset) !== null) return "";
+    return (preset.expression || "").trim();
   }
   // A preset's text as conditions - what the Filters dialog shows in the fields when the preset is
   // turned on in it - or null when the text has none to offer, or there is no such preset.
-  public getItemConditions(name: string): Array<IFilterCondition> | null {
-    return this.parseItemConditions(this.getItemByName(name));
+  public getPresetConditions(name: string): Array<IFilterCondition> | null {
+    return this.parsePresetConditions(this.getPresetByName(name));
   }
   // The filterExpression a state would give, without applying it: what the Filters dialog counts the
-  // records of. Composed the way calcFilterExpression() composes the control's own.
+  // records of. Composed the way updateFilterExpression() composes the control's own combinedExpression.
   public composeFilterExpression(state: IFilterState): string {
     if (!state) return "";
     const fields = this.getFilterFields();
     let text: string;
-    if (state.conditions !== undefined) {
+    if (state.expression !== undefined) {
+      text = state.expression;
+    } else if (state.conditions !== undefined) {
       text = conditionsToExpression(normalizeFilterConditions(state.conditions, fields), fields);
     } else {
-      const item = this.allowMultipleItems ? this.getItemByName(state.activeItemName) : this.activeItem;
-      text = !!item ? (item.expression || "").trim() : "";
+      const preset = this.getPresetByName(state.selectedPreset);
+      text = !!preset ? (preset.expression || "").trim() : "";
     }
     return combineFilterExpressions(text, this.calcSearchExpression(state.searchString));
   }
   // The Filters dialog's apply: its state replaces the control's as one change - one write into the
-  // source, one onFilterChanged and one onUIStateChanged, none of them when nothing changed. With
-  // several presets a preset as it was is turned on (the edits go with the one before). Conditions
-  // replace the filter's own the way an edit does (replaceConditions): over an active preset they
-  // turn it off and keep its order - unless they are the preset's own conditions, which is no edit.
-  // Single mode keeps its one preset and takes the conditions over it.
+  // target and one onUIStateChanged, none of them when nothing changed. A text of its own is applied
+  // as applyFilter() applies one; a preset as it was is selected (the own filter goes with the one
+  // before); conditions replace the filter's own the way an edit does (replaceConditions): over a
+  // selected preset they unselect it and keep its order - unless they are the preset's own
+  // conditions, which is no edit.
   public applyFilterState(state: IFilterState): void {
     if (!state || !this.canEditConditions) return;
     this.runBatch((): void => {
-      if (state.conditions !== undefined) {
+      if (state.expression !== undefined) {
+        this.applyFilter(state.expression);
+      } else if (state.conditions !== undefined) {
         this.replaceConditions(state.conditions);
-      } else if (this.allowMultipleItems) {
-        this.activeItemName = state.activeItemName;
+      } else if (!!state.selectedPreset) {
+        this.applyPreset(state.selectedPreset);
+      } else {
+        this.clearFilter();
       }
-      if (this.showSearch && state.searchString !== undefined) {
+      if (this.showSearchBar && state.searchString !== undefined) {
         this.searchString = state.searchString;
       }
     }, true);
   }
-  // How many records an expression would leave in the bound source - the "Show N items" of the
-  // Filters dialog - with the filters of the source's other controls and its own authored one.
-  // undefined when it cannot be known: a standalone control, a source that cannot count.
+  // How many records an expression would leave in the bound target - the "Show N items" of the
+  // Filters dialog - with the filters of the target's other controls and its own authored one.
+  // undefined when it cannot be known: a standalone control, a target that cannot count.
   public countFilterResults(expression: string): Promise<number | undefined> {
-    const source = this.attachedSource;
-    if (!source || typeof source.getControlFilterCount !== "function") return Promise.resolve(undefined);
-    return source.getControlFilterCount(this.controlFilterKey, expression || "");
+    const target = this.attachedTarget;
+    if (!target || typeof target.getControlFilterCount !== "function") return Promise.resolve(undefined);
+    return target.getControlFilterCount(this.controlFilterKey, expression || "");
   }
   // A condition the filter holds now keeps its place and a new one goes to the end, as with
   // setFieldCondition(); one the editor no longer holds is dropped. Conditions that are, as a set,
@@ -841,7 +928,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   // preset's and restore from uiState the same way.
   private replaceConditions(editorConditions: Array<IFilterCondition>): void {
     const old = this.ownConditions;
-    const preset = old === undefined ? this.parseActiveItemConditions() : null;
+    const raw = this.ownRawExpression !== undefined;
+    const preset = old === undefined && !raw ? this.parseActivePresetConditions() : null;
     const current = old !== undefined ? old : (preset || []);
     const conditions = normalizeFilterConditions(editorConditions, this.getFilterFields());
     const byField: HashTable<IFilterCondition> = {};
@@ -854,46 +942,49 @@ export class QuestionFilterModel extends QuestionNonValue {
     };
     current.forEach((c: IFilterCondition): void => { take(c.field); });
     conditions.forEach((c: IFilterCondition): void => { take(c.field); });
-    const isRawPreset = old === undefined && !!this.activeItem && preset === null;
-    if (!isRawPreset && this.isSameConditionSet(res, current)) return;
+    const isRawText = raw || (old === undefined && !!this.activePreset && preset === null);
+    if (!isRawText && this.isSameConditionSet(res, current)) return;
     this.editConditions((): Array<IFilterCondition> => res);
   }
-  // What a fast mode badge edits its field with - see getFilterFieldEditorKind. undefined for a name
+  // What a quick filter chip edits its field with - see getFilterFieldEditorKind. undefined for a name
   // that leads to no field.
   public getFieldEditorKind(name: string): FilterFieldEditorKind {
     const field = this.getFieldByName(name);
     return !!field ? getFilterFieldEditorKind(field) : undefined;
   }
-  // The number a renderer shows next to the advanced editor's button: the conditions the filter is
-  // made of now - the respondent's own, or the active preset's. A preset that does not decompose
-  // has none to count but still filters, and counts as one.
+  // The number a renderer shows next to the All Filters button: the conditions the filter is made
+  // of now - the control's own, or the selected preset's. A preset or a text of the control's own
+  // that does not decompose has none to count but still filters, and counts as one.
   public get activeConditionCount(): number {
+    if (this.ownRawExpression !== undefined) return 1;
     const own = this.ownConditions;
     if (own !== undefined) return own.length;
-    if (!this.activeItem) return 0;
-    const preset = this.parseActiveItemConditions();
+    if (!this.activePreset) return 0;
+    const preset = this.parseActivePresetConditions();
     return preset === null ? 1 : preset.length;
   }
-  // With several presets an active one that has no conditions to show (isRawExpression: an "or", a
-  // function, a comparison of two fields) locks the quick filters: the badges cannot show what it
-  // filters by, and an edit in one would replace it with that edit alone - a click on a badge turns
-  // it off instead (see FilterToolbars). A preset the badges do show locks nothing: an edit there
-  // turns it off and keeps its conditions with the edit (editConditions). Single mode has no presets
-  // to pick, so its one preset never locks anything.
+  // A selected preset that has no conditions to show (an "or", a function, a comparison of two
+  // fields) locks the quick filters while the presets are shown: the badges cannot show what it
+  // filters by, and an edit in one would replace it with that edit alone - a click on a badge
+  // unselects it instead (see FilterToolbars). A preset the badges do show locks nothing: an edit there
+  // unselects it and keeps its conditions with the edit (editConditions). Nor does a text of the
+  // control's own, or a preset while the presets are hidden - the respondent cannot see what would
+  // lock the badges: the first edit in a badge starts from nothing.
   public get isLocked(): boolean {
-    return this.allowMultipleItems && this.isRawExpression;
+    return this.showPresets && !!this.activePreset && this.ownConditions === undefined && this.ownRawExpression === undefined &&
+      this.parseActivePresetConditions() === null;
   }
-  // What the fields toolbar shows, read in one pass: each fast mode field's key (the name
+  // What the fields toolbar shows, read in one pass: each quick filter field's key (the name
   // getFieldKey() gives it), its title, the editor its popup opens and its condition's text. One
   // read of the field list and one parse of the preset for all of them - the toolbar asks on every
   // change of the control.
-  public getFastModeFieldStates(): Array<IFilterFieldState> {
+  public getQuickFilterFieldStates(): Array<IFilterFieldState> {
     const all = this.getFilterFields();
-    const fast = this.collapseDuplicateValueNames(all.filter((field: IDynamicDataFilterField): boolean => field.showInFastMode !== false));
-    const conditions = this.ownConditions !== undefined ? this.ownConditions : this.parseActiveItemConditions();
+    const quick = this.collapseDuplicateValueNames(all.filter((field: IDynamicDataFilterField): boolean => field.showInQuickFilters !== false));
+    const conditions = this.getCurrentConditions();
     const locale = this.getLocale();
     const res: Array<IFilterFieldState> = [];
-    fast.forEach((field: IDynamicDataFilterField): void => {
+    quick.forEach((field: IDynamicDataFilterField): void => {
       const key = this.findFieldKey(all, field);
       if (!key) return;
       const condition = (conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0];
@@ -964,9 +1055,15 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // The search box's accessible name: the placeholder is no label.
   public get searchLabel(): string { return this.getLocalizationString("filterSearchLabel"); }
+  // The author's text for the search box; with none, the text that says what the search looks in.
+  public get searchPlaceholder(): string {
+    return this.locSearchPlaceholder.calculatedText || this.getComputedSearchPlaceholder();
+  }
+  public set searchPlaceholder(val: string) { this.locSearchPlaceholder.text = val; }
+  public get locSearchPlaceholder(): LocalizableString { return this.getOrCreateLocStr("searchPlaceholder"); }
   // Says what the search looks in: the titles of the fields it searches, in searchFields' order. With
   // no field to name it is the library's own "Type to search...".
-  public get searchPlaceholder(): string {
+  private getComputedSearchPlaceholder(): string {
     const titles = this.getSearchFields().map(getFilterFieldTitle);
     if (titles.length === 0) return this.getLocalizationString("filterStringPlaceholder");
     return this.getLocalizationFormatString("filterSearchPlaceholder", this.joinSearchTitles(titles));
@@ -980,12 +1077,12 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (titles.length === 2) return this.getLocalizationFormatString("filterSearchFieldsOr", titles[0], last);
     return this.getLocalizationFormatString("filterSearchFieldsOrLast", titles.slice(0, -1).join(", "), last);
   }
-  // The advanced editor as a dialog; with no dialog host (no survey rendered) this opens nothing.
-  public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }
+  // The Filters dialog; with no dialog host (no survey rendered) this opens nothing.
+  public showAllFilters(): void { this.toolbars.showAllFilters(); }
   // New Preset (isEdit false) or Edit Preset over the Filters dialog - see FilterToolbars.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void { this.toolbars.showPresetDialog(modal, isEdit); }
   // The field list one pass over the toolbars reads, once: the pass asks for it many times - the
-  // badges, each parse of the active preset, the counts - and a bound source builds it anew each time.
+  // badges, each parse of the active preset, the counts - and a bound target builds it anew each time.
   // Each field's operators and editor kind are read once in the pass too (runWithFilterFieldCache).
   // Kept for the pass only: nothing tells the control when a bound list changes.
   private passFields: Array<IDynamicDataFilterField>;
@@ -1029,11 +1126,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   // texts from the title and the choices.
   private getToolbarFieldsSignature(fields: Array<IDynamicDataFilterField>): string {
     return JSON.stringify([this.getLocale(), fields.map((field: IDynamicDataFilterField): Array<any> => [
-      field.name, field.valueName, field.fieldType, field.valueType, !!field.isTypeless, field.showInFastMode, field.operators,
+      field.name, field.valueName, field.fieldType, field.valueType, !!field.isTypeless, field.showInQuickFilters, field.operators,
       getFilterFieldTitle(field), !!field.templateQuestion ? field.templateQuestion.uniqueId : undefined,
       getFieldChoiceItems(field).map((item: any): Array<any> => [item.value, item.calculatedText])])]);
   }
-  // The element the survey this control is in rendered into: the advanced editor's dialog is
+  // The element the survey this control is in rendered into: the Filters dialog is
   // mounted there, inside that survey's theme and outside its <form>. undefined while that survey is
   // not rendered.
   public getSurveyRootElement(): HTMLElement { return !!this.survey ? this.survey.rootElement : undefined; }
@@ -1049,57 +1146,53 @@ export class QuestionFilterModel extends QuestionNonValue {
   // call and never kept: the preset is resolved by name, its expression can be edited and a bound
   // control's field list can change with no notification - parseFilterExpression caches the part
   // that is safe to cache.
-  private parseActiveItemConditions(): Array<IFilterCondition> | null {
-    return this.parseItemConditions(this.activeItem);
+  private parseActivePresetConditions(): Array<IFilterCondition> | null {
+    return this.parsePresetConditions(this.activePreset);
   }
-  private parseItemConditions(item: FilterItem): Array<IFilterCondition> | null {
-    if (!item) return null;
-    return this.decomposeExpression(item.expression);
+  private parsePresetConditions(preset: FilterPreset): Array<IFilterCondition> | null {
+    if (!preset) return null;
+    return this.decomposeExpression(preset.expression);
   }
-  // The first edit decomposes the preset and changes one field in what it gives; a preset that does
-  // not decompose (or no preset at all) starts from nothing. One edit is one write, one
-  // onFilterChanged and one onUIStateChanged. An edit that leaves the conditions exactly as they
-  // were is no change and raises nothing - except the first one: from then on the edits apply
-  // instead of the preset's text, and that is new state even if the expression reads the same.
-  // Compared through JSON.stringify and not Helpers.isTwoValueEquals: that one is case-insensitive
-  // by default and takes 18 for "18" and true for "true", and each of those pairs composes into a
-  // different expression on a text field - the edit would be dropped as "no change".
+  // A selected preset and the control's own conditions are never applied together: the first edit
+  // over the selected preset decomposes it, applies the edit to its conditions and unselects it - the
+  // presets' chip would otherwise show the preset over a filter that is no longer the preset. A preset
+  // that does not decompose, and a text of the control's own, start from nothing. One edit is one
+  // write into the target and one onUIStateChanged; an edit that leaves the conditions as they were
+  // is no change and raises nothing. Compared through JSON.stringify and not
+  // Helpers.isTwoValueEquals: that one is case-insensitive by default and takes 18 for "18" and true
+  // for "true", and each of those pairs composes into a different expression on a text field - the
+  // edit would be dropped as "no change".
   private editConditions(edit: (conditions: Array<IFilterCondition>) => Array<IFilterCondition>): void {
     if (!this.canEditConditions) return;
     const old = this.ownConditions;
-    const preset = old === undefined ? this.parseActiveItemConditions() : null;
+    const raw = this.ownRawExpression !== undefined;
+    const preset = old === undefined && !raw ? this.parseActivePresetConditions() : null;
     const start = old !== undefined ? old : (preset || []);
     const conditions = edit(start);
-    if (this.isPresetReleasedByEdits) {
-      // An edit that leaves the preset's own conditions as they are is no edit: the preset stays on.
-      // A preset that does not decompose has none to compare with, so any edit turns it off.
+    if (!!this.activePreset && old === undefined) {
+      // An edit that leaves the preset's own conditions as they are is no edit: the preset stays
+      // selected. A preset that does not decompose has none to compare with, so any edit unselects it.
       if (preset !== null && this.isSameConditionSet(conditions, preset)) return;
       this.runBatch((): void => {
-        this.activeItemName = "";
-        this.setOwnConditions(conditions);
+        this.setSelectedPreset("");
+        this.setOwnFilter(conditions, undefined);
       }, true);
       return;
     }
-    if (old !== undefined && JSON.stringify(conditions) === JSON.stringify(old)) return;
-    this.setOwnConditions(conditions);
-    this.updateFilterExpression();
-    this.raiseUIStateChanged();
+    if (!raw && JSON.stringify(conditions) === JSON.stringify(old || [])) return;
+    this.runBatch((): void => {
+      this.setOwnFilter(conditions, undefined);
+      this.raiseUIStateChanged();
+    }, true);
   }
-  // With several presets a preset and the respondent's own conditions are never applied together:
-  // the first edit over the active preset turns it off and keeps what it filtered by as own
-  // conditions, with the edit applied to them. The presets' chip would otherwise show the preset over a
-  // filter that is no longer the preset. Single mode keeps the edits over its one preset.
-  private get isPresetReleasedByEdits(): boolean {
-    return this.allowMultipleItems && !!this.activeItem && this.ownConditions === undefined;
-  }
-  // Not setPropertyValue: once this class owns arrays (fields, items), Base.setPropertyValue treats
+  // Not setPropertyValue: once this class owns arrays (fields, presets), Base.setPropertyValue treats
   // any array value as one of them - it copies the new array INTO the old one instead of storing
   // it, and turns "undefined over an empty array" into an isReset mark instead of undefined. Both
   // would break this slot: the array the previous edit left behind would change under whoever
   // holds it, and [] ("conditions cleared") could never go back to undefined ("no edits").
   private setOwnConditions(val: Array<IFilterCondition>): void {
     // Whatever decides the conditions now - an edit, another preset, a save, a clear - supersedes
-    // restored edits still waiting for their source: they were edits over the state this replaces.
+    // restored edits still waiting for their target: they were edits over the state this replaces.
     this.pendingExpression = undefined;
     const oldValue = this.ownConditions;
     if (val === oldValue) return;
@@ -1134,80 +1227,87 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     return true;
   }
-  // The titles the respondent gave authored presets (updateItem), by name. What they filter by is
+  // The titles the respondent gave authored presets (updatePreset), by name. What they filter by is
   // their expression itself: a preset's text is the only record of what it filters by.
-  private savedItemTitles: HashTable<string> = {};
+  private savedPresetTitles: HashTable<string> = {};
   // What an authored preset was in the JSON before the respondent first changed it - its expression,
   // and its title as JSON (a localized text stays localized) - by name. A preset with an entry here is
-  // modified (isItemModified); resetItem() puts it back and drops the entry. getUIState() stores the
+  // modified (isPresetModified); resetPreset() puts it back and drops the entry. getUIState() stores the
   // expression of one whose text is not the JSON's any more. A preset that is later removed just
-  // leaves a stale, harmless entry here: getUIState() skips a name that no longer resolves. An items
+  // leaves a stale, harmless entry here: getUIState() skips a name that no longer resolves. A presets
   // array the host assigns anew drops the entries of the presets it replaced - see
-  // dropReplacedSavedItems().
-  private originalItems: HashTable<{ expression: string, title: any }> = {};
-  // The respondent's own presets (addItem), in the order they were added. FilterItems like the
-  // authored ones, but kept out of items: items is the survey JSON, and these are the respondent's
-  // state, not the author's.
-  private userItemsValue: Array<FilterItem> = [];
-  // The authored presets the respondent deleted, by name: hidden from everything that looks presets
-  // up, while items - the JSON - keeps them.
-  private deletedItemNames: Array<string> = [];
-  private createUserItem(name: string, title: string, expression: string): FilterItem {
-    const item = new FilterItem(name);
-    this.setItemText(item.locTitle, (title || "").trim());
-    item.expression = expression;
-    this.userItemsValue.push(item);
-    this.onItemAdded(item);
-    return item;
+  // dropReplacedSavedPresets().
+  private originalPresets: HashTable<{ expression: string, title: any, allowEdit: boolean, allowDelete: boolean, allowCopy: boolean }> = {};
+  // The respondent's own presets (addPreset), in the order they were added. They are in presets as
+  // well (the live list); this tells them from the authored ones, which uiState keeps apart.
+  private userPresetsValue: Array<FilterPreset> = [];
+  // The authored presets the respondent deleted, by name: gone from presets, kept here for uiState and
+  // so that the name stays taken.
+  private deletedPresetNames: Array<string> = [];
+  private createUserPreset(name: string, title: string, expression: string): FilterPreset {
+    const preset = new FilterPreset(name);
+    this.setPresetText(preset.locTitle, (title || "").trim());
+    preset.expression = expression;
+    this.userPresetsValue.push(preset);
+    this.presets.push(preset);
+    return preset;
   }
-  // Free among every preset, the deleted ones too: a name is what activeItemName and uiState hold.
-  private getNewItemName(): string {
-    let n = this.userItemsValue.length + 1;
-    while(this.isItemNameUsed("userItem" + n)) n++;
-    return "userItem" + n;
+  // Free among every preset, the deleted ones too: a name is what selectedPreset and uiState hold.
+  private getNewPresetName(): string {
+    let n = this.userPresetsValue.length + 1;
+    while(this.isPresetNameUsed("userPreset" + n)) n++;
+    return "userPreset" + n;
   }
   // A name is a key, not a title: matched exactly, with no trimming or case folding.
-  private isItemNameUsed(name: string): boolean {
-    return this.items.some((item: FilterItem): boolean => item.name === name) || !!this.findUserItem(name);
+  private isPresetNameUsed(name: string): boolean {
+    return !!this.getPresetByName(name) || this.deletedPresetNames.indexOf(name) > -1;
   }
   // A title the respondent typed is the text in every locale: set as the default text,
   // with no translations left that would show the author's text in another locale.
-  private setItemText(locStr: LocalizableString, text: any): void {
+  private setPresetText(locStr: LocalizableString, text: any): void {
     locStr.setJson(!!text && typeof text === "object" ? Object.assign({}, text) : (text || null), true);
     locStr.strChanged();
   }
-  private rememberOriginal(item: FilterItem): void {
-    if (!this.originalItems[item.name]) {
-      this.originalItems[item.name] = { expression: item.expression, title: item.locTitle.getJson() };
+  private rememberOriginal(preset: FilterPreset): void {
+    if (!this.originalPresets[preset.name]) {
+      this.originalPresets[preset.name] = { expression: preset.expression, title: preset.locTitle.getJson(),
+        allowEdit: preset.allowEdit, allowDelete: preset.allowDelete, allowCopy: preset.allowCopy };
     }
   }
-  // The preset as the JSON made it, as a FilterItem of its own, for comparing and reading its title
+  // The preset as the JSON made it, as a FilterPreset of its own, for comparing and reading its title
   // in the current locale. The caller disposes it.
-  private createOriginalItem(name: string): FilterItem {
-    const original = this.originalItems[name];
-    const item = new FilterItem(name);
-    item.itemOwner = this;
-    item.locTitle.setJson(original.title, true);
-    item.expression = original.expression;
-    return item;
+  private createOriginalPreset(name: string): FilterPreset {
+    const original = this.originalPresets[name];
+    const preset = new FilterPreset(name);
+    preset.presetOwner = this;
+    preset.locTitle.setJson(original.title, true);
+    preset.expression = original.expression;
+    preset.allowEdit = original.allowEdit;
+    preset.allowDelete = original.allowDelete;
+    preset.allowCopy = original.allowCopy;
+    return preset;
   }
-  private isSameAsOriginal(item: FilterItem): boolean {
-    const original = this.createOriginalItem(item.name);
-    const a = this.parseItemConditions(original);
-    const b = this.parseItemConditions(item);
+  private isSameAsOriginal(preset: FilterPreset): boolean {
+    const original = this.createOriginalPreset(preset.name);
+    const a = this.parsePresetConditions(original);
+    const b = this.parsePresetConditions(preset);
     const isSameConditions = a === null || b === null
-      ? (original.expression || "").trim() === (item.expression || "").trim() : this.isSameConditionSet(a, b);
-    const res = isSameConditions && original.title === item.title;
+      ? (original.expression || "").trim() === (preset.expression || "").trim() : this.isSameConditionSet(a, b);
+    const res = isSameConditions && original.title === preset.title && original.allowEdit === preset.allowEdit &&
+      original.allowDelete === preset.allowDelete && original.allowCopy === preset.allowCopy;
     original.dispose();
     return res;
   }
-  private restoreOriginal(item: FilterItem): void {
-    const original = this.originalItems[item.name];
-    delete this.originalItems[item.name];
-    delete this.savedItemTitles[item.name];
+  private restoreOriginal(preset: FilterPreset): void {
+    const original = this.originalPresets[preset.name];
+    delete this.originalPresets[preset.name];
+    delete this.savedPresetTitles[preset.name];
     if (!original) return;
-    this.setItemText(item.locTitle, original.title);
-    item.expression = original.expression;
+    this.setPresetText(preset.locTitle, original.title);
+    preset.expression = original.expression;
+    preset.allowEdit = original.allowEdit;
+    preset.allowDelete = original.allowDelete;
+    preset.allowCopy = original.allowCopy;
   }
   // A text as the conditions the fields hold it with (parseFilterExpression), or null when it is not
   // that kind of text - and when the fields would lose a row of it (no value where the operator needs
@@ -1224,7 +1324,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // them is left), or a text - one that decomposes (decomposeExpression) is normalized and composed
   // the same way, so it reads as the fields would write it; any other is kept as typed, trimmed. A
   // text that is empty or does not parse is undefined: no preset filters by nothing or by a broken text.
-  private composeItemExpression(conditions: Array<IFilterCondition>, expression?: string): string {
+  private composePresetExpression(conditions: Array<IFilterCondition>, expression?: string): string {
     const fields = this.getFilterFields();
     let list = conditions || [];
     if (expression !== undefined) {
@@ -1246,33 +1346,15 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (ca === null || cb === null) return (a || "").trim() === (b || "").trim();
     return this.isSameConditionSet(normalizeFilterConditions(ca, fields), normalizeFilterConditions(cb, fields));
   }
-  // A saved preset's text as it is restored. While every field it names is still there, it is the
-  // text the respondent saved and comes back as it was saved: as the fields write it where it
-  // decomposes, as typed otherwise - Apply and an AI answer keep any text that parses. An "and" list
-  // with one condition per field that names a field no longer there was saved against other fields:
-  // it is checked against these the way saved conditions always were - a condition the fields cannot
-  // hold is dropped, and undefined when none is left of a list that had some (rewriting a preset to ""
-  // would turn it into "no filter", which nobody saved). Any other text (an "or", a range on one field,
-  // a function) comes back as it was saved; undefined when it does not parse.
-  private restoreItemExpression(text: string): string {
-    const rows = splitFilterExpression(text);
+  // A saved preset's text as it is restored: as the fields write it where it decomposes, as it was
+  // saved otherwise - also a text that names a record key no field has, or a field the author has
+  // removed since: a restore does not rewrite what was saved (the user's call; it was the other way
+  // round before the release API). undefined when it does not parse.
+  private restorePresetExpression(text: string): string {
     const fields = this.getFilterFields();
-    if (rows !== null && !this.hasRepeatedField(rows) && this.hasMissingField(rows, fields)) {
-      const conditions = normalizeFilterConditions(rows, fields);
-      if (conditions.length === 0 && rows.length > 0) return undefined;
-      return conditionsToExpression(conditions, fields);
-    }
     const decomposed = this.decomposeExpression(text);
     if (decomposed !== null) return conditionsToExpression(normalizeFilterConditions(decomposed, fields), fields);
     return canParseFilterExpression(text) ? text.trim() : undefined;
-  }
-  private hasRepeatedField(conditions: Array<IFilterCondition>): boolean {
-    return conditions.some((c: IFilterCondition, index: number): boolean =>
-      conditions.some((other: IFilterCondition, i: number): boolean => i < index && other.field === c.field));
-  }
-  private hasMissingField(conditions: Array<IFilterCondition>, fields: Array<IDynamicDataFilterField>): boolean {
-    const byValueName = getFieldsByValueName(fields);
-    return conditions.some((c: IFilterCondition): boolean => !Object.prototype.hasOwnProperty.call(byValueName, c.field));
   }
   // An array value is copied both ways: the caller's array must not be able to change the filter
   // behind the control's back, and neither must the one it is given back.
@@ -1288,41 +1370,41 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    // The source is resolved before the default is applied, so the expression the default composes
+    // The target is resolved before the default is applied, so the expression the default composes
     // reaches it in one write and raises one event instead of two.
-    this.updateFilterSource();
-    this.applyDefaultItem();
+    this.updateFilterTarget();
+    this.applyDefaultPreset();
   }
   // Every question is re-run whenever a survey value changes, which is also when a question the
-  // source names may have appeared or gone.
+  // target names may have appeared or gone.
   public runCondition(properties: HashTable<any>): void {
     super.runCondition(properties);
-    this.updateFilterSource();
+    this.updateFilterTarget();
   }
   protected onSetData(): void {
     super.onSetData();
-    this.updateFilterSource();
+    this.updateFilterTarget();
   }
   // A removed page takes its questions out of the survey with setSurveyImpl(null), which, unlike
   // a non-null one, does not reach onSetData().
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     if (!value) {
-      this.detachFromSource();
+      this.detachFromTarget();
     }
   }
   // removeElement() only resets the parent: data and survey stay, and runCondition() no longer
   // reaches the control, so this is the one report of the removal it gets. Taking the control out
-  // detaches it without an event, the way dispose() does; putting it back re-resolves the source.
+  // detaches it without an event, the way dispose() does; putting it back re-resolves the target.
   // Known gap: a control inside a panel that is removed, or inside a Dynamic Panel item that is
   // removed, is not reported either - its own parent does not change - and keeps its filter on a
-  // source outside that panel until it is disposed.
+  // target outside that panel until it is disposed.
   protected onParentChanged(): void {
     super.onParentChanged();
     if (!this.parent) {
-      this.detachFromSource();
+      this.detachFromTarget();
     } else {
-      this.updateFilterSource();
+      this.updateFilterTarget();
     }
   }
   // The toolbars go first: their chips borrow the presets' titles. Base.dispose reaches neither array,
@@ -1330,87 +1412,80 @@ export class QuestionFilterModel extends QuestionNonValue {
   // the author's JSON, which an application may still hold: they are let go of, not disposed. The
   // respondent's own presets are the control's, and go with it.
   public dispose(): void {
-    this.detachFromSource();
+    this.detachFromTarget();
     if (!!this.toolbarsValue) {
       this.toolbarsValue.dispose();
       this.toolbarsValue = undefined;
     }
-    this.items.forEach((item: FilterItem): void => { this.unhookItem(item); });
+    this.presets.forEach((preset: FilterPreset): void => { this.unhookPreset(preset); });
     this.fields.forEach((field: FilterField): void => { this.unhookField(field); });
-    this.userItemsValue.forEach((item: FilterItem): void => {
-      this.unhookItem(item);
-      item.dispose();
-    });
-    this.userItemsValue = [];
+    this.userPresetsValue.forEach((preset: FilterPreset): void => { preset.dispose(); });
+    this.userPresetsValue = [];
     super.dispose();
   }
-  // Re-resolves the source and moves the filter with it: the question that is being left is cleared
-  // first, so no ghost filter survives a re-pointed source or a source question that went away.
-  private updateFilterSource(): void {
+  // Re-resolves the target and moves the filter with it: the question that is being left is cleared
+  // first, so no ghost filter survives a re-pointed target or a target question that went away.
+  private updateFilterTarget(): void {
     if (this.isDesignMode) return;
-    const source = this.filterSource;
-    if (source === this.attachedSource) {
+    const target = this.filterTarget;
+    if (target === this.attachedTarget) {
       this.updateFilterExpression();
       this.updateToolbarsIfFieldsChanged();
       return;
     }
-    this.detachFromSource();
-    const oldExpression = this.filterExpression;
-    if (!!source) {
+    this.detachFromTarget();
+    const oldExpression = this.combinedExpression;
+    if (!!target) {
       this.restorePendingState();
+      this.decomposeProvisionalFilter();
     }
-    // The expression is recomposed against the new source BEFORE anything is written: the search
-    // fragments quote the fields of the source they were built from, so the text composed for the
+    // The expression is recomposed against the new target BEFORE anything is written: the search
+    // fragments quote the fields of the target they were built from, so the text composed for the
     // previous one names fields the new one may not have. Recomposing it silently - the control is
     // attached to nothing for the length of this call - is what makes the move one write and one
     // event instead of a wrong pair of them.
     this.updateFilterExpression(true);
-    this.attachedSource = source;
+    this.attachedTarget = target;
     // Attaching is not a change of the filter by itself: with nothing composed, before or now, there
     // is nothing to write and nothing to report. A move that empties the expression is one, though:
     // a host that mirrors the filter would otherwise keep querying by the text composed for the old
-    // source.
-    if (!!this.filterExpression || this.filterExpression !== oldExpression) {
-      this.applyToSource();
+    // target.
+    if (!!this.combinedExpression || this.combinedExpression !== oldExpression) {
+      this.applyToTarget();
     }
-    // A new source brings its own fields.
+    // A new target brings its own fields.
     this.updateToolbars();
   }
-  private detachFromSource(): void {
-    const source = this.attachedSource;
-    this.attachedSource = undefined;
+  private detachFromTarget(): void {
+    const target = this.attachedTarget;
+    this.attachedTarget = undefined;
     // A disposed question has no list and no controller left to write into.
-    if (!!source && source.isDisposed !== true) {
-      source.setControlFilter(this.controlFilterKey, "");
+    if (!!target && target.isDisposed !== true) {
+      target.setControlFilter(this.controlFilterKey, "");
     }
   }
-  // The order is load-bearing: the source is re-filtered first and the event is raised after, so a
-  // handler that looks into the matrix sees the records it shows now and not the previous ones.
-  private applyToSource(): void {
-    const source = this.attachedSource;
-    if (!!source) {
-      source.setControlFilter(this.controlFilterKey, this.filterExpression);
-    }
-    if (!!this.survey) {
-      this.survey.filterChanged(this, this.filterExpression, source);
+  // A control with no target filters nothing itself: the application reads combinedExpression.
+  private applyToTarget(): void {
+    const target = this.attachedTarget;
+    if (!!target) {
+      target.setControlFilter(this.controlFilterKey, this.combinedExpression);
     }
   }
-  // A bound control whose source is not there (yet) has no fields to check restored conditions
+  // A bound control whose target is not there (yet) has no fields to check restored conditions
   // against: getFilterFields() falls back to the standalone list, which a bound control rarely has.
-  private get isFieldListReady(): boolean { return !this.source || !!this.filterSource; }
+  private get isFieldListReady(): boolean { return !this.targetQuestion || !!this.filterTarget; }
   protected getUIState(): IElementUIState {
     let res = super.getUIState();
     const state: IFilterElementUIState = {};
     let isEmpty = true;
-    // The baseline is the default the control could actually apply, not the raw defaultItem:
-    // applyDefaultItem() refuses a defaultItem that names no item, so activeItemName stays "" and
-    // comparing against the raw name would make an untouched control store activeItemName: "". That
-    // would both produce a spurious save and, once the author fixed or added the item, keep the now
-    // valid default from ever applying to a returning respondent. The same holds while items are
-    // still on their way from a source and nothing resolves yet.
-    const appliedDefault = !!this.getItemByName(this.defaultItem) ? this.defaultItem : "";
-    if (this.allowMultipleItems && this.activeItemName !== appliedDefault) {
-      state.activeItemName = this.activeItemName;
+    // The baseline is the default the control could actually apply, not the raw defaultPreset:
+    // applyDefaultPreset() refuses a defaultPreset that names no preset, so selectedPreset stays "" and
+    // comparing against the raw name would make an untouched control store selectedPreset: "". That
+    // would both produce a spurious save and, once the author fixed or added the preset, keep the now
+    // valid default from ever applying to a returning respondent.
+    const appliedDefault = !!this.getPresetByName(this.defaultPreset) ? this.defaultPreset : "";
+    if (this.selectedPreset !== appliedDefault) {
+      state.selectedPreset = this.selectedPreset;
       isEmpty = false;
     }
     if (!!this.searchString) { state.searchString = this.searchString; isEmpty = false; }
@@ -1420,68 +1495,72 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     const expression = this.getUIStateExpression();
     if (expression !== undefined) { state.expression = expression; isEmpty = false; }
-    const items = this.getUIStateItems();
-    if (!!items) { state.items = items; isEmpty = false; }
-    const userItems = this.getUIStateUserItems();
-    if (!!userItems) { state.userItems = userItems; isEmpty = false; }
-    if (this.deletedItemNames.length > 0) { state.deletedItems = [].concat(this.deletedItemNames); isEmpty = false; }
+    const presets = this.getUIStatePresets();
+    if (!!presets) { state.presets = presets; isEmpty = false; }
+    const userPresets = this.getUIStateUserPresets();
+    if (!!userPresets) { state.userPresets = userPresets; isEmpty = false; }
+    if (this.deletedPresetNames.length > 0) { state.deletedPresets = [].concat(this.deletedPresetNames); isEmpty = false; }
     if (isEmpty) return res;
     res = res || {};
     res.filter = state;
     return res;
   }
-  // Unsaved edits as the expression they compose, and only when they are a change: over an active
-  // preset an edit that leaves its conditions as they were is nothing to restore, while [] over it is
-  // (its conditions were cleared: ""). With no preset, [] and "no edits" filter the same - by nothing -
-  // so neither is stored. Edits restored before the source attached were never checked; they are
-  // passed on as they came, or saving the state again before the source appears would lose them.
+  // The control's own filter as text, when it has one: a text the fields cannot show as it is,
+  // conditions as the expression they compose. No filter of its own is not stored - the filter is
+  // the selected preset's or none. A filter restored before the target attached was never checked;
+  // it is passed on as it came, or saving the state again before the target appears would lose it.
   private getUIStateExpression(): string {
     if (this.pendingExpression !== undefined) return this.pendingExpression;
     const conditions = this.ownConditions;
-    if (conditions === undefined) return undefined;
-    if (!!this.activeItem ? !this.isActiveItemModified : conditions.length === 0) return undefined;
+    if (this.ownRawExpression !== undefined) return this.ownRawExpression;
+    if (conditions === undefined || conditions.length === 0) return undefined;
     return conditionsToExpression(conditions, this.getFilterFields());
   }
-  // Only presets that still exist and may still be edited: restoreItems() would ignore any other.
-  private getUIStateItems(): FilterSavedItems {
-    let res: FilterSavedItems = undefined;
-    const add = (name: string, item: IFilterSavedItemState): void => {
-      if (!this.canRestoreSavedItem(name)) return;
-      const entry = this.toSavedItemEntry(item);
+  // Only presets that still exist: restorePresets() would ignore any other.
+  private getUIStatePresets(): FilterSavedPresets {
+    let res: FilterSavedPresets = undefined;
+    const add = (name: string, preset: IFilterSavedPresetState): void => {
+      if (!this.canRestoreSavedPreset(name)) return;
+      const entry = this.toSavedPresetEntry(preset);
       if (!entry) return;
       res = res || {};
       res[name] = entry;
     };
-    const pending = this.pendingItems || {};
+    const pending = this.pendingPresets || {};
     Object.keys(pending).forEach((name: string): void => { add(name, pending[name]); });
-    // A preset changed in this session wins over one still waiting for its source: it is newer. Its
+    // A preset changed in this session wins over one still waiting for its target: it is newer. Its
     // text goes only when it is not the JSON's: a preset given a title alone keeps the author's text.
-    Object.keys(this.originalItems).forEach((name: string): void => {
-      const item = this.getItemByName(name);
-      const entry: IFilterSavedItemState = { title: this.savedItemTitles[name] };
-      if (!!item && (item.expression || "").trim() !== (this.originalItems[name].expression || "").trim()) {
-        entry.expression = item.expression || "";
+    Object.keys(this.originalPresets).forEach((name: string): void => {
+      const preset = this.getPresetByName(name);
+      const entry: IFilterSavedPresetState = { title: this.savedPresetTitles[name] };
+      const original = this.originalPresets[name];
+      if (!!preset && (preset.expression || "").trim() !== (original.expression || "").trim()) {
+        entry.expression = preset.expression || "";
       }
+      ["allowEdit", "allowDelete", "allowCopy"].forEach((key: string): void => {
+        if (!!preset && (<any>preset)[key] !== (<any>original)[key]) (<any>entry)[key] = (<any>preset)[key];
+      });
       add(name, entry);
     });
     return res;
   }
-  // The respondent's presets in their order; those restored before the source attached are passed on
+  // The respondent's presets in their order; those restored before the target attached are passed on
   // as they came, as conditions are.
-  private getUIStateUserItems(): Array<IFilterUserItemState> {
-    if (!!this.pendingUserItems) return this.copyUserItems(this.pendingUserItems);
-    if (this.userItemsValue.length === 0) return undefined;
-    return this.userItemsValue.map((item: FilterItem): IFilterUserItemState => {
-      const title = item.locTitle.getJson();
-      return { name: item.name, title: typeof title === "string" ? title : "", expression: item.expression || "" };
+  private getUIStateUserPresets(): Array<IFilterUserPresetState> {
+    if (!!this.pendingUserPresets) return this.copyUserPresets(this.pendingUserPresets);
+    if (this.userPresetsValue.length === 0) return undefined;
+    return this.userPresetsValue.map((preset: FilterPreset): IFilterUserPresetState => {
+      const title = preset.locTitle.getJson();
+      return { name: preset.name, title: typeof title === "string" ? title : "", expression: preset.expression || "",
+        allowEdit: preset.allowEdit, allowDelete: preset.allowDelete, allowCopy: preset.allowCopy };
     });
   }
-  // The order is load-bearing. Deleted, saved and the respondent's own presets first: activeItemName
+  // The order is load-bearing. Deleted, saved and the respondent's own presets first: selectedPreset
   // may name one of them, and its expression has to be the saved one before it is composed - or the
-  // new name of one of the respondent's that had to be renamed. activeItemName before conditions: its
+  // new name of one of the respondent's that had to be renamed. selectedPreset before conditions: its
   // setter resets the edits, which would otherwise wipe the restored ones. The search last - it is
-  // independent of the rest. The whole restore is one batch: one write into the source, one
-  // onFilterChanged (none if the expression did not change) and no onUIStateChanged - restoring is
+  // independent of the rest. The whole restore is one batch: one write into the target
+  // (none if the expression did not change) and no onUIStateChanged - restoring is
   // not a new change, and a host that saves on every change would otherwise save right after every
   // restore.
   protected setUIState(state: IElementUIState): void {
@@ -1490,27 +1569,27 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!filter) return;
     this.runBatch((): void => {
       const isReady = this.isFieldListReady;
-      this.restoreDeletedItems(filter.deletedItems);
-      const items = !!filter.items && typeof filter.items === "object" ? filter.items : undefined;
-      // A newer restore replaces whatever an earlier one left waiting for the source.
-      this.pendingItems = isReady ? undefined : this.copySavedItems(items);
+      this.restoreDeletedPresets(filter.deletedPresets);
+      const presets = !!filter.presets && typeof filter.presets === "object" ? filter.presets : undefined;
+      // A newer restore replaces whatever an earlier one left waiting for the target.
+      this.pendingPresets = isReady ? undefined : this.copySavedPresets(presets);
       if (isReady) {
-        this.restoreItems(items);
+        this.restorePresets(presets);
       }
-      let activeItemName = filter.activeItemName;
-      if (Array.isArray(filter.userItems)) {
-        this.pendingUserItems = isReady ? undefined : this.copyUserItems(filter.userItems);
+      let selectedName = filter.selectedPreset;
+      if (Array.isArray(filter.userPresets)) {
+        this.pendingUserPresets = isReady ? undefined : this.copyUserPresets(filter.userPresets);
         if (isReady) {
-          const renamed = this.restoreUserItems(filter.userItems);
-          if (Object.prototype.hasOwnProperty.call(renamed, activeItemName)) {
-            activeItemName = renamed[activeItemName];
+          const renamed = this.restoreUserPresets(filter.userPresets);
+          if (Object.prototype.hasOwnProperty.call(renamed, selectedName)) {
+            selectedName = renamed[selectedName];
           }
         }
       }
-      // A key that is not there was not changed by the respondent, EXCEPT activeItemName, whose ""
+      // A key that is not there was not changed by the respondent, EXCEPT selectedPreset, whose ""
       // means "switched off" and must survive.
-      if (activeItemName !== undefined) {
-        this.activeItemName = activeItemName;
+      if (selectedName !== undefined) {
+        this.setSelectedPreset(selectedName);
       }
       const expression = typeof filter.expression === "string" ? filter.expression : undefined;
       if (isReady) {
@@ -1527,87 +1606,97 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (Array.isArray(filter.searchFields)) {
         this.searchFields = [].concat(filter.searchFields);
       }
+      this.dropUnresolvedSelection();
     });
     // Presets the respondent added or deleted change the chips with no property of the control
     // changing - the expression may read the same - so nothing else would redraw the row. A restore
-    // still waiting for the bound source is redrawn as the source attaches (updateFilterSource).
+    // still waiting for the bound target is redrawn as the target attaches (updateFilterTarget).
     this.updateToolbars();
   }
-  // A saved preset's text comes back checked against the fields (restoreItemExpression). A name that
-  // no longer resolves to a preset is ignored - the author removed or renamed it - and so is a preset
-  // the author has since made read-only (allowEdit: false): the respondent could not save into it
-  // now, and the author's text must win. A text that names a field no longer there and has nothing
-  // left once it is checked against the fields is ignored too, and so is one that does not parse. A
-  // title the respondent gave the preset is restored by the same rules.
-  private restoreItems(items: FilterSavedItems): void {
-    if (!items) return;
-    Object.keys(items).forEach((name: string): void => {
-      const entry = items[name];
-      if (!this.canRestoreSavedItem(name) || !entry) return;
-      const item = this.getItemByName(name);
+  // A saved change of a preset comes back as it was saved (restorePresetExpression); a name that no
+  // longer resolves to a preset is ignored - the author removed or renamed it - and so is a text that
+  // does not parse. A preset the author has locked (allowEdit false in the JSON) keeps the JSON: the
+  // author's lock wins over a change saved before it (the user's call). The control's permission
+  // flags are not asked - they are the UI's, and a change made through the API is restored.
+  private restorePresets(presets: FilterSavedPresets): void {
+    if (!presets) return;
+    Object.keys(presets).forEach((name: string): void => {
+      const entry = presets[name];
+      if (!this.canRestoreSavedPreset(name) || !entry) return;
+      const preset = this.getPresetByName(name);
+      if (!preset.allowEdit) return;
       const title = typeof entry.title === "string" ? entry.title.trim() : "";
       if (!!title) {
-        this.rememberOriginal(item);
-        this.setItemText(item.locTitle, title);
-        this.savedItemTitles[name] = title;
+        this.rememberOriginal(preset);
+        this.setPresetText(preset.locTitle, title);
+        this.savedPresetTitles[name] = title;
       }
+      ["allowEdit", "allowDelete", "allowCopy"].forEach((key: string): void => {
+        if (typeof (<any>entry)[key] !== "boolean") return;
+        this.rememberOriginal(preset);
+        (<any>preset)[key] = (<any>entry)[key];
+      });
       if (typeof entry.expression !== "string") return;
-      const expression = this.restoreItemExpression(entry.expression);
+      const expression = this.restorePresetExpression(entry.expression);
       if (expression === undefined) return;
-      this.rememberOriginal(item);
-      item.expression = expression;
+      this.rememberOriginal(preset);
+      preset.expression = expression;
     });
   }
-  // Hiding a preset needs no field to check it against, so deletions are restored at once - of the
-  // presets the author still lets the respondent delete. A deleted preset that is on goes off.
-  private restoreDeletedItems(names: Array<string>): void {
+  // Removing a preset needs no field to check it against, so deletions are restored at once, whoever
+  // made them - the respondent in the UI or the application through deletePreset() - except of a
+  // preset the author keeps from deletion (allowDelete false in the JSON): the author's lock wins (the
+  // user's call). A deleted preset that is selected is unselected.
+  private restoreDeletedPresets(names: Array<string>): void {
     if (!Array.isArray(names)) return;
     names.forEach((name: string): void => {
-      const item = typeof name === "string" ? this.getItemByName(name) : undefined;
-      if (!item || this.isUserItem(item) || !this.canDeleteItem(item)) return;
-      if (this.activeItemName === name) {
-        this.activeItemName = "";
+      const preset = typeof name === "string" ? this.getPresetByName(name) : undefined;
+      if (!preset || this.isUserPreset(preset) || !preset.allowDelete) return;
+      if (this.selectedPreset === name) {
+        this.setSelectedPreset("");
       }
-      this.deletedItemNames.push(name);
+      this.deletedPresetNames.push(name);
+      this.removeFromPresets(preset);
     });
   }
   // A restore brings back the respondent's whole list, so it replaces the presets of theirs the
   // control has. Each one's text is checked against the fields as a saved preset's is
-  // (restoreItemExpression) and the preset dropped when nothing is left of it; one whose name an
+  // (restorePresetExpression) and the preset dropped when nothing is left of it; one whose name an
   // authored preset has taken since gets a new name.
   // Returns the names that changed, old to new. The replaced presets are disposed: what still shows one
   // (a chip until the next update, an open dialog's tab) reads its title and name, which stay, and
   // finds the preset itself again by name.
-  private restoreUserItems(list: Array<IFilterUserItemState>): HashTable<string> {
+  private restoreUserPresets(list: Array<IFilterUserPresetState>): HashTable<string> {
     const renamed: HashTable<string> = {};
-    this.userItemsValue.forEach((item: FilterItem): void => {
-      this.onItemRemoved(item);
-      item.dispose();
+    this.userPresetsValue.forEach((preset: FilterPreset): void => {
+      this.removeFromPresets(preset);
+      preset.dispose();
     });
-    this.userItemsValue = [];
-    list.forEach((entry: IFilterUserItemState): void => {
+    this.userPresetsValue = [];
+    list.forEach((entry: IFilterUserPresetState): void => {
       if (!entry || typeof entry !== "object" || typeof entry.name !== "string" || !entry.name || typeof entry.expression !== "string") return;
-      const expression = this.restoreItemExpression(entry.expression);
+      const expression = this.restorePresetExpression(entry.expression);
       if (!expression) return;
-      const name = this.isItemNameUsed(entry.name) ? this.getNewItemName() : entry.name;
+      const name = this.isPresetNameUsed(entry.name) ? this.getNewPresetName() : entry.name;
       if (name !== entry.name) {
         renamed[entry.name] = name;
       }
-      this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", expression);
+      const preset = this.createUserPreset(name, typeof entry.title === "string" ? entry.title : "", expression);
+      this.assignPresetPermissions(preset, <IFilterPreset>entry);
     });
     return renamed;
   }
-  private canRestoreSavedItem(name: string): boolean {
-    const item = this.getItemByName(name);
-    return !!item && item.allowEdit;
+  private canRestoreSavedPreset(name: string): boolean {
+    const preset = this.getPresetByName(name);
+    return !!preset;
   }
   // Pending saved presets are held for later: the caller's state object must not be able to change
   // them in the meantime.
-  private copySavedItems(items: FilterSavedItems): FilterSavedItems {
-    if (!items) return undefined;
-    const res: FilterSavedItems = {};
-    Object.keys(items).forEach((name: string): void => {
-      const copy = this.toSavedItemEntry(items[name]);
+  private copySavedPresets(presets: FilterSavedPresets): FilterSavedPresets {
+    if (!presets) return undefined;
+    const res: FilterSavedPresets = {};
+    Object.keys(presets).forEach((name: string): void => {
+      const copy = this.toSavedPresetEntry(presets[name]);
       if (!!copy) {
         res[name] = copy;
       }
@@ -1616,63 +1705,79 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // A saved preset's entry, copied: a string expression and a string title. undefined when nothing is
   // left of it.
-  private toSavedItemEntry(entry: IFilterSavedItemState): IFilterSavedItemState {
+  private toSavedPresetEntry(entry: IFilterSavedPresetState): IFilterSavedPresetState {
     if (!entry || typeof entry !== "object") return undefined;
-    const res: IFilterSavedItemState = {};
+    const res: IFilterSavedPresetState = {};
     if (typeof entry.expression === "string") {
       res.expression = entry.expression;
     }
     if (typeof entry.title === "string") {
       res.title = entry.title;
     }
+    ["allowEdit", "allowDelete", "allowCopy"].forEach((key: string): void => {
+      if (typeof (<any>entry)[key] === "boolean") (<any>res)[key] = (<any>entry)[key];
+    });
     return Object.keys(res).length > 0 ? res : undefined;
   }
-  private copyUserItems(list: Array<IFilterUserItemState>): Array<IFilterUserItemState> {
-    return list.filter((entry: IFilterUserItemState): boolean => !!entry && typeof entry === "object" && typeof entry.expression === "string")
-      .map((entry: IFilterUserItemState): IFilterUserItemState => ({ name: entry.name, title: entry.title, expression: entry.expression }));
+  private copyUserPresets(list: Array<IFilterUserPresetState>): Array<IFilterUserPresetState> {
+    return list.filter((entry: IFilterUserPresetState): boolean => !!entry && typeof entry === "object" && typeof entry.expression === "string")
+      .map((entry: IFilterUserPresetState): IFilterUserPresetState => Object.assign({}, entry));
   }
-  // Unsaved edits are conditions on fields joined by "and": each one is checked against the fields
-  // (normalizeFilterConditions), so a field that is gone drops its own condition and not the rest;
-  // "" is "cleared". A text that is no such list is no edit and is ignored. Not in the designer: an
-  // edit could not have produced these there either.
+  // The control's own filter, saved as text, comes back as applyFilter() takes a text: conditions
+  // where the fields show it, as it was saved otherwise - also a text that names a record key no field
+  // has, or a field the author has removed since (the user's call: a restore does not rewrite what was
+  // saved). "" is "no filter"; a text that does not parse is ignored. The own filter is never over a
+  // preset: a state that names both keeps the filter. Not in the designer: nothing there could have
+  // saved it.
   private restoreExpression(text: string): void {
     if (!this.canEditConditions) return;
-    const rows = splitFilterExpression(text);
-    if (rows === null) return;
-    // Restored conditions are edits, and with several presets an edit is never over a preset: a
-    // state that names both (saved before presets turned off on edit) keeps the conditions.
-    if (this.allowMultipleItems && !!this.activeItemName) {
-      this.activeItemName = "";
+    const raw = (text || "").trim();
+    if (!!raw && !canParseFilterExpression(raw)) return;
+    if (!!this.selectedPreset) {
+      this.setSelectedPreset("");
     }
-    this.setOwnConditions(normalizeFilterConditions(rows, this.getFilterFields()));
+    this.setOwnFilterText(raw);
   }
-  // Called by updateFilterSource() for the source that is being attached, before it recomposes the
+  // A text applyFilter() took while the target was not there was kept as a text: the fields to tell it
+  // by were not known. With the target attaching they are, and it becomes what applyFilter() would have
+  // made of it - conditions the chips show, or the text it is - within the attach's one write.
+  private decomposeProvisionalFilter(): void {
+    if (!this.isOwnRawProvisional) return;
+    this.isOwnRawProvisional = false;
+    const conditions = this.decomposeExpression(this.ownRawExpression);
+    if (conditions === null) return;
+    this.holdChanges((): void => {
+      this.setOwnFilter(normalizeFilterConditions(conditions, this.getFilterFields()), undefined);
+    });
+  }
+  // Called by updateFilterTarget() for the target that is being attached, before it recomposes the
   // expression and writes it: the restored part lands in that same single write. Held so neither
   // the preset expressions it rebuilds nor the conditions it sets write or raise on their own.
   private restorePendingState(): void {
-    const items = this.pendingItems;
+    const presets = this.pendingPresets;
     const expression = this.pendingExpression;
-    const userItems = this.pendingUserItems;
-    if (!items && expression === undefined && !userItems) return;
-    this.pendingItems = undefined;
+    const userPresets = this.pendingUserPresets;
+    if (!presets && expression === undefined && !userPresets) return;
+    this.pendingPresets = undefined;
     this.pendingExpression = undefined;
-    this.pendingUserItems = undefined;
+    this.pendingUserPresets = undefined;
     this.holdChanges((): void => {
-      this.restoreItems(items);
-      if (!!userItems) {
-        const renamed = this.restoreUserItems(userItems);
-        // activeItemName was restored already: it follows a preset that had to be renamed.
-        if (Object.prototype.hasOwnProperty.call(renamed, this.activeItemName)) {
-          this.setPropertyValue("activeItemName", renamed[this.activeItemName]);
+      this.restorePresets(presets);
+      if (!!userPresets) {
+        const renamed = this.restoreUserPresets(userPresets);
+        // selectedPreset was restored already: it follows a preset that had to be renamed.
+        if (Object.prototype.hasOwnProperty.call(renamed, this.selectedPreset)) {
+          this.setPropertyValue("selectedPreset", renamed[this.selectedPreset]);
         }
       }
       if (expression !== undefined) {
         this.restoreExpression(expression);
       }
+      this.dropUnresolvedSelection();
     });
   }
   // Several changes that are one change for whoever listens: while fn runs nothing is written into
-  // the source, onFilterChanged is not raised and onUIStateChanged is only noted. After it, the
+  // the target and onUIStateChanged is only noted. After it, the
   // expression is composed once and, if it differs from what it was before fn, written once and
   // reported once; with raiseUIState, onUIStateChanged is raised once if anything in fn would have
   // raised it. A restore passes no raiseUIState; an editor that applies several edits as one does.
@@ -1682,7 +1787,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       fn();
       return;
     }
-    const oldExpression = this.filterExpression;
+    const oldExpression = this.combinedExpression;
     this.uiStateChangedInBatch = false;
     // A throw in fn propagates from here: holdChanges() has already released the hold, so the
     // control is not left silent for the rest of the session.
@@ -1690,11 +1795,11 @@ export class QuestionFilterModel extends QuestionNonValue {
     const isUIStateChanged = this.uiStateChangedInBatch;
     this.uiStateChangedInBatch = false;
     // Composed silently: a change inside fn may have composed an intermediate text already (a preset
-    // turned off), and updateFilterExpression() would write that difference into the source on its
+    // turned off), and updateFilterExpression() would write that difference into the target on its
     // own, before the write below - two writes and two events for one batch.
     this.updateFilterExpression(true);
-    if (this.filterExpression !== oldExpression) {
-      this.applyToSource();
+    if (this.combinedExpression !== oldExpression) {
+      this.applyToTarget();
     }
     if (raiseUIState && isUIStateChanged) {
       this.raiseUIStateChanged();
@@ -1721,8 +1826,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     super.locStrsChanged(changes);
     // Neither collection is an ItemValue array, so Base.locStrsChanged does not reach into them.
     this.fields.forEach((field: FilterField): void => { field.locStrsChanged(changes); });
-    this.items.forEach((item: FilterItem): void => { item.locStrsChanged(changes); });
-    this.userItemsValue.forEach((item: FilterItem): void => { item.locStrsChanged(changes); });
+    this.presets.forEach((preset: FilterPreset): void => { preset.locStrsChanged(changes); });
+
     // The survey calls this on every value change too, for the texts that show a value: the badges'
     // texts are composed again only when what they are composed of changed.
     if (!!this.toolbarsValue && !this.isDisposed) {
@@ -1732,65 +1837,84 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    // "source" goes through updateFilterSource() and not through updateFilterExpression(): the
+    // "targetQuestion" goes through updateFilterTarget() and not through updateFilterExpression(): the
     // fields and the question the expression is written into both come from it, so re-pointing it
     // has to move the filter and not only recompose the text.
-    if (name === "source") {
-      this.updateFilterSource();
+    if (name === "targetQuestion") {
+      this.updateFilterTarget();
       return;
     }
-    // "items" and "fields" are here because assigning a whole array goes through Base.setArray,
+    // "presets" and "fields" are here because assigning a whole array goes through Base.setArray,
     // which empties the destination with the prototype splice: the wrapped onRemove never runs,
     // and an empty new array pushes nothing either, so the property change is the only report of
-    // it. Without them the control would keep quoting a deleted item or searching a deleted field.
-    // "defaultItem" is here because single mode's active preset is the default itself.
+    // it. Without them the control would keep quoting a deleted preset or searching a deleted field.
     // Only an assignment passes two different arrays: push/splice report the array they changed as
     // both values.
-    if (name === "items" && oldValue !== newValue) {
-      this.dropReplacedSavedItems(oldValue, newValue);
+    if (name === "presets" && oldValue !== newValue) {
+      this.dropReplacedSavedPresets(oldValue, newValue);
     }
-    if (name === "allowMultipleItems" || name === "defaultItem" || name === "items" || name === "fields" ||
-      name === "searchString" || name === "searchFields" || name === "showSearch") {
+    // The host changed the list (the control's own changes run in a batch and keep the selection
+    // right themselves).
+    if (name === "presets" && this.batchLevel === 0) {
+      this.dropUnresolvedSelection();
+    }
+    if (name === "showPresets" || name === "presets" || name === "fields" ||
+      name === "searchString" || name === "searchFields" || name === "showSearchBar") {
       this.updateFilterExpression();
     }
     this.updateToolbars();
   }
-  // A host that assigns a new items array replaces the presets the respondent saved into: a new
+  // A host that assigns a new presets array replaces the presets the respondent saved into: a new
   // preset that merely has the same name was never saved, and getUIState() - which goes by name -
   // would otherwise store the old one's expression for it, and a restore would rewrite it with it.
-  // Restored saved presets still waiting for a bound source go the same way, and so do the titles
+  // Restored saved presets still waiting for a bound target go the same way, and so do the titles
   // given to the replaced presets, what they were before and their deletion. A preset that is still
   // there as the same object (a reordered array) keeps what was saved into it.
-  private dropReplacedSavedItems(oldItems: Array<FilterItem>, newItems: Array<FilterItem>): void {
-    const olds = Array.isArray(oldItems) ? oldItems : [];
-    const news = Array.isArray(newItems) ? newItems : [];
-    const isKept = (name: string): boolean => olds.some((item: FilterItem): boolean =>
-      !!item && item.name === name && news.indexOf(item) > -1);
-    [this.savedItemTitles, this.originalItems].forEach((saved: HashTable<any>): void => {
+  private dropReplacedSavedPresets(oldPresets: Array<FilterPreset>, newPresets: Array<FilterPreset>): void {
+    const olds = Array.isArray(oldPresets) ? oldPresets : [];
+    const news = Array.isArray(newPresets) ? newPresets : [];
+    const isKept = (name: string): boolean => olds.some((preset: FilterPreset): boolean =>
+      !!preset && preset.name === name && news.indexOf(preset) > -1);
+    [this.savedPresetTitles, this.originalPresets].forEach((saved: HashTable<any>): void => {
       Object.keys(saved).forEach((name: string): void => {
         if (!isKept(name)) delete saved[name];
       });
     });
-    this.deletedItemNames = this.deletedItemNames.filter(isKept);
-    const pending = this.pendingItems;
+    this.deletedPresetNames = [];
+    this.userPresetsValue = this.userPresetsValue.filter((preset: FilterPreset): boolean => news.indexOf(preset) > -1);
+    const pending = this.pendingPresets;
     if (!!pending) {
       Object.keys(pending).forEach((name: string): void => {
         if (!isKept(name)) delete pending[name];
       });
     }
   }
-  private applyDefaultItem(): void {
-    if (!!this.activeItemName || !this.allowMultipleItems) return;
-    // A defaultItem that names nothing leaves the control unfiltered, which is what "no active item"
+  // selectedPreset is a preset's name or "": one no preset answers to any more - the host took the
+  // preset away (a new presets array, a splice), a restored name the presets do not have - is no
+  // selection, as deletePreset() leaves none. Quietly: what the host did is no respondent change. Not
+  // while a restore waits for the target: the name may be a preset of the respondent's it brings.
+  private dropUnresolvedSelection(): void {
+    if (!this.selectedPreset || !!this.activePreset || !!this.pendingUserPresets) return;
+    this.setPropertyValue("selectedPreset", "");
+  }
+  private removeFromPresets(preset: FilterPreset): void {
+    const index = this.presets.indexOf(preset);
+    if (index > -1) {
+      this.presets.splice(index, 1);
+    }
+  }
+  private applyDefaultPreset(): void {
+    if (!!this.selectedPreset) return;
+    // A defaultPreset that names nothing leaves the control unfiltered, which is what "no selected preset"
     // means anyway: an author typo must not throw and must not filter records away.
-    if (!!this.defaultItem && !!this.getItemByName(this.defaultItem)) {
+    if (!!this.defaultPreset && !!this.getPresetByName(this.defaultPreset)) {
       // Written through setPropertyValue and not through the setter: applying the authored default
       // is not an end-user change and must not raise onUIStateChanged. The isLoadingFromJson guard
       // in raiseUIStateChanged() is no help here - SurveyElement reads that flag off the survey
       // (survey-element.ts:698) and SurveyModel.endLoadingFromJson() clears it before it calls
       // doElementsOnLoad(), which is what runs onSurveyLoad().
-      this.setPropertyValue("activeItemName", this.defaultItem);
-      this.setOwnConditions(undefined);
+      this.setPropertyValue("selectedPreset", this.defaultPreset);
+      this.setOwnFilter(undefined, undefined);
       this.updateFilterExpression();
     }
   }
@@ -1809,23 +1933,26 @@ export class QuestionFilterModel extends QuestionNonValue {
     field.onPropertyChanged.remove(this.onFieldPropertyChanged);
     field.fieldOwner = undefined;
   }
-  private onItemAdded(item: FilterItem): void {
-    if (!item) return;
-    item.itemOwner = this;
-    item.onPropertyChanged.add(this.onItemPropertyChanged);
+  private onPresetAdded(preset: FilterPreset): void {
+    if (!preset) return;
+    preset.presetOwner = this;
+    preset.onPropertyChanged.add(this.onPresetPropertyChanged);
     this.updateFilterExpression();
   }
-  private onItemRemoved(item: FilterItem): void {
-    this.unhookItem(item);
+  private onPresetRemoved(preset: FilterPreset): void {
+    this.unhookPreset(preset);
+    // A preset of the respondent's that leaves the list - the host spliced it out - is gone as one they
+    // deleted: uiState no longer lists it, and a restore has nothing of it to replace.
+    this.userPresetsValue = this.userPresetsValue.filter((own: FilterPreset): boolean => own !== preset);
     this.updateFilterExpression();
   }
-  private unhookItem(item: FilterItem): void {
-    if (!item) return;
-    item.onPropertyChanged.remove(this.onItemPropertyChanged);
-    if (item.itemOwner === this) item.itemOwner = undefined;
+  private unhookPreset(preset: FilterPreset): void {
+    if (!preset) return;
+    preset.onPropertyChanged.remove(this.onPresetPropertyChanged);
+    if (preset.presetOwner === this) preset.presetOwner = undefined;
   }
   private calcSearchExpression(searchString: string = this.searchString): string {
-    if (!this.showSearch) return "";
+    if (!this.showSearchBar) return "";
     const text = (searchString || "").trim();
     if (!text) return "";
     const fields = this.getSearchFields();
@@ -1846,33 +1973,37 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The expression is composed by string concatenation and never by parsing and re-rendering
   // through Operand.toString(): Const.toString() (expressions.ts:360-366) gives the stored value
   // back as it is, so an expression that holds an escaped quote does not survive the round trip.
-  // An authored item expression passes through untouched as long as the respondent has not edited
+  // A preset's expression passes through untouched as long as the respondent has not edited
   // over it; once they have, their conditions are the filter and the preset's text is not used.
   // combineFilterExpressions brackets both operands: "or" binds looser than "and", and the search
   // fragment is itself an "or" chain.
-  private calcFilterExpression(): string {
-    return combineFilterExpressions(this.calcConditionsExpression(), this.calcSearchExpression());
-  }
   // The preset is resolved by name on every composition, so an edit of its expression, a
-  // replaced items array or a deleted preset is picked up here with no bookkeeping of its own.
+  // replaced presets array or a deleted preset is picked up here with no bookkeeping of its own.
   private calcConditionsExpression(): string {
+    if (this.ownRawExpression !== undefined) return this.ownRawExpression;
     const conditions = this.ownConditions;
     if (conditions !== undefined) return conditionsToExpression(conditions, this.getFilterFields());
-    const item = this.activeItem;
-    return !!item ? (item.expression || "").trim() : "";
+    const preset = this.activePreset;
+    return !!preset ? (preset.expression || "").trim() : "";
   }
-  // skipApply is for the caller that is in the middle of moving the control between two sources: it
-  // does the single write-and-raise itself, once the new source is attached. A batch (runBatch) is
-  // in the same position for the length of its changes and says so through batchLevel.
+  // skipApply is for the caller that is in the middle of moving the control between two targets: it
+  // does the single write itself, once the new target is attached.
   private updateFilterExpression(skipApply?: boolean): void {
     // Nothing is filtered while the JSON is still being read - onSurveyLoad() composes the
-    // expression once it is whole - and nothing is filtered in the designer either.
-    if (this.isLoadingFromJson || this.isDesignMode) return;
-    const newValue = this.calcFilterExpression();
-    if (newValue === this.filterExpression) return;
-    this.setPropertyValue("filterExpression", newValue);
-    if (!skipApply && this.batchLevel === 0) {
-      this.applyToSource();
+    // expression once it is whole - and nothing is filtered in the designer either. A batch
+    // (runBatch, holdChanges) composes once, at its end: an intermediate text (a preset turned off
+    // before the edit that follows it) is never published, so combinedExpression changes once per
+    // change, the way an application that reads it sees one.
+    if (this.isLoadingFromJson || this.isDesignMode || this.batchLevel > 0) return;
+    const filter = this.calcConditionsExpression();
+    const search = this.calcSearchExpression();
+    this.setPropertyValue("filterExpression", filter);
+    this.setPropertyValue("searchExpression", search);
+    const combined = combineFilterExpressions(filter, search);
+    if (combined === this.combinedExpression) return;
+    this.setPropertyValue("combinedExpression", combined);
+    if (!skipApply) {
+      this.applyToTarget();
     }
   }
 }
@@ -1899,8 +2030,8 @@ function getSearchFieldChoices(obj: any): Array<any> {
   }
   return res;
 }
-// The property types question_filtersource, dropdown and text only pick the Creator editor (a list of
-// the questions that can be a source, a dropdown that never turns into a button group, a multi-line
+// The property types question_filtertarget, dropdown and text only pick the Creator editor (a list of
+// the questions that can be a target, a dropdown that never turns into a button group, a multi-line
 // box); each of them is stored as a plain string.
 Serializer.addClass("filter", [
   { name: "title", visible: true },
@@ -1920,29 +2051,32 @@ Serializer.addClass("filter", [
   { name: "setValueIf", visible: false },
   { name: "setValueExpression", visible: false },
   { name: "defaultDisplayValue", visible: false },
-  { name: "source:question_filtersource" },
-  // Needed only by a control with no source (the host filters through survey.onFilterChanged): a
-  // bound control takes its fields from the source and ignores these, so the designer hides them.
-  { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", visible: false },
-  { name: "items:filteritem[]", className: "filteritem", uniqueProperty: "name" },
+  { name: "targetQuestion:question_filtertarget" },
+  // With no target question, the control's own fields (the host reads its combinedExpression). With
+  // one, overrides of the target's fields and fields of the record the target has no column for.
+  { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name" },
+  { name: "presets:filterpreset[]", className: "filterpreset", uniqueProperty: "name" },
   // For a control: "" first (no default preset), which also keeps the list non-empty, so a designer
   // that skips an empty list of choices still drops the presets that are gone. Without a control
   // (the linter, the JSON schema) there is no list: a lone "" would read as the only allowed value.
-  { name: "defaultItem:dropdown", dependsOn: "items",
-    choices: (obj: any): Array<any> => !obj || !Array.isArray(obj.items) ? []
-      : [""].concat(obj.items.map((item: FilterItem): any => ({ value: item.name, text: item.title }))) },
-  { name: "allowMultipleItems:boolean", default: true },
-  { name: "allowAddItems:boolean", default: true, dependsOn: "allowMultipleItems",
-    visibleIf: (obj: any): boolean => !!obj && obj.allowMultipleItems },
-  // No UI reads canReorderItems yet: hidden until the presets row can be reordered.
-  { name: "allowReorderItems:boolean", default: true, visible: false },
-  { name: "showSearch:boolean", default: false },
-  { name: "searchFields:string[]", dependsOn: ["showSearch", "source"],
-    visibleIf: (obj: any): boolean => !!obj && obj.showSearch,
+  { name: "defaultPreset:dropdown", dependsOn: "presets",
+    choices: (obj: any): Array<any> => !obj || !Array.isArray(obj.presets) ? []
+      : [""].concat(obj.presets.map((preset: FilterPreset): any => ({ value: preset.name, text: preset.title }))) },
+  { name: "showPresets:boolean", default: true },
+  { name: "allowAddPresets:boolean", default: false, dependsOn: "showPresets",
+    visibleIf: (obj: any): boolean => !!obj && obj.showPresets },
+  { name: "allowEditPresets:boolean", default: false, dependsOn: "showPresets",
+    visibleIf: (obj: any): boolean => !!obj && obj.showPresets },
+  { name: "allowDeletePresets:boolean", default: false, dependsOn: "showPresets",
+    visibleIf: (obj: any): boolean => !!obj && obj.showPresets },
+  { name: "showSearchBar:boolean", default: false },
+  { name: "searchFields:string[]", dependsOn: ["showSearchBar", "targetQuestion"],
+    visibleIf: (obj: any): boolean => !!obj && obj.showSearchBar,
     choices: (obj: any): Array<any> => getSearchFieldChoices(obj) },
-  // Guards setSearchFields() only, which no UI calls yet: hidden until a respondent can pick the fields.
-  { name: "allowChangeSearchFields:boolean", default: true, visible: false },
-  { name: "allowFastMode:boolean", default: true },
-  { name: "allowAdvancedMode:boolean", default: true },
+  { name: "searchPlaceholder", serializationProperty: "locSearchPlaceholder", dependsOn: "showSearchBar",
+    visibleIf: (obj: any): boolean => !!obj && obj.showSearchBar },
+
+  { name: "showQuickFilters:boolean", default: true },
+  { name: "showAllFiltersButton:boolean", default: true },
 ], () => new QuestionFilterModel(""), "nonvalue");
 QuestionFactory.Instance.registerQuestion("filter", (name) => new QuestionFilterModel(name));

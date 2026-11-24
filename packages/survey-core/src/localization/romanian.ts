@@ -335,8 +335,6 @@ export var romanianSurveyStrings = {
   conditionOperatorGreaterorequal: "Mai mare sau egal cu",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mai mic sau egal cu",
-  // [Auto-translated] "Save"
-  filterSave: "Salvează",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"

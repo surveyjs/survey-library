@@ -335,8 +335,6 @@ export var persianSurveyStrings = {
   conditionOperatorGreaterorequal: "بزرگ تر یا مساوی",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "کمتر یا مساوی",
-  // [Auto-translated] "Save"
-  filterSave: "ذخیره",
   // [Auto-translated] "Filters"
   filterDialogTitle: "فیلترها",
   // [Auto-translated] "Search"

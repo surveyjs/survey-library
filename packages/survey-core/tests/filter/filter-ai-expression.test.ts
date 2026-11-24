@@ -14,7 +14,8 @@ import { buildFilterAIContext, buildFilterAISystemPrompt } from "../../src/filte
 // Preset, for a preset that may be edited, while the application answers onAIFilterRequest. The model's
 // filter is the preset's - as fields where it decomposes, as text otherwise.
 function open(over: any = {}, withHandler: boolean = true): { q: QuestionFilterModel, dialog: FilterPresetDialog, calls: Array<any> } {
-  const q = createFilter(Object.assign({ items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, over));
+  const q = createFilter(Object.assign({ presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" }],
+    allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true }, over));
   const calls: Array<any> = [];
   if (withHandler) {
     (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
@@ -154,7 +155,7 @@ describe("New Preset: the answer", () => {
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} < 5 or {age} > 90", "Ends"));
     expect(dialog.apply(), "#1").toBe(true);
-    const item = q.getItemByName("userItem1");
+    const item = q.getPresetByName("userPreset1");
     expect([item.title, item.expression], "#2").toEqual(["Ends", "{age} < 5 or {age} > 90"]);
     dialog.dispose();
   });
@@ -163,12 +164,12 @@ describe("New Preset: the answer", () => {
 describe("New Preset: what can go wrong", () => {
   test("an answer after the dialog is gone changes nothing", () => {
     const { q, dialog, calls } = open();
-    const count = q.visibleItems.length;
+    const count = q.visiblePresets.length;
     dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     dialog.dispose();
     expect(() => calls[0].callback(answer("{age} > 18")), "#1").not.toThrow();
-    expect([q.visibleItems.length, dialog.editor], "#2").toEqual([count, undefined]);
+    expect([q.visiblePresets.length, dialog.editor], "#2").toEqual([count, undefined]);
   });
   test("an answer to a cancelled request is ignored", () => {
     const { dialog, calls } = open();
@@ -216,7 +217,7 @@ describe("Edit Preset: AI and a preset edited as text", () => {
     { name: "adults", title: "Adults", expression: "{age} > 18" },
     { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" }];
   function edit(selected: string): { q: QuestionFilterModel, dialog: FilterEditPresetDialog, calls: Array<any> } {
-    const q = createFilter({ items: presets });
+    const q = createFilter({ presets: presets, allowEditPresets: true });
     const calls: Array<any> = [];
     (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
     return { q: q, dialog: q.createEditPresetDialog(selected), calls: calls };
@@ -229,7 +230,7 @@ describe("Edit Preset: AI and a preset edited as text", () => {
     calls[0].callback(answer("{age} < 18"));
     expect([dialog.isTextMode, picked(dialog), name(dialog)], "#2").toEqual([false, ["age"], "Edges"]);
     expect(dialog.apply(), "#3").toBe(true);
-    expect(q.getItemByName("edges").expression, "#4").toBe("{age} < 18");
+    expect(q.getPresetByName("edges").expression, "#4").toBe("{age} < 18");
     dialog.dispose();
   });
   test("an answer that does not decompose turns a preset edited as fields into text", () => {
@@ -258,7 +259,7 @@ describe("FilterToolbars: New Preset with AI over the Filters dialog", () => {
     const dialogs = stubDialogs();
     try {
       const { q, calls } = open();
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
       (<Action>modal.presetsToolbar.getActionById("sv-filter-modal-add-preset")).action();
       const add: FilterPresetDialog = dialogs.calls[1].options.data.holder.presetDialog;
@@ -269,7 +270,7 @@ describe("FilterToolbars: New Preset with AI over the Filters dialog", () => {
       dialogs.calls[1].cancel();
       expect(add.isDisposed, "#2").toBe(true);
       expect(() => calls[0].callback(answer("{age} < 10")), "#3").not.toThrow();
-      expect(modal.presetsToolbar.actions.filter((a: Action): boolean => a.id.indexOf("sv-filter-modal-item-") === 0)
+      expect(modal.presetsToolbar.actions.filter((a: Action): boolean => a.id.indexOf("sv-filter-modal-preset-") === 0)
         .map((a: Action): string => a.title), "#4").toEqual(["Adults"]);
       dialogs.calls[0].cancel();
     } finally {

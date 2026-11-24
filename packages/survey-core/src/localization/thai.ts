@@ -335,8 +335,6 @@ export var thaiStrings = {
   conditionOperatorGreaterorequal: "มากกว่าหรือเท่ากับ",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "น้อยกว่าหรือเท่ากับ",
-  // [Auto-translated] "Save"
-  filterSave: "บันทึก",
   // [Auto-translated] "Filters"
   filterDialogTitle: "ตัวกรอง",
   // [Auto-translated] "Search"

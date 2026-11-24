@@ -4,7 +4,7 @@ import { LocalizableString } from "../localizablestring";
 import { ISurvey } from "../base-interfaces";
 
 // The control that holds a preset: the survey its title is localized for.
-export interface IFilterItemOwner {
+export interface IFilterPresetOwner {
   getSurvey(live?: boolean): ISurvey;
 }
 // An action id for a preset's row, chip or tab: base, then base-2, base-3... for a second preset with
@@ -17,12 +17,21 @@ export function getUniqueFilterActionId(base: string, isUsed: (id: string) => bo
   return id;
 }
 
-// A preset: one saved filter the survey author defines (in JSON or in Creator's property grid), that
-// the end user applies to the data with a single click by picking it in the Filter Control, and can
-// then edit over (see ownConditions/saveActiveItem in question_filter.ts). Its expression is all it
-// filters by, however it was written - typed, built from the fields' conditions or answered by AI:
-// one that decomposes into conditions on the control's fields is edited as fields, any other as text.
-export class FilterItem extends Base {
+// The JSON of a preset, and what addPreset() and updatePreset() take.
+export interface IFilterPreset {
+  name: string;
+  title: string;
+  expression: string;
+  allowEdit: boolean;
+  allowDelete: boolean;
+  allowCopy: boolean;
+}
+// A preset: one saved filter the survey author defines (in JSON or in Creator's property grid), the
+// respondent or the application adds, that the end user applies to the data with a single click by
+// picking it in the Filter Control (applyPreset). Its expression is all it filters by, however it was
+// written - typed, built from the fields' conditions or answered by AI: one that decomposes into
+// conditions on the control's fields is edited as fields, any other as text.
+export class FilterPreset extends Base implements IFilterPreset {
   constructor(name: string) {
     super();
     this.locTitle.onGetTextCallback = (text: string): string => {
@@ -30,18 +39,18 @@ export class FilterItem extends Base {
     };
     this.name = name;
   }
-  public getType(): string { return "filteritem"; }
+  public getType(): string { return "filterpreset"; }
 
-  // Set by the control as the preset joins its items. Without it a preset knows no survey, and a
+  // Set by the control as the preset joins its presets. Without it a preset knows no survey, and a
   // localized title (title: { default, de }) would never follow the survey's locale.
-  private itemOwnerValue: IFilterItemOwner;
-  public get itemOwner(): IFilterItemOwner { return this.itemOwnerValue; }
-  public set itemOwner(val: IFilterItemOwner) {
-    this.itemOwnerValue = val;
+  private presetOwnerValue: IFilterPresetOwner;
+  public get presetOwner(): IFilterPresetOwner { return this.presetOwnerValue; }
+  public set presetOwner(val: IFilterPresetOwner) {
+    this.presetOwnerValue = val;
     this.locTitle.strChanged();
   }
   public getSurvey(live: boolean = false): ISurvey {
-    return !!this.itemOwnerValue ? this.itemOwnerValue.getSurvey(live) : null;
+    return !!this.presetOwnerValue ? this.presetOwnerValue.getSurvey(live) : null;
   }
 
   public get name(): string { return this.getPropertyValue("name"); }
@@ -64,7 +73,7 @@ export class FilterItem extends Base {
   public set allowCopy(val: boolean) { this.setPropertyValue("allowCopy", val); }
 }
 
-Serializer.addClass("filteritem", [
+Serializer.addClass("filterpreset", [
   { name: "!name", isUnique: true },
   { name: "title:text", serializationProperty: "locTitle", dependsOn: "name" },
   // Not ":condition": ":condition" makes JsonObjectProperty.isExpression true and everything that
@@ -74,6 +83,6 @@ Serializer.addClass("filteritem", [
   { name: "expression:text" },
   { name: "allowEdit:boolean", default: true },
   { name: "allowDelete:boolean", default: true },
-  // No UI reads canCopyItem yet: hidden until a preset can be copied.
+  // No UI reads canCopyPreset yet: hidden until a preset can be copied.
   { name: "allowCopy:boolean", default: true, visible: false },
-], () => new FilterItem(""));
+], () => new FilterPreset(""));

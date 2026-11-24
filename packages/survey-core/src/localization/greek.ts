@@ -335,8 +335,6 @@ export var greekSurveyStrings = {
   conditionOperatorGreaterorequal: "Μεγαλύτερο ή ίσο με",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Μικρότερο ή ίσο με",
-  // [Auto-translated] "Save"
-  filterSave: "Αποθήκευση",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Φίλτρα",
   // [Auto-translated] "Search"

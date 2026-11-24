@@ -335,8 +335,6 @@ export var czechSurveyStrings = {
   conditionOperatorGreaterorequal: "Větší nebo rovno",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Menší nebo rovno",
-  // [Auto-translated] "Save"
-  filterSave: "Uložit",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtry",
   // [Auto-translated] "Search"

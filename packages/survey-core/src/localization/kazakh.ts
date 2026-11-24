@@ -335,8 +335,6 @@ export var kazakhStrings = {
   conditionOperatorGreaterorequal: "Үлкен немесе тең",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Кем немесе тең",
-  // [Auto-translated] "Save"
-  filterSave: "Сақтау",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Сүзгілер",
   // [Auto-translated] "Search"

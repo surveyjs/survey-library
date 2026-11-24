@@ -335,8 +335,6 @@ export var latvianSurveyStrings = {
   conditionOperatorGreaterorequal: "Lielāks vai vienāds ar",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mazāk vai vienāds ar",
-  // [Auto-translated] "Save"
-  filterSave: "Saglabāt",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtri",
   // [Auto-translated] "Search"

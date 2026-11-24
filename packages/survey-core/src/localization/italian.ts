@@ -335,8 +335,6 @@ export var italianSurveyStrings = {
   conditionOperatorGreaterorequal: "Maggiore o uguale a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inferiore o uguale a",
-  // [Auto-translated] "Save"
-  filterSave: "Salva",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtri",
   // [Auto-translated] "Search"

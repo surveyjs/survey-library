@@ -36,7 +36,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
+import { getFilterFieldsForQuestions, IDynamicDataFilterField, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
@@ -458,6 +458,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getFilterFields(): Array<IDynamicDataFilterField> {
     return getFilterFieldsForQuestions(this.template.questions);
+  }
+  // A template question at any depth by its name or value name, filtered or not, or a path into one.
+  public hasRecordField(name: string): boolean {
+    const keys: Array<string> = [];
+    this.template.questions.forEach((q: Question): void => { keys.push(q.name, q.getValueName()); });
+    return isRecordFieldName(name, keys);
   }
   protected getRecordSortTemplate(): PanelModelBase {
     return this.template;

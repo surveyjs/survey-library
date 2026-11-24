@@ -335,8 +335,6 @@ export var arabicSurveyStrings = {
   conditionOperatorGreaterorequal: "أكبر من أو يساوي",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "أقل من أو يساوي",
-  // [Auto-translated] "Save"
-  filterSave: "حفظ",
   // [Auto-translated] "Filters"
   filterDialogTitle: "الفلاتر",
   // [Auto-translated] "Search"

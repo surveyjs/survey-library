@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
-import { createBound, createFilter, createSurvey } from "./filter-test-helpers";
+import { createBound, createFilter, createSurvey, onCombinedExpressionChanged } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterModal, filterModalCountDelay } from "../../src/filter/filter-modal";
@@ -10,17 +10,17 @@ const presets = [
   { name: "edges", expression: "{age} < 18 or {age} > 35" },
   { name: "smart", expression: "{age} > 60" }];
 function control(over: any = {}): QuestionFilterModel {
-  return <QuestionFilterModel>createSurvey(Object.assign({ items: presets, defaultItem: undefined }, over)).getQuestionByName("f1");
+  return <QuestionFilterModel>createSurvey(Object.assign({ presets: presets, defaultPreset: undefined }, over)).getQuestionByName("f1");
 }
 function trackEvents(q: QuestionFilterModel): { filter: number, uiState: number } {
   const survey = <SurveyModel>q.survey;
   const res = { filter: 0, uiState: 0 };
-  survey.onFilterChanged.add(() => { res.filter++; });
+  onCombinedExpressionChanged(q, () => { res.filter++; });
   survey.onUIStateChanged.add((_, o) => { if (o.changedProperty === "filter") res.uiState++; });
   return res;
 }
 function chip(modal: FilterModal, name: string): Action {
-  return <Action>modal.presetsToolbar.getActionById("sv-filter-modal-item-" + name);
+  return <Action>modal.presetsToolbar.getActionById("sv-filter-modal-preset-" + name);
 }
 // The editor question of a field, found by the field's position: the panels are named by index.
 function fieldQ(modal: FilterModal, name: string): any {
@@ -34,10 +34,10 @@ afterEach(() => { vi.useRealTimers(); });
 describe("FilterModal: the buffer", () => {
   test("opens with the control's state: the preset, its conditions in the fields, the search", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     q.searchString = "an";
     const modal = q.createFilterModal();
-    expect([modal.activeItemName, modal.searchString], "#1").toEqual(["adults", "an"]);
+    expect([modal.selectedPreset, modal.searchString], "#1").toEqual(["adults", "an"]);
     expect(modal.editor.getConditions(), "#2").toEqual([
       { field: "country", operator: "equal", value: "de" }, { field: "age", operator: "greater", value: 18 }]);
     expect([chip(modal, "adults").active, chip(modal, "edges").active], "#3").toEqual([true, false]);
@@ -46,14 +46,14 @@ describe("FilterModal: the buffer", () => {
   });
   test("nothing is written until apply(); apply() writes everything with one event of each", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     const events = trackEvents(q);
     const modal = q.createFilterModal();
     operatorQ(modal, "age").value = "less";
     modal.filterText = "age";
-    expect([q.activeItemName, q.searchString, events.filter], "#1").toEqual(["adults", "", 0]);
+    expect([q.selectedPreset, q.searchString, events.filter], "#1").toEqual(["adults", "", 0]);
     modal.apply();
-    expect([q.activeItemName, q.searchString], "#2: Search in Filters is no search of the records").toEqual(["", ""]);
+    expect([q.selectedPreset, q.searchString], "#2: Search in Filters is no search of the records").toEqual(["", ""]);
     expect(q.ownConditions, "#3").toEqual([{ field: "age", operator: "less", value: 18 }, { field: "country", operator: "equal", value: "de" }]);
     expect(events, "#4").toEqual({ filter: 1, uiState: 1 });
     modal.dispose();
@@ -61,10 +61,10 @@ describe("FilterModal: the buffer", () => {
   test("apply() of a dialog that is already closed writes nothing", () => {
     const q = control();
     const modal = q.createFilterModal();
-    modal.togglePreset(q.getItemByName("adults"));
+    modal.togglePreset(q.getPresetByName("adults"));
     modal.dispose();
     expect(() => modal.apply(), "#1").not.toThrow();
-    expect(q.activeItemName, "#2").toBe("");
+    expect(q.selectedPreset, "#2").toBe("");
   });
   test("closed without apply() writes nothing", () => {
     const q = control();
@@ -73,14 +73,14 @@ describe("FilterModal: the buffer", () => {
     operatorQ(modal, "age").value = "less";
     fieldQ(modal, "age").value = 5;
     modal.dispose();
-    expect([q.filterExpression, events.filter]).toEqual(["", 0]);
+    expect([q.combinedExpression, events.filter]).toEqual(["", 0]);
   });
   test("a field edit turns the buffer's preset off and keeps its conditions with the edit", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     const modal = q.createFilterModal();
     fieldQ(modal, "age").value = 30;
-    expect([modal.activeItemName, chip(modal, "adults").active], "#1").toEqual(["", false]);
+    expect([modal.selectedPreset, chip(modal, "adults").active], "#1").toEqual(["", false]);
     expect(modal.state.conditions, "#2").toEqual([
       { field: "country", operator: "equal", value: "de" }, { field: "age", operator: "greater", value: 30 }]);
     modal.dispose();
@@ -89,11 +89,11 @@ describe("FilterModal: the buffer", () => {
     const q = control();
     const modal = q.createFilterModal();
     chip(modal, "adults").action();
-    expect([modal.activeItemName, modal.state.conditions], "#1").toEqual(["adults", undefined]);
+    expect([modal.selectedPreset, modal.state.conditions], "#1").toEqual(["adults", undefined]);
     expect(modal.editor.getConditions().length, "#2").toBe(2);
     chip(modal, "adults").action();
-    expect([modal.activeItemName, modal.state.conditions, modal.editor.getConditions()], "#3").toEqual(["", [], []]);
-    expect(q.activeItemName, "#4: nothing applied").toBe("");
+    expect([modal.selectedPreset, modal.state.conditions, modal.editor.getConditions()], "#3").toEqual(["", [], []]);
+    expect(q.selectedPreset, "#4: nothing applied").toBe("");
     modal.dispose();
   });
   test("a preset that does not decompose: empty fields, and an edit replaces it", () => {
@@ -102,40 +102,40 @@ describe("FilterModal: the buffer", () => {
     chip(modal, "edges").action();
     expect([modal.editor.getConditions(), modal.state.conditions], "#1").toEqual([[], undefined]);
     fieldQ(modal, "age").value = 30;
-    expect(modal.state, "#2: the field's default operator").toEqual({ activeItemName: "", conditions: [{ field: "age", operator: "equal", value: 30 }], searchString: "" });
+    expect(modal.state, "#2: the field's default operator").toEqual({ selectedPreset: "", conditions: [{ field: "age", operator: "equal", value: 30 }], searchString: "" });
     modal.dispose();
   });
   test("Clear All empties the buffer and keeps the search", () => {
     const q = control();
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     q.searchString = "an";
     const modal = q.createFilterModal();
     modal.clearAll();
-    expect(modal.state, "#1").toEqual({ activeItemName: "", conditions: [], searchString: "an" });
+    expect(modal.state, "#1").toEqual({ selectedPreset: "", conditions: [], searchString: "an" });
     expect(modal.editor.getConditions(), "#2").toEqual([]);
     modal.apply();
-    expect([q.activeItemName, q.filterExpression === q.composeFilterExpression({ activeItemName: "", conditions: [], searchString: "an" })], "#3")
+    expect([q.selectedPreset, q.combinedExpression === q.composeFilterExpression({ selectedPreset: "", conditions: [], searchString: "an" })], "#3")
       .toEqual(["", true]);
     modal.dispose();
   });
-  test("single mode: no presets to pick; the fields go over its preset", () => {
-    const q = control({ allowMultipleItems: false, defaultItem: "adults" });
+  test("hidden presets: no pills; an edit of a field unselects the default preset", () => {
+    const q = control({ showPresets: false, defaultPreset: "adults" });
     const modal = q.createFilterModal();
     expect(modal.presetsToolbar.actions.filter((a: Action): boolean => a.isVisible).length, "#1: no pill, no Add New, no Edit Selected").toBe(0);
     fieldQ(modal, "age").value = 30;
     modal.apply();
-    expect([q.activeItem.name, q.isActiveItemModified], "#2").toEqual(["adults", true]);
+    expect([q.selectedPreset, q.combinedExpression], "#2").toEqual(["", "{age} > 30 and {country} = 'de'"]);
     modal.dispose();
   });
   test("in the designer: read-only, the chips do nothing and apply() writes nothing", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
-    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }], items: presets }] });
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }], presets: presets }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     const modal = q.createFilterModal();
     expect([modal.isReadOnly, chip(modal, "adults").enabled], "#1").toEqual([true, false]);
     modal.apply();
-    expect(q.activeItemName, "#2").toBe("");
+    expect(q.selectedPreset, "#2").toBe("");
     modal.dispose();
   });
 });

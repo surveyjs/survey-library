@@ -1,4 +1,4 @@
-import { BinaryOperand, FunctionOperand, Operand, UnaryOperand, Variable } from "survey-core";
+import { BinaryOperand, FunctionOperand, Operand, Variable } from "survey-core";
 import { ParsedRef } from "./symbols";
 
 // Every variable, item filters included: a filter that reads the value is a read too
@@ -11,7 +11,8 @@ function getAllVariables(node: Operand): Array<Variable> {
 // How an expression that writes a value uses that value itself (Bug#12407):
 // - "none": it does not read it;
 // - "copy": it is a bare reference to it ({x}), so it never writes anything new;
-// - "keep": it reads it only to keep it once it is set ({x} || today(), iif({x} empty, 1, {x}))
+// - "keep": it reads it only to keep it once it is set ({x} || today(), iif({x} empty, 1, {x}),
+//   an iif() one branch of which is {x} itself, whatever its condition: iif({x} = '', 1, {x}))
 //   or to pass it through unchanged ({y} || {x}); the result settles after one run;
 // - "rewrite": it computes a new value from it ({x} + 1), so each run starts from the previous result.
 export type SelfWriteKind = "none" | "copy" | "keep" | "rewrite";
@@ -40,12 +41,10 @@ export function classifySelfWrite(ast: Operand, getSelfRef: (variable: Variable)
       const [condition, onTrue, onFalse] = node.paramValues;
       if (!passesThrough(onTrue) || !passesThrough(onFalse)) return false;
       if (!readsSelf(condition)) return true;
-      // iif({x} empty, <fallback>, {x}) and iif({x} notempty, {x}, <fallback>): once the value is set,
-      // the branch taken returns it unchanged
-      if (condition instanceof UnaryOperand && isWholeSelf(condition.expression)) {
-        if (condition.operator === "empty") return isWholeSelf(onFalse);
-        if (condition.operator === "notempty") return isWholeSelf(onTrue);
-      }
+      // iif(<any condition>, <fallback>, {x}): a run either returns the value unchanged or replaces it
+      // with the fallback, and the next run returns that again - whichever branch the condition takes
+      // then, the fallback does not compute from the value. iif({x} empty, 1, {x}) is one of these.
+      return isWholeSelf(onTrue) || isWholeSelf(onFalse);
     }
     return false;
   };

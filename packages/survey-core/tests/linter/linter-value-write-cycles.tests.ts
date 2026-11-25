@@ -139,6 +139,15 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
     expect(survey.getValue("q1")).toBe("v");
     expect(survey.getValue("q2")).toBe("w");
   });
+  test("an iif() returning the own value in one branch is not flagged", () => {
+    const json = { elements: [{ type: "text", name: "q1", setValueExpression: "iif({q1} = 'x', 'y', {q1})" }] };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    survey.setValue("q1", "x");
+    expect(survey.getValue("q1")).toBe("y");
+    survey.setValue("q1", "z");
+    expect(survey.getValue("q1")).toBe("z");
+  });
   test("a setValueIf guard reading the own value is not flagged and runs", () => {
     const json = {
       elements: [

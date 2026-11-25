@@ -80,6 +80,22 @@ describe("cycle/calculated-value", () => {
     expect(survey.getVariable("c")).toBe("v");
     expectSettled(survey, json.calculatedValues);
   });
+  test("an iif() returning the value itself in one branch settles, whatever its condition", () => {
+    const json = {
+      elements: [{ type: "text", name: "reset" }],
+      calculatedValues: [
+        { name: "a", expression: "iif({a} = '', 'first', {a})" },
+        { name: "b", expression: "iif({reset} = true or {b} empty, 'first', {b})" },
+        { name: "c", expression: "iif({c} > 5, {c}, 10)" },
+      ],
+    };
+    expect(byRule(json, "cycle/calculated-value")).toHaveLength(0);
+    const survey = new Model(json);
+    expect(["a", "b", "c"].map(name => survey.getVariable(name))).toEqual(["first", "first", 10]);
+    expectSettled(survey, json.calculatedValues);
+    survey.setValue("reset", true);
+    expectSettled(survey, json.calculatedValues);
+  });
   test("a self-reference that computes a new value is still a cycle", () => {
     const json = {
       elements: [{ type: "text", name: "q1" }],

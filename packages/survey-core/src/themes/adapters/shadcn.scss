@@ -813,7 +813,9 @@
     margin: 0;
   }
 }
-.sd-table__row--data:last-of-type {
+.sd-table__row--data:last-of-type,
+.sd-table__row--error-below:last-of-type,
+.sd-table__row--detail-under-error:last-of-type {
   border-bottom: none;
 }
 

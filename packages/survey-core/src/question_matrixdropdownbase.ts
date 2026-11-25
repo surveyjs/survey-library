@@ -1132,7 +1132,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       "isReadOnly",
       "hasFooter",
       "detailPanelMode",
-      "displayMode"
+      "displayMode",
+      "alternateRows"
     ];
     if (clearRowsProps.indexOf(name) > -1) {
       this.clearRowsAndResetRenderedTable();

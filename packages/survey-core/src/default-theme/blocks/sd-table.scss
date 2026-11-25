@@ -225,7 +225,6 @@
 }
 
 .sd-table__cell--error {
-  padding-block: 0;
   .sd-question__erbox {
     margin: 0;
   }
@@ -330,55 +329,48 @@
     )};
 }
 //alternative rows
-.sd-table__body--alternative-rows {
-  .sd-table__cell--error-top {
-    padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
-  }
-  .sd-table__cell--error-bottom {
-    padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
-  }
-  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
-    --sd-table-sticky-background-color: #{table-sticky-background(
-        (
-          #{$background-dark},
-          var(--sd-question-container-background),
-          var(--sjs2-color-utility-surface-survey),
-          var(--sjs2-color-utility-body)
-        )
-      )};
+.sd-table__row--alternate {
+  --sd-table-sticky-background-color: #{table-sticky-background(
+      (
+        #{$background-dark},
+        var(--sd-question-container-background),
+        var(--sjs2-color-utility-surface-survey),
+        var(--sjs2-color-utility-body)
+      )
+    )};
 
-    & > td.sd-table__cell:not(.sd-table__cell--actions),
-    td:first-of-type {
-      background-color: $background-dark;
-      &.sd-matrix__text--checked {
-        background-color: var(--sjs2-color-bg-brand-secondary);
+  & > td.sd-table__cell:not(.sd-table__cell--actions),
+  td:first-of-type {
+    background-color: $background-dark;
+    &.sd-matrix__text--checked {
+      background-color: var(--sjs2-color-bg-brand-secondary);
+    }
+
+    .sd-formbox {
+      background-color: $primary-foreground;
+    }
+
+    .sd-item:not(.sd-item--error) {
+      .sd-item__decorator {
+        background-color: var(--sjs2-color-bg-basic-primary);
       }
 
-      .sd-formbox {
-        background-color: $primary-foreground;
+      &.sd-checkbox--checked .sd-checkbox__decorator {
+        background-color: var(--sjs2-color-component-checkbox-true-default-bg);
       }
-
-      .sd-item:not(.sd-item--error) {
-        .sd-item__decorator {
-          background-color: var(--sjs2-color-bg-basic-primary);
-        }
-
-        &.sd-checkbox--checked .sd-checkbox__decorator {
-          background-color: var(--sjs2-color-component-checkbox-true-default-bg);
-        }
-        &.sd-radio--checked .sd-radio__decorator {
-          background-color: var(--sjs2-color-component-radio-true-default-bg);
-        }
-        &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
-          background-color: transparent;
-        }
-        &.sd-item--preview.sd-item--preview .sd-item__decorator {
-          background-color: transparent;
-        }
+      &.sd-radio--checked .sd-radio__decorator {
+        background-color: var(--sjs2-color-component-radio-true-default-bg);
+      }
+      &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
+        background-color: transparent;
+      }
+      &.sd-item--preview.sd-item--preview .sd-item__decorator {
+        background-color: transparent;
       }
     }
   }
 }
+
 
 .sd-question--disabled .sd-table__cell {
   opacity: 0.25;
@@ -420,9 +412,16 @@
   opacity: 0.25;
 }
 .sd-table__row--data,
-.sd-table > thead > tr {
+.sd-table > thead > tr,
+.sd-table__row--error-below,
+.sd-table__row--detail-under-error {
   border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
     var(--sjs2-color-component-matrix-default-separator);
+}
+
+.sd-table__row--data-with-error-below,
+.sd-table__row--error-below.sd-table__row--error-has-detail {
+  border-bottom: none;
 }
 
 @mixin table_responsive {

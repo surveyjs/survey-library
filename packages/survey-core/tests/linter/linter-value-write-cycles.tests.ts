@@ -267,9 +267,11 @@ describe("cycle/value-write - inArray filters", () => {
     expect(byRule(json).map(f => f.reason)).toEqual(["loop"]);
     const survey = new Model(json);
     survey.setValue("m", rows);
-    survey.setValue("q1", 0);
-    // the trigger ran on the change of q1, and q1 is out of step with the value it is computed from ({q2} + 1)
-    expect([survey.getValue("q1"), survey.getValue("q2")]).toEqual([0, 10]);
+    survey.clearValue("q2");
+    survey.setValue("q1", 3);
+    // the change of q1 ran the trigger (a filter without {q1} leaves q2 empty here), and q1 is out of
+    // step with the value it is computed from ({q2} + 1)
+    expect([survey.getValue("q1"), survey.getValue("q2")]).toEqual([3, 10]);
   });
 });
 

@@ -211,6 +211,9 @@ export interface ParsedRef {
   status: RefStatus;
   resolvedTo?: ElementRecord;
   resolvedKind?: ResolvedRefKind;
+  // a trailing ".length" was dropped from segments: the reference reads the length of the value
+  // the segments name, not that value itself
+  readsLength?: boolean;
   unknownSegmentIndex?: number;
   unknownSegmentLevel?: SegmentLevel;
   scopePrefix?: string;

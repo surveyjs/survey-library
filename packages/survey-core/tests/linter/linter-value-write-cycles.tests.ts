@@ -85,6 +85,15 @@ describe("cycle/value-write - self references", () => {
     expect(survey.getValue("q1")).toBeGreaterThan(1);
     expect(survey.runExpression("{q1} + 1")).not.toBe(survey.getValue("q1"));
   });
+  test("a setValueExpression reading its own length computes a new value", () => {
+    ["{q1.length}", "iif({q1} notempty, {q1.length}, 0)"].forEach(expression => {
+      const json = { elements: [{ type: "text", name: "q1", setValueExpression: expression }] };
+      expect(byRule(json).map(f => f.reason), expression).toEqual(["self"]);
+      const survey = new Model(json);
+      survey.setValue("q1", "abc");
+      expect(survey.getValue("q1"), expression).toBe(3);
+    });
+  });
   test("a self-reading setValueExpression rewrites the answer at runtime", () => {
     const json = { elements: [{ type: "text", name: "q1", setValueExpression: "{q1} + 1" }] };
     const survey = new Model(json);

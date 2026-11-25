@@ -4,7 +4,7 @@ import { collectAmbiguousNames } from "../constant-env";
 import { findCycles } from "../graph";
 import { ExpressionSite, TriggerRecord } from "../symbols";
 import { SurveyLintReasons } from "../reasons";
-import { classifySelfWrite, SelfWriteKind } from "../self-write";
+import { classifySelfWrite, getRefSelfKind, SelfWriteKind } from "../self-write";
 
 const reasons = SurveyLintReasons["cycle/value-write"];
 
@@ -59,7 +59,7 @@ function getSiteReadRefs(ctx: LintContext, site: ExpressionSite, selfSlot?: stri
     if (ref.status === "scoped-resolved" || ref.status === "scoped-unknown") {
       if (!!selfSlot && !!ref.scopePrefix && equalsCI(ref.scopePrefix, selfVar)) {
         // the segments keep the prefix: {self} is one segment, {self.a} two
-        res.push({ raw: ref.raw, slot: selfSlot, isWhole: ref.segments.length === 1 && ref.segments[0].index === undefined });
+        res.push({ raw: ref.raw, slot: selfSlot, isWhole: getRefSelfKind(ref) === "whole" });
       }
       return;
     }
@@ -69,7 +69,7 @@ function getSiteReadRefs(ctx: LintContext, site: ExpressionSite, selfSlot?: stri
       slot: ref.resolvedTo && ref.resolvedTo.name
         ? ref.resolvedTo.name.toLowerCase()
         : canonicalSlot(ctx, ref.segments[0].name),
-      isWhole: ref.segments.length === 1 && ref.segments[0].index === undefined,
+      isWhole: getRefSelfKind(ref) === "whole",
     });
   });
   return res;

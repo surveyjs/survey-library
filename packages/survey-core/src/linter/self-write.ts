@@ -1,4 +1,5 @@
 import { BinaryOperand, FunctionOperand, Operand, UnaryOperand, Variable } from "survey-core";
+import { ParsedRef } from "./symbols";
 
 // Every variable, item filters included: a filter that reads the value is a read too
 function getAllVariables(node: Operand): Array<Variable> {
@@ -18,6 +19,12 @@ export type SelfWriteKind = "none" | "copy" | "keep" | "rewrite";
 // "whole" for a reference to the written value itself, "part" for one to a part of it ({x.a}, {x[0]}),
 // undefined for a reference to anything else
 export type SelfRefKind = "whole" | "part" | undefined;
+
+// How a reference already known to address the written value reads it: {x.length} reads a number
+// computed from the value, not the value itself
+export function getRefSelfKind(ref: ParsedRef): SelfRefKind {
+  return ref.segments.length === 1 && ref.segments[0].index === undefined && !ref.readsLength ? "whole" : "part";
+}
 
 export function classifySelfWrite(ast: Operand, getSelfRef: (variable: Variable) => SelfRefKind): SelfWriteKind {
   if (!ast) return "none";

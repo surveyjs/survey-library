@@ -98,6 +98,13 @@ describe("cycle/calculated-value", () => {
       expect(survey.runExpression(cv.expression), cv.name).not.toEqual(survey.getVariable(cv.name));
     });
   });
+  test("a calculated value reading its own length computes from itself", () => {
+    const json = { calculatedValues: [{ name: "a", expression: "{a.length} || 'abc'" }] };
+    expect(byRule(json, "cycle/calculated-value")).toHaveLength(1);
+    const survey = new Model(json);
+    expect(survey.getVariable("a")).toBe("abc");
+    expect(survey.runExpression("{a.length} || 'abc'")).toBe(3);
+  });
   test("a loop between two values is still an error when each falls back", () => {
     const json = {
       calculatedValues: [

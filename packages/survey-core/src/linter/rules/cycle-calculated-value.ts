@@ -1,6 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
 import { equalsCI, getDependencyRefs } from "../expression-utils";
-import { classifySelfWrite } from "../self-write";
+import { classifySelfWrite, getRefSelfKind } from "../self-write";
 import { reportCycles } from "../cycle-report";
 import { quoteValues } from "../message-utils";
 import { CalculatedValueRecord, ParsedRef } from "../symbols";
@@ -39,7 +39,7 @@ export const cycleCalculatedValueRule: ILintRule = {
         const ref = refs.filter(item => item.raw === variable.variable)[0];
         const target = !!ref ? getTargetName(ref) : undefined;
         if (!target || !equalsCI(target, name)) return undefined;
-        return ref.segments.length === 1 && ref.segments[0].index === undefined ? "whole" : "part";
+        return getRefSelfKind(ref);
       }) === "rewrite";
     };
     const getEdges = (name: string): Array<string> => {

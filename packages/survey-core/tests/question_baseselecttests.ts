@@ -6356,3 +6356,69 @@ describe("A runtime choice question on a later page builds its visible choices o
     expect(survey.getQuestionByName("q2b").no, "q2b after the hide").toBe("2.");
   });
 });
+describe("choicesFromQuestion: the carry-forward state when the source is absent, set at runtime or removed", () => {
+  const values = (items: Array<ItemValue>): Array<any> => items.map((item: ItemValue): any => item.value);
+  test("a value change that rebuilds the visible choices does not write carryForwardQuestionType", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "checkbox", name: "q2", choices: [1, 2, { value: 3, visibleIf: "{q1} = 'a'" }] }
+    ] });
+    const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+    expect(values(q2.visibleChoices), "#1: the choice 3 is hidden").toEqual([1, 2]);
+    const reads = vi.spyOn(QuestionSelectBase.prototype, "getCarryForwardQuestion");
+    const writes = vi.spyOn(Base.prototype, "setPropertyValue");
+    try {
+      survey.setValue("q1", "a");
+      expect(values(q2.visibleChoices), "#2: the choice 3 is shown").toEqual([1, 2, 3]);
+      expect(reads.mock.calls.length > 0, "#3: the visible choices are built again").toBe(true);
+      const typeWrites = writes.mock.calls.filter((call: Array<any>) => call[0] === "carryForwardQuestionType");
+      expect(typeWrites.length, "#4: no carryForwardQuestionType write").toBe(0);
+      expect(q2.carryForwardQuestionType, "#5").toBeUndefined();
+    } finally {
+      reads.mockRestore();
+      writes.mockRestore();
+    }
+  });
+  test("setting choicesFromQuestion at runtime takes the source's choices, removing it brings back the own ones", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "checkbox", name: "src", choices: ["x", "y", "z"] },
+      { type: "checkbox", name: "q", choices: ["a", "b"] }
+    ] });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(values(q.visibleChoices), "#1: the own choices").toEqual(["a", "b"]);
+    q.choicesFromQuestion = "src";
+    expect(values(q.visibleChoices), "#2: the source's choices").toEqual(["x", "y", "z"]);
+    expect(q.isUsingCarryForward, "#3").toBe(true);
+    q.choicesFromQuestion = "";
+    expect(values(q.visibleChoices), "#4: the own choices again").toEqual(["a", "b"]);
+    expect(q.isUsingCarryForward, "#5").toBe(false);
+  });
+  test("carryForwardQuestionType follows the source type and is cleared once the source is removed", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "checkbox", name: "src", choices: ["x", "y"] },
+      { type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "t" }] },
+      { type: "matrixdynamic", name: "md", columns: [{ name: "col1", cellType: "text" }] },
+      { type: "checkbox", name: "q", choices: ["a", "b"] }
+    ] });
+    survey.data = { pd: [{ t: "p1" }, { t: "p2" }], md: [{ col1: "m1" }] };
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(q.carryForwardQuestionType, "#1: no source").toBeUndefined();
+    q.choicesFromQuestion = "src";
+    expect(q.carryForwardQuestionType, "#2: a select source").toBe("select");
+    q.choicesFromQuestion = "";
+    expect(q.carryForwardQuestionType, "#3: the select source is removed").toBeUndefined();
+    q.choiceValuesFromQuestion = "t";
+    q.choicesFromQuestion = "pd";
+    expect(q.carryForwardQuestionType, "#4: a dynamic panel source").toBe("array");
+    expect(values(q.visibleChoices), "#5: the panel values").toEqual(["p1", "p2"]);
+    q.choicesFromQuestion = "";
+    expect(q.carryForwardQuestionType, "#6: the dynamic panel source is removed").toBeUndefined();
+    q.choiceValuesFromQuestion = "col1";
+    q.choicesFromQuestion = "md";
+    expect(q.carryForwardQuestionType, "#7: a matrix source").toBe("array");
+    expect(values(q.visibleChoices), "#8: the matrix values").toEqual(["m1"]);
+    q.choicesFromQuestion = "";
+    expect(q.carryForwardQuestionType, "#9: the matrix source is removed").toBeUndefined();
+    expect(values(q.visibleChoices), "#10: the own choices again").toEqual(["a", "b"]);
+  });
+});

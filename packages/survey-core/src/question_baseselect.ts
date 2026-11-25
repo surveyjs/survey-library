@@ -1898,6 +1898,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return this.isInDesignMode && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
+    // Called on every activeChoices read: without a source, only clear what a removed source left.
+    if (!this.choicesFromQuestion) {
+      this.carryForwardQuestion = null;
+      if (this.carryForwardQuestionType) {
+        this.setCarryForwardQuestionType(false, false);
+      }
+      return null;
+    }
     const question = this.findCarryForwardQuestion(data);
     const selBaseQuestion = this.getQuestionWithChoicesCore(question);
     const arrayQuestion = !selBaseQuestion ? this.getQuestionWithArrayValue(question) : null;

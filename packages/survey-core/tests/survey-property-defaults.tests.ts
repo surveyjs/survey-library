@@ -23,8 +23,8 @@ function create(json?: any, options?: any): SurveyModel {
   surveys.push(survey);
   return survey;
 }
-function withLayer(classes: any, json?: any): SurveyModel {
-  return create(json, { propertyDefaults: { classes: classes } });
+function withLayer(propertyDefaults: any, json?: any): SurveyModel {
+  return create(json, { propertyDefaults: propertyDefaults });
 }
 afterEach(() => {
   while(surveys.length > 0) surveys.pop().dispose();
@@ -303,7 +303,7 @@ describe("Per-survey property defaults", () => {
     expect(propertyDefaultsState.liveLayerCount).toBe(start);
     plain.dispose();
     expect(propertyDefaultsState.liveLayerCount).toBe(start);
-    const s = new SurveyModel(null, { propertyDefaults: { classes: { question: { titleLocation: "left" } } } });
+    const s = new SurveyModel(null, { propertyDefaults: { question: { titleLocation: "left" } } });
     expect(propertyDefaultsState.liveLayerCount).toBe(start + 1);
     s.dispose();
     expect(propertyDefaultsState.liveLayerCount).toBe(start);

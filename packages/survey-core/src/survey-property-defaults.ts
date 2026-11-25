@@ -7,7 +7,7 @@ export type PropertyDefaultValue = string | number | boolean | null;
 export interface IPropertyDefaults {
   // A class name maps to property names and their default values in this survey. An entry on a parent class
   // reaches its descendants, unless a nearer class in the chain has an entry for the same property.
-  classes?: { [className: string]: { [propertyName: string]: PropertyDefaultValue | undefined } | undefined };
+  [className: string]: { [propertyName: string]: PropertyDefaultValue | undefined } | undefined;
 }
 
 function isPlainObject(v: any): boolean {
@@ -33,16 +33,7 @@ export class PropertyDefaultsLayer {
 
   // The values are set once, here. An `undefined` class or property value is not a default.
   constructor(value: IPropertyDefaults) {
-    if (!isPlainObject(value)) return;
-    const keys = Object.keys(value);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      if (key === "classes") {
-        this.setClasses(value.classes);
-      } else {
-        this.warn(key);
-      }
-    }
+    this.setClasses(value);
     this.hasClasses = Object.keys(this.classes).length > 0;
   }
   public get hasValues(): boolean {
@@ -54,7 +45,7 @@ export class PropertyDefaultsLayer {
     this.hasClasses = false;
     this.resolved = undefined;
   }
-  // The value of the `classes` entry for obj's class or its nearest ancestor, or PropertyDefaultsLayer.notCovered
+  // The value of the entry for obj's class or its nearest ancestor, or PropertyDefaultsLayer.notCovered
   public resolve(obj: Base, name: string): any {
     if (!this.hasClasses) return PropertyDefaultsLayer.notCovered;
     const values = this.getClassValues(obj.getType());
@@ -84,7 +75,7 @@ export class PropertyDefaultsLayer {
     this.resolved.set(className, result);
     return result;
   }
-  private setClasses(classes: any): void {
+  private setClasses(classes: IPropertyDefaults): void {
     if (!isPlainObject(classes)) return;
     const names = Object.keys(classes);
     for (let i = 0; i < names.length; i++) {

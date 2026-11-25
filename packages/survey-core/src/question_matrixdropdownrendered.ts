@@ -387,6 +387,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return toCssClasses(
       this.cssClasses.row,
       this.cssClasses.dataRow,
+      this.isAlternate && this.cssClasses.alternateRow,
       this.row?.hasPanel && this.cssClasses.rowHasPanel,
       this.hasEndActions && this.cssClasses.rowHasEndActions
     );
@@ -411,6 +412,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
       this.hasEndActions && this.cssClasses.rowHasEndActions,
       this.isGhostRow && this.cssClasses.ghostRow,
       this.isAdditionalClasses && this.cssClasses.rowAdditional,
+      this.isAlternate && this.cssClasses.alternateRow,
       this.hasVisibleError && this.pairedErrorRow?.isBelowDataRow && this.cssClasses.dataRowWithErrorBelow,
       this.hasVisibleError && this.pairedErrorRow && !this.pairedErrorRow.isBelowDataRow && this.cssClasses.dataRowWithErrorAbove,
       this.isDetailRow && this.errorIsVisible && this.pairedDataRow?.pairedErrorRow?.isBelowDataRow && this.cssClasses.detailUnderError
@@ -617,6 +619,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private get showCellErrorsBottom() {
     //todo
     return this.matrix.getErrorLocation() === "bottom";
+  }
+  // Stripes are drawn only when the matrix asks for them, and never in the list layout.
+  private getAlternateRows(): boolean {
+    return this.matrix.alternateRows && !this.matrix.isMobile;
   }
 
   protected build() {
@@ -945,11 +951,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private updateAlternateMarks(): void {
     if (!this.rows) return;
+    const useAlternateRows = this.getAlternateRows();
     let dataIndex = 0;
     for (let i = 0; i < this.rows.length; i++) {
       const row = this.rows[i];
       if (row.isErrorsRow || row.isDetailRow || row instanceof QuestionMatrixDropdownRenderedEmptyRow) continue;
-      const alternate = dataIndex % 2 === 0;
+      const alternate = useAlternateRows && dataIndex % 2 === 0;
       row.isAlternate = alternate;
       if (row.pairedErrorRow) row.pairedErrorRow.isAlternate = alternate;
       dataIndex++;

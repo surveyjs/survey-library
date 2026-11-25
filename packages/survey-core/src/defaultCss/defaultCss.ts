@@ -572,6 +572,7 @@ export var defaultCss = {
     cell: "sd-table__cell sd-matrix__cell",
     emptyCell: "sd-table__cell--empty",
     row: "sd-table__row sd-matrix__row sd-table__row--data",
+    alternateRow: "sd-table__row--alternate",
     rowDisabled: "sd-table__row-disabled",
     rowReadOnly: "sd-table__row-readonly",
     headerCell: "sd-table__cell sd-table__cell--header",

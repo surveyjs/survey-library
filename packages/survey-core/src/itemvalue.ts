@@ -38,10 +38,7 @@ export class ItemValueGetterContext implements IValueGetterContext {
       params.path = path.slice(1);
       return new PropertyGetterContext(this.item).getValue(params);
     }
-    const owner: any = this.item.locOwner;
-    if (owner && owner.getValueGetterContext) {
-      return owner.getValueGetterContext().getValue(params);
-    }
+    // Any other name belongs to the owner: the lookup asks it next (getRootObj)
     return undefined;
   }
   getRootObj(): IObjectValueContext {

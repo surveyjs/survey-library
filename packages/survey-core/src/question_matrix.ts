@@ -335,7 +335,9 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
       const res = super.getValue(params);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(params);
+    // An empty value has nothing to find
+    const value = this.question.value;
+    return !!value ? new VariableGetterContext(value).getValue(params) : undefined;
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {

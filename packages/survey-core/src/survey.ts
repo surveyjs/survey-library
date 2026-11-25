@@ -514,7 +514,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+   * To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
    *
    * ```js
    * import { Model } from "survey-core";
@@ -522,14 +522,13 @@ export class SurveyModel extends SurveyElementCore
    * const surveyJson = {
    *    // ...
    * };
-   * // Create an empty model
-   * const survey = new Model();
-   * // Add an event handler
-   * survey.onQuestionCreated.add((sender, options) => {
-   *   //...
+   * const survey = new Model(surveyJson, {
+   *   events: {
+   *     onQuestionCreated: (sender, options) => {
+   *       // Customize the new question
+   *     }
+   *   }
    * });
-   * // Load the survey JSON schema
-   * survey.fromJSON(surveyJson);
    * ```
    * @see onQuestionAdded
    */
@@ -539,7 +538,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+   * To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
    *
    * ```js
    * import { Model } from "survey-core";
@@ -547,14 +546,13 @@ export class SurveyModel extends SurveyElementCore
    * const surveyJson = {
    *    // ...
    * };
-   * // Create an empty model
-   * const survey = new Model();
-   * // Add an event handler
-   * survey.onQuestionAdded.add((sender, options) => {
-   *   //...
+   * const survey = new Model(surveyJson, {
+   *   events: {
+   *     onQuestionAdded: (sender, options) => {
+   *       // Handle the added question
+   *     }
+   *   }
    * });
-   * // Load the survey JSON schema
-   * survey.fromJSON(surveyJson);
    * ```
    * @see onQuestionCreated
    */

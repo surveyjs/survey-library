@@ -1,10 +1,15 @@
 // The fixture keys and every scenario id with the suites that run it (00, Ids). The same operation has the same id
 // in core and in the browser. 03 adds the browser suites; vue3 and angular run RENDER_SUBSET.
-export const FIXTURE_KEYS = ["large", "expressions", "calculations", "complexLogic", "manyPages", "records-1k", "records-10k", "records-plain"] as const;
+export const FIXTURE_KEYS = ["large", "expressions", "calculations", "complexLogic", "manyPages", "records-1k", "records-10k", "records-plain", "slotForm"] as const;
 export type FixtureKey = typeof FIXTURE_KEYS[number];
+// Fixtures no suite runs: their ids run in a local core run when PERF_ONLY names them (LOCAL_IDS). slotForm-full is the
+// slot form at full size, whose samples take minutes at the baseline.
+export const LOCAL_FIXTURE_KEYS = ["slotForm-full"] as const;
 // records-plain serves the plain-matrix sorts only: no load/model or load/paint of it, which would add suite time and
 // measure a load the records fixtures measure already.
 const loadKeys = FIXTURE_KEYS.filter((key: string) => key !== "records-plain");
+// The fixtures whose load the browser suites paint: slotForm runs in core only.
+const paintKeys = loadKeys.filter((key: string) => key !== "slotForm");
 
 export type Suite = "core" | "react" | "survey-js-ui" | "vue3" | "angular";
 export const SUITES: ReadonlyArray<Suite> = ["core", "react", "survey-js-ui", "vue3", "angular"];
@@ -45,11 +50,18 @@ plainMatrices.forEach((question: string) => add("records-plain", "records", ["so
 const plainPanels = ["panels30", "panelsPaged"];
 plainPanels.forEach((question: string) => add("records-plain", "records", ["sort-1"], question));
 add("records-plain", "records", ["next"], "panelsPaged");
+// The keyed slot form: its data loads and the answers that reach the slots, one id per operation.
+export const SLOT_FORM_OPS = { load: ["data", "data-again", "merge"], answer: ["shared-name", "count-off", "count-on", "count-up", "screen", "cell", "row-cell", "slot-question", "type"] };
+add("slotForm", "load", SLOT_FORM_OPS.load);
+add("slotForm", "answer", SLOT_FORM_OPS.answer);
+// The same operations at full size: local ids, in no suite and so in no manifest.
+export const LOCAL_IDS: ReadonlyArray<string> = ["model"].concat(SLOT_FORM_OPS.load).map((op: string) => "slotForm-full/load/" + op)
+  .concat(SLOT_FORM_OPS.answer.map((op: string) => "slotForm-full/answer/" + op)).sort();
 
 // The browser column (03). survey-js-ui runs React's ids except manyPages/pages/preview: it renders all 4,500
 // questions (11 s a sample in survey-js-ui, 4 s in React), and React and core keep it.
 const react: Array<string> = [];
-loadKeys.forEach((key: string) => react.push(key + "/load/paint"));
+paintKeys.forEach((key: string) => react.push(key + "/load/paint"));
 react.push("complexLogic/answer/first", "complexLogic/answer/type");
 ["next10", "preview", "locale"].forEach((op: string) => react.push("manyPages/pages/" + op));
 ["next", "last", "sort-header", "filter-set", "edit-cell", "add-row"].forEach((op: string) => react.push("records-10k/records/" + op + "@orders"));
@@ -62,7 +74,7 @@ const jsUi = react.filter((id: string) => id !== "manyPages/pages/preview");
 // The ids the vue3 and angular suites run: the loads with paint and the actions whose cost is mostly rendering. The
 // plain-matrix sorts keep (rebind) the rows, so their cost is how the framework updates kept rows. The rest exercise
 // the model code that core and React already measure.
-export const RENDER_SUBSET: ReadonlyArray<string> = loadKeys.map((key: string) => key + "/load/paint").concat([
+export const RENDER_SUBSET: ReadonlyArray<string> = paintKeys.map((key: string) => key + "/load/paint").concat([
   "complexLogic/answer/type", "manyPages/pages/next10", "records-10k/records/sort-header@orders", "records-10k/records/edit-cell@orders"],
 plainMatrices.map((question: string) => "records-plain/records/sort-header@" + question));
 
@@ -80,6 +92,10 @@ export function isExtraId(id: string): boolean {
   return id.indexOf("extra/") === 0;
 }
 
+export function isLocalId(id: string): boolean {
+  return LOCAL_IDS.indexOf(id) > -1;
+}
+
 export function suitesOf(id: string): Array<Suite> {
   const info = SCENARIO_IDS.filter((s: ScenarioIdInfo) => s.id === id)[0];
   return info ? info.suites.slice() : [];
@@ -90,13 +106,13 @@ export function idsOfSuite(suite: Suite): Array<string> {
 }
 
 // PERF_ONLY (00, Ids): an id in no suite is an error; a suite runs the ids it has and lists the others as notInSuite.
-// extra/* ids belong to the core suite of a local run.
+// extra/* ids and LOCAL_IDS belong to the core suite of a local run, and only when PERF_ONLY names them.
 export function splitOnly(only: ReadonlyArray<string> | null, suite: Suite): { run: Array<string>, notInSuite: Array<string> } {
   const all = idsOfSuite(suite);
   if (!only) return { run: all, notInSuite: [] };
-  const unknown = only.filter((id: string) => !isExtraId(id) && suitesOf(id).length === 0);
+  const unknown = only.filter((id: string) => !isExtraId(id) && !isLocalId(id) && suitesOf(id).length === 0);
   if (unknown.length > 0) throw new Error("PERF_ONLY names ids that are in no suite: " + unknown.join(", "));
-  const run = only.filter((id: string) => all.indexOf(id) > -1 || (suite === "core" && isExtraId(id)));
+  const run = only.filter((id: string) => all.indexOf(id) > -1 || (suite === "core" && (isExtraId(id) || isLocalId(id))));
   const notInSuite = only.filter((id: string) => run.indexOf(id) < 0);
   return { run: Array.from(new Set(run)).sort(), notInSuite: Array.from(new Set(notInSuite)).sort() };
 }

@@ -156,7 +156,7 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
       expect(q.panels.map((p: any) => p.getQuestionByName("id").value)).toEqual(ids.slice().sort().slice(0, size));
     }
   });
-  for (const key of ["expressions", "calculations", "complexLogic"]) {
+  for (const key of ["expressions", "calculations", "complexLogic", "slotForm"]) {
     test("4. " + key + ": every expression parses and the linter finds nothing unplanned", () => {
       const fixture = getFixture(key);
       const list = collectExpressions(fixture.json);
@@ -209,6 +209,83 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
       });
     });
   }
+  test("9. slotForm: the counts of its mechanisms are the ones meta plans", () => {
+    const fixture = getFixture("slotForm");
+    const json = fixture.json;
+    const meta = fixture.meta;
+    const m = meta.mechanisms;
+    const refsOf = (text: string): Array<string> => (text.match(/\{[^}]+\}/g) || []).map((r: string) => r.slice(1, -1));
+    const values = json.calculatedValues;
+    const names = new Set<string>(values.map((cv: any) => cv.name));
+    // M1: calculated values that read calculated values, up to five levels.
+    expect(values.length).toBe(m.calculatedValues);
+    const reads: { [name: string]: Array<string> } = {};
+    values.forEach((cv: any) => { reads[cv.name] = Array.from(new Set(refsOf(cv.expression).filter((r: string) => names.has(r)))); });
+    expect(Object.keys(reads).reduce((n: number, k: string) => n + reads[k].length, 0)).toBe(m.valueReferences);
+    const depth: { [name: string]: number } = {};
+    const depthOf = (name: string): number => {
+      if (depth[name] === undefined) depth[name] = reads[name].reduce((d: number, r: string) => Math.max(d, 1 + depthOf(r)), 0);
+      return depth[name];
+    };
+    const byDepth: { [d: number]: number } = {};
+    values.forEach((cv: any) => { byDepth[depthOf(cv.name)] = (byDepth[depthOf(cv.name)] || 0) + 1; });
+    expect(byDepth).toEqual(m.depths);
+    expect(Math.max(...Object.keys(byDepth).map(Number))).toBeGreaterThanOrEqual(4);
+    // M2: long nested iif expressions.
+    const lengths = values.map((cv: any) => cv.expression.length).sort((a: number, b: number) => a - b);
+    expect([lengths[Math.floor((lengths.length - 1) / 2)], lengths[Math.floor((lengths.length - 1) * 0.9)], lengths[lengths.length - 1]]).toEqual([m.medianLength, m.p90Length, m.maxLength]);
+    expect(lengths.filter((l: number) => l > 10000).length).toBe(m.over10k);
+    expect(m.maxLength).toBeGreaterThan(50000);
+    // M3: a dynamic panel of fixed keyed slots, shown by their "on" values.
+    const slots = json.pages.reduce((a: Array<any>, p: any) => a.concat(p.elements), []).filter((e: any) => e.name === "slots")[0];
+    expect([slots.keyName, slots.valueName, slots.defaultValue.map((r: any) => r[slots.keyName])]).toEqual([meta.slotKey, "slotValues", meta.slots]);
+    meta.slotActive.forEach((name: string) => expect(slots.templateVisibleIf).toContain("{" + name + "} = true"));
+    // M4: six nested dynamic panels and six nested matrices per slot, one item at least.
+    const nestedOf = (els: Array<any>): Array<any> => els.reduce((a: Array<any>, e: any) => a.concat(e.type === "panel" ? nestedOf(e.elements) :
+      (e.type === "paneldynamic" || e.type === "matrixdynamic" ? [e] : [])), []);
+    const nested = nestedOf(slots.templateElements);
+    expect(nested.filter((e: any) => e.type === "paneldynamic" && e.panelCount === 1 && e.minPanelCount === 1).length).toBe(m.nestedPanels);
+    expect(nested.filter((e: any) => e.type === "matrixdynamic" && e.rowCount === 1 && e.minRowCount === 1).length).toBe(m.nestedMatrices);
+    nested.filter((e: any) => e.type === "paneldynamic").forEach((e: any) =>
+      expect(e.templateElements.filter((t: any) => t.expression === "{parentPanel." + meta.slotKey + "}").length, e.name).toBe(1));
+    // M5: values that read indexed paths, nested items included, and keyed grid cells.
+    expect(values.filter((cv: any) => refsOf(cv.expression).some((r: string) => r.indexOf("slotValues[") === 0)).length).toBe(m.indexedReaders);
+    expect(values.filter((cv: any) => refsOf(cv.expression).some((r: string) => /^slotValues\[\d+\]\.nest[A-F]\[0\]\./.test(r))).length).toBeGreaterThan(meta.slots.length);
+    expect(values.filter((cv: any) => refsOf(cv.expression).some((r: string) => r.indexOf("grid.") === 0)).length).toBe(m.keyedReaders);
+    expect(values.filter((cv: any) => /sumInArray\(\{slotValues\[/.test(cv.expression)).length).toBeGreaterThan(0);
+    expect(values.filter((cv: any) => /countInArray\(\{slotValues\[/.test(cv.expression)).length).toBeGreaterThan(0);
+    // M6: "who" checkboxes that set the first slot when one slot is on, one choice per slot.
+    const top = json.pages.reduce((a: Array<any>, p: any) => a.concat(p.elements), []);
+    const whos = top.filter((e: any) => meta.whos.indexOf(e.name) > -1);
+    expect(top.filter((e: any) => !!e.setValueIf).length).toBe(m.setValueIf);
+    whos.forEach((w: any) => {
+      expect(w.setValueIf).toMatch(new RegExp("^\\{" + meta.count + "\\} = 1 and "));
+      expect(w.setValueExpression).toBe("['k0']");
+      expect(w.choices.map((ch: any) => ch.value)).toEqual(meta.slots);
+    });
+    // M7: a keyed grid of the same slots, rows shown by the count answers, columns copied or locked by row.
+    const grid = top.filter((e: any) => e.name === "grid")[0];
+    expect(grid.rows.map((r: any) => r.value)).toEqual(meta.slots);
+    expect(grid.rows.filter((r: any) => !!r.visibleIf).length).toBe(m.gridRows - 1);
+    expect(grid.columns.filter((c: any) => c.setValueIf === "{rowName} = 'k0'").length).toBe(2);
+    expect(grid.columns.filter((c: any) => c.enableIf === "{rowName} <> 'k0'").length).toBe(3);
+    // M8: every keystroke is a value change.
+    expect(json.textUpdateMode).toBe(m.textUpdateMode);
+  });
+  test("10. slotForm: a data load overwrites the planned \"who\" answers (02 removes the overwrite)", () => {
+    const fixture = getFixture("slotForm");
+    const meta = fixture.meta;
+    const { survey } = loadQuietly(Survey, fixture.json);
+    survey.data = JSON.parse(JSON.stringify(fixture.data));
+    expect(survey.getVariable(meta.count), "the slots on after the load").toBe(meta.activeSlots);
+    // In a cycle that a nested item's write-back starts during the load, the count of slots is still 1, so the
+    // setValueIf of a "who" whose screening choice the data selects writes ['k0'] over its loaded answer. 02 turns this
+    // into "every loaded answer is there" and removes the skip in the load/data check (scenarios/slot-form.ts).
+    expect(meta.overwrittenBefore02.length).toBe(18);
+    meta.overwrittenBefore02.forEach((name: string) => expect(survey.getValue(name), name).toEqual(["k0"]));
+    meta.whos.filter((name: string) => meta.overwrittenBefore02.indexOf(name) < 0).forEach((name: string) =>
+      expect(survey.getValue(name), name).toEqual(fixture.data[name]));
+  });
   test("8. TypeScript loading: node runs the smoke entry, esbuild bundles the fixtures for the browser", async() => {
     const res = spawnSync(process.execPath, [path.join(runnerRoot, "perf", "fixtures", "smoke.ts")], { encoding: "utf8" });
     expect(res.stderr).toBe("");

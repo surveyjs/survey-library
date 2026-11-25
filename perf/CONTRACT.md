@@ -61,7 +61,7 @@ Input, all optional, as environment variables:
 | `PERF_UI_DIR` | the UI build to measure (browser suites) |
 | `PERF_RESULT_FILE` | where to write the result file |
 | `PERF_RESULTS_DIR` | the folder for result files when `PERF_RESULT_FILE` is unset (default `perf/results`) |
-| `PERF_ONLY` | comma-separated ids; ids of another suite are listed as `notInSuite`, unknown ids are an error |
+| `PERF_ONLY` | comma-separated ids; ids of another suite are listed as `notInSuite`, unknown ids are an error (a local run also takes `extra/` ids and the local ids of `LOCAL_IDS`, which no manifest lists) |
 | `PERF_KIND` | `local` (default), `nightly`, `on-demand`, `record`, `bisect`, `rerun`; recorded in the file |
 | `PERF_LABEL`, `PERF_REF` | free text recorded in the file |
 | `PERF_TARGET_COMMIT`, `PERF_PREVIOUS_COMMIT` | commits recorded in the file |

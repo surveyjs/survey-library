@@ -18,7 +18,7 @@ export interface PerfEnv {
   resultFile?: string;
   machineExtra: string;
   extraJson?: string;
-  // Local only: the hang guard of an extra/ scenario process, for a slow local form (default scenarioTimeoutMs).
+  // Local only: the hang guard of an extra/ or a local-id scenario process, for a slow local form (default scenarioTimeoutMs).
   extraTimeoutMs?: number;
 }
 

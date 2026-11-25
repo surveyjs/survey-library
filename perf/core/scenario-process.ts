@@ -11,6 +11,7 @@ import { missingRequirement } from "../harness/scenario.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { resolveCoreDir } from "../harness/node/build.ts";
 import { readEnv } from "../harness/node/env.ts";
+import { isLocalId } from "../harness/ids.ts";
 
 // One scenario in this fresh process: `node --expose-gc perf/core/scenario-process.ts <id>`. It prints one JSON
 // line on stdout, { type: "entry" | "skipped" | "failed", ... }, and nothing on stderr.
@@ -92,7 +93,7 @@ async function main(): Promise<void> {
     phases: phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), heapMB: Math.round(process.memoryUsage().heapUsed / 1048576),
       gc: true, fixtureMeta: isExtra ? fixture.meta : undefined, warnings: isExtra ? warnings.length : undefined },
-    jsonErrors: jsonErrors, tolerance: scenario.tolerance === undefined ? null : scenario.tolerance, local: isExtra
+    jsonErrors: jsonErrors, tolerance: scenario.tolerance === undefined ? null : scenario.tolerance, local: isExtra || isLocalId(id)
   };
   if (scenario.repeat) entry.repeat = scenario.repeat;
   if (scenario.counterOnly) entry.counterOnly = true;

@@ -262,5 +262,57 @@
   "records-plain/records/sort-header@ordersPaged": {
     "rev": 3,
     "hash": "401458b750ef82f3abdb9f53602980d2dd800c09"
+  },
+  "slotForm/answer/cell": {
+    "rev": 1,
+    "hash": "e3228d2d5b603d909f7ee0b6023705956a5b19aa"
+  },
+  "slotForm/answer/count-off": {
+    "rev": 1,
+    "hash": "1c29cd1578e0675c271dc6f99e5f8acf88ea94e4"
+  },
+  "slotForm/answer/count-on": {
+    "rev": 1,
+    "hash": "7d6010c6b2b7728fbb758e6b311e880001e98654"
+  },
+  "slotForm/answer/count-up": {
+    "rev": 1,
+    "hash": "52045641bb703d2261e8f6122717de7951626f4a"
+  },
+  "slotForm/answer/row-cell": {
+    "rev": 1,
+    "hash": "33ea1780795c9c337cc8ada9f13bc039d12cc49b"
+  },
+  "slotForm/answer/screen": {
+    "rev": 1,
+    "hash": "2883db29cf2a167bcf7d4b6c67061ccaf0f3e669"
+  },
+  "slotForm/answer/shared-name": {
+    "rev": 1,
+    "hash": "01c29d4f9faf1db4117a155671b08d8df8b24d8e"
+  },
+  "slotForm/answer/slot-question": {
+    "rev": 1,
+    "hash": "356915d31162972c5cb6c382f9b499377f6f9851"
+  },
+  "slotForm/answer/type": {
+    "rev": 1,
+    "hash": "d09afbfab12314a1c2b5f55faa423f0f17068f50"
+  },
+  "slotForm/load/data": {
+    "rev": 1,
+    "hash": "a0a8c2afd5e8ecb16d26e06e2b30eb72ed3002d6"
+  },
+  "slotForm/load/data-again": {
+    "rev": 1,
+    "hash": "593cd75a76c1c5ec13c15abf99977e44ef499734"
+  },
+  "slotForm/load/merge": {
+    "rev": 1,
+    "hash": "e47e648989283722acef6a50b629fb421e54a03d"
+  },
+  "slotForm/load/model": {
+    "rev": 1,
+    "hash": "e0f6c32806081fd34cf948a9f26f192d7ac6f2a3"
   }
 }

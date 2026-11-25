@@ -208,6 +208,43 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
   });
 });
 
+describe("cycle/value-write - inArray filters", () => {
+  const matrix = (): any => ({ type: "matrixdynamic", name: "m", columns: [{ name: "col", cellType: "text" }] });
+  const rows = [{ col: 1 }, { col: 5 }];
+  test("a setValueExpression reading its own value in an inArray filter computes from it", () => {
+    const json = { elements: [matrix(), { type: "text", name: "q1", setValueExpression: "sumInArray({m}, 'col', {col} > {q1})" }] };
+    expect(byRule(json).map(f => f.reason)).toEqual(["self"]);
+    const survey = new Model(json);
+    survey.setValue("m", rows);
+    survey.setValue("q1", 0);
+    expect(survey.getValue("q1")).toBe(6);
+  });
+  test("a calculated value reading a question in an inArray filter loops with it", () => {
+    const json = {
+      elements: [matrix(), { type: "text", name: "q1", setValueExpression: "{cnt} + 1" }],
+      calculatedValues: [{ name: "cnt", expression: "sumInArray({m}, 'col', {col} > {q1})" }],
+    };
+    expect(byRule(json).map(f => f.reason)).toEqual(["loop"]);
+    const survey = new Model(json);
+    survey.setValue("m", rows);
+    survey.setValue("q1", 0);
+    // the loop stops with q1 out of step with the value it is computed from ({cnt} + 1)
+    expect([survey.getValue("q1"), survey.getVariable("cnt")]).toEqual([7, 0]);
+  });
+  test("a trigger reading a question in an inArray filter loops with it", () => {
+    const json = {
+      elements: [matrix(), { type: "text", name: "q2" }, { type: "text", name: "q1", setValueExpression: "{q2} + 1" }],
+      triggers: [{ type: "setvalue", expression: "countInArray({m}, 'col', {col} > {q1}) >= 0", setToName: "q2", setValue: 10 }],
+    };
+    expect(byRule(json).map(f => f.reason)).toEqual(["loop"]);
+    const survey = new Model(json);
+    survey.setValue("m", rows);
+    survey.setValue("q1", 0);
+    // the trigger ran on the change of q1, and q1 is out of step with the value it is computed from ({q2} + 1)
+    expect([survey.getValue("q1"), survey.getValue("q2")]).toEqual([0, 10]);
+  });
+});
+
 describe("cycle/value-write - across domains", () => {
   test("a trigger and a calculated value looping through a question are flagged", () => {
     const findings = byRule({

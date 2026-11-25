@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs, equalsCI } from "../expression-utils";
+import { equalsCI, getDependencyRefs } from "../expression-utils";
 import { collectAmbiguousNames } from "../constant-env";
 import { findCycles } from "../graph";
 import { ExpressionSite, TriggerRecord } from "../symbols";
@@ -49,13 +49,14 @@ interface SiteRead {
   isWhole: boolean;
 }
 
-// The slots a site reads. Scoped references live inside a row/panel and are skipped - except
-// {self}, which reads the very value the owner writes.
+// The slots a site reads, the names its unquoted inArray filters read included: the runtime re-runs
+// the expression when they change. Scoped references live inside a row/panel and are skipped -
+// except {self}, which reads the very value the owner writes.
 function getSiteReadRefs(ctx: LintContext, site: ExpressionSite, selfSlot?: string): Array<SiteRead> {
   if (!site || !site.ast) return [];
   const selfVar = ctx.index.settings.expressionVariables.self;
   const res: Array<SiteRead> = [];
-  classifySiteRefs(site, ctx.index, ctx.options).forEach(ref => {
+  getDependencyRefs(site, ctx.index, ctx.options).forEach(ref => {
     if (ref.status === "scoped-resolved" || ref.status === "scoped-unknown") {
       if (!!selfSlot && !!ref.scopePrefix && equalsCI(ref.scopePrefix, selfVar)) {
         // the segments keep the prefix: {self} is one segment, {self.a} two

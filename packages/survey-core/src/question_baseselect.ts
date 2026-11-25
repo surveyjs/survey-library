@@ -219,15 +219,15 @@ export class ChoiceItem extends ItemValue {
     } else if (!this.panelValue.survey) {
       // The panel may have been created while the owner question was detached (e.g. during
       // fromJSON on question type conversion). Re-link it once the owner has a survey.
-      this.setPanelSurvey(this.panelValue);
+      this.bindPanel();
     }
     return this.panelValue;
   }
   public get isPanelCreated(): boolean {
     return !!this.panelValue;
   }
-  // The created panel, or undefined. Unlike the panel getter, it neither creates the panel nor links it
-  // to the survey, so a walk can read it while the owner has a survey but no parent yet.
+  // The created panel, or undefined. Unlike the panel getter, it neither creates the panel nor binds it
+  // (bindPanel), so a walk can read it while the owner has a survey but no parent yet.
   public get createdPanel(): PanelModel {
     return this.panelValue;
   }
@@ -275,19 +275,33 @@ export class ChoiceItem extends ItemValue {
     const owner: any = this.choiceOwner;
     return !!owner && owner.isQuestion ? owner : null;
   }
+  // The panel takes the select question's parent and survey impl: its questions' values are keys of the data scope
+  // that holds the select question's own value (the survey data, a nesting container's object, a record), and the
+  // panel never nests (ContainerDataNesting.getPlace). Called again when the select question gets another survey
+  // impl or parent (QuestionSelectBase.bindChoicePanels); a panel bound to both already is left as it is.
+  // The content question of a custom question holds the wrapper's value: its panels go where the wrapper is. A select
+  // question with no parent (a matrix cell) keeps them on the survey, as before: a row does not hold their keys.
+  public bindPanel(): void {
+    this.setPanelSurvey(this.panelValue);
+  }
   private setPanelSurvey(pnl: PanelModel) {
-    if (!!pnl && !pnl.survey) {
-      pnl.selectedElementInDesign = <any>this.choiceOwner;
-      const survey: any = this.choiceOwner?.getSurvey();
-      if (!!survey) {
-        pnl.name = "choicePanel_" + pnl.id;
-        pnl.parent = <PanelModelBase>this.choiceOwner.parent;
-        pnl.setSurveyImpl(survey);
-        // The panel's questions are the root data scope's: a panel linked after the select question was added (a
-        // lazy item.panel read) sends no other notification.
-        getDataScopeHost(survey)?.getRootDataScope().dataScopeKeysChanged(pnl);
-      }
-    }
+    const owner: any = this.choiceOwner;
+    if (!pnl || !owner) return;
+    pnl.selectedElementInDesign = owner;
+    const data: any = owner.data;
+    const host: any = !!data && data.isQuestion === true && data.contentQuestion === owner ? data : owner;
+    // The parent even without a survey impl (a select question in a detail panel template has none): a panel inside
+    // the choice panel finds its place through it.
+    const isMoved = pnl.parent !== host.parent;
+    if (isMoved) pnl.parent = <PanelModelBase>host.parent;
+    // A question's survey impl is protected (SurveyElement.surveyImpl).
+    const impl: ISurveyImpl = !!host.parent ? host["surveyImpl"] : owner.getSurvey();
+    if (!owner.getSurvey() || !impl || !isMoved && pnl["surveyImpl"] === impl) return;
+    if (!pnl.name) pnl.name = "choicePanel_" + pnl.id;
+    pnl.setSurveyImpl(impl);
+    // The scope that holds the select question takes the panel's questions: a panel linked after the select
+    // question was added (a lazy item.panel read, a move) sends no other notification.
+    getDataScopeHost(owner.getSurvey())?.getRootDataScope().elementAdded(pnl);
   }
   public dispose(): void {
     super.dispose();
@@ -411,17 +425,26 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   /* Every choice panel that is created, empty ones included, as getPanels() and disposal see them. A
      panel is created by JSON elements or by reading item.panel, and it stays created after its last
      element is removed. The walk reads item.createdPanel, never item.panel: reading item.panel creates
-     the panel and links it to the survey, and a walk run from setSurveyImpl (setIsMobile) happens before
+     the panel and binds it (ChoiceItem.bindPanel), and a walk run from setSurveyImpl (setIsMobile) happens before
      the question has its parent, so the panel would keep no parent. */
   protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
     if (!this.supportElementsInChoice()) return;
+    // A select question with no parent (a matrix cell) keeps its panels on the survey (ChoiceItem.bindPanel): their
+    // questions' values are root keys.
+    const location = !this.parent ? "root" : "beside";
     return this.choices.some((item) => {
       const panel = item.createdPanel;
-      return !!panel && visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
+      return !!panel && visit({ element: panel, role: "choicePanel", segment: undefined, location: location, visible: item.isPanelShowing });
     });
   }
-  // Choice items with a created panel left the choices: the root data scope holds their panels' questions, which stay
-  // linked to the survey.
+  // The created choice panels take the select question's survey impl and parent again (ChoiceItem.bindPanel): it
+  // moved, it was attached to a record or to another scope, or it was built apart and added.
+  private bindChoicePanels(): void {
+    if (!this.supportElementsInChoice()) return;
+    this.choices.forEach(item => { if (item.isPanelCreated) item.bindPanel(); });
+  }
+  // Choice items with a created panel left the choices: the scope that holds the select question drops their panels'
+  // questions.
   private choicePanelsLeft(arrayChanges: ArrayChanges): void {
     const left = !!arrayChanges ? arrayChanges.deletedItems.filter((item: any) => !!item?.createdPanel) : [];
     if (left.length > 0) {
@@ -1202,7 +1225,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   protected setValueCore(newValue: any): void {
-    super.setValueCore(newValue);
+    this.settingOwnValueScope.run(() => super.setValueCore(newValue));
+    // Once the value is stored: a question of a hidden choice panel writes the object that holds the select
+    // question's value too (a nesting container), and a clear before the write would put the old value back.
+    if (this.canClearHiddenChoicePanels) {
+      this.clearValuesInVisiblePanels("onHiddenContainer");
+    }
     if (this.makeCommentEmpty) {
       this.setCommentIntoData("");
       this.makeCommentEmpty = false;
@@ -1232,9 +1260,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
         item.panelFirstRendering();
       }
     });
-    if (this.isClearValueOnHidden) {
+    // A write of the select question's own value clears them once it is stored (setValueCore).
+    if (this.canClearHiddenChoicePanels && !this.settingOwnValueScope.isActive) {
       this.clearValuesInVisiblePanels("onHiddenContainer");
     }
+  }
+  private settingOwnValueScope = new Scope();
+  private get canClearHiddenChoicePanels(): boolean {
+    return this.supportElementsInChoice() && this.wasRendered && this.isClearValueOnHidden;
   }
   protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
     const isObj = !!val && typeof val === "object";
@@ -2146,11 +2179,22 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.runningChoicesScope.run(() => super.setSurveyImpl(value, isLight));
+    // Before an add sets the parent the panels wait for it (onParentChanged): their place follows the parent.
+    if (!!this.parent) {
+      this.bindChoicePanels();
+    }
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
     }
     this.randomSeedChanged();
+  }
+  // A removed select question keeps its panels bound until it is added again.
+  protected onParentChanged(): void {
+    super.onParentChanged();
+    if (!!this.parent) {
+      this.bindChoicePanels();
+    }
   }
   protected setSurveyCore(value: ISurvey): void {
     super.setSurveyCore(value);
@@ -2257,16 +2301,19 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     super.updateCommentFromSurvey(newValue);
     this.updateValueForPanels(false, true);
   }
-  // Every created panel, showing or not: the questions of a hidden panel hold their values too.
+  // Every created panel, showing or not: the questions of a hidden panel hold their values too. Each reads its own
+  // data: a question in a nesting panel inside a choice panel reads that panel's object.
   private updateValueForPanels(clearData: boolean, isComment: boolean): void {
     if (this.data) {
       this.forEachNestedElement(info => {
         (<PanelModel>info.element).questions.forEach(q => {
+          const data = q.data;
+          if (!data) return;
           const valName = q.getValueName();
           if (isComment) {
-            q.updateCommentFromSurvey(this.data.getComment(valName));
+            q.updateCommentFromSurvey(data.getComment(valName));
           } else {
-            q.updateValueFromSurvey(this.data.getValue(valName), clearData);
+            q.updateValueFromSurvey(data.getValue(valName), clearData);
           }
         });
       }, allChoicePanels);

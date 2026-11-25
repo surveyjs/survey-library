@@ -8609,7 +8609,12 @@ export class SurveyModel extends SurveyElementCore
   }
   // The dynamic panel that fires event for a value change of question: its parent, when the event has handlers.
   private getDynamicPanelFiring(question: IQuestion, event: EventBase<SurveyModel>): Question {
-    const parentQ = (<Question>question).parentQuestion;
+    let parentQ = (<Question>question).parentQuestion;
+    // A choice panel's question writes its select question's data (ChoiceItem.bindPanel): inside a dynamic panel's
+    // item that is the item, and the dynamic panel is the select question's parent question.
+    if (!!parentQ && !parentQ.isDescendantOf("paneldynamic") && !!parentQ.data && (<Question>question).data === parentQ.data) {
+      parentQ = parentQ.parentQuestion;
+    }
     return !!parentQ && parentQ.isDescendantOf("paneldynamic") && !event.isEmpty ? parentQ : undefined;
   }
   /* The one reader of the old value of questionValueChanged: onDynamicPanelValueChanged (options.oldValue).

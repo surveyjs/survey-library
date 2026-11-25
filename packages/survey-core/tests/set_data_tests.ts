@@ -855,17 +855,34 @@ describe("setData: choice panels", () => {
       { type: "invalidChoiceValue", path: "inner", value: "z" }
     ]);
   });
-  test("A choice panel inside a dynamic panel item reports at a root path", () => {
+  test("A choice panel inside a dynamic panel item reports at the item's path", () => {
     const survey = createSurvey({
       elements: [{ type: "paneldynamic", name: "pd", templateElements: [{ type: "checkbox", name: "c", choices: [choicePanel] }] }]
     });
-    /* The panel writes to the root keys, and the select question loads its questions from the item's
-       record: the item reports the keys it does not know, and the questions report at the root. */
-    expect(shortIssues(survey.setData({ pd: [{ c: ["a"], inner: "z", n: "bad" }] }))).toEqual([
-      { type: "unknownProperty", path: "pd[0].inner", value: "z" },
-      { type: "unknownProperty", path: "pd[0].n", value: "bad" },
-      { type: "invalidValueType", path: "n", value: "bad" },
-      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    // The panel's questions are keys of the item's record (CH3): the item knows them, and they report in the item.
+    expect(shortIssues(survey.setData({ pd: [{ c: ["a"], inner: "z", n: "bad", foo: 1 }] }))).toEqual([
+      { type: "unknownProperty", path: "pd[0].foo", value: 1 },
+      { type: "invalidValueType", path: "pd[0].n", value: "bad" },
+      { type: "invalidChoiceValue", path: "pd[0].inner", value: "z" }
+    ]);
+  });
+  test("A choice panel inside a nesting panel reports at the panel's path", () => {
+    const survey = createSurvey({ dataNesting: "auto",
+      elements: [{ type: "panel", name: "p", valueName: "address", elements: [{ type: "checkbox", name: "c", choices: [choicePanel] }] }]
+    });
+    expect(shortIssues(survey.setData({ address: { c: ["a"], inner: "z", n: "bad", foo: 1 } }))).toEqual([
+      { type: "unknownProperty", path: "address.foo", value: 1 },
+      { type: "invalidValueType", path: "address.n", value: "bad" },
+      { type: "invalidChoiceValue", path: "address.inner", value: "z" }
+    ]);
+  });
+  test("A choice panel inside a matrix's detail panel reports at the row's path", () => {
+    const survey = createSurvey({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, detailPanelMode: "underRow",
+      columns: [{ name: "col" }], detailElements: [{ type: "checkbox", name: "c", choices: [choicePanel] }] }] });
+    expect(shortIssues(survey.setData({ m: [{ c: ["a"], inner: "z", n: "bad", foo: 1 }] }))).toEqual([
+      { type: "unknownProperty", path: "m[0].foo", value: 1 },
+      { type: "invalidValueType", path: "m[0].n", value: "bad" },
+      { type: "invalidChoiceValue", path: "m[0].inner", value: "z" }
     ]);
   });
 });

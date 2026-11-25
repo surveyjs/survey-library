@@ -1143,10 +1143,9 @@ describe("linter nested data: the default mode is \"none\"", () => {
   });
 });
 
-// Review 04, prompt 01: a choice panel is bound to the survey (ChoiceItem.setPanelSurvey) wherever its select question
-// is, so its questions write keys of the survey data, and the path through the select question's container or record
-// reads nothing.
-const CHOICE_PANEL_IN_RECORD = "a choice panel of a record: the root's metadata walk does not reach it, until a survey-core fix";
+// Review 04, prompt 11: a choice panel takes its select question's survey impl (ChoiceItem.bindPanel) and never nests,
+// so its questions are keys of the select question's own data scope (CH1, CH2): the survey data at the top level, the
+// container's object inside a nesting panel, the record inside a dynamic panel's template or a matrix's detail panel.
 function choicePanelQuestion(): any {
   return { type: "checkbox", name: "kind", choices: [{ value: 1, elements: [{ type: "text", name: "detail" }] }, 2] };
 }
@@ -1157,18 +1156,25 @@ interface IChoicePanelPlace {
   kind: (survey: SurveyModel) => any;
   // the path through the select question's container or record
   inside?: string;
-  // the elements a container key on "detail" is no conflict in
+  // the elements of the select question's own level
   own?: (elements: Array<any>) => Array<any>;
-  inRecord?: boolean;
+  // the path of a container appended to the select question's own level
+  ownPath?: string;
+  // detail's data path, and the survey data once it is "x"
+  dataPath: Array<string>;
+  data: any;
 }
 const choicePanelPlaces: Array<IChoicePanelPlace> = [
-  { name: "at the root", elements: () => [choicePanelQuestion()], kind: s => s.getQuestionByName("kind") },
+  { name: "at the root", elements: () => [choicePanelQuestion()], kind: s => s.getQuestionByName("kind"),
+    dataPath: ["detail"], data: { detail: "x" } },
   { name: "inside a nesting panel", elements: () => [{ type: "panel", name: "p", valueName: "address", elements: [choicePanelQuestion()] }],
-    kind: s => s.getQuestionByName("p.kind"), inside: "address.detail", own: els => els[0].elements },
+    kind: s => s.getQuestionByName("p.kind"), inside: "address.detail", own: els => els[0].elements, ownPath: "elements[0].elements[1].valueName",
+    dataPath: ["address", "detail"], data: { address: { detail: "x" } } },
   { name: "inside a dynamic panel's template",
     elements: () => [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [choicePanelQuestion()] }],
     kind: s => (<any>s.getQuestionByName("dp")).panels[0].getQuestionByName("kind"), inside: "dp[0].detail",
-    own: els => els[0].templateElements, inRecord: true },
+    own: els => els[0].templateElements, ownPath: "elements[0].templateElements[1].valueName",
+    dataPath: ["detail"], data: { dp: [{ detail: "x" }] } },
   { name: "inside a matrix's detail panel",
     elements: () => [{ type: "matrixdynamic", name: "md", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }],
       detailElements: [choicePanelQuestion()] }],
@@ -1176,7 +1182,8 @@ const choicePanelPlaces: Array<IChoicePanelPlace> = [
       const row = (<any>s.getQuestionByName("md")).visibleRows[0];
       row.showDetailPanel();
       return row.detailPanel.getQuestionByName("kind");
-    }, inside: "md[0].detail", own: els => els[0].detailElements, inRecord: true },
+    }, inside: "md[0].detail", own: els => els[0].detailElements, ownPath: "elements[0].detailElements[1].valueName",
+    dataPath: ["detail"], data: { md: [{ detail: "x" }] } },
 ];
 // The JSON object at a finding path such as "elements[1].templateElements[0]".
 function jsonAt(json: any, path: string): any {
@@ -1185,7 +1192,7 @@ function jsonAt(json: any, path: string): any {
     return m ? obj[m[1]][Number(m[2])] : obj[key];
   }, json);
 }
-describe("linter nested data: a choice panel's questions are keys of the survey data", () => {
+describe("linter nested data: a choice panel's questions are keys of the select question's data scope", () => {
   test("a reference to a choice panel's question resolves as at runtime, in each place", () => {
     choicePanelPlaces.forEach(place => {
       ["detail"].concat(place.inside ? [place.inside] : []).forEach(ref => {
@@ -1194,33 +1201,38 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
         const survey = new SurveyModel(json);
         const detail = place.kind(survey).choices[0].panel.getQuestionByName("detail");
         detail.value = "x";
-        expect(detail.getDataPath(), place.name + ": the data path").toEqual(["detail"]);
-        expect(survey.data.detail, place.name + ": a key of the survey data").toBe("x");
+        expect(detail.getDataPath(), place.name + ": the data path").toEqual(place.dataPath);
+        const data = survey.data;
+        delete data.probe;
+        expect(data, place.name + ": the select question's scope holds the key").toEqual(place.data);
         const value = survey.runExpression("{" + ref + "}");
         const resolved = refFindings(json).length === 0;
         expect(resolved, place.name + ", " + ref + " (runtime: " + JSON.stringify(value) + ")").toBe(value !== undefined && value !== null);
-        expectQuestionFound(survey, ref, undefined, resolved, place.inRecord ? knownAs(["detail"], CHOICE_PANEL_IN_RECORD) : {});
+        expectQuestionFound(survey, ref, undefined, resolved);
       });
     });
   });
-  test("its key meets a root container key: nesting/key-conflict, in each place; a key of its select question's level does not", () => {
+  test("its key meets a container key of its select question's level: nesting/key-conflict, in each place; a root container key elsewhere does not", () => {
     choicePanelPlaces.forEach(place => {
       const json = auto({ elements: place.elements() });
       json.elements.push({ type: "panel", name: "pd", valueName: "detail", elements: [{ type: "text", name: "z" }] });
-      expect(brief(findingsOf(json, "nesting/key-conflict")), place.name).toEqual(["nesting/key-conflict/questionKey @ elements[1].valueName"]);
-      if (!place.own) return;
+      const atRoot = !place.own;
+      expect(brief(findingsOf(json, "nesting/key-conflict")), place.name + ": a root container")
+        .toEqual(atRoot ? ["nesting/key-conflict/questionKey @ elements[1].valueName"] : []);
+      if (atRoot) return;
       const ownJson = auto({ elements: place.elements() });
       place.own(ownJson.elements).push({ type: "panel", name: "pd", valueName: "detail", elements: [{ type: "text", name: "z" }] });
-      expect(brief(findingsOf(ownJson, "nesting/key-conflict")), place.name + ": the select question's own level").toEqual([]);
+      expect(brief(findingsOf(ownJson, "nesting/key-conflict")), place.name + ": the select question's own level")
+        .toEqual(["nesting/key-conflict/questionKey @ " + place.ownPath]);
     });
   });
-  test("a nesting panel inside a choice panel nests in the survey data", () => {
+  test("a nesting panel inside a choice panel nests in the select question's scope", () => {
     const choices = [{ value: 1, elements: [{ type: "panel", name: "pp", valueName: "chin", elements: [{ type: "text", name: "detail" }] }] }];
     const json = auto({ elements: [{ type: "panel", name: "p", valueName: "address", elements: [{ type: "checkbox", name: "kind", choices: choices }] }] });
     const survey = new SurveyModel(json);
     const detail = (<any>survey.getQuestionByName("p.kind")).choices[0].panel.elements[0].elements[0];
     detail.value = "x";
-    expect(survey.data, "#1").toEqual({ chin: { detail: "x" } });
+    expect(survey.data, "#1").toEqual({ address: { chin: { detail: "x" } } });
     ["chin.detail", "address.chin.detail", "detail"].forEach(ref => {
       const lintJson = JSON.parse(JSON.stringify(json));
       lintJson.elements.push({ type: "expression", name: "probe", expression: "{" + ref + "}" });
@@ -1231,17 +1243,17 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
       expectQuestionFound(survey, ref, undefined, resolved);
     });
   });
-  test("a choice panel's own expressions run in the survey data, outside the record", () => {
+  test("a choice panel's own expressions run in the select question's scope frames, inside the record", () => {
     const choiceQuestion = (): any => ({ type: "checkbox", name: "kind",
       choices: [{ value: 1, elements: [{ type: "text", name: "detail" }, { type: "text", name: "d2" }] }] });
     const cases: Array<{ elements: () => Array<any>, data: any, sitePath: string, refs: Array<string>, d2: (s: SurveyModel) => any }> = [
       { elements: () => [{ type: "paneldynamic", name: "dp", templateElements: [{ type: "text", name: "ps" }, choiceQuestion()] }],
-        data: { top: 1, dp: [{ ps: "p" }], detail: "x" }, sitePath: "elements[1].templateElements[1].choices[0].elements[1]",
-        refs: ["panel.ps", "ps", "top", "detail"],
+        data: { top: 1, dp: [{ ps: "p", detail: "x" }] }, sitePath: "elements[1].templateElements[1].choices[0].elements[1]",
+        refs: ["panel.ps", "panel.detail", "ps", "top", "detail"],
         d2: s => (<any>s.getQuestionByName("dp")).panels[0].getQuestionByName("kind").choices[0].panel.getQuestionByName("d2") },
       { elements: () => [{ type: "matrixdynamic", name: "md", detailPanelMode: "underRow", columns: [{ name: "c1" }], detailElements: [choiceQuestion()] }],
-        data: { top: 1, md: [{ c1: "c" }], detail: "x" }, sitePath: "elements[1].detailElements[0].choices[0].elements[1]",
-        refs: ["row.c1", "top", "detail", "row.detail"],
+        data: { top: 1, md: [{ c1: "c", detail: "x" }] }, sitePath: "elements[1].detailElements[0].choices[0].elements[1]",
+        refs: ["row.c1", "row.detail", "top", "detail"],
         d2: s => {
           const row = (<any>s.getQuestionByName("md")).visibleRows[0];
           row.showDetailPanel();
@@ -1257,15 +1269,14 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
       expect(resolved, ref).toBe(c.d2(survey).isVisible);
     }));
   });
-  test("a valueName panel in a choice panel of a dynamic panel's template nests in the survey data, as at runtime", () => {
-    // known since review-02/report-01: the runtime attaches the panel with the place "survey"; the linter follows the data
+  test("a valueName panel in a choice panel of a dynamic panel's template nests in the record, as at runtime", () => {
     const choices = [{ value: 1, elements: [{ type: "panel", name: "cp", valueName: "cpk", elements: [{ type: "text", name: "detail" }] }] }];
     const json = auto({ elements: [{ type: "paneldynamic", name: "dp", panelCount: 1,
       templateElements: [{ type: "checkbox", name: "kind", choices: choices }] }] });
     const survey = new SurveyModel(json);
     const detail = (<any>survey.getQuestionByName("dp")).panels[0].getQuestionByName("kind").choices[0].panel.elements[0].elements[0];
     detail.value = "x";
-    expect(survey.data, "#1").toEqual({ dp: [{}], cpk: { detail: "x" } });
+    expect(survey.data, "#1").toEqual({ dp: [{ cpk: { detail: "x" } }] });
     expect(detail.getDataPath(), "#2").toEqual(["cpk", "detail"]);
     ["cpk.detail", "dp[0].cpk.detail", "detail"].forEach(ref => {
       const lintJson = JSON.parse(JSON.stringify(json));
@@ -1274,57 +1285,58 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
       const resolved = refFindings(lintJson).length === 0;
       const hasValue = value !== undefined && value !== null;
       expect(resolved, ref + " (runtime: " + JSON.stringify(value) + ")").toBe(hasValue);
-      expectQuestionFound(survey, ref, undefined, resolved, knownAs(["cpk.detail"], CHOICE_PANEL_IN_RECORD));
+      expectQuestionFound(survey, ref, undefined, resolved);
     });
   });
-  test("\"page\" and the by-name panel modes: a choice panel's question is a key of the survey data to the linter", () => {
-    // "page": the runtime writes the root key (the data path) but reads the page's object back (scoped-names
-    // differences-06, M9). "panel" / "panelAndPage": the runtime nests a choice panel under its generated name
-    // choicePanel_sp_N, from the global element id (M9: a choice panel should never nest).
-    ["page", "panel", "panelAndPage"].forEach(mode => {
-      const json: any = { dataNesting: mode, pages: [{ name: "page1", elements: [choicePanelQuestion()] },
-        { name: "page2", elements: [{ type: "expression", name: "probe", expression: "{detail} + {page1.detail}" }] }] };
-      const reason = mode === "panel" ? "notFound" : "inContainer";
-      expect(brief(refFindings(json)), mode + ": {detail} resolves, {page1.detail} reads nothing")
-        .toEqual(["reference/unknown/" + reason + " @ pages[1].elements[0].expression"]);
-    });
-    ["page", "panel", "panelAndPage"].forEach(mode => {
-      const survey = new SurveyModel({ dataNesting: mode, pages: [{ name: "page1", elements: [choicePanelQuestion()] }] });
+  test("\"page\" and the by-name panel modes: a choice panel's question is a key of its select question's scope", () => {
+    // "page" / "panelAndPage": the page nests, so the key is the page's. "panel": the page does not nest, and the
+    // choice panel never does (CH2): the key is the survey's.
+    const modes: Array<{ mode: string, findings: Array<string>, path: Array<string>, value: any, found: Array<boolean> }> = [
+      { mode: "page", findings: ["reference/unknown/notFound"], path: ["page1", "detail"], value: null, found: [false, true] },
+      { mode: "panel", findings: ["reference/unknown/notFound"], path: ["detail"], value: "x", found: [true, false] },
+      { mode: "panelAndPage", findings: ["reference/unknown/notFound"], path: ["page1", "detail"], value: null, found: [false, true] },
+    ];
+    modes.forEach(m => {
+      const one = (ref: string): any => ({ dataNesting: m.mode, pages: [{ name: "page1", elements: [choicePanelQuestion()] },
+        { name: "page2", elements: [{ type: "expression", name: "probe", expression: "{" + ref + "}" }] }] });
+      const reasons = ["detail", "page1.detail"].map(ref => refFindings(one(ref)).map(f => f.ruleId + "/" + f.reason)).filter(r => r.length > 0);
+      expect(reasons, m.mode + ": the linter").toEqual([m.findings]);
+      const survey = new SurveyModel({ dataNesting: m.mode, pages: [{ name: "page1", elements: [choicePanelQuestion()] }] });
       const kind: any = survey.getAllQuestions(false, false, true).filter(q => q.name === "kind")[0];
       const detail = kind.choices[0].panel.getQuestionByName("detail");
       detail.value = "x";
-      const path = detail.getDataPath();
-      const value = survey.runExpression("{detail}");
-      const found = !!survey.getQuestionByVariable("detail");
-      if (mode === "page") {
-        expect([path, value, found], "\"page\": written to the survey data").toEqual([["detail"], "x", true]);
-      } else {
-        // the known runtime defect (M9): the linter keys the question in the survey data, as the other modes do
-        expect([path.length, path[0].indexOf("choicePanel_"), value, found], mode + ": the runtime nests the choice panel")
-          .toEqual([2, 0, null, false]);
-      }
+      expect([detail.getDataPath(), survey.runExpression("{detail}"), !!survey.getQuestionByVariable("detail"), !!survey.getQuestionByVariable("page1.detail")],
+        m.mode + ": the runtime").toEqual([m.path, m.value].concat(m.found));
+      const loaded = new SurveyModel({ dataNesting: m.mode, pages: [{ name: "page1", elements: [choicePanelQuestion()] }] });
+      loaded.data = survey.data;
+      const loadedKind: any = loaded.getAllQuestions(false, false, true).filter(q => q.name === "kind")[0];
+      expect(loadedKind.choices[0].panel.getQuestionByName("detail").value, m.mode + ": loaded back").toBe("x");
     });
   });
-  test("{panel.x} of a choice panel's question is the choice panel, wherever the select question is", () => {
-    // A question's {panel.x} reads its parent panel: for a choice panel's question that is the choice panel itself,
-    // not an outer static panel, nor a dynamic panel's record. Values are set through the questions: a nesting
-    // panel's choice panel question writes the survey data but loads its value back from the container's object.
+  test("{panel.x} of a choice panel's question: the choice panel outside a dynamic panel, the record inside one", () => {
+    // Outside a dynamic panel a question's {panel.x} reads its parent panel: for a choice panel's question that is the
+    // choice panel itself, not an outer static panel. Inside one the choice panel's questions are in the record, and
+    // {panel.x} reads the record, as for any question of the template (CH4).
     const choiceWith = (els: Array<any>): any => ({ type: "checkbox", name: "kind",
       choices: [{ value: 1, elements: [{ type: "text", name: "detail" }].concat(els) }] });
     const insideChoice = [{ type: "text", name: "c2", visibleIf: "{panel.x} notempty" }, { type: "text", name: "c3", visibleIf: "{panel.detail} notempty" }];
     const inRecord = [{ type: "text", name: "d2", visibleIf: "{panel.ps} notempty" }, { type: "text", name: "d3", visibleIf: "{panel.detail} notempty" },
       { type: "text", name: "d4", visibleIf: "{panel.x} notempty" }];
+    // a template question with d4's expression: inside a static panel the runtime reads {panel.x} the same way for both
+    const templateTwin = { type: "text", name: "t4", visibleIf: "{panel.x} notempty" };
     const sibling = { type: "text", name: "y", visibleIf: "{panel.detail} notempty" };
-    const dp = (): any => ({ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "ps" }, choiceWith(inRecord), sibling] });
-    const cases: Array<{ name: string, elements: Array<any>, sites: Array<string> }> = [
+    const dp = (): any => ({ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "ps" }, templateTwin, choiceWith(inRecord), sibling] });
+    const cases: Array<{ name: string, elements: Array<any>, sites: Array<string>, twin?: { [site: string]: string } }> = [
       { name: "a static panel", elements: [{ type: "panel", name: "sp", elements: [{ type: "text", name: "x" }, sibling, choiceWith(insideChoice)] }],
         sites: ["y", "c2", "c3"] },
       { name: "a nesting panel", elements: [{ type: "panel", name: "sp", valueName: "address", elements: [{ type: "text", name: "x" }, sibling, choiceWith(insideChoice)] }],
         sites: ["y", "c2", "c3"] },
       { name: "the root", elements: [{ type: "text", name: "x" }, choiceWith(insideChoice)], sites: ["c2", "c3"] },
-      { name: "a dynamic panel", elements: [dp()], sites: ["d2", "d3", "d4", "y"] },
+      { name: "a dynamic panel", elements: [dp()], sites: ["d2", "d3", "d4", "y", "t4"] },
+      // the runtime's {panel.x} of a template question falls back to the static panel around the dynamic panel; the
+      // linter reads the record. d4 differs from the runtime as its template twin t4 does, not because of the choice panel.
       { name: "a dynamic panel in a static panel", elements: [{ type: "panel", name: "sp", elements: [{ type: "text", name: "x" }, dp()] }],
-        sites: ["d2", "d3", "d4", "y"] },
+        sites: ["d2", "d3", "y"], twin: { d4: "t4" } },
     ];
     cases.forEach(c => {
       const json = auto({ elements: c.elements });
@@ -1340,12 +1352,19 @@ describe("linter nested data: a choice panel's questions are keys of the survey 
       ["x", "ps", "detail"].forEach(name => { if (question(name)) question(name).value = "v"; });
       // a value set on a choice panel's question does not run the {panel.detail} condition next to it again
       (<any>survey).runConditions();
+      const isResolved = (name: string): boolean =>
+        !findings.some(f => /\.visibleIf$/.test(f.path) && jsonAt(json, f.path.replace(/\.visibleIf$/, "")).name === name);
       c.sites.forEach(name => {
         const q = question(name);
         const ref = q.visibleIf.replace(/^\{|\} notempty$/g, "");
-        const resolved = !findings.some(f => /\.visibleIf$/.test(f.path) && jsonAt(json, f.path.replace(/\.visibleIf$/, "")).name === name);
+        const resolved = isResolved(name);
         expect(resolved, c.name + ", " + name + " " + ref).toBe(q.isVisible);
         expectQuestionFound(survey, ref, q, resolved);
+      });
+      Object.keys(c.twin || {}).forEach(name => {
+        const twin = c.twin[name];
+        expect([isResolved(name), question(name).isVisible], c.name + ", " + name + " as its template twin " + twin)
+          .toEqual([isResolved(twin), question(twin).isVisible]);
       });
     });
   });

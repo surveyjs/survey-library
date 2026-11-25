@@ -60,6 +60,7 @@ Nesting composes:
 - A comment or an "Other" text of a nested question is stored inside the object, next to the value: `{ "address": { "kind": "other", "kind-Comment": "Office" } }`.
 - A question's own `valueName` works inside the object as usual. A `valueName` that contains a dot (`"a.b"`), on a question or on a panel, is a literal property name, not a path.
 - Two panels with the same `valueName` share one object, for example, an address split across two pages: one panel fills `street`, the other `city`.
+- A question inside a choice's panel (`choices[].elements` of Checkboxes or Radio Button Group) stores its value next to the select question, in the same object: a checkbox `kind` inside `address` with a `detail` question in a choice stores `{ "address": { "kind": [1], "detail": "x" } }`. A choice's panel never nests, in any `dataNesting` mode, and a panel with a `valueName` inside it nests where the select question is. Inside a Dynamic Panel item or a matrix detail panel, the value is in that item's object, so each item keeps its own value.
 
 ## Nest Every Panel or Page
 

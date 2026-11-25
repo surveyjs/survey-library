@@ -977,6 +977,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get contentQuestion(): Question {
     return this.questionWrapper;
   }
+  // The content question's own parent is this question and does not change: a move of this question is its move
+  // (a select content question's choice panels take this question's parent, ChoiceItem.bindPanel).
+  protected onParentChanged(): void {
+    super.onParentChanged();
+    (<any>this.contentQuestion)?.onParentChanged();
+  }
   public get ariaTitleId(): string {
     if (this.contentQuestion) {
       return this.contentQuestion.ariaTitleId;
@@ -1129,6 +1135,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if (!!this.contentQuestion) {
       this.contentQuestion.onSurveyValueChanged(newValue);
     }
+  }
+  // The content question takes the value directly (setQuestionValue), not from the survey: its choice panels'
+  // questions, keys next to this question's value (ChoiceItem.bindPanel), read theirs here.
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    super.updateValueFromSurvey(newValue, clearData);
+    const q: any = this.contentQuestion;
+    if (!!q && typeof q.updateValueForPanels === "function") q.updateValueForPanels(clearData, false);
   }
   protected getValueCore(): any {
     if (!!this.contentQuestion) return this.getContentQuestionValue();

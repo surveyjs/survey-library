@@ -4,7 +4,7 @@ import type { SurveyModel } from "./survey";
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
-import { IDataScope, IDataKeyLevel, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { IDataScope, IDataKeyLevel, getElementDataScope, isKnownDataKey, forEachChoicePanel } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
@@ -46,13 +46,6 @@ export function getKeyHolderScope(data: any): ObjectDataScope {
   const record = getRecordDataScope(data);
   if (!!record) return record;
   return !!data && data.isQuestion === true && typeof data.getContentDataScope === "function" ? data.getContentDataScope() : null;
-}
-// The choice panels of a select question (choice items with elements). Their questions' values are keys of the survey
-// data wherever the select question is: a choice panel is bound to the survey (ChoiceItem.setPanelSurvey). The
-// panels created only: getPanels() creates none.
-export function forEachChoicePanel(el: any, callback: (panel: IElement) => void): void {
-  if (!el.isQuestion || typeof el.supportElementsInChoice !== "function" || !el.supportElementsInChoice()) return;
-  el.getPanels().forEach(callback);
 }
 // The survey whose data.keepEmptyValues decides for a value written through data (an element's ISurveyData,
 // or a scope); null inside a record (a dynamic panel's item, a matrix row): a record item removes every empty
@@ -110,37 +103,32 @@ export abstract class DataKeysScope implements IDataKeyLevel {
   // The questions whose values this scope holds (directly, or through panels that do not nest) and the active
   // containers directly inside it: the one walk of a container's elements (and of the pages for the root), in
   // document order. Every element it reaches is held by name too, the panels that hold no data included:
-  // the scope's own names. A scope that holds the choice panels (the root) walks on below each active container it
-  // keys, for the choice panels only.
+  // the scope's own names. A select question's choice panels are walked right after it, as panels that do not
+  // nest: their questions are keys of the scope that holds the select question.
   // elements: where the walk starts, the scope's elements (the root's append walks the element it adds).
   protected walkScope(index: ElementIndex, elements: Array<IElement>): void {
     const named = (el: ISurveyDataElement): void => {
       if (this.isScopeName(el)) index.add(<any>el);
     };
-    const choicePanels = this.holdsChoicePanels();
-    // below: inside an active container this scope keys; only choice panels are looked for there.
-    const walk = (elements: Array<IElement>, below: boolean): void => {
+    const walk = (elements: Array<IElement>): void => {
       for (let i = 0; i < elements.length; i++) {
         const el: any = elements[i];
         if (el.isPanel || el.isPage) {
-          const scope = !below ? (<PanelModelBase>el).getDataScope() : null;
-          if (!below) named(el);
+          const scope = (<PanelModelBase>el).getDataScope();
+          named(el);
           if (!!scope && scope.isActive && this.isOwnDataScope(scope)) {
             index.addKeyed(scope.owner, scope.key);
-            if (choicePanels) walk(el.elements, true);
           } else {
-            walk(el.elements, below);
+            walk(el.elements);
           }
-        } else if (el.isQuestion) {
-          if (!below && this.isScopeQuestion(<Question>el)) {
-            named(el);
-            index.addKeyed(<Question>el, (<Question>el).getValueName());
-          }
-          if (choicePanels) forEachChoicePanel(el, (panel: IElement): void => walk([panel], false));
+        } else if (el.isQuestion && this.isScopeQuestion(<Question>el)) {
+          named(el);
+          index.addKeyed(<Question>el, (<Question>el).getValueName());
+          forEachChoicePanel(el, (panel: any): void => walk(panel.elements));
         }
       }
     };
-    walk(elements, false);
+    walk(elements);
   }
   // Whether an active scope the walk reaches is one of this scope's keys: its parent active scope is this one.
   protected isOwnDataScope(scope: PanelDataScope): boolean {
@@ -150,10 +138,6 @@ export abstract class DataKeysScope implements IDataKeyLevel {
   // panel is a name scope, O9).
   protected isScopeName(el: ISurveyDataElement): boolean {
     return true;
-  }
-  // Whether the choice panels' questions are this scope's: the root's, wherever the select question is.
-  protected holdsChoicePanels(): boolean {
-    return false;
   }
   // el joined the scope's elements (SurveyRootDataScope.elementAdded). When it comes last in document order, the
   // instance takes its part in place; otherwise the instance is dropped.

@@ -6,7 +6,8 @@ import { CIMultiMap, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbo
 // object, a dynamic panel's or a matrix's record (its template, its detail panel). Where the runtime differs, the
 // linter follows the data:
 // - two containers on one key share one object, so they share one name scope: their questions write one value;
-// - a choice panel's questions write keys of the survey data, so they are the survey's.
+// - a choice panel's questions are keys of their select question's data scope, so they are that scope's names (the
+//   choice panel never nests).
 // In "none" the survey is the only scope, as before.
 
 const NO_NAMES = new CIMultiMap<ElementRecord>();

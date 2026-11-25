@@ -494,7 +494,9 @@ describe("nested data: exports and helpers (L6)", () => {
       expect(tp.getDataScopeKey(), mode + ": the template panel's own key is unchanged").toBe("");
     }
   });
-  test("getDataNestingKeyFor: a choice panel in a detail panel template nests by name on its owner's survey (\"panel\")", () => {
+  // A choice panel never nests (CH2), and a panel inside it nests as a panel next to the select question would: in a
+  // detail panel template only by its valueName.
+  test("getDataNestingKeyFor: a choice panel in a detail panel template never nests; a panel in it follows the template (\"panel\")", () => {
     const survey = new SurveyModel({ dataNesting: "panel", elements: [
       { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }],
         detailElements: [{ type: "radiogroup", name: "rg", choices: ["a", { value: "b", elements: [
@@ -502,8 +504,14 @@ describe("nested data: exports and helpers (L6)", () => {
     ] });
     const m = <QuestionMatrixDropdownModel><any>survey.getQuestionByName("m");
     const choicePanel: PanelModel = (<any>m.detailPanel.getQuestionByName("rg")).choices[1].panel;
-    expect(choicePanel.getDataNestingKeyFor("", "n")).toBe("n");
-    expect((<PanelModel>choicePanel.getElementByName("cp")).getDataNestingKeyFor("", "n")).toBe("n");
+    expect(choicePanel.getDataNestingKeyFor("", "n"), "the choice panel").toBe("");
+    expect(choicePanel.getDataNestingKeyFor("v", "n"), "the choice panel, a valueName").toBe("");
+    const cp = <PanelModel>choicePanel.getElementByName("cp");
+    expect(cp.getDataNestingKeyFor("", "n"), "a panel in it: no name nesting in a record").toBe("");
+    expect(cp.getDataNestingKeyFor("v", "n"), "a panel in it: its valueName").toBe("v");
+    const next = <PanelModel>m.detailPanel.addNewPanel("next");
+    expect(next.getDataNestingKeyFor("", "n"), "as a panel next to the select question").toBe("");
+    expect(next.getDataNestingKeyFor("v", "n")).toBe("v");
   });
   test("getExpressionScopePaths", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [

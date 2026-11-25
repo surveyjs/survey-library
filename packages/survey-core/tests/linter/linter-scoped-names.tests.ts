@@ -213,11 +213,14 @@ describe("linter scoped names: name/duplicate per name scope", () => {
     const pages: any = { dataNesting: "page", pages: [{ elements: [{ type: "text", name: "x" }] }, { name: "page1", elements: [{ type: "text", name: "x" }] }] };
     expect(duplicates(pages)).toEqual(["elementNames @ pages[1].elements[0] scope=page \"page1\""]);
   });
-  test("a choice panel's question writes a key of the survey data, so its name is the survey's (A1)", () => {
-    const json: any = { dataNesting: "auto", elements: [
-      { type: "panel", name: "p", valueName: "address", elements: [{ type: "checkbox", name: "kind", choices: [{ value: 1, elements: [{ type: "text", name: "detail" }] }] }] },
-      { type: "text", name: "detail" }] };
-    expect(duplicates(json)).toEqual(["elementNames @ elements[1] scope="]);
+  test("a choice panel's question is a key of its select question's scope, so its name is that scope's (CH1)", () => {
+    const choice = { type: "checkbox", name: "kind", choices: [{ value: 1, elements: [{ type: "text", name: "detail" }] }] };
+    const outside: any = { dataNesting: "auto", elements: [
+      { type: "panel", name: "p", valueName: "address", elements: [choice] }, { type: "text", name: "detail" }] };
+    expect(duplicates(outside), "the survey's detail is another name").toEqual([]);
+    const inside: any = { dataNesting: "auto", elements: [
+      { type: "panel", name: "p", valueName: "address", elements: [choice, { type: "text", name: "detail" }] }] };
+    expect(duplicates(inside), "a detail next to the select question").toEqual(["elementNames @ elements[0].elements[1] scope=panel \"p\""]);
   });
 });
 

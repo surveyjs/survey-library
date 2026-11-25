@@ -278,8 +278,12 @@ export type NestedElementLocation =
   // The element holds the container's own value and adds no key: the content question of a custom
   // question (its getDataSegment() is undefined).
   | "same"
-  // The value is a root key of the survey data: the questions of a choice panel, whose panel is bound
-  // to the survey (ChoiceItem.setPanelSurvey). Addressed from an empty segment stack.
+  // The value is a key next to the container's own value, in the same data scope: the questions of a
+  // choice panel, whose panel takes the select question's survey impl (ChoiceItem.bindPanel). Addressed
+  // from the segments of that scope: the stack before the container's own key is pushed.
+  | "beside"
+  // The value is a root key of the survey data: the questions of a matrix cell's choice panel, which stays on the
+  // survey (a row holds no keys of them). Addressed from an empty segment stack.
   | "root";
 export interface INestedElementInfo {
   element: Question | PanelModel;
@@ -3438,14 +3442,22 @@ export class Question extends SurveyElement<Question>
   }
   // Pass 2: the question adds its own segment, reports its own value and walks into the instances
   // that hold its nested values.
-  public verifyDataCore(context: IVerifyDataContext): void {
+  // beside: where a question that adds no segment (a custom question's content question) hands the instances of its
+  // location "beside" to its wrapper, whose segment is still on the stack.
+  public verifyDataCore(context: IVerifyDataContext, beside?: Array<Question | PanelModel>): void {
     const segment = this.getDataSegment();
     if (segment !== undefined) context.pushSegment(segment);
     this.verifyOwnValue(context);
+    const own = segment === undefined && !!beside ? beside : [];
     if (!context.stopOnFirst || !context.hasIssues) {
-      this.verifyNestedValues(context);
+      this.verifyNestedValues(context, own);
     }
     if (segment !== undefined) context.popSegment();
+    if (own === beside) return;
+    // The instances whose values are keys next to this question's own, from the segments of the scope that holds it.
+    own.forEach(element => {
+      if (!context.stopOnFirst || !context.hasIssues) element.verifyDataCore(context);
+    });
   }
   // The key this question adds to a location: its value name. Undefined for the content question of
   // a custom question, which holds the wrapper's value and adds nothing: the wrapper's key is the
@@ -3476,17 +3488,31 @@ export class Question extends SurveyElement<Question>
   }
   // verifyDataCore() on every nested instance, so that the question of a finding is the instance that
   // actually holds the value. "none": pass 1 built the rows and panels, and collecting builds nothing.
-  public verifyNestedValues(context: IVerifyDataContext): void {
+  // beside: collects the instances of the location "beside", which verifyDataCore verifies once the question's own
+  // segment is off the stack; without it they are verified here.
+  public verifyNestedValues(context: IVerifyDataContext, beside?: Array<Question | PanelModel>): void {
     this.forEachNestedElement(info => {
       if (info.role === "total") return;
       const element = info.element;
+      if (info.location === "beside") {
+        if (!!beside) {
+          beside.push(element);
+        } else {
+          element.verifyDataCore(context);
+        }
+        return;
+      }
       if (info.location === "root") {
         context.runWithEmptySegments(() => element.verifyDataCore(context));
         return;
       }
-      // "same" needs no branch: its segment is undefined and so is its getDataSegment().
+      // "same": its segment is undefined and so is its getDataSegment(); it hands its "beside" ones on.
       if (info.segment !== undefined) context.pushSegment(info.segment);
-      element.verifyDataCore(context);
+      if (info.location === "same") {
+        (<Question>element).verifyDataCore(context, beside);
+      } else {
+        element.verifyDataCore(context);
+      }
       if (info.segment !== undefined) context.popSegment();
     }, { build: "none", visibleOnly: false });
   }
@@ -3853,8 +3879,9 @@ export class Question extends SurveyElement<Question>
     const sharers = this.getQuestionsSharingValue();
     return sharers.indexOf(this) > -1 && sharers.indexOf(rootFirst) < 0;
   }
-  // A question nested in a choice item is found by value name, but it is not in the page's question
-  // list, so the survey advances for it only when it is the single input on screen.
+  // A question nested in a choice item is found as the writer, and by its key in the select question's data scope,
+  // but it is not in the page's question list, so the survey advances for it only when it is the single input on
+  // screen.
   public canAdvanceOnEnter(): boolean {
     if (!this.isSurveyAutoAdvanceEnabled || !this.isAutoAdvanceOwner) return false;
     return !this.parentQuestion || this.parentQuestion.singleInputQuestion === this;

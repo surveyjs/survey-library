@@ -417,8 +417,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
 
 // An item's expressions, its validators and its piped texts run in the survey data, wherever its question is:
 // the item is no element, and its context is the survey's (MultipleTextItemModel has no getValueGetterContext).
-// So no {row.x} frame and no nesting container's object reaches them, as for a choice panel's question, and no
-// {panel.x} either: a choice panel's question has its choice panel there, the item has no panel at all.
+// So no {row.x} frame, no nesting container's object and no {panel.x} reaches them: the item has no panel at all.
 function walkMultipleTextItems(state: WalkState, json: any, path: string, record: ElementRecord): void {
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
@@ -490,22 +489,23 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   if (isSelectBase(type)) {
     addItemValueSites(state, json, "choices", type, path, record, scope);
     // choiceitem.elements: full questions nested inside a choice. The runtime binds a choice panel to the
-    // survey (ChoiceItem.setPanelSurvey) wherever the select question is - inside a nesting container, a
-    // dynamic panel's template or a matrix's detail panel - so its questions write keys of the survey data,
-    // and their expressions run outside any record: no {row.x} frame and no record's {panel.x} reaches them.
-    // Their {panel.x} is the choice panel itself (a question's parent panel), so the choice stands for it:
-    // a panel record that names nothing and holds no key, and no outer panel answers {panel.x} there.
+    // select question's survey impl (ChoiceItem.bindPanel), and the panel never nests: its questions are keys of
+    // the select question's own data scope (the survey data, a nesting container's object, a record), and their
+    // expressions run in the select question's scope frames ({row.x} in a matrix's detail panel, the record's
+    // {panel.x} in a dynamic panel's template). Outside a dynamic panel their {panel.x} is the choice panel itself
+    // (a question's parent panel), so the choice stands for it: a panel record that names nothing and holds no key,
+    // and no outer panel answers {panel.x} there. Inside one the record's frame answers first.
     if (Array.isArray(json.choices)) {
       json.choices.forEach((choice: any, i: number) => {
         if (!choice || typeof choice !== "object" || !Array.isArray(choice.elements)) return;
         const choicePath = path + ".choices[" + i + "]";
         const choicePanel: ElementRecord = {
-          name: "", type: "panel", kind: "panel", path: choicePath, json: choice, parent: record, scope: [],
+          name: "", type: "panel", kind: "panel", path: choicePath, json: choice, parent: record, scope: scope.slice(),
           isUnknownType: false, valueType: { shape: "none" }, panelDescendantNames: new CIMap<ElementRecord>(),
-          dataScope: state.index.rootScope,
+          dataScope: dataScope,
         };
         walkElementsArray(state, choice.elements, choicePath + ".elements",
-          choicePanel, [], [choicePanel], undefined, state.index.rootScope);
+          choicePanel, scope, [choicePanel], undefined, dataScope);
       });
     }
     if (json.choicesByUrl && typeof json.choicesByUrl === "object") {

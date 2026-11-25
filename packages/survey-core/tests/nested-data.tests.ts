@@ -136,7 +136,8 @@ describe("nested data: where a panel may nest", () => {
     { place: "a detail panel template", views: both, shown: false, owner: "m", panel: s => detailTemplate(s) },
     { place: "a panel in a detail panel template", views: both, shown: true, panel: s => el(detailTemplate(s), "din") },
     { place: "a panel in a panel in a detail panel template", views: both, shown: true, panel: s => el(detailTemplate(s), "din2") },
-    { place: "a choice panel in a detail panel template", views: both, shown: true, panel: s => choicePanel(detailTemplate(s)) },
+    // A choice panel never nests (CH2): it holds its select question's data, as a panel that does not nest does.
+    { place: "a choice panel in a detail panel template", views: both, shown: false, panel: s => choicePanel(detailTemplate(s)) },
     { place: "a panel in a choice panel in a detail panel template", views: both, shown: true, panel: s => el(choicePanel(detailTemplate(s)), "cp") },
     { place: "a row's detail panel", views: runtimeOnly, shown: false, owner: "m", panel: s => rowDetail(s) },
     { place: "a panel in a row's detail panel", views: runtimeOnly, shown: true, panel: s => el(rowDetail(s), "din") },

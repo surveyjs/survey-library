@@ -233,7 +233,9 @@ describe("the root read while an element attaches", () => {
   });
 });
 
-describe("a choice panel's questions are the root's", () => {
+// A choice panel's questions are keys of the scope that holds the select question (CH1): the root at the top level,
+// the container's object inside a nesting panel. A choice panel never nests (CH2).
+describe("a choice panel's questions are keys of the select question's scope", () => {
   const choice = (name: string, inner: string): any => ({ type: "checkbox", name: name, choices: [{ value: "a", elements: [{ type: "text", name: inner }] }, "b"] });
   const choiceQuestion = (survey: SurveyModel, name: string): Question =>
     <Question>(<any>survey.getAllQuestions(false, false, true)).filter((q: Question) => q.name === name)[0];
@@ -243,14 +245,20 @@ describe("a choice panel's questions are the root's", () => {
     const inner = choiceQuestion(survey, "inner");
     const inner2 = choiceQuestion(survey, "inner2");
     expect(sharing(survey, "inner")).toEqual(["inner"]);
-    expect(sharing(survey, "inner2"), "the select question is inside a panel").toEqual(["inner2"]);
     survey.setValue("inner", "x");
-    survey.setValue("inner2", "y");
+    inner2.value = "y";
     expect(inner.value).toBe("x");
-    expect(inner2.value).toBe("y");
+    if (mode === "none") {
+      expect(sharing(survey, "inner2"), "the panel does not nest: a root key").toEqual(["inner2"]);
+      expect(survey.data).toEqual({ inner: "x", inner2: "y" });
+    } else {
+      expect(survey.getQuestionsByValueName("inner2"), "a key of the panel's object, not of the root").toBeNull();
+      expect(inner2.getDataPath()).toEqual(["obj", "inner2"]);
+      expect(survey.data).toEqual({ inner: "x", obj: { inner2: "y" } });
+    }
+    const data = survey.data;
     survey.clearIncorrectValues(true);
-    expect(survey.data.inner).toBe("x");
-    expect(survey.data.inner2).toBe("y");
+    expect(survey.data, "the keys are known in their scopes").toEqual(data);
   });
   test.each(modes)("a select built apart and added: its choice panel is the root's once linked (%s)", (mode: string) => {
     const survey = new SurveyModel({ dataNesting: mode, elements: [{ type: "text", name: "q0" }, nest()] });
@@ -262,15 +270,14 @@ describe("a choice panel's questions are the root's", () => {
     survey.setValue("inner", "x");
     expect(panel.getQuestionByName("inner").value).toBe("x");
   });
-  test.each(modes)("a select built apart, added last to a built root, then linked: the link builds the root again (%s)", (mode: string) => {
+  test.each(modes)("a select built apart, added last to a built root: the add links its choice panel and builds the root again (%s)", (mode: string) => {
     const survey = new SurveyModel({ dataNesting: mode, elements: [nest(), { type: "text", name: "q0" }] });
     expect(sharing(survey, "q0")).toEqual(["q0"]);
     const q = new QuestionCheckboxModel("q");
     q.fromJSON(choice("q", "inner"));
     survey.pages[0].addElement(q);
-    expect(survey.getQuestionsByValueName("inner"), "not linked yet").toBeNull();
+    expect(sharing(survey, "inner"), "linked by the add: the select question got its survey impl").toEqual(["inner"]);
     const panel = q.choices[0].panel;
-    expect(sharing(survey, "inner"), "linked by the read of item.panel").toEqual(["inner"]);
     survey.setValue("inner", "x");
     expect(panel.getQuestionByName("inner").value).toBe("x");
   });
@@ -280,17 +287,26 @@ describe("a choice panel's questions are the root's", () => {
     q.choices[0].panel.addNewQuestion("text", "inner");
     expect(sharing(survey, "inner")).toEqual(["inner"]);
   });
-  test("a select with a linked choice panel moved into a nesting panel, the root built: still the root's", () => {
+  test("a select with a linked choice panel moved into a nesting panel, the root built: its questions follow it", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [choice("cb", "inner"),
       { type: "panel", name: "pp", valueName: "obj", elements: [{ type: "text", name: "t" }] }] });
     expect(sharing(survey, "inner")).toEqual(["inner"]);
     const cb = survey.getQuestionByName("cb");
     cb.parent.removeElement(cb);
     expect(survey.getQuestionsByValueName("inner"), "the select removed").toBeNull();
-    survey.getPanelByName("pp").addElement(cb);
-    expect(sharing(survey, "inner"), "added below a container: the root is built again").toEqual(["inner"]);
-    survey.setValue("inner", "w");
-    expect((<QuestionCheckboxModel>cb).choices[0].panel.getQuestionByName("inner").value).toBe("w");
+    const pp = survey.getPanelByName("pp");
+    pp.addElement(cb);
+    expect(survey.getQuestionsByValueName("inner"), "added below a container: no longer the root's").toBeNull();
+    const inner = (<QuestionCheckboxModel>cb).choices[0].panel.getQuestionByName("inner");
+    expect(pp.getDataScope().getDataKeyIndex().getQuestions("inner"), "the container's").toEqual([inner]);
+    inner.value = "w";
+    expect(survey.data).toEqual({ obj: { inner: "w" } });
+    survey.setValue("obj", { inner: "v" });
+    expect(inner.value, "it reads the container's object").toBe("v");
+    pp.removeElement(cb);
+    survey.pages[0].addElement(cb);
+    expect(sharing(survey, "inner"), "moved back to the page: the root's again").toEqual(["inner"]);
+    expect(inner.getDataPath()).toEqual(["inner"]);
   });
   test.each(modes)("choices replaced, or the select removed: the old choice panel's question leaves the root (%s)", (mode: string) => {
     const survey = new SurveyModel({ dataNesting: mode, elements: [choice("q", "inner"), choice("r", "inner2"), nest()] });
@@ -302,14 +318,23 @@ describe("a choice panel's questions are the root's", () => {
     r.parent.removeElement(r);
     expect(survey.getQuestionsByValueName("inner2"), "the select removed").toBeNull();
   });
-  test("a panel with a value name inside a choice panel is a root container", () => {
-    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "checkbox", name: "q",
-      choices: [{ value: "a", elements: [{ type: "panel", name: "pn", valueName: "obj", elements: [{ type: "text", name: "x" }] }] }] }] });
-    const x = choiceQuestion(survey, "x");
+  test("a panel with a value name inside a choice panel nests in the select question's scope", () => {
+    const select = (name: string): any => ({ type: "checkbox", name: name,
+      choices: [{ value: "a", elements: [{ type: "panel", name: "pn", valueName: "obj", elements: [{ type: "text", name: "x" }] }] }] });
+    const json = { dataNesting: "auto", elements: [select("q"), { type: "panel", name: "outer", valueName: "out", elements: [select("q2")] }] };
+    const xs = (survey: SurveyModel): Array<Question> => (<Array<Question>>(<any>survey.getAllQuestions(false, false, true))).filter(q => q.name === "x");
+    const survey = new SurveyModel(json);
+    const [x, x2] = xs(survey);
     survey.setValue("obj", { x: "1" });
-    expect(x.value).toBe("1");
+    expect(x.value, "at the top level: a root container").toBe("1");
+    expect(x2.getDataPath(), "inside a nesting panel: in the panel's object").toEqual(["out", "obj", "x"]);
+    x2.value = "2";
+    expect(survey.data).toEqual({ obj: { x: "1" }, out: { obj: { x: "2" } } });
     survey.clearIncorrectValues(true);
-    expect(survey.data.obj).toEqual({ x: "1" });
+    expect(survey.data).toEqual({ obj: { x: "1" }, out: { obj: { x: "2" } } });
+    const loaded = new SurveyModel(json);
+    loaded.data = survey.data;
+    expect(xs(loaded).map(q => q.value), "loaded back").toEqual(["1", "2"]);
   });
 });
 

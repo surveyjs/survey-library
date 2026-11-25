@@ -39,7 +39,7 @@ import { Scope, ValueScope } from "./utils/scope";
 import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
 import { isNameScopeMode } from "./name-scope";
 import { getElementDataScope, getInnerLevels } from "./data-key-index";
-import { RecordKeyLevel, hasRecordDataNesting, isInRecordNestingPanel } from "./record-key-level";
+import { RecordKeyLevel, hasRecordDataNesting, hasRecordKeyLevel, isInRecordNestingPanel } from "./record-key-level";
 import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext, updateValueByDataLevel } from "./data-scope-contexts";
 import type { IDataLevelFinder } from "./data-scope-contexts";
 import { asScopeObject, getValueByPath } from "./data-object-utils";
@@ -947,8 +947,9 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       context.popSegment();
     });
   }
-  /* The keys of the records the template builds, when a panel of it nests: the template's questions and
-     nesting panels, each panel with its own keys. undefined for flat records: their rules stay as released.
+  /* The keys of the records the template builds, when a panel of it nests or a choice panel holds questions: the
+     template's questions (a choice panel's included) and nesting panels, each panel with its own keys. undefined for
+     flat records: their rules stay as released.
      elements: the elements of one record's panel instead of the template's. Built on every call, except
      inside withRecordKeyLevels. */
   protected getRecordKeyLevel(elements?: Array<IElement>): RecordKeyLevel {
@@ -958,7 +959,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     if (!own) return undefined;
     const levels = this.recordKeyLevels.value;
     if (!!levels && levels.has(own)) return levels.get(own);
-    const level = hasRecordDataNesting(own) ? new RecordKeyLevel(own) : undefined;
+    const level = hasRecordKeyLevel(own) ? new RecordKeyLevel(own) : undefined;
     levels?.set(own, level);
     return level;
   }

@@ -4,7 +4,7 @@ import type { SurveyModel } from "./survey";
 import { ValueGetter } from "./conditions/conditionProcessValue";
 import { Helpers, HashTable } from "./helpers";
 import type { PanelDataScope } from "./panel-data-scope";
-import { DataKeysScope, getRecordDataScope, getKeyHolderScope, forEachChoicePanel } from "./panel-data-scope";
+import { DataKeysScope, getRecordDataScope, getKeyHolderScope } from "./panel-data-scope";
 import type { ISurveyDataElement, IElement } from "./base-interfaces";
 import { IDataScope, getElementDataScope, getInnerLevels } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
@@ -75,28 +75,22 @@ export class SurveyRootDataScope extends DataKeysScope {
   protected isScopeName(el: ISurveyDataElement): boolean {
     return false;
   }
-  protected holdsChoicePanels(): boolean {
-    return true;
-  }
   // An element joined a container (questionAdded, panelAdded, a page added). The instance of the scope it joined
   // takes it in place when it comes last in that scope's document order (dataKeyElementAdded); otherwise that
   // instance is dropped. That scope is the root for an element whose data is the survey's. Below the root the
-  // instances of the scopes inside the element are dropped too, and a choice panel the element brings is the root's
-  // still: the root's is dropped.
+  // instances of the scopes inside the element are dropped too.
   public elementAdded(el: IElement): void {
     const scope = getKeyHolderScope((<any>el).data);
     if (!!scope) {
       scope.dataKeyElementAdded(el);
-      if (this.dropScopesInside(el)) {
-        this.resetDataKeyIndex();
-      }
+      this.dropScopesInside(el);
       return;
     }
     // An element with no data (a dynamic panel's template question) is in no walk of the pages.
     if (!(<any>el).data) return;
     // A read while el was attached (a dynamic panel's readiness) may have built the root with a part of el in it
-    // (a choice panel's question, a question taken off its page: they stay bound to the survey), ahead of el's
-    // elements that were not attached yet: an append would not keep document order.
+    // (a question taken off its page: it stays bound to the survey), ahead of el's elements that were not attached
+    // yet: an append would not keep document order.
     if (this.holdsInside(el)) {
       this.resetDataKeyIndex();
     } else {
@@ -105,7 +99,7 @@ export class SurveyRootDataScope extends DataKeysScope {
   }
   // An element left its container (questionRemoved, panelRemoved, a page removed). Below the root, the container
   // dropped the instance that held it (PanelModelBase.onRemoveElement); the instances of the scopes inside it are
-  // dropped here, and the root's when it holds the element or one inside it (a choice panel's question included).
+  // dropped here, and the root's when it holds the element or one inside it.
   // A panel that comes back builds the instances inside it again (ContainerDataNesting.elementsAttached).
   public elementRemoved(el: IElement): void {
     const index = this.builtDataKeyIndex;
@@ -147,33 +141,26 @@ export class SurveyRootDataScope extends DataKeysScope {
   // A container started or stopped holding data, or changed its key. The instances it touches are dropped: its own,
   // the one that holds it or its elements, and the root's. The root's is dropped as a whole, not only for the
   // container's elements: a question whose data is the container's scope can be outside the container (a template
-  // question moved onto a page), and its value scope follows that scope. A choice panel linked to the survey or
-  // dropped calls this too (question_baseselect.ts): its questions are the root's.
+  // question moved onto a page), and its value scope follows that scope. A choice panel that left its select
+  // question's choices calls this too (question_baseselect.ts): its questions leave the select question's scope.
   public dataScopeKeysChanged(panel: PanelModelBase): void {
     panel.getDataScope()?.resetDataKeyIndex();
     getKeyHolderScope(panel.data)?.resetDataKeyIndex();
     this.resetDataKeyIndex();
   }
-  // The instances of the scopes inside el (el's own included) are dropped. Returns whether el brings a choice panel:
-  // its questions are the root's.
-  private dropScopesInside(el: IElement): boolean {
-    let res = false;
+  // The instances of the scopes inside el (el's own included) are dropped.
+  private dropScopesInside(el: IElement): void {
     this.forEachInside(el, (inner: ISurveyDataElement): void => {
-      if (inner.isQuestion) {
-        forEachChoicePanel(inner, (): void => { res = true; });
-      } else {
+      if (!inner.isQuestion) {
         (<PanelModelBase><any>inner).getDataScope()?.resetDataKeyIndex();
       }
     });
-    return res;
   }
-  // The element and every element inside it: a panel's elements, and a select question's choice panels.
+  // The element and every element inside it: a panel's elements. A choice panel's questions are in its select
+  // question's scope, which the walk of that scope reaches through the select question.
   private forEachInside(el: IElement, callback: (el: ISurveyDataElement) => void): void {
     callback(<ISurveyDataElement><any>el);
-    if (el.isQuestion) {
-      forEachChoicePanel(el, (panel: IElement): void => this.forEachInside(panel, callback));
-      return;
-    }
+    if (el.isQuestion) return;
     const elements: Array<IElement> = (<any>el).elements;
     if (Array.isArray(elements)) {
       elements.forEach(inner => this.forEachInside(inner, callback));

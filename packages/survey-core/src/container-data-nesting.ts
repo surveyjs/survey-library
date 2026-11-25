@@ -138,7 +138,10 @@ export class ContainerDataNesting {
 
   // A panel is where its top panel's elements are. The top panel itself ignores its key when it is a record
   // panel, a template or a composite's content: its object is the record or the component's value already.
+  // A choice panel never nests (CH2): it holds the select question's data, as a panel that does not nest holds its
+  // parent's; a panel inside it is where the select question is.
   public static getPlace(panel: PanelModelBase): DataNestingPlace {
+    if (!!(<any>panel).choiceItem) return "";
     let top: any = panel;
     while(!!top.parent) top = top.parent;
     const place = getTopPanelPlace(top);

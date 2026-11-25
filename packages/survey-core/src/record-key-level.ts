@@ -2,7 +2,7 @@ import type { IElement, ISurveyDataElement } from "./base-interfaces";
 import type { Question } from "./question";
 import type { PanelModelBase } from "./panel";
 import type { IDataKeyLevel } from "./data-key-index";
-import { isKnownDataKey, forEachUnknownKey } from "./data-key-index";
+import { isKnownDataKey, forEachUnknownKey, forEachChoicePanel } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { asScopeObject } from "./data-object-utils";
 
@@ -15,7 +15,8 @@ interface IRecordNestedKey {
 
 // The keys of one level of the records a template builds: its questions under their value names and its
 // nesting panels under their keys (PanelModelBase.getRecordDataNestingKey), each with the level of its own
-// keys. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
+// keys. A select question's choice panels add their elements to the select question's level: a choice panel never
+// nests. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
 // panel template, or the panel of one record. The owner-level rules of the records read it.
 export class RecordKeyLevel implements IDataKeyLevel {
   // Its keys only: no lookup of a level goes by name.
@@ -36,6 +37,7 @@ export class RecordKeyLevel implements IDataKeyLevel {
         }
       } else if (el.isQuestion) {
         this.index.addKeyed(el, el.getValueName());
+        forEachChoicePanel(el, (panel: PanelModelBase): void => this.addElements(panel.elements));
       }
     });
   }
@@ -77,6 +79,16 @@ export class RecordKeyLevel implements IDataKeyLevel {
 // Whether a panel among the elements, at any depth, nests in the records built from them.
 export function hasRecordDataNesting(elements: Array<IElement>): boolean {
   return (elements || []).some((el: any): boolean => el.isPanel && (!!el.getRecordDataNestingKey() || hasRecordDataNesting(el.elements)));
+}
+// Whether the records built from the elements need a key level: a panel among them nests, or a select question holds
+// a choice panel, whose questions are keys of the record that no question of the template's panel lists. At any depth.
+export function hasRecordKeyLevel(elements: Array<IElement>): boolean {
+  return (elements || []).some((el: any): boolean => {
+    if (el.isPanel) return !!el.getRecordDataNestingKey() || hasRecordKeyLevel(el.elements);
+    let res = false;
+    forEachChoicePanel(el, (panel: PanelModelBase): void => { res = res || panel.elements.length > 0; });
+    return res;
+  });
 }
 // Whether a nesting panel stands between the element and the template it is in: the element's value is then a
 // key of that panel's object, one level deeper than the record. The record's filter and sort fields leave it out,

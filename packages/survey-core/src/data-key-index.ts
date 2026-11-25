@@ -67,6 +67,18 @@ export function forEachUnknownKey(levels: Array<IDataKeyLevel>, obj: any, path: 
 export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
   return !el.isQuestion ? (<PanelModelBase>el).getDataScope() : null;
 }
+// The choice panels of a select question (choice items with elements), or of a custom question's content question.
+// Their questions' values are keys of the scope that holds the question's own value: a choice panel takes the select
+// question's survey impl and never nests (ChoiceItem.bindPanel). Only the panels that share the question's data: a
+// matrix cell's stay on the survey. The panels created only: getPanels() creates none.
+export function forEachChoicePanel(el: any, callback: (panel: PanelModelBase) => void): void {
+  if (!el.isQuestion) return;
+  const select = el.contentQuestion || el;
+  if (typeof select.supportElementsInChoice !== "function" || !select.supportElementsInChoice()) return;
+  select.getPanels().forEach((panel: PanelModelBase): void => {
+    if ((panel.data || null) === (el.data || null)) callback(panel);
+  });
+}
 
 const noElements: Array<any> = Object.freeze(<Array<any>>[]) as Array<any>;
 // Elements under their keys, exact and lower-case: the names of an ElementIndex, or one kind of its keys.

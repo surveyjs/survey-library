@@ -1347,21 +1347,25 @@ describe("Datetime mask", () => {
       return new Date("2024-09-04T12:34:56");
     }
     FunctionFactory.Instance.register("currentDateSecondsMock", currentDateSecondsMock);
-    const survey = new SurveyModel({
-      elements: [
-        {
-          type: "text",
-          name: "q1",
-          defaultValueExpression: "currentDateSecondsMock()",
-          maskType: "datetime",
-          maskSettings: {
-            pattern: "mm/dd/yyyy HH:MM:ss"
-          }
-        },
-      ]
-    });
-    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
-    expect(q1.inputValue).toBe("09/04/2024 12:34:56");
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+            defaultValueExpression: "currentDateSecondsMock()",
+            maskType: "datetime",
+            maskSettings: {
+              pattern: "mm/dd/yyyy HH:MM:ss"
+            }
+          },
+        ]
+      });
+      const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+      expect(q1.inputValue).toBe("09/04/2024 12:34:56");
+    } finally {
+      FunctionFactory.Instance.unregister("currentDateSecondsMock");
+    }
   });
   test("Mask datetime with defaultValueExpression today() and saveMaskedValue, Bug#11158", () => {
     function todayMock() {

@@ -1,5 +1,5 @@
 import { describe, test, expect, afterEach } from "vitest";
-import { ArrayDynamicDataSource, QuestionMatrixDynamicModel, SurveyModel } from "survey-core";
+import { ArrayDynamicDataSource, QuestionMatrixDynamicModel, SurveyModel, settings } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { ICollabIn, ICollabOut } from "../../src/plugins/collaboration/collab-messages";
 import { createPlugin, disposePlugins } from "./collab-test-helpers";
@@ -29,13 +29,19 @@ describe("value sync: outgoing", () => {
   });
   test("a comment travels under the protocol suffix, not survey.commentSuffix", () => {
     const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], showOtherItem: true }] });
-    survey.commentSuffix = "-SOMETHING-ELSE";
-    const plugin = createPlugin(survey);
-    const sent = collect(plugin);
-    survey.setComment("q1", "note");
-    expect(sent).toHaveLength(1);
-    expect((sent[0] as any).key).toBe("q1\u0000comment");
-    expect((sent[0] as any).value).toBe("note");
+    // survey.commentSuffix writes the global settings.commentSuffix
+    const savedCommentSuffix = settings.commentSuffix;
+    try {
+      survey.commentSuffix = "-SOMETHING-ELSE";
+      const plugin = createPlugin(survey);
+      const sent = collect(plugin);
+      survey.setComment("q1", "note");
+      expect(sent).toHaveLength(1);
+      expect((sent[0] as any).key).toBe("q1\u0000comment");
+      expect((sent[0] as any).value).toBe("note");
+    } finally {
+      settings.commentSuffix = savedCommentSuffix;
+    }
   });
   // The plugin sets no size limit of its own: that is the relay's business, and it is
   // the relay that knows its frame limit.

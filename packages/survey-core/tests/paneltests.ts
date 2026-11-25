@@ -841,21 +841,28 @@ describe("Panel", () => {
     survey.setDesignMode(true);
     expect(page.hasTitle, "Empty title is visible in DesignMode by default").toBeTruthy();
     expect(page._showDescription, "Empty description is visible in DesignMode by default").toBeTruthy();
-    settings.allowShowEmptyDescriptionInDesignMode = false;
-    expect(page.hasTitle, "Empty title is visible in DesignMode after description flag").toBeTruthy();
-    expect(page._showDescription, "Empty description is not visible in DesignMode after description flag").toBeFalsy();
-    settings.allowShowEmptyDescriptionInDesignMode = true;
-    settings.allowShowEmptyTitleInDesignMode = false;
-    expect(page.hasTitle, "Empty title is not visible at DesignMode after title flag").toBeFalsy();
-    expect(page._showDescription, "Empty description is not visible at DesignMode after tile flag").toBeFalsy();
-    page.title = "My title";
-    page.description = "My description";
-    expect(page.hasTitle, "Entered title is visible in DesignMode").toBeTruthy();
-    expect(page._showDescription, "Entered description is visible in DesignMode").toBeTruthy();
-    page.title = "";
-    page.description = "";
-    expect(page.hasTitle, "No title").toBeFalsy();
-    expect(page._showDescription, "No description").toBeFalsy();
+    const savedShowEmptyTitles = settings.allowShowEmptyTitleInDesignMode;
+    const savedShowEmptyDescriptions = settings.allowShowEmptyDescriptionInDesignMode;
+    try {
+      settings.allowShowEmptyDescriptionInDesignMode = false;
+      expect(page.hasTitle, "Empty title is visible in DesignMode after description flag").toBeTruthy();
+      expect(page._showDescription, "Empty description is not visible in DesignMode after description flag").toBeFalsy();
+      settings.allowShowEmptyDescriptionInDesignMode = true;
+      settings.allowShowEmptyTitleInDesignMode = false;
+      expect(page.hasTitle, "Empty title is not visible at DesignMode after title flag").toBeFalsy();
+      expect(page._showDescription, "Empty description is not visible at DesignMode after tile flag").toBeFalsy();
+      page.title = "My title";
+      page.description = "My description";
+      expect(page.hasTitle, "Entered title is visible in DesignMode").toBeTruthy();
+      expect(page._showDescription, "Entered description is visible in DesignMode").toBeTruthy();
+      page.title = "";
+      page.description = "";
+      expect(page.hasTitle, "No title").toBeFalsy();
+      expect(page._showDescription, "No description").toBeFalsy();
+    } finally {
+      settings.allowShowEmptyTitleInDesignMode = savedShowEmptyTitles;
+      settings.allowShowEmptyDescriptionInDesignMode = savedShowEmptyDescriptions;
+    }
   });
   function withDesignModeSettings(showEmptyTitles: boolean, showEmptyDescriptions: boolean, func: () => void): void {
     const oldTitles = settings.designMode.showEmptyTitles;

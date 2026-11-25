@@ -1,5 +1,5 @@
 import { describe, test, expect, afterEach } from "vitest";
-import { ComponentCollection, SurveyModel } from "survey-core";
+import { ComponentCollection, SurveyModel, settings } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { IPresencePeerEntry } from "../../src/plugins/collaboration/presence/presence-envelope";
 import { MAX_HISTORY_TEXT } from "../../src/plugins/collaboration/history/history-entry";
@@ -256,11 +256,17 @@ describe("history: only what actually changed", () => {
 
   test("a comment is recorded under its question", () => {
     const { survey, plugin } = make({ elements: [{ type: "dropdown", name: "q1", choices: ["a"], showOtherItem: true }] });
-    survey.commentSuffix = "-SOMETHING-ELSE";
-    survey.setComment("q1", "note");
+    // survey.commentSuffix writes the global settings.commentSuffix
+    const savedCommentSuffix = settings.commentSuffix;
+    try {
+      survey.commentSuffix = "-SOMETHING-ELSE";
+      survey.setComment("q1", "note");
 
-    const entry = plugin.history.entries[0];
-    expect([entry.questionName, entry.isComment, entry.text]).toEqual(["q1", true, "note"]);
+      const entry = plugin.history.entries[0];
+      expect([entry.questionName, entry.isComment, entry.text]).toEqual(["q1", true, "note"]);
+    } finally {
+      settings.commentSuffix = savedCommentSuffix;
+    }
   });
 });
 

@@ -525,26 +525,31 @@ describe("question ranking", () => {
     var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
     const iconHoverClass = rankingQuestion.cssClasses.itemIconHoverMod;
 
-    Settings.rankingDragHandleArea = "icon"; // 1
-    dragStartTargetNode = document.createElement("div");
-    result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toBe(false);
+    const savedRankingDragHandleArea = Settings.rankingDragHandleArea;
+    try {
+      Settings.rankingDragHandleArea = "icon"; // 1
+      dragStartTargetNode = document.createElement("div");
+      result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
+      expect(result).toBe(false);
 
-    dragStartTargetNode.classList.add(iconHoverClass);
-    result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toBe(true);
+      dragStartTargetNode.classList.add(iconHoverClass);
+      result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
+      expect(result).toBe(true);
 
-    Settings.rankingDragHandleArea = "entireItem"; // 2
-    result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toBe(true);
+      Settings.rankingDragHandleArea = "entireItem"; // 2
+      result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
+      expect(result).toBe(true);
 
-    dragStartTargetNode.classList.remove(iconHoverClass);
-    result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toBe(true);
+      dragStartTargetNode.classList.remove(iconHoverClass);
+      result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
+      expect(result).toBe(true);
 
-    Settings.rankingDragHandleArea = "some"; // 3
-    result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toBe(true);
+      Settings.rankingDragHandleArea = "some"; // 3
+      result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
+      expect(result).toBe(true);
+    } finally {
+      Settings.rankingDragHandleArea = savedRankingDragHandleArea;
+    }
 
     dragStartTargetNode.remove();
   });

@@ -2099,24 +2099,31 @@ describe("Survey_Questions", () => {
     expect(qComment["isReadOnlyRenderDiv"](), "1. Comment - isReadOnlyRenderDiv false").toBe(false);
     expect(qText["isReadOnlyRenderDiv"](), "1. Text - isReadOnlyRenderDiv false").toBe(false);
 
-    settings.readOnlyCommentRenderMode = "div";
+    const savedCommentRenderMode = settings.readOnlyCommentRenderMode;
+    const savedTextRenderMode = settings.readOnlyTextRenderMode;
+    try {
+      settings.readOnlyCommentRenderMode = "div";
 
-    expect(qComment["isReadOnlyRenderDiv"](), "2. Comment - isReadOnlyRenderDiv true").toBe(true);
-    expect(qText["isReadOnlyRenderDiv"](), "3. Text - isReadOnlyRenderDiv false").toBe(false);
+      expect(qComment["isReadOnlyRenderDiv"](), "2. Comment - isReadOnlyRenderDiv true").toBe(true);
+      expect(qText["isReadOnlyRenderDiv"](), "3. Text - isReadOnlyRenderDiv false").toBe(false);
 
-    settings.readOnlyTextRenderMode = "div";
-    expect(qComment["isReadOnlyRenderDiv"](), "3. Comment - isReadOnlyRenderDiv true").toBe(true);
+      settings.readOnlyTextRenderMode = "div";
+      expect(qComment["isReadOnlyRenderDiv"](), "3. Comment - isReadOnlyRenderDiv true").toBe(true);
 
-    expect(qText["isReadOnlyRenderDiv"](), "3. Text - isReadOnlyRenderDiv true").toBe(true);
+      expect(qText["isReadOnlyRenderDiv"](), "3. Text - isReadOnlyRenderDiv true").toBe(true);
 
-    settings.readOnlyCommentRenderMode = "textarea";
-    expect(qComment["isReadOnlyRenderDiv"](), "4. Comment - isReadOnlyRenderDiv false").toBe(false);
-    expect(qText["isReadOnlyRenderDiv"](), "4. Text - isReadOnlyRenderDiv true").toBe(true);
+      settings.readOnlyCommentRenderMode = "textarea";
+      expect(qComment["isReadOnlyRenderDiv"](), "4. Comment - isReadOnlyRenderDiv false").toBe(false);
+      expect(qText["isReadOnlyRenderDiv"](), "4. Text - isReadOnlyRenderDiv true").toBe(true);
 
-    settings.readOnlyCommentRenderMode = "div";
-    survey.readOnly = false;
-    expect(qComment["isReadOnlyRenderDiv"](), "5. Comment - isReadOnlyRenderDiv false").toBe(false);
-    expect(qText["isReadOnlyRenderDiv"](), "5. Text - isReadOnlyRenderDiv false").toBe(false);
+      settings.readOnlyCommentRenderMode = "div";
+      survey.readOnly = false;
+      expect(qComment["isReadOnlyRenderDiv"](), "5. Comment - isReadOnlyRenderDiv false").toBe(false);
+      expect(qText["isReadOnlyRenderDiv"](), "5. Text - isReadOnlyRenderDiv false").toBe(false);
+    } finally {
+      settings.readOnlyCommentRenderMode = savedCommentRenderMode;
+      settings.readOnlyTextRenderMode = savedTextRenderMode;
+    }
   });
 
   test("runCondition on adding element into survey", () => {
@@ -3770,23 +3777,28 @@ describe("Survey_Questions", () => {
   });
 
   test("QuestionText min/max properties and global setting", () => {
-    settings.minDate = "1900-01-01";
-    settings.maxDate = "2100-01-01";
-    var survey = new SurveyModel({
-      elements: [
-        { type: "text", inputType: "date", name: "q1", min: "2020-01-01" },
-        { type: "text", inputType: "date", name: "q2", max: "2030-01-01" },
-      ],
-    });
-    var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
-    var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    const savedMinDate = settings.minDate;
+    const savedMaxDate = settings.maxDate;
+    try {
+      settings.minDate = "1900-01-01";
+      settings.maxDate = "2100-01-01";
+      var survey = new SurveyModel({
+        elements: [
+          { type: "text", inputType: "date", name: "q1", min: "2020-01-01" },
+          { type: "text", inputType: "date", name: "q2", max: "2030-01-01" },
+        ],
+      });
+      var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+      var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
 
-    expect(q1.renderedMin).toBe("2020-01-01");
-    expect(q1.renderedMax).toBe("2100-01-01");
-    expect(q2.renderedMin).toBe("1900-01-01");
-    expect(q2.renderedMax).toBe("2030-01-01");
-    settings.minDate = "";
-    settings.maxDate = "";
+      expect(q1.renderedMin).toBe("2020-01-01");
+      expect(q1.renderedMax).toBe("2100-01-01");
+      expect(q2.renderedMin).toBe("1900-01-01");
+      expect(q2.renderedMax).toBe("2030-01-01");
+    } finally {
+      settings.minDate = savedMinDate;
+      settings.maxDate = savedMaxDate;
+    }
   });
   test("QuestionText min/max properties for date-time and browser errors, bug#10561", () => {
     const survey = new SurveyModel({

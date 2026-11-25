@@ -3743,34 +3743,38 @@ describe("Survey_QuestionMatrixDynamic", () => {
       return params[0] || rowCount;
     }
     FunctionFactory.Instance.register("newIndexFor", newIndexFor);
-    var survey = new SurveyModel({
-      elements: [
-        {
-          type: "matrixdynamic",
-          name: "foo",
-          columns: [
-            {
-              name: "bar",
-              cellType: "text",
-            },
-            {
-              name: "id",
-              cellType: "expression",
-              expression: "newIndexFor({row.id})",
-            },
-          ],
-          rowCount: 1,
-        },
-      ],
-    });
-    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("foo");
-    var visibleRows = question.visibleRows;
-    var counter = 0;
-    survey.onValueChanged.add(function (sender, options) {
-      counter++;
-    });
-    question.addRow();
-    expect(counter, "onValueChanged has been called").toBe(1);
+    try {
+      var survey = new SurveyModel({
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "foo",
+            columns: [
+              {
+                name: "bar",
+                cellType: "text",
+              },
+              {
+                name: "id",
+                cellType: "expression",
+                expression: "newIndexFor({row.id})",
+              },
+            ],
+            rowCount: 1,
+          },
+        ],
+      });
+      var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("foo");
+      var visibleRows = question.visibleRows;
+      var counter = 0;
+      survey.onValueChanged.add(function (sender, options) {
+        counter++;
+      });
+      question.addRow();
+      expect(counter, "onValueChanged has been called").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("newIndexFor");
+    }
   });
   test("survey.onMatrixRenderRemoveButton", () => {
     var survey = new SurveyModel({

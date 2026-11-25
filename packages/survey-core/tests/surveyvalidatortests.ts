@@ -471,37 +471,41 @@ test("Async expression validators creates several errors", () => {
       asynList.splice(i, 1);
     }
   }
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        validators: [{ type: "expression", expression: "asyncFunc({question1})" }]
-      },
-      {
-        type: "text",
-        name: "q2",
-        validators: [{ type: "expression", expression: "asyncFunc({question1})" }]
-      }
-    ]
-  });
-  const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q2");
-  q1.value = "a";
-  q1.valule = "b";
-  survey.validate(true);
-  expect(asynList.length, "#1.0").toBe(2);
-  callAsyncList();
-  expect(q1.errors.length, "#1.1").toBe(1);
-  expect(q2.errors.length, "#1.2").toBe(1);
-  q1.value = "aa";
-  callAsyncList();
-  expect(q1.errors.length, "#2.1").toBe(1);
-  expect(q2.errors.length, "#2.2").toBe(1);
-  q2.value = "bb";
-  callAsyncList();
-  expect(q1.errors.length, "#3.1").toBe(1);
-  expect(q2.errors.length, "#3.2").toBe(1);
+  try {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          validators: [{ type: "expression", expression: "asyncFunc({question1})" }]
+        },
+        {
+          type: "text",
+          name: "q2",
+          validators: [{ type: "expression", expression: "asyncFunc({question1})" }]
+        }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    q1.value = "a";
+    q1.valule = "b";
+    survey.validate(true);
+    expect(asynList.length, "#1.0").toBe(2);
+    callAsyncList();
+    expect(q1.errors.length, "#1.1").toBe(1);
+    expect(q2.errors.length, "#1.2").toBe(1);
+    q1.value = "aa";
+    callAsyncList();
+    expect(q1.errors.length, "#2.1").toBe(1);
+    expect(q2.errors.length, "#2.2").toBe(1);
+    q2.value = "bb";
+    callAsyncList();
+    expect(q1.errors.length, "#3.1").toBe(1);
+    expect(q2.errors.length, "#3.2").toBe(1);
+  } finally {
+    FunctionFactory.Instance.unregister("asyncFunc");
+  }
 });
 test("expression validators & survey.onExpressionRunning, Bug#10294", () => {
   let counter = 0;
@@ -509,34 +513,38 @@ test("expression validators & survey.onExpressionRunning, Bug#10294", () => {
     counter++;
   }
   FunctionFactory.Instance.register("customFunc", customFunc, false);
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        validators: [{ type: "expression", expression: "customFunc({question1})" }]
-      },
-      {
-        type: "text",
-        name: "q2",
-        validators: [{ type: "expression", expression: "customFunc({question1})" }]
+  try {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          validators: [{ type: "expression", expression: "customFunc({question1})" }]
+        },
+        {
+          type: "text",
+          name: "q2",
+          validators: [{ type: "expression", expression: "customFunc({question1})" }]
+        }
+      ]
+    });
+    let allow = false;
+    survey.onExpressionRunning.add((survey, options) => {
+      if (options.element.getType() === "expressionvalidator") {
+        options.allow = allow;
       }
-    ]
-  });
-  let allow = false;
-  survey.onExpressionRunning.add((survey, options) => {
-    if (options.element.getType() === "expressionvalidator") {
-      options.allow = allow;
-    }
-  });
-  const q1 = survey.getQuestionByName("q1");
-  q1.value = "a";
-  q1.valule = "b";
-  survey.validate(true);
-  expect(counter, "#1").toBe(0);
-  allow = true;
-  survey.validate(true);
-  expect(counter, "#2").toBe(2);
+    });
+    const q1 = survey.getQuestionByName("q1");
+    q1.value = "a";
+    q1.valule = "b";
+    survey.validate(true);
+    expect(counter, "#1").toBe(0);
+    allow = true;
+    survey.validate(true);
+    expect(counter, "#2").toBe(2);
+  } finally {
+    FunctionFactory.Instance.unregister("customFunc");
+  }
 });
 test("SurveyError.getCssIcon, Issue#9085", () => {
   const surveyError = new SurveyError("ErrorText");

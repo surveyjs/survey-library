@@ -258,7 +258,7 @@ export interface IDynamicDataFilterTarget {
   // Optional: a target with no such method takes no name, and every such entry is a field of the record.
   // Whether a name is a record key this target's questions take: a column's or a template question's
   // name or value name, or the dotted path of a child of a record question (Multiple Textboxes, a
-  // composite) - filtered or not (allowFiltering: false) - or a path into one the filter leaves out. A
+  // composite) - or a path into a key the filter cannot filter by (isFilterRecordKeyExcluded). A
   // Filter Control's fields entry that names no field of the target's list and no such key is a field
   // of the record the target has no column for, a path into a key the filter offers included
   // ("customer.country" next to a "customer" column).

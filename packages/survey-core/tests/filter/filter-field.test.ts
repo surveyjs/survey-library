@@ -8,7 +8,7 @@ describe("FilterField: fieldType", () => {
     expect(field.valueType).toBe("string");
     expect(field.getValueName()).toBe("country");
     expect((<any>field).inputType).toBe(undefined);
-    expect(new JsonObject().toJsonObject(field)).toEqual({ name: "country" });
+    expect(new JsonObject().toJsonObject(field)).toEqual("country");
   });
   test("fieldType adds the question type properties and takes over valueType", () => {
     const field = new FilterField("country");
@@ -87,7 +87,7 @@ describe("FilterField: fieldType", () => {
     // renderer that switches on fieldType sees one contract from both.
     expect(descriptor.fieldType, "#1: a typeless field runs on a text question").toBe("text");
     expect(field.getDynamicType(), "#2: and it still borrows no properties").toBe("");
-    expect(new JsonObject().toJsonObject(field), "#3: nothing of it is authored").toEqual({ name: "age" });
+    expect(new JsonObject().toJsonObject(field), "#3: nothing of it is authored").toEqual("age");
   });
   test("a typeless field's descriptor also reports isTypeless", () => {
     const field = new FilterField("age");
@@ -102,7 +102,7 @@ describe("FilterField: fieldType", () => {
     const field = new FilterField("age");
     expect(field.showInQuickFilters, "#1").toBe(true);
     expect(field.getFilterField().showInQuickFilters, "#2").toBe(true);
-    expect(new JsonObject().toJsonObject(field), "#3").toEqual({ name: "age" });
+    expect(new JsonObject().toJsonObject(field), "#3").toEqual("age");
   });
   test("showInQuickFilters false round-trips through JSON", () => {
     const field = new FilterField("age");

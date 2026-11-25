@@ -3294,8 +3294,8 @@ describe("JsonSerializationTests", () => {
   });
 });
 // The properties toJSON() of a text question with only a name (and title) reads through getPropertyValueCore
-const textQuestionReadKeys = "allowClear allowFiltering autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
-  "descriptionLocation enableIf errorLocation filterOperators indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
+const textQuestionReadKeys = "allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
+  "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
   "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
   "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
   "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width";
@@ -3404,8 +3404,7 @@ describe("toJSON skips empty properties", () => {
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
         clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
-        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1,
-        allowFiltering: true
+        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
         name: "i1", isRequired: false, inputType: "text", maskType: "none", inputTextAlignment: "auto", title: "Item 1", maxLength: -1
@@ -3541,9 +3540,9 @@ describe("toJSON skips empty properties", () => {
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
     const checkbox = getReadKeys("q2");
     expect(checkbox.json, "checkbox: json").toEqual({ name: "q2" });
-    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear allowFiltering choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
+    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
-      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation filterOperators hideIfChoicesEmpty indent isRequired " +
+      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
       "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
       "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showKeyboardHints showNoneItem showNumber showOtherItem " +
       "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
@@ -4238,5 +4237,35 @@ describe("Serializer.isCreatableClass and JsonObjectProperty.getObjClassName", (
     expect(!!choices.className, "an array of a class").toBe(true);
     expect(choices.getObjClassName("anything")).toBe(choices.className.toLowerCase());
     expect(Serializer.findProperty("question", "name").getObjClassName("Text"), "no className and no part").toBe("text");
+  });
+});
+
+class EmptyArrayOwner extends Base {
+  public itemsDefined: boolean = false;
+  public getType(): string { return "emptyarrayowner"; }
+  public get items(): Array<string> { return this.getPropertyValue("items", []); }
+  public set items(val: Array<string>) { this.setPropertyValue("items", val); }
+  public get other(): Array<string> { return this.getPropertyValue("other", []); }
+  public set other(val: Array<string>) { this.setPropertyValue("other", val); }
+}
+describe("JsonObject: serializeEmptyArray", () => {
+  test("serializeEmptyArray writes an empty array that onSerializeValue gives; other arrays keep skipping it", () => {
+    Serializer.addClass("emptyarrayowner", [
+      { name: "items:string[]", serializeEmptyArray: true, onSerializeValue: (obj: EmptyArrayOwner): any => obj.itemsDefined ? obj.items : undefined },
+      { name: "other:string[]", onSerializeValue: (obj: EmptyArrayOwner): any => obj.other }
+    ], () => new EmptyArrayOwner());
+    try {
+      const obj = new EmptyArrayOwner();
+      let json: any = new JsonObject().toJsonObject(obj);
+      expect("items" in json, "#1: undefined from onSerializeValue writes nothing").toBe(false);
+      obj.itemsDefined = true;
+      json = new JsonObject().toJsonObject(obj);
+      expect(json.items, "#2").toEqual([]);
+      expect("other" in json, "#3: no attribute, no empty array").toBe(false);
+      obj.items = ["a"];
+      expect(new JsonObject().toJsonObject(obj).items, "#4").toEqual(["a"]);
+    } finally {
+      Serializer.removeClass("emptyarrayowner");
+    }
   });
 });

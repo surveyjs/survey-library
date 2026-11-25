@@ -140,7 +140,7 @@ export function getFilterFieldPassValue<T>(name: string, field: IDynamicDataFilt
 // not per operator: asking per operator would give every text field anyof (its checkbox editor
 // json) and take contains away from a checkbox field (its editor json for contains is a
 // radiogroup).
-// The author's filterOperators narrow that set further and order it: an operator the editor does not
+// The fields entry's operators narrow that set further and order it: an operator the editor does not
 // take is dropped, and when none is left the field keeps the whole set - a field no condition can
 // be written for would only be a dead badge. qType comes from the natural default operator and never
 // from the author's first one: anyof alone would read a dropdown field's editor as a checkbox.

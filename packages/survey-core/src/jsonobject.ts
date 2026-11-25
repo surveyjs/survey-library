@@ -44,6 +44,11 @@ export interface IJsonPropertyInfo {
   defaultFunc?: (obj: Base) => any;
   baseValue?: any;
   onSerializeValue?: (obj: any) => any;
+  // An array onSerializeValue gives is written even when it is empty (the Filter Control's "fields": []).
+  serializeEmptyArray?: boolean;
+  // An item of the array may be written as its name alone (the Filter Control's "fields": ["country"]):
+  // the JSON schema takes a string item too.
+  allowNameItems?: boolean;
   onGetValue?: (obj: any) => any;
   onSettingValue?: (obj: any, value: any) => any;
   onSetValue?: (obj: any, value: any, jsonConv: JsonObject) => any;
@@ -110,6 +115,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public layout: string;
   public version: string;
   public onSerializeValue: (obj: any) => any;
+  public serializeEmptyArray: boolean;
+  public allowNameItems: boolean;
   public onGetValue: (obj: any) => any;
   public onSettingValue: (obj: any, value: any) => any;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
@@ -835,6 +842,12 @@ export class JsonMetadataClass {
       if (propInfo.onSerializeValue) {
         prop.onSerializeValue = propInfo.onSerializeValue;
       }
+      if (propInfo.serializeEmptyArray) {
+        prop.serializeEmptyArray = true;
+      }
+      if (propInfo.allowNameItems) {
+        prop.allowNameItems = true;
+      }
       if (propInfo.onGetValue) {
         prop.onGetValue = propInfo.onGetValue;
       }
@@ -1504,6 +1517,8 @@ export class JsonMetadata {
           const refClas = { $ref: this.getChemeRefName(prop.className, isRoot) };
           if (!settings.serialization.itemValueSerializeAsObject && this.isDescendantOf(prop.className, "itemvalue")) {
             res.items = { anyOf: [refClas, { type: "string" }, { type: "number" }] };
+          } else if (prop.allowNameItems) {
+            res.items = { anyOf: [refClas, { type: "string" }] };
           } else {
             res.items = refClas;
           }
@@ -1843,7 +1858,7 @@ export class JsonObject {
       if (options.storeLocaleStrings === "stringsOnly") {
         this.reduceLocaleArray(arrValue);
       }
-      value = arrValue.length > 0 ? arrValue : null;
+      value = arrValue.length > 0 || prop.serializeEmptyArray ? arrValue : null;
     } else {
       value = this.toJsonObjectCore(value, prop, options);
     }

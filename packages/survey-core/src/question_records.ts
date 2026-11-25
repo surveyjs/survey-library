@@ -4831,7 +4831,7 @@ export function isSortAllowed(obj: any): boolean {
    adds its own: showSortBar and the header row's inputs (QuestionMatrixDropdownModelBase.onPropertyValueChanged). */
 const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "maxSortLevel", "state",
   "_isMobile", "isDataLoading", pagingStateKeys.isPageMovePending, "titleLocation", "title"];
-function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
+export function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
   let el: any = q;
   while(!!el && el !== template) {
     if (!el.visible) return false;

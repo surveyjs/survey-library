@@ -360,10 +360,10 @@ describe("QuestionFilterModel: a field whose value is a number or a date", () =>
 });
 
 describe("QuestionFilterModel: a field with restricted operators", () => {
-  test("a bound control offers only the column's operators, refuses the others and takes a preset with one as raw", () => {
+  test("a bound control offers only the entry's operators, refuses the others and takes a preset with one as raw", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "matrixdynamic", name: "m", columns: [{ name: "country", cellType: "dropdown", choices: ["de", "fr"], filterOperators: ["anyof"] }] },
-      { type: "filter", name: "f1", targetQuestion: "m", presets: [{ name: "eq", expression: "{country} = 'de'" }, { name: "any", expression: "{country} anyof ['de']" }] }] });
+      { type: "matrixdynamic", name: "m", columns: [{ name: "country", cellType: "dropdown", choices: ["de", "fr"] }] },
+      { type: "filter", name: "f1", targetQuestion: "m", fields: [{ name: "country", operators: ["anyof"] }], presets: [{ name: "eq", expression: "{country} = 'de'" }, { name: "any", expression: "{country} anyof ['de']" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     expect(q.getFieldOperators("country"), "#1").toEqual(["anyof"]);
     q.setFieldCondition("country", "equal", "de");

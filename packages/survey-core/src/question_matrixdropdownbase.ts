@@ -30,10 +30,10 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed,
-  addRecordGetter
+  addRecordGetter, isVisibleInTemplate
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { addFilterRecordKey, collectFilterFields, collectFilterRecordKeys, IDynamicDataFilterField, IFilterRecordKeys, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
+import { addFilterRecordKey, collectFilterFields, collectFilterRecordKeys, IDynamicDataFilterField, IFilterRecordKeys, isFilterRecordKeyExcluded, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
@@ -2797,8 +2797,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // cell question, so it names them under getValueName() - the key the cell writes, which is what
   // column.sortField reports and is not the column name when the column is bound through valueName.
   // The detail panel's questions follow the columns: their values are in the row record too, and the
-  // sort bar offers them (getRecordSortTemplate). A key a column has stays the column's, filtered or
-  // not, as in getFields; an expression is no field, as it is no sort field (isDetailExpression).
+  // sort bar offers them (getRecordSortTemplate). A key a column has stays the column's, as in
+  // getFields; an expression is no field, as it is no sort field (isDetailExpression).
   public getFilterFields(): Array<IDynamicDataFilterField> {
     const res = new Array<IDynamicDataFilterField>();
     this.columns.forEach((column: MatrixDropdownColumn): void => {
@@ -2807,26 +2807,25 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         res.push(field);
         return;
       }
-      if (column.allowFiltering) {
-        collectFilterFields(res, column.templateQuestion, "");
-      }
+      collectFilterFields(res, column.templateQuestion, "", column.visible);
     });
-    this.getDetailFilterQuestions().forEach((q: Question): void => { collectFilterFields(res, q, ""); });
+    const template = this.getRecordSortTemplate();
+    this.getDetailFilterQuestions().forEach((q: Question): void => { collectFilterFields(res, q, "", isVisibleInTemplate(q, template)); });
     return res;
   }
-  // A column by its name or the key its cells write, filtered or not, a child of a column's record by
-  // its path, or a path into a column the filter leaves out (see isRecordFieldName). The walk of the
+  // A column by its name or the key its cells write, a child of a column's record by its path, or a path
+  // into a key the filter cannot filter by (see isRecordFieldName). The walk of the
   // cell question adds the key its cells write (column.sortField). The detail panel's questions are
   // taken the way a Dynamic Panel takes its template's.
   public hasRecordField(name: string): boolean {
     const keys: IFilterRecordKeys = { keys: [], excluded: [] };
     this.columns.forEach((column: MatrixDropdownColumn): void => {
-      addFilterRecordKey(keys, column.name, !column.allowFiltering);
-      collectFilterRecordKeys(keys, column.templateQuestion, "", !column.allowFiltering);
+      addFilterRecordKey(keys, column.name, isFilterRecordKeyExcluded(column.templateQuestion));
+      collectFilterRecordKeys(keys, column.templateQuestion, "");
     });
     this.getDetailFilterQuestions().forEach((q: Question): void => {
-      addFilterRecordKey(keys, q.name, !q.allowFiltering);
-      collectFilterRecordKeys(keys, q, "", false);
+      addFilterRecordKey(keys, q.name, isFilterRecordKeyExcluded(q));
+      collectFilterRecordKeys(keys, q, "");
     });
     return isRecordFieldName(name, keys);
   }

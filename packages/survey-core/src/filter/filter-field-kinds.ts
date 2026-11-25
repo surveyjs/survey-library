@@ -22,7 +22,7 @@ function isBooleanField(field: IDynamicDataFilterField): boolean {
 }
 // Decided by the operators the author allows, not by the question type: a dropdown column filters
 // by several values at once when it offers anyof, and the author makes it a single pick with
-// filterOperators: ["equal"]. A list needs values to list: a field with no choices (yet - a
+// operators: ["equal"] of its fields entry. A list needs values to list: a field with no choices (yet - a
 // choicesByUrl that has not loaded) edits as a condition. Read once per field within a pass, as its
 // operators are (getFilterFieldPassValue).
 export function getFilterFieldEditorKind(field: IDynamicDataFilterField): FilterFieldEditorKind {

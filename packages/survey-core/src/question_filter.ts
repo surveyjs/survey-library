@@ -1,5 +1,5 @@
 import type { ChangedKeys } from "./conditions/conditionProcessValue";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, JsonRequiredArrayPropertyError, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
@@ -50,6 +50,19 @@ type FilterTargetQuestion = Question & IDynamicDataFilterTarget;
 const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
 
 // A JSON definition in an array the host assigns, made the object of its class; an object is kept.
+// A fields entry from what an author or a host gives: a FilterField as it is, a name, or a JSON
+// definition (read by jsonConv while a survey loads, so an unknown property is still reported).
+function toFilterField(item: any, jsonConv?: JsonObject): FilterField {
+  if (item instanceof FilterField) return item;
+  if (typeof item === "string") return new FilterField(item);
+  const field = <FilterField>Serializer.createClass("filterfield");
+  (jsonConv || new JsonObject()).toObject(item, field);
+  return field;
+}
+function toFilterFields(val: Array<any>, jsonConv?: JsonObject): Array<FilterField> {
+  if (!Array.isArray(val)) return val;
+  return val.filter((item: any): boolean => !!item).map((item: any): FilterField => toFilterField(item, jsonConv));
+}
 function toFilterObjects(val: Array<any>, className: string): Array<any> {
   if (!Array.isArray(val)) return val;
   return val.map((item: any): any => {
@@ -99,9 +112,16 @@ export class QuestionFilterModel extends QuestionNonValue {
   constructor(name: string) {
     super(name);
     this.createNewArray("popupChips");
-    this.createNewArray("fields",
+    const fields = this.createNewArray("fields",
       (field: FilterField): void => { this.onFieldAdded(field); },
       (field: FilterField): void => { this.onFieldRemoved(field); });
+    // A name or a JSON definition put into fields is an entry, as the setter and the JSON take it: it is made
+    // one before the array's own push (Base.createNewArray) puts it in and hooks it.
+    const push = fields.push, unshift = fields.unshift, splice = fields.splice;
+    fields.push = (...items: Array<any>): number => push.apply(fields, toFilterFields(items));
+    fields.unshift = (...items: Array<any>): number => unshift.apply(fields, toFilterFields(items));
+    fields.splice = (...args: Array<any>): Array<any> =>
+      splice.apply(fields, args.length > 2 ? args.slice(0, 2).concat(toFilterFields(args.slice(2))) : args);
     this.createNewArray("presets",
       (preset: FilterPreset): void => { this.onPresetAdded(preset); },
       (preset: FilterPreset): void => { this.onPresetRemoved(preset); });
@@ -118,10 +138,37 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get targetQuestion(): string { return this.getPropertyValue("targetQuestion", ""); }
   public set targetQuestion(val: string) { this.setPropertyValue("targetQuestion", val); }
 
+  // Whether fields are set at all. Left out, a control with a target question filters by the visible
+  // fields of the target; set - [] too - by its entries only. The key of the JSON, an assignment and an
+  // added entry set it; nothing but new JSON clears it, so an undo in Creator never needs to (spec G, Q4).
+  private isFieldsDefinedValue: boolean = false;
+  public get isFieldsDefined(): boolean { return this.isFieldsDefinedValue; }
   // Both take JSON definitions as well as instances, as choices take plain values: a definition becomes
-  // a FilterField or a FilterPreset.
+  // a FilterField or a FilterPreset. fields take a name too.
   public get fields(): Array<FilterField> { return this.getPropertyValue("fields"); }
-  public set fields(val: Array<FilterField>) { this.setPropertyValue("fields", toFilterObjects(val, "filterfield")); }
+  public set fields(val: Array<FilterField>) {
+    this.isFieldsDefinedValue = true;
+    this.setPropertyValue("fields", toFilterFields(val));
+  }
+  // The fields key of the JSON, [] included: an empty array reaches no array hook, so the key is read here.
+  // A value that is no array is one entry - a name is one now - and reported, as the deserializer reports
+  // any array property written without its brackets.
+  public loadFieldsFromJson(value: any, jsonConv: JsonObject): void {
+    this.isFieldsDefinedValue = true;
+    if (!Array.isArray(value) && !!value) {
+      const error = new JsonRequiredArrayPropertyError("fields", this.getType());
+      error.element = this;
+      jsonConv.errors.push(error);
+      value = [value];
+    }
+    this.setPropertyValue("fields", toFilterFields(Array.isArray(value) ? value : [], jsonConv));
+  }
+  // What the JSON keeps: nothing while fields are not set; [] only with a target question - without one,
+  // [] and no fields mean the same, no fields at all.
+  public getSerializableFieldsValue(): Array<FilterField> {
+    if (!this.isFieldsDefined) return undefined;
+    return this.fields.length > 0 || !!this.targetQuestion ? this.fields : undefined;
+  }
 
   public get presets(): Array<FilterPreset> { return this.getPropertyValue("presets"); }
   public set presets(val: Array<FilterPreset>) { this.setPropertyValue("presets", toFilterObjects(val, "filterpreset")); }
@@ -203,8 +250,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // data list asks a target whether it has "remove": the control imports none of the records questions.
   // A control taken off its page keeps its data, so without the parent check it would still find a
   // target - and filter it from outside the survey - the next time it re-resolves one.
-  private get filterTarget(): FilterTargetQuestion {
-    const q: any = !!this.data && !!this.parent ? this.data.findQuestionByName(this.targetQuestion) : undefined;
+  private get filterTarget(): FilterTargetQuestion { return this.findFilterTarget(this.targetQuestion); }
+  private findFilterTarget(name: string): FilterTargetQuestion {
+    const q: any = !!name && !!this.data && !!this.parent ? this.data.findQuestionByName(name) : undefined;
     return !!q && typeof q.getFilterFields === "function" && typeof q.setControlFilter === "function"
       ? <FilterTargetQuestion>q : undefined;
   }
@@ -214,84 +262,72 @@ export class QuestionFilterModel extends QuestionNonValue {
   public getFilterFields(): Array<IDynamicDataFilterField> {
     return this.passFields || this.buildFilterFields();
   }
-  // With no target, the fields entries. With one, the target's fields in its order, each as the entry
-  // that names it overrides it, then the entries that name no record field of the target: fields of
-  // the record it has no column for. An entry naming a column the filter leaves out (allowFiltering:
-  // false), or a path into one, is neither; a path into a column it offers is a field of the record.
-  // A target builds its list anew on every call.
+  // The catalog of a target question: every field it can be filtered by, a hidden one too (isVisible).
+  // targetName: another question than targetQuestion (Creator reads the target a control is leaving).
+  public getTargetFilterFields(targetName?: string, visibleOnly: boolean = false): Array<IDynamicDataFilterField> {
+    const target = this.findFilterTarget(targetName === undefined ? this.targetQuestion : targetName);
+    const res = !!target ? target.getFilterFields() : [];
+    return visibleOnly ? res.filter((field: IDynamicDataFilterField): boolean => field.isVisible !== false) : res;
+  }
+  // The field of the target an entry names: by the field's valueName - what Creator names an entry by -
+  // then by its name.
+  public findTargetFilterField(name: string): IDynamicDataFilterField {
+    return this.findCatalogField(this.getTargetFilterFields(), name);
+  }
+  private findCatalogField(catalog: Array<IDynamicDataFilterField>, name: string): IDynamicDataFilterField {
+    if (!name) return undefined;
+    return catalog.filter((field: IDynamicDataFilterField): boolean => field.valueName === name)[0] ||
+      catalog.filter((field: IDynamicDataFilterField): boolean => field.name === name)[0];
+  }
+  // With no target, the entries. With one: fields left out - its visible fields, in its order; set - the
+  // entries in their order, each the field of the target it names as it overrides it, or a field of the
+  // record the target has no column for. A second entry of one field adds nothing, and an entry naming a
+  // key the target cannot filter by (hasRecordField) is ignored. A target builds its catalog anew on every call.
   private buildFilterFields(): Array<IDynamicDataFilterField> {
     const target = this.filterTarget;
     if (!target) return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());
-    const used: Array<FilterField> = [];
-    const res = target.getFilterFields().map((field: IDynamicDataFilterField): IDynamicDataFilterField => {
-      const entry = this.findFieldEntry(field);
-      if (!entry) return field;
-      used.push(entry);
-      return entry.applyTo(field);
-    });
+    const catalog = target.getFilterFields();
+    if (!this.isFieldsDefined) return catalog.filter((field: IDynamicDataFilterField): boolean => field.isVisible !== false);
+    const used: Array<IDynamicDataFilterField> = [];
+    const res: Array<IDynamicDataFilterField> = [];
     this.fields.forEach((entry: FilterField): void => {
-      if (!!entry.name && used.indexOf(entry) < 0 && !this.isTargetRecordField(target, entry.name)) {
+      if (!entry.name) return;
+      const field = this.findCatalogField(catalog, entry.name);
+      if (!!field) {
+        if (used.indexOf(field) < 0) {
+          used.push(field);
+          res.push(entry.applyTo(field));
+        }
+        return;
+      }
+      if (!this.isTargetRecordField(target, entry.name)) {
         res.push(entry.getFilterField());
       }
     });
     return res;
   }
-  // The entry for a field of the target: by the field's name, then by its value name (a nested
-  // field's path), as getFieldByName finds a field.
-  private findFieldEntry(field: IDynamicDataFilterField): FilterField {
-    const fields = this.fields;
-    for (let i = 0; i < fields.length; i++) {
-      if (fields[i].name === field.name) return fields[i];
-    }
-    for (let i = 0; i < fields.length; i++) {
-      if (fields[i].name === field.valueName) return fields[i];
-    }
-    return undefined;
-  }
-  // The field a fields entry stands for: the target's it overrides, the record field it adds or, with
-  // no target, its own; undefined for an entry the control ignores. The designer offers an entry's
-  // operators by it. An entry of getDesignFieldEntries() that is not in fields yet stands for its field.
+  // The field an entry stands for, by the rules of buildFilterFields; undefined for an entry the control
+  // ignores. The designer offers an entry's operators by it. An entry of getDesignFieldEntries() that is not
+  // in fields yet stands for its field.
   public getFieldOfEntry(entry: FilterField): IDynamicDataFilterField {
-    if (!entry) return undefined;
-    if (this.fields.indexOf(entry) < 0) return this.getFieldOfDesignEntry(entry);
+    if (!entry || !entry.name) return undefined;
+    if (this.fields.indexOf(entry) < 0 && entry.designOwner !== this) return undefined;
     const target = this.filterTarget;
     if (!target) return entry.getFilterField();
-    const field = target.getFilterFields().filter((f: IDynamicDataFilterField): boolean => this.findFieldEntry(f) === entry)[0];
+    const field = this.findCatalogField(target.getFilterFields(), entry.name);
     if (!!field) return entry.applyTo(field);
-    return !entry.name || this.isTargetRecordField(target, entry.name) ? undefined : entry.getFilterField();
+    return this.isTargetRecordField(target, entry.name) ? undefined : entry.getFilterField();
   }
-  // What the designer's Fields table shows: with a target, a row per field of the target in its order -
-  // the entry that overrides it (findFieldEntry, as buildFilterFields matches it) or a new entry that is
-  // not in fields and stands for the field until the designer adds it - then every other entry: the
-  // fields of the record and the entries the control ignores, so they can be changed and removed.
-  // With no target, the fields entries. A new array, and new entries, on every call.
+  // What the designer's Fields table shows: the entries; fields left out with a target - an entry per visible
+  // field of the target, named by its valueName, that is not in fields (designOwner) until Creator writes the
+  // rows into fields. New entries on every call.
   public getDesignFieldEntries(): Array<FilterField> {
-    const target = this.filterTarget;
-    if (!target) return [].concat(this.fields);
-    const targetFields = target.getFilterFields();
-    const res: Array<FilterField> = [];
-    targetFields.forEach((field: IDynamicDataFilterField): void => {
-      const entry = this.findFieldEntry(field);
-      res.push(!!entry && res.indexOf(entry) < 0 ? entry : this.createDesignEntry(field, targetFields));
+    if (this.isFieldsDefined || !this.filterTarget) return [].concat(this.fields);
+    return this.getTargetFilterFields(undefined, true).map((field: IDynamicDataFilterField): FilterField => {
+      const entry = new FilterField(field.valueName);
+      entry.designOwner = this;
+      return entry;
     });
-    this.fields.forEach((entry: FilterField): void => {
-      if (res.indexOf(entry) < 0) res.push(entry);
-    });
-    return res;
-  }
-  // Named by the field's name, or by its path where another field of the target has the same name: once
-  // added, findFieldEntry would give an entry named "city" to the first of two such fields.
-  private createDesignEntry(field: IDynamicDataFilterField, targetFields: Array<IDynamicDataFilterField>): FilterField {
-    const isNameShared = targetFields.some((f: IDynamicDataFilterField): boolean => f !== field && f.name === field.name);
-    const entry = new FilterField(isNameShared ? field.valueName : field.name);
-    entry.designOwner = this;
-    return entry;
-  }
-  private getFieldOfDesignEntry(entry: FilterField): IDynamicDataFilterField {
-    const target = this.filterTarget;
-    if (entry.designOwner !== this || !target) return undefined;
-    const field = this.findFieldInList(target.getFilterFields(), entry.name);
-    return !!field ? entry.applyTo(field) : undefined;
   }
   // A target that cannot tell (no hasRecordField) takes no name: an entry its list does not have is a
   // field of the record.
@@ -2033,6 +2069,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   private onFieldAdded(field: FilterField): void {
     if (!field) return;
+    this.isFieldsDefinedValue = true;
     field.fieldOwner = this;
     field.onPropertyChanged.add(this.onFieldPropertyChanged);
     this.updateFilterExpression();
@@ -2172,9 +2209,13 @@ Serializer.addClass("filter", [
   { name: "setValueExpression", visible: false },
   { name: "defaultDisplayValue", visible: false },
   { name: "targetQuestion:question_filtertarget" },
-  // With no target question, the control's own fields (the host reads its combinedExpression). With
-  // one, overrides of the target's fields and fields of the record the target has no column for.
-  { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name" },
+  // The fields of the control, in their order. With a target question an entry names a field of the
+  // target (by its valueName, else its name) or is a field of the record the target has no column for;
+  // left out, the visible fields of the target are the fields. An entry with nothing but a name is a
+  // string in the JSON.
+  { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", serializeEmptyArray: true, allowNameItems: true,
+    onSerializeValue: (obj: any): any => obj.getSerializableFieldsValue(),
+    onSetValue: (obj: any, value: any, jsonConv: JsonObject): void => { obj.loadFieldsFromJson(value, jsonConv); } },
   // The live list is the respondent's changes too: the JSON is the authored presets (getSerializablePresetsValue).
   { name: "presets:filterpreset[]", className: "filterpreset", uniqueProperty: "name",
     onSerializeValue: (obj: any): any => obj.getSerializablePresetsValue() },

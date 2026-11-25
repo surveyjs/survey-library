@@ -335,12 +335,6 @@ describe("expression/type-mismatch - a constant the runtime converts", () => {
       expect(check("boolean", "{c} = 'TRUE'", true)).toEqual({ visible: true, findings: 0 });
     });
   });
-  test("with comparator.strictEquality, {c} = 1 and {c} = 0 cannot hold and are reported", () => {
-    withSettings({ "comparator.strictEquality": true }, () => {
-      expect(check("boolean", "{c} = 1", true)).toEqual({ visible: false, findings: 1 });
-      expect(check("boolean", "{c} = 0", false)).toEqual({ visible: false, findings: 1 });
-    });
-  });
   test("{n} + '3' joins strings at runtime and is still reported", () => {
     const json = {
       elements: [

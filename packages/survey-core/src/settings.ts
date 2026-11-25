@@ -402,15 +402,11 @@ export var settings = {
    *
    * - `numericStringsAsText`: `boolean`\
    * Specifies whether to match numeric strings as text when both values in the expression are strings. When enabled, a text answer of `"5.0"` differs from `"5"` but can still match the number `5`. Default value: `false`.
-   *
-   * - `strictEquality`: `boolean`\
-   * Specifies whether to use strict equality for matches in expressions. Default value: `false`.
    */
   comparator: {
     trimStrings: true,
     caseSensitive: false,
     numericStringsAsText: false,
-    strictEquality: false,
     normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",

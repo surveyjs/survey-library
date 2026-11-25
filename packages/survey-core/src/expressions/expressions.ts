@@ -850,17 +850,18 @@ export class OperandMaker {
       return left < right;
     },
     // A comparing operator takes the run's survey settings as the 4th argument (undefined: the global settings)
-    // >= and <= keep loose equality under comparator.strictEquality, as > and < convert their operands
     greaterorequal: function(left: any, right: any, strictCompare?: boolean, runtimeSettings?: ISurveyRuntimeSettings): boolean {
-      if (OperandMaker.isEqualOperands(left, right, true, runtimeSettings, false)) return true;
+      if (OperandMaker.binaryFunctions.equal(left, right, undefined, runtimeSettings)) return true;
       return OperandMaker.binaryFunctions.greater(left, right);
     },
     lessorequal: function(left: any, right: any, strictCompare?: boolean, runtimeSettings?: ISurveyRuntimeSettings): boolean {
-      if (OperandMaker.isEqualOperands(left, right, true, runtimeSettings, false)) return true;
+      if (OperandMaker.binaryFunctions.equal(left, right, undefined, runtimeSettings)) return true;
       return OperandMaker.binaryFunctions.less(left, right);
     },
     equal: function(left: any, right: any, strictCompare?: boolean, runtimeSettings?: ISurveyRuntimeSettings): boolean {
-      return OperandMaker.isEqualOperands(left, right, strictCompare !== true, runtimeSettings, true);
+      left = OperandMaker.convertValForDateCompare(left, right);
+      right = OperandMaker.convertValForDateCompare(right, left);
+      return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true, runtimeSettings);
     },
     notequal: function(left: any, right: any, strictCompare?: boolean, runtimeSettings?: ISurveyRuntimeSettings): boolean {
       return !OperandMaker.binaryFunctions.equal(left, right, strictCompare, runtimeSettings);
@@ -932,18 +933,10 @@ export class OperandMaker {
     },
   };
 
-  // = and <> pass strictEqualityApplies = true, >= and <= pass false (outside binaryFunctions, so a replaced
-  // equal cannot drop the flag)
-  static isEqualOperands(left: any, right: any, ignoreOrder: boolean, runtimeSettings: ISurveyRuntimeSettings, strictEqualityApplies: boolean): boolean {
-    left = OperandMaker.convertValForDateCompare(left, right);
-    right = OperandMaker.convertValForDateCompare(right, left);
-    return OperandMaker.isTwoValueEquals(left, right, ignoreOrder, runtimeSettings, strictEqualityApplies);
-  }
-  // strictEqualityApplies: comparator.strictEquality may apply; true for the operators, false for >= and <=
-  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true, runtimeSettings?: ISurveyRuntimeSettings, strictEqualityApplies: boolean = true): boolean {
+  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true, runtimeSettings?: ISurveyRuntimeSettings): boolean {
     if (x === "undefined") x = undefined;
     if (y === "undefined") y = undefined;
-    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, settings: runtimeSettings, strictEqualityApplies: strictEqualityApplies });
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, settings: runtimeSettings });
   }
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];

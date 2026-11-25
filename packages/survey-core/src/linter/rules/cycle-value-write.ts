@@ -1,8 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
-import { equalsCI, getDependencyRefs } from "../expression-utils";
+import { classifySiteRefs, equalsCI, getDependencyRefs } from "../expression-utils";
 import { collectAmbiguousNames } from "../constant-env";
 import { findCycles } from "../graph";
-import { ExpressionSite, TriggerRecord } from "../symbols";
+import { ExpressionSite, ParsedRef, TriggerRecord } from "../symbols";
 import { SurveyLintReasons } from "../reasons";
 import { classifySelfWrite, getRefSelfKind, SelfWriteKind } from "../self-write";
 
@@ -54,14 +54,16 @@ interface SiteRead {
 
 // The slots a site reads, the names its unquoted inArray filters read included: the runtime re-runs
 // the expression when they change. Scoped references live inside a row/panel and are skipped -
-// except {self}, which reads the very value the owner writes.
+// except {self} in the expression itself, which reads the very value the owner writes. A filter
+// runs in the item and survey scope, where {self} names nothing.
 function getSiteReadRefs(ctx: LintContext, site: ExpressionSite, selfSlot?: string): Array<SiteRead> {
   if (!site || !site.ast) return [];
   const selfVar = ctx.index.settings.expressionVariables.self;
+  const ownRefs = new Set<ParsedRef>(site.inArrayOf ? [] : classifySiteRefs(site, ctx.index, ctx.options));
   const res: Array<SiteRead> = [];
   getDependencyRefs(site, ctx.index, ctx.options).forEach(ref => {
     if (ref.status === "scoped-resolved" || ref.status === "scoped-unknown") {
-      if (!!selfSlot && !!ref.scopePrefix && equalsCI(ref.scopePrefix, selfVar)) {
+      if (!!selfSlot && ownRefs.has(ref) && !!ref.scopePrefix && equalsCI(ref.scopePrefix, selfVar)) {
         // the segments keep the prefix: {self} is one segment, {self.a} two
         res.push({ raw: ref.raw, slot: selfSlot, isWhole: getRefSelfKind(ref) === "whole" });
       }

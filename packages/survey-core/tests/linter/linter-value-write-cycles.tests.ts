@@ -238,6 +238,15 @@ describe("cycle/value-write - inArray filters", () => {
     survey.setValue("q1", 0);
     expect(survey.getValue("q1")).toBe(6);
   });
+  test("{self} inside an inArray filter does not read the own value", () => {
+    const json = { elements: [matrix(), { type: "text", name: "q1", setValueExpression: "sumInArray({m}, 'col', {col} > {self})" }] };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    survey.setValue("q1", 2);
+    survey.setValue("m", rows);
+    // the filter runs in the item and survey scope: were {self} the own value, the sum would be 5
+    expect(survey.getValue("q1")).toBe(0);
+  });
   test("a calculated value reading a question in an inArray filter loops with it", () => {
     const json = {
       elements: [matrix(), { type: "text", name: "q1", setValueExpression: "{cnt} + 1" }],

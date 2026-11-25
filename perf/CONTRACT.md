@@ -94,7 +94,7 @@ counter run or from outside the samples' timed runs:
 
 | kind | counters | what |
 |---|---|---|
-| `work` | `conditionRuns`, `expressionRuns`, `rowsCreated`, `panelsCreated`, a scenario's own | calls in survey-core during the counter run |
+| `work` | `conditionRuns`, `expressionRuns`, `conditionsPasses`, `rowsCreated`, `panelsCreated`, a scenario's own | calls in survey-core during the counter run (`conditionsPasses`: passes over the survey's conditions, `SurveyModel.runConditionsCore`) |
 | `dom` | `domNodes` (browser) | elements under the survey's root after the counter run |
 | `render` | `layoutCount`, `recalcStyleCount` (browser) | layouts and style recalcs (CDP `Performance.getMetrics`) from the counter run's first run until the rendering is quiet (the counts the same for 2 frames in a row; `null` when it is not quiet within 60 frames) |
 | `leak` | `listenerGrowth`, `nodeGrowth` (browser actions) | growth per sample of the JS event listeners and the DOM nodes, after a full gc (CDP `HeapProfiler.collectGarbage`), from the end of the first sample to the end of the last one: what a page keeps once is not counted |

@@ -46,6 +46,45 @@ check, teardown), then one counter run. A browser load scenario has no warm-ups 
 instead of a teardown. A suite runs as long as it runs; a hung scenario is stopped by its hang guard (5 minutes) and
 fails alone (`CONTRACT.md`).
 
+### Local forms (`PERF_EXTRA_JSON`)
+
+`PERF_EXTRA_JSON=<file>;<file>` adds survey JSON files of your own to a local core run, as fixtures
+`extra/<basename>`. Their scenarios are never baselined, and warnings and `jsonErrors` on them are counted
+(`info.warnings`, `jsonErrors`), not failures. Each file gets `extra/<base>/load/model` and
+`extra/<base>/answer/first` (the first choice of the first question with choices). Optional files next to
+`<base>.json`, found by name, add more:
+
+| file | what |
+|---|---|
+| `<base>.data.json` | the survey data: the `data` ops assign it, every other op starts from a model that has it |
+| `<base>.setup.mjs` | a module whose default export `(Survey) => void` runs once per scenario process before any survey is created, with the measured build's module: register the form's custom functions here |
+| `<base>.ops.json` | a JSON array of operations, one scenario each: `extra/<base>/ops/<id>` |
+
+An operation is `{ "id": "<id>", "op": "<kind>", ... }`. Each sample creates a fresh model in the untimed setup; every
+op except `data` also assigns the data there, then runs `before` (an optional list of `{ "name", "value" }`
+`setValue` calls). Only the operation itself is timed, and its check runs after it.
+
+| `op` | fields | the timed call | the check |
+|---|---|---|---|
+| `data` | | `survey.data = data` on a model without data | some data values are set; the `dataDiffs` counter is the number of top-level keys whose value differs from the data |
+| `data-again` | | the same assignment a second time | as `data` |
+| `merge` | `value` | `survey.mergeData(value)` | each key of `value` |
+| `set` | `name`, `value` | `survey.setValue(name, value)` | the value |
+| `cell` | `question`, `row`, `column`, `value` | `matrix.value` with one cell changed (`row`: a row value, or an index of a dynamic matrix) | the cell |
+| `row-cell` | `question`, `row`, `column`, `value` | the cell question of the visible row gets `value` | the cell question and the row |
+| `panel-question` | `question`, `panelIndex`, `name`, `value` | the question `name` of the panel gets `value` | the question |
+| `type` | `question`, `text` | one `value` assignment per character, as `textUpdateMode: "onTyping"` makes them | the text |
+
+A slow op sets `"samples"` (the samples kept: all of them when 5 or fewer) and `"warmup"` (default 2). A sample that
+takes minutes needs a longer hang guard: `PERF_EXTRA_TIMEOUT_MS` sets it for `extra/` ids only.
+
+```bash
+PERF_EXTRA_JSON=/abs/form.json PERF_EXTRA_TIMEOUT_MS=1800000 PERF_ONLY=extra/form/ops/data,extra/form/ops/type npm run perf
+```
+
+The core suite counts `conditionsPasses` for every scenario: the passes over the survey's conditions
+(`SurveyModel.runConditionsCore`) in the counter run.
+
 ## The browser suites
 
 Every page loads survey-core's UMD build from `PERF_CORE_DIR` as `window.Survey`, so all suites measure the same core

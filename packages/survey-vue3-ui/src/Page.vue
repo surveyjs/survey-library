@@ -47,7 +47,7 @@ const onAfterRender = () => {
   if (!root.value) return;
   nextTick(() => {
     if (props.survey && root.value) {
-      props.survey.afterRenderPage(root.value);
+      props.page.afterRender(root.value);
     }
   });
 };
@@ -57,10 +57,9 @@ const showDescription = computed(() => {
 });
 
 useBase(
-  () => props.page,
-  () => {
-    onAfterRender();
-  }
+  () => props.page, 
+  () => { onAfterRender(); }, 
+  (page) => { page.beforeDestroy(); }
 );
 
 onMounted(() => {

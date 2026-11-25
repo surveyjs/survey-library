@@ -3725,9 +3725,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return classes;
   }
-  public ensureRowsVisibility(): void {
-    this.visiblePanels.forEach(panel => panel.ensureRowsVisibility());
-  }
 }
 
 export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputBehavior<PanelModel> {

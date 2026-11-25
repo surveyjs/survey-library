@@ -62,21 +62,12 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     const wrapper = ReactSurveyElementsWrapper.wrapRow(survey, content, this.row);
     return wrapper || content;
   }
-  private lazyRenderingTimeout: ReturnType<typeof setTimeout>;
   componentDidMount() {
     super.componentDidMount();
     if (!this.row) return;
     this.row.changeUIMountCount(1);
-    var el = this.rootRef.current;
     if (this.rootRef.current) {
       this.row.setRootElement(this.rootRef.current);
-    }
-    if (!!el && !this.row.isNeedRender) {
-      var row = this.row;
-      var rowContainerDiv = el;
-      this.lazyRenderingTimeout = setTimeout(() => {
-        row.startLazyRendering(rowContainerDiv);
-      }, 10);
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
@@ -93,7 +84,6 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     super.componentDidUpdate(prevProps, prevState);
     const prevRow: QuestionRowModel = prevProps.row;
     if (prevRow === this.row) return;
-    clearTimeout(this.lazyRenderingTimeout);
     if (!!this.row) {
       this.row.changeUIMountCount(1);
     }
@@ -101,7 +91,6 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    clearTimeout(this.lazyRenderingTimeout);
     this.releaseRowIfUnmounted(this.row);
   }
   // Another component may still render the row (#10701), so only the last one to unmount resets it.

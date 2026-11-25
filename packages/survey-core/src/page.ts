@@ -403,11 +403,6 @@ export class PageModel extends PanelModel implements IPage {
     }
   }
 
-  public ensureRowsVisibility() {
-    super.ensureRowsVisibility();
-    this.elements.forEach(el => el.ensureRowsVisibility());
-  }
-
   private _isReadyForClean: boolean = true;
   public get isReadyForClean(): boolean {
     return this._isReadyForClean;
@@ -427,6 +422,9 @@ export class PageModel extends PanelModel implements IPage {
   public disableOnElementRerenderedEvent(): void {
     super.disableOnElementRerenderedEvent();
     this.isReadyForClean = true;
+  }
+  protected doAfterRender(el: HTMLElement): void {
+    this.survey?.afterRenderPage(el);
   }
 }
 

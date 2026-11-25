@@ -75,12 +75,15 @@ describe("cycle/value-write - self references", () => {
     expect(findings[0].reason).toBe("self");
   });
   test("defaultValueExpression computing from its own value is flagged", () => {
-    const findings = byRule({
-      elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1} + 1" }],
-    });
+    const json = { elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1} + 1" }] };
+    const findings = byRule(json);
     expect(findings).toHaveLength(1);
     expect(findings[0].reason).toBe("self");
     expect(findings[0].message).toContain("previous result");
+    // each run at load starts from the previous result, and one more run moves it again
+    const survey = new Model(json);
+    expect(survey.getValue("q1")).toBeGreaterThan(1);
+    expect(survey.runExpression("{q1} + 1")).not.toBe(survey.getValue("q1"));
   });
   test("a self-reading setValueExpression rewrites the answer at runtime", () => {
     const json = { elements: [{ type: "text", name: "q1", setValueExpression: "{q1} + 1" }] };
@@ -112,12 +115,20 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
     expect(survey.getValue("q1")).toBe("a");
   });
   test("iif fallbacks on the own value being empty are not flagged", () => {
-    expect(byRule({
+    const json = {
       elements: [
         { type: "text", name: "q1", defaultValueExpression: "iif({q1} empty, 'n/a', {q1})" },
         { type: "text", name: "q2", defaultValueExpression: "iif({q2} notempty, {q2}, 'n/a')" },
       ],
-    })).toHaveLength(0);
+    };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    expect(survey.getValue("q1")).toBe("n/a");
+    expect(survey.getValue("q2")).toBe("n/a");
+    survey.setValue("q1", "v");
+    survey.setValue("q2", "w");
+    expect(survey.getValue("q1")).toBe("v");
+    expect(survey.getValue("q2")).toBe("w");
   });
   test("a setValueIf guard reading the own value is not flagged and runs", () => {
     const json = {
@@ -137,12 +148,18 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
     expect(survey.getValue("closedAt")).toBe("set");
   });
   test("a setValueIf guard reading only the own value is not flagged", () => {
-    expect(byRule({
+    const json = {
       elements: [
         { type: "text", name: "q2" },
         { type: "text", name: "q1", setValueIf: "{q1} empty", setValueExpression: "{q2}" },
       ],
-    })).toHaveLength(0);
+    };
+    expect(byRule(json)).toHaveLength(0);
+    const survey = new Model(json);
+    survey.setValue("q2", "a");
+    expect(survey.getValue("q1")).toBe("a");
+    survey.setValue("q2", "b");
+    expect(survey.getValue("q1")).toBe("a");
   });
   test("resetValueIf reading its own value is not flagged and resets the answer", () => {
     const json = { elements: [{ type: "text", name: "q1", resetValueIf: "{q1} = 'x'" }] };
@@ -161,9 +178,14 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
     expect(new Model(json).getValue("q1")).toBeUndefined();
   });
   test("{self} alone only copies the own value too", () => {
-    const findings = byRule({ elements: [{ type: "text", name: "q1", setValueExpression: "{self}" }] });
+    const json = { elements: [{ type: "text", name: "q1", setValueExpression: "{self}" }] };
+    const findings = byRule(json);
     expect(findings).toHaveLength(1);
     expect(findings[0].reason).toBe("copiesItself");
+    const survey = new Model(json);
+    expect(survey.getValue("q1")).toBeUndefined();
+    survey.setValue("q1", "v");
+    expect(survey.getValue("q1")).toBe("v");
   });
   test("a calculated value that only copies itself is a warning, not an error", () => {
     const json = { calculatedValues: [{ name: "c1", expression: "{c1}" }] };
@@ -173,6 +195,7 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
     expect(findings[0].reason).toBe("copiesItself");
     expect(findings[0].severity).toBe("warning");
     expect(findings[0].path).toBe("calculatedValues[0].expression");
+    expect(new Model(json).getVariable("c1")).toBeUndefined();
   });
 });
 

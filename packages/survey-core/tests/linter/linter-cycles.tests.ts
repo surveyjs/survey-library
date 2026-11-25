@@ -6,6 +6,13 @@ function byRule(json: any, ruleId: string): Array<ILintFinding> {
   return lintSurvey(json).findings.filter(f => f.ruleId === ruleId);
 }
 
+// A calculated value has settled when one more run of its expression returns the value it holds
+function expectSettled(survey: Model, calculatedValues: Array<{ name: string, expression: string }>): void {
+  calculatedValues.forEach(cv => {
+    expect(survey.runExpression(cv.expression), cv.name).toEqual(survey.getVariable(cv.name));
+  });
+}
+
 describe("cycle/calculated-value", () => {
   test("two calculated values depending on each other", () => {
     const findings = byRule({
@@ -57,7 +64,7 @@ describe("cycle/calculated-value", () => {
     expect(survey.getVariable("b")).toBe("none");
   });
   test("a fallback in parentheses, with a function, or passing the value through is not reported", () => {
-    expect(byRule({
+    const json = {
       elements: [{ type: "text", name: "q1" }],
       calculatedValues: [
         { name: "a", expression: "({a} || today())" },
@@ -65,10 +72,16 @@ describe("cycle/calculated-value", () => {
         { name: "c", expression: "{q1} || {c}" },
         { name: "d", expression: "iif({q1} = 1, {d}, 'other')" },
       ],
-    }, "cycle/calculated-value")).toHaveLength(0);
+    };
+    expect(byRule(json, "cycle/calculated-value")).toHaveLength(0);
+    const survey = new Model(json);
+    expectSettled(survey, json.calculatedValues);
+    survey.setValue("q1", "v");
+    expect(survey.getVariable("c")).toBe("v");
+    expectSettled(survey, json.calculatedValues);
   });
   test("a self-reference that computes a new value is still a cycle", () => {
-    const findings = byRule({
+    const json = {
       elements: [{ type: "text", name: "q1" }],
       calculatedValues: [
         { name: "a", expression: "({a} || 0) + 1" },
@@ -76,19 +89,31 @@ describe("cycle/calculated-value", () => {
         { name: "c", expression: "iif({c} = 1, 2, 1)" },
         { name: "d", expression: "sum({d}, 1)" },
       ],
-    }, "cycle/calculated-value");
+    };
+    const findings = byRule(json, "cycle/calculated-value");
     expect(findings.map(f => f.elementName)).toEqual(["a", "b", "c", "d"]);
+    // one more run moves each of them away from the value the load left
+    const survey = new Model(json);
+    json.calculatedValues.forEach(cv => {
+      expect(survey.runExpression(cv.expression), cv.name).not.toEqual(survey.getVariable(cv.name));
+    });
   });
   test("a loop between two values is still an error when each falls back", () => {
-    const findings = byRule({
+    const json = {
       calculatedValues: [
         { name: "a", expression: "{b} || 1" },
         { name: "b", expression: "{a} || 2" },
       ],
-    }, "cycle/calculated-value");
+    };
+    const findings = byRule(json, "cycle/calculated-value");
     expect(findings).toHaveLength(1);
     expect(findings[0].reason).toBe("loop");
     expect(findings[0].severity).toBe("error");
+    // the values depend on the order the two are declared in
+    const survey = new Model(json);
+    expect([survey.getVariable("a"), survey.getVariable("b")]).toEqual([2, 2]);
+    const reversed = new Model({ calculatedValues: json.calculatedValues.slice().reverse() });
+    expect([reversed.getVariable("a"), reversed.getVariable("b")]).toEqual([1, 1]);
   });
   test("three-member cycle reported once", () => {
     const findings = byRule({

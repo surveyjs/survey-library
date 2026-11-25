@@ -414,9 +414,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public get filteredValue(): any {
     return this.getValueCore(true);
   }
-  /* The row value: the cells first, then the rest of the index walk - the detail questions, where one on a
-     cell's value name gives no key, and the nesting panels of the detail panel, each with its key and its
-     object, composed as the row composes its own value (composeScopeObject). */
+  /* The row value: the cells first, then the rest of the index walk. A detail question or a nesting panel on a
+     cell's value name gives no key. */
   private getValueCore(isFiltered: boolean): any {
     const result: any = {};
     const cellValueNames: any = {};
@@ -456,9 +455,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     });
     return result;
   }
-  /* A nesting panel's object in the row value: a copy of the stored object - the keys no question owns stay,
-     as in every nesting object - with the current values of the panel's questions, and the objects of the
-     panels inside it. */
+  /* A nesting panel's object in the row value: a copy of the stored object, so the keys no question owns stay,
+     with the current values of the panel's questions and the objects of the panels inside it. */
   private composeScopeObject(scope: PanelDataScope, stored: any, isFiltered: boolean, storeComments: boolean): any {
     const res = Object.assign({}, asScopeObject(stored));
     scope.getDataKeyIndex().elements.forEach((el: ISurveyDataElement): void => {
@@ -613,8 +611,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       this.detailPanel.updateElementVisibility();
     }
   }
-  /* The keys of the record the row's own elements store: its questions' value names and its nesting panels'
-     keys, as the index walk keys them. Without a nesting panel these are the value names of questions. */
+  // The keys of the record the row's own elements store: its questions' value names and its nesting panels' keys.
   public getOwnRecordKeys(): Array<string> {
     return this.getIndexElements().map((el: ISurveyDataElement): string => el.getValueName());
   }
@@ -659,10 +656,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       isDeleting: newValue == null && !changedQuestion || isComment && !newValue && !!changedQuestion
     };
   }
-  /* A write of a nesting panel's key: the proposed row holds the object the panel's scope wrote. The
-     cell-changing event reports the key and the object, as a survey-level write reports a container key with
-     its whole object. A handler's object is written, and the panel's questions read it after the write. The
-     question inside the panel that wrote is validated, the others are not. */
+  /* The cell-changing event reports a nesting panel's key with its whole object, as a survey-level write reports
+     a container key. A handler's object is written; only the question inside the panel that wrote is validated. */
   private prepareContainerWrite(name: string, newValue: any, writer: Question): IRecordItemWrite {
     let rowValue = setObjectKey(this.value, name, newValue);
     rowValue = setObjectKey(rowValue, name, this.data.onRowChanging(this, name, rowValue));
@@ -798,11 +793,10 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const template = !this.detailPanel && !!this.data ? this.data.getRecordSortTemplate() : undefined;
     return !!template ? (<Array<IElement>>this.getCellQuestions()).concat(template.elements) : super.getRecordKeyElements();
   }
-  // A cell is no element of the row's name scope: its name is a column's (O9 makes the detail panel the scope).
+  // A cell is no element of the row's name scope: its name is a column's, and the detail panel is the scope.
   protected isScopeName(el: ISurveyDataElement): boolean {
     return !!(<any>el).parent;
   }
-  // The cells' questions, then the detail panel's elements once the panel exists.
   protected getScopeElements(): Array<IElement> {
     const res: Array<IElement> = this.getCellQuestions();
     return !!this.detailPanel ? res.concat(this.detailPanel.elements) : res;

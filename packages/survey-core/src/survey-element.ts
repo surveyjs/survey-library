@@ -50,8 +50,6 @@ export function getReadOnlyModePropertyInfo(): any {
     visibleIf: (obj: any) => !!obj && !!obj.readOnly
   };
 }
-// A valid name or value name of a question, panel or page: trimmed, without braces and a leading
-// expression conversion character.
 export function makeNameValid(str: string): string {
   if (!str) return str;
   str = str.trim().replace(/[\{\}]+/g, "");

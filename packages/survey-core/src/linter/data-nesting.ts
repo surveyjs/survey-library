@@ -18,18 +18,16 @@ export function getDataNestingMode(json: any): string {
   return typeof def === "string" ? def : "none";
 }
 
-// The name the runtime gives an unnamed page or panel: the first free <base>N among the names of the
-// pages / panels added before it (SurveyModel.generateNewName). A name declared further down is not
-// seen yet, so an unnamed first panel and a later "panel1" end up with one name.
+// As SurveyModel.generateNewName: the first free <base>N among the pages / panels added before it. A name declared
+// further down is not seen yet, so an unnamed first panel and a later "panel1" end up with one name.
 export function generateContainerName(base: string, taken: Set<string>): string {
   let index = 1;
   while(taken.has(base + index)) index++;
   return base + index;
 }
 
-// The survey data, or with recordOwner the record one panel of a dynamic panel or one row of a matrix is: a
-// root of its own, as the survey data is. A record's paths start at the record: a survey path would need the
-// record's index, which a sort, a filter or a page changes.
+// The survey data, or with recordOwner a dynamic panel's or a matrix's record, a root of its own. Its paths start
+// at the record: a survey path would need the record's index, which a sort, a filter or a page changes.
 export function createScope(recordOwner?: ElementRecord): DataScopeRecord {
   const res: DataScopeRecord = {
     kind: !!recordOwner ? "record" : "survey", key: "", path: [], containers: [],
@@ -67,9 +65,8 @@ export function getChildScope(parent: DataScopeRecord, key: string, container: E
   return res;
 }
 
-// The object an expression of this element runs over. A question's conditions run in its container's
-// scope, a panel's or a page's in the scope its own key lives in, a column's, a template question's
-// and a composite field's in the scope of the question that holds them. No owner: the survey data.
+// A question's conditions run in its container's scope, a panel's or a page's in the scope its own key lives in;
+// a column, a template question and a composite field run in the scope of the question that holds them.
 export function getOwnerDataScope(owner: ElementRecord | undefined, index: SurveyIndex): DataScopeRecord {
   let current = owner;
   while(!!current) {

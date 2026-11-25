@@ -11,11 +11,9 @@ const reasons = SurveyLintReasons["variable/preset"];
 // them rather than at "pages[...]". A finding's own path always addresses the linted document
 // everywhere else; here the linted document is not where the defect is.
 const ROOT_PATH = "variablePresets";
-// The definition is a document of its own, and the companion holds it as a model rather than as
-// JSON paths, so a finding addresses it coarsely: the path names the definition, elementName the
-// element in it. Computing "pages[i].elements[j]" out of the model's structure is not worth the
-// code for a pointer a UI resolves by name anyway - and a host that handed in a model has no JSON
-// document for such a path to address in the first place.
+// The definition is a document of its own, held as a model rather than as JSON, so a finding addresses it coarsely:
+// the path names the definition, elementName the element in it. A UI resolves the element by name, and a host that
+// handed in a model has no JSON document for a finer path to address.
 export const DEFINITION_PATH = ROOT_PATH + ".definition";
 
 function presetPath(index: number): string {
@@ -76,11 +74,8 @@ function checkUnknownVariables(ctx: LintContext, preset: ISurveyVariablePreset, 
   });
 }
 
-// Validation normalizes keys to the definition's spelling at every level of an object variable;
-// paths address the preset itself, so an error's path is spelled back key by key. No variable key
-// holds a dot, so the path splits into its keys; a dotted input key is never one of them. Among case
-// variants the last one, matching validateVariables' assignment order. A key the preset leaves out
-// (a required field) keeps the definition's spelling.
+// Validation spells keys as the definition does, and a finding's path addresses the preset: spell it back key by
+// key (no variable key holds a dot). A key the preset leaves out (a required field) keeps the definition's spelling.
 function toInputPath(values: any, path: string): string {
   let obj = values;
   return path.split(".").map(key => {
@@ -90,6 +85,7 @@ function toInputPath(values: any, path: string): string {
   }).join(".");
 }
 
+// Among case variants the last one, matching validateVariables' assignment order.
 function findInputKey(obj: any, key: string): string | undefined {
   const lowerKey = key.toLowerCase();
   let res: string;

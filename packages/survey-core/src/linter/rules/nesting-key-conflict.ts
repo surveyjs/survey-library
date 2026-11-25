@@ -7,15 +7,11 @@ import { relatedOf } from "../message-utils";
 
 const reasons = SurveyLintReasons["nesting/key-conflict"];
 
-// Nested data: a nesting container's key equal to the data key of a question in the same object puts the
-// container's object and the question's value under one key. The runtime allows it - last write wins - but
-// it is never intended: the question shows the object, and an answer to it replaces every value of the
-// container. Two containers on one key share one object (an address split across two pages), and a key
-// equal to the name of a question inside the container is another level: neither is reported. Keys are
-// compared exactly, as the runtime stores them. Inside a dynamic panel or a matrix each record is a level
-// of its own: a matrix record holds its columns too. A container keyed by its name next to a question
-// keyed by its own name is name/duplicate's finding (both names are in one name scope), so it is not
-// reported twice.
+// Nested data: a container's key equal to the data key of a question in the same object puts the object and the
+// value under one key. The runtime allows it (last write wins), but an answer replaces every value of the container.
+// Not reported: two containers on one key (they share one object), a key equal to a question inside the container
+// (another level), and a name-keyed container next to a question of that name (name/duplicate reports it). Keys
+// are compared exactly, as the runtime stores them; each record of a dynamic panel or a matrix is a level of its own.
 export const nestingKeyConflictRule: ILintRule = {
   id: "nesting/key-conflict",
   defaultSeverity: "error",

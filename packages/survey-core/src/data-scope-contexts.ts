@@ -13,12 +13,8 @@ export interface IDataLevelFinder {
   findInnerContext(name: string): IValueGetterContext;
   getCommentValue?(owner: Question): any;
 }
-// The name step of a context over the keys of one data level, ignoring letter case: a question of the level
-// (by value name; an empty question still answers), then an inner level (by key), then, for a comment key
-// ({kind-Comment}), the comment a question of the level stores. The metadata mode (getQuestionByVariable)
-// gives the question instead of the comment. A scope's context (PanelDataScopeValueGetterContext) and a
-// records template's level (RecordKeyLevelValueGetterContext) strip the unwrap postfix first
-// (stripUnwrapPostfix); a record (QuestionRecordItemGetterContext) shares the step without it.
+// The name step of a context over the keys of one data level, ignoring letter case: an empty question still
+// answers. A scope's and a template level's context strip the unwrap postfix first; a record's does not.
 export function updateValueByDataLevel(name: string, res: IValueGetterInfo, finder: IDataLevelFinder): void {
   const question = finder.findQuestion(name);
   if (!!question) {
@@ -58,12 +54,10 @@ abstract class DataLevelValueGetterContext extends ValueGetterContextCore implem
   }
 }
 
-// The expression context of the active scopes that share one key (one scope unless two containers
-// share it), with DataLevelValueGetterContext's name step. A path with no items left ({address}) gives the
-// stored object.
-// As an inner element's context (the scope's getValueGetterContext) an unanswered name falls back to the
-// parent's context through getRootObj; reached through a path from outside ({address.street}) it answers
-// the rest of the path only, and the survey falls back to the raw data.
+// The expression context of the active scopes that share one key (one scope unless two containers share it). As
+// an inner element's context an unanswered name falls back to the parent's context through getRootObj; reached
+// through a path from outside ({address.street}) it answers the rest of the path only, and the survey falls back
+// to the raw data.
 export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContext {
   constructor(private scopes: Array<PanelDataScope>) {
     super();
@@ -72,7 +66,7 @@ export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContex
     const path = params.path;
     if (path.length === 0) return { isFound: true, value: this.scopes[0].getObjectValue(), context: this };
     // A property path ({$details.isVisible}) names a panel of the scope first, letter case ignored, as the survey
-    // reads one of its own (scoped names 05, O3).
+    // reads one of its own.
     if (params.isProperty && path.length > 1) {
       const panel = this.scopes[0].findOwnElement(path[0].name, (el: any): boolean => !el.isQuestion, true, false);
       if (!!panel) return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
@@ -82,9 +76,8 @@ export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContex
   getRootObj(): IObjectValueContext {
     return this.scopes[0].parentData;
   }
-  // The changed names a write reports, as the parent's context gives them: inside a record, the record's
-  // (QuestionRecordItemGetterContext.getContextKeys), so an inner question's {street} re-runs on a write of the
-  // record. The survey's context gives none.
+  // The changed names a write reports, as the parent's context gives them: inside a record, the record's, so an
+  // inner question's {street} re-runs on a write of the record. The survey's context gives none.
   getContextKeys(keys?: any): { [key: string]: any } {
     const root = this.getRootObj();
     const ctx = root?.getValueGetterContext();

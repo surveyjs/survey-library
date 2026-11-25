@@ -9,13 +9,11 @@ const fixReasons = SurveyLintFixReasons["nesting/generated-key"];
 // The names the runtime and the Creator give a new page or panel (SurveyModel.generateNewName).
 const GENERATED_NAME: { [kind: string]: RegExp } = { page: /^page[0-9]+$/i, panel: /^panel[0-9]+$/i };
 
-// Nested data: a by-name dataNesting mode ("panel", "page", "panelAndPage") stores a container's
-// values under its name when it has no valueName. A generated name is a placeholder an author renames
-// sooner or later, and after the rename the elements read another key while the data stays under the
-// old one ("Limitations" in docs/design-survey-nested-data.md). A hint, not a defect: the survey works
-// as it is. The repair pins the key: valueName set to the current name keeps the data where it is,
-// whatever the name becomes. An unnamed container nests under the name the runtime generates for it in load order,
-// which the JSON does not state at all - it carries no fix, since that name depends on the order.
+// Nested data: a by-name dataNesting mode stores a container's values under its name when it has no valueName. A
+// generated name is a placeholder an author renames sooner or later, and after the rename the data stays under the
+// old key (see "Limitations" in docs/design-survey-nested-data.md). A hint: the survey works as it is. The fix sets
+// valueName to the current name. An unnamed container nests under the name the runtime generates in load order,
+// which the JSON does not state, so it carries no fix.
 export const nestingGeneratedKeyRule: ILintRule = {
   id: "nesting/generated-key",
   defaultSeverity: "info",

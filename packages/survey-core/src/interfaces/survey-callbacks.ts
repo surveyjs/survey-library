@@ -62,7 +62,6 @@ export interface ISurveyElementLifecycle {
   ): any;
   // A panel or a page may have a new name (a question reports questionRenamed)
   elementRenamed(element: ISurveyElement): void;
-  // SurveyModel.onDataKeyChangingCallback
   onDataKeyChangingCallback?: (element: Base, oldKey: string, newKey: string) => void;
   // A trigger property of a question changed, or the question order changed without an add or a remove
   questionTriggersChanged(): void;

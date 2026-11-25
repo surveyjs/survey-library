@@ -17,7 +17,6 @@ export interface ISurveyData {
   setComment(name: string, newValue: string, locNotification: boolean | "text"): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
-  // The expression context of the elements this data holds.
   getValueGetterContext(): IValueGetterContext;
 }
 export interface ITextProcessorProp {

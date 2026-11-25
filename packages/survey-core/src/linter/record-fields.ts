@@ -34,10 +34,8 @@ export function getFrameNames(frame: CapturingScopeFrame): CIMultiMap<ElementRec
   return frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
 }
 
-// The questions writing a data key of a data scope: the survey data (when unset), a nesting container's
-// object, or the record of a dynamic-panel template or a matrix row, which holds the columns too. The
-// runtime binds them by the exact key (getQuestionsByValueName is case-sensitive), so the case-insensitive
-// map only narrows the search down.
+// The runtime binds the exact key (getQuestionsByValueName is case-sensitive), so the case-insensitive map only
+// narrows the search down. A matrix row's record holds the columns too.
 export function getDataKeyRecords(index: SurveyIndex, key: string, dataScope?: DataScopeRecord): Array<ElementRecord> {
   return (dataScope || index.rootScope).questions.get(key).filter(record => getDataKey(record) === key);
 }

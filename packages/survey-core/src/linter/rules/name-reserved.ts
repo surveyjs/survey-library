@@ -122,7 +122,7 @@ export const nameReservedRule: ILintRule = {
     });
     // nested data: a nesting panel or page keys an object of the survey data, under its valueName or,
     // in a by-name dataNesting mode, its name. A valueName has no single repair (see checkQuestion),
-    // and renaming a container by name moves its data, so neither carries a fix.
+    // and renaming a container by name leaves its data under the old key, so neither carries a fix.
     ctx.index.containers.forEach(container => {
       const record = container.record;
       if (!record || !container.dataKey || !isReserved(container.dataKey)) return;

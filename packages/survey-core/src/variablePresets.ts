@@ -16,9 +16,8 @@ import { getLocaleString } from "./surveyStrings";
 // the variable definition - one ordinary survey JSON whose questions are the variables - and the
 // named presets of values for it. A definition question's data key (valueName when set, otherwise
 // name) is the variable name; its type, choices and validators are everything that is known about
-// the variable. There is no second schema. The definition's data is the shape of the variables: a
-// panel or a page that nests its questions' values (nested data) describes an object variable, set
-// as { users: { tier: "gold" } } and read as {users.tier}.
+// the variable. There is no second schema. A panel or a page that nests its questions' values
+// describes an object variable (see "Host Variables" in docs/design-survey-nested-data.md).
 export interface ISurveyVariablePreset {
   name: string;
   description?: string;
@@ -32,25 +31,22 @@ export interface ISurveyVariableError {
   // the variable name or the path into an object variable, as the host sets it ("users.tier"), in
   // the definition's spelling
   variable: string;
-  // the definition question's name; differs from "variable" when valueName is set or the question is
-  // inside an object variable. For an object variable given a value that is no object, the name of
-  // the panel or page that describes it.
+  // the definition question's name; differs from "variable" with a valueName or inside an object variable. For an
+  // object variable given a value that is no object, the name of the panel or page that describes it.
   question: string;
   // the error texts as the survey renders them
   errors: Array<string>;
 }
 export interface ISurveyVariableValidationResult {
-  // keys of the checked object that are no variable of the definition, in input order, and keys
-  // inside an object variable that it does not declare, as paths ("users.nope"); both in the input's
-  // spelling
+  // keys of the checked object that are no variable of the definition, and keys inside an object variable that it
+  // does not declare, as paths ("users.nope"); in input order and spelling
   unknownVariables: Array<string>;
   errors: Array<ISurveyVariableError>;
   isValid: boolean;
 }
 
 // One data key of the definition: a variable at the root, a field of an object variable below it.
-// A key may carry both a question and a nesting container (the runtime allows that), and
-// two containers with one key are one node with the fields of both.
+// A key may carry a question and a nesting container (the runtime allows it); two containers with one key are one node.
 interface IVariableNode {
   key: string;
   parent?: IVariableNode;
@@ -104,9 +100,8 @@ export class SurveyVariablePresets {
   public getVariableNames(): Array<string> {
     return this.getNames().slice();
   }
-  // The leaves a condition can test: every question of the definition outside a record, as its data
-  // path joined with "." ("users.tier"), in document order. Without nesting it equals
-  // getVariableNames(). The Creator's condition editor and expression assistant list these.
+  // The leaves a condition can test: every question of the definition outside a record, as its data path joined
+  // with "." ("users.tier"), in document order. Without nesting it equals getVariableNames().
   public getVariablePaths(): Array<string> {
     this.getNames();
     return this.pathsValue.slice();
@@ -233,20 +228,15 @@ export class SurveyVariablePresets {
     this.rootValue = { key: "", children: Object.create(null) };
     const model = this.getModel();
     if (!model) return;
-    // The elements in document order, keyed by their data paths: a question is a leaf,
-    // a panel or a page that nests is an object variable. The walk never enters a question, so a
-    // question inside a dynamic panel template, a matrix cell or a composite's content produces no
-    // key: the question that holds it (the dynamic panel, the matrix, the composite) is the one variable, as
-    // their values are part of its value (the data path of a question inside a record is relative to the
-    // record). A container that does not nest
-    // has no data path and is transparent.
+    // Keyed by data paths, in document order: a question is a leaf, a panel or a page that nests is an object
+    // variable, and a container that does not nest is transparent. The walk never enters a question: a dynamic
+    // panel, a matrix or a composite is one variable, as the values inside it are part of its value.
     model.pages.forEach(page => this.addElement(page));
   }
   private addElement(element: SurveyElement): void {
     const path = element.getDataPath();
-    // A variable key holds no dot, so a path joined with "." always names one key per segment. An
-    // element whose own key holds one ("a.b") declares no variable, and nothing inside it does either:
-    // the walk does not enter it. The linter reports it (variable/dotted-key).
+    // A variable key holds no dot, so a path joined with "." names one key per segment. An element whose own key
+    // holds one ("a.b") declares no variable, and the walk does not enter it (the linter's variable/dotted-key).
     if (path.length > 0 && path[path.length - 1].indexOf(".") > -1) {
       this.dottedKeyElementsValue.push(element);
       return;
@@ -315,14 +305,10 @@ export class SurveyVariablePresets {
     this.getNames();
     return this.rootValue;
   }
-  // The input keys of one object, mapped to the definition's spelling. The value hash and a nesting
-  // container's object are case-sensitive - getDataFromValueHash is a plain valuesHash[key] - so a
-  // known key is stored under the definition's spelling at every level: { Users: { Tier: "gold" } }
-  // assigned as written would leave the definition question "tier" empty and a required one failing,
-  // while the runtime reads {users.tier} from it. Two input keys differing only by case are one
-  // variable, and the last one in input order wins: that is what the Object.keys order gives, and no
-  // consumer produces such a pair. An input key is a literal key, never a path: the host sets
-  // { users: { tier } }, and a key "users.tier" is unknown, since no variable key holds a dot.
+  // The input keys of one object in the definition's spelling: the value hash and a nesting container's object are
+  // case-sensitive, so { Users: { Tier: "gold" } } as written would leave the question "tier" empty while the
+  // runtime reads {users.tier} from it. Of two input keys differing only by case the last in input order wins. An
+  // input key is a literal key, never a path: "users.tier" is unknown, since no variable key holds a dot.
   private mapRecord(values: any, parent: IVariableNode, prefix: string,
     res: ISurveyVariableValidationResult, invalidNodes: Array<IVariableNode>): any {
     const data: any = {};
@@ -339,18 +325,15 @@ export class SurveyVariablePresets {
   }
   private mapValue(value: any, node: IVariableNode, inputPath: string,
     res: ISurveyVariableValidationResult, invalidNodes: Array<IVariableNode>): any {
-    // A question owns its value as a whole: a multiple text's or a dynamic panel's object is checked
-    // by the question itself. That holds when a question and a nesting container share the key too
-    // (allowed at runtime, a linter error): which one owns the object is ambiguous, so its keys
-    // are neither respelled nor checked.
+    // A question owns its value as a whole: a multiple text's or a dynamic panel's object is checked by the question
+    // itself. With a nesting container on the same key (allowed at runtime, a linter error) the owner is ambiguous,
+    // so the keys are neither respelled nor checked.
     if (!!node.question || !node.container) return value;
     // An absent object variable is no value: its fields validate as empty, a required one included.
     if (value === undefined || value === null) return value;
     if (!this.isRecord(value)) {
-      // One error on the object variable. Its fields stay empty, and the errors that only follow from
-      // that (a required field) are not reported in addition: collectErrors skips them. A shape check,
-      // made before the data is assigned, so it does not depend on the container's visibility - as
-      // an unknown key does not.
+      // One error on the object variable: its fields stay empty, and collectErrors skips the errors that follow from
+      // that (a required field). Made before the data is assigned, so it does not depend on the container's visibility.
       invalidNodes.push(node);
       const error = new IncorrectValueError(null, <any>node.container);
       res.errors.push({ variable: this.getNodePath(node), question: node.container.name, errors: [error.locText.textOrHtml] });

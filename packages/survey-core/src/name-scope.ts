@@ -1,23 +1,13 @@
 import type { ISurvey, ISurveyElement } from "./base-interfaces";
 
-// Scoped names (SN1, SN3): in a nesting mode of dataNesting a name is unique where its value lives. A container
-// that holds data opens a name scope, and so does a records template (a dynamic panel's template, a matrix's
-// detail panel). A panel that holds no data opens none: its elements belong to the nearest scope above it. In
-// "none" the survey is the only scope, and every lookup is flat, as before.
-//
-// Where each scope holds its elements by name:
-//   the survey: its flat structure (SurveyModel's elementIndex), read through a filter: in a nesting mode only the
-//     elements whose nearest scope is the survey answer;
-//   a container that holds data, a record item: the instance of its data scope (ObjectDataScope.getDataKeyIndex),
-//     which holds by name every element its walk reaches;
-//   a records template: a walk of the template, which has no runtime instance (design time).
-//
-// A lookup takes a path of names (O2, O8): the name of each scope's owner (a panel, a page, a dynamic panel, a
-// matrix), then the element's name. A whole-string match in the scope asked wins (a name may hold a dot); else the
-// string is split at its dots, left to right.
+// See "Names Inside a Nesting Container" in docs/design-survey-nested-data.md.
+// Where each scope holds its elements by name: the survey in its flat elementIndex, read through a filter (in a
+// nesting mode only the elements whose nearest scope is the survey); a container that holds data or a record item
+// in its data scope's instance (ObjectDataScope.getDataKeyIndex); a records template by a walk of the template,
+// which has no runtime instance (design time).
 
 export type ElementKind = (el: ISurveyElement) => boolean;
-// The elements of one name scope, by name. caseInsensitive with exactFirst: an element with the exact name wins.
+// caseInsensitive with exactFirst: an element with the exact name wins.
 export interface INameScope {
   findOwnElement(name: string, isKind: ElementKind, caseInsensitive?: boolean, exactFirst?: boolean): any;
 }
@@ -34,7 +24,6 @@ function getRecordsTemplate(el: any): any {
 export function isTemplatePanel(panel: any): boolean {
   return !!panel && typeof panel.isRecordTemplatePanel === "function" && panel.isRecordTemplatePanel();
 }
-// The records template around an element, or null.
 export function getRecordTemplatePanel(el: any): any {
   let panel = el.parent;
   while(!!panel && !isTemplatePanel(panel)) panel = panel.parent;
@@ -61,11 +50,9 @@ export function getNameScopeOwner(el: ISurveyElement): any {
   if (top === el || top.isPage || typeof top.getRecordsOwner !== "function") return null;
   return top.getRecordsOwner() || null;
 }
-// Whether an element opens a name scope: a panel or a page that holds data, or a records question.
 function isScopeOwner(el: any): boolean {
   return el.isQuestion ? !!getRecordsTemplate(el) : holdsData(el);
 }
-// The scope an owner opens, or null.
 function getOwnerNameScope(owner: any): INameScope {
   if (owner.isQuestion) {
     const template = getRecordsTemplate(owner);
@@ -100,7 +87,8 @@ class ElementsNameScope implements INameScope {
     return null;
   }
 }
-// An element of the kind in the scope, by a bare name or a path of names.
+// A whole-string match in the scope asked wins (a name may hold a dot); else the name is split at its dots, left
+// to right, into a path of names.
 export function findElementInNameScope(scope: INameScope, name: string, isKind: ElementKind, caseInsensitive?: boolean, exactFirst?: boolean): any {
   if (!name) return null;
   const res = scope.findOwnElement(name, isKind, caseInsensitive, exactFirst);
@@ -118,8 +106,7 @@ export function findElementInNameScope(scope: INameScope, name: string, isKind: 
 export function isQuestionElement(el: ISurveyElement): boolean {
   return el.isQuestion;
 }
-// The path of names the survey finds an element by: each scope owner's name, then the element's. Its name when the
-// element belongs to the survey's own scope.
+// The path of names the survey finds an element by; its bare name in the survey's own scope.
 export function getElementNamePath(el: ISurveyElement): string {
   const names: Array<string> = [el.name];
   let owner = getNameScopeOwner(el);

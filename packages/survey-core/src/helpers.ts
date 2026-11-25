@@ -54,8 +54,8 @@ export function normalizeTextForSearch(text: string, reason: string = "filter"):
 
 // The value name a key made of a name and a suffix (comment, totals) belongs to; undefined when the
 // key does not end with the suffix. A key that is only the suffix belongs to no name. Case-sensitive unless
-// caseInsensitive is set ({Kind-comment} -> "Kind", as an expression names it); then an empty suffix matches
-// no key, while the case-sensitive match keeps the key itself as the name.
+// caseInsensitive is set, as expressions match ({Kind-comment} -> "Kind"); then an empty suffix matches no key, while
+// the case-sensitive match gives the key itself, as released.
 export function getNameOfSuffixedKey(key: string, suffix: string, caseInsensitive?: boolean): string {
   if (caseInsensitive && !suffix) return undefined;
   if (!key || key.length <= suffix.length) return undefined;

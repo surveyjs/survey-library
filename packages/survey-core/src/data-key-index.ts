@@ -17,7 +17,7 @@ export interface IDataScope {
   // The unknown-key rule: clearIncorrectValues(true) keeps a known key, setData() reports another.
   isKnownKey(key: string): boolean;
   // The questions that hold the same value as question, question included: a scope that holds no data passes
-  // the call on, in the end to the survey (SurveyRootDataScope.getQuestionsSharingValue).
+  // the call on, in the end to the survey.
   getQuestionsSharingValue(question: Question): Array<Question>;
 }
 // A key an element of the index owns, or a question's comment or totals key: the part of the unknown-key
@@ -63,14 +63,11 @@ export function forEachUnknownKey(levels: Array<IDataKeyLevel>, obj: any, path: 
   });
   return res;
 }
-// The scope of an index entry that is a container; null for a question.
 export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
   return !el.isQuestion ? (<PanelModelBase>el).getDataScope() : null;
 }
-// The choice panels of a select question (choice items with elements), or of a custom question's content question.
-// Their questions' values are keys of the scope that holds the question's own value: a choice panel takes the select
-// question's survey impl and never nests (ChoiceItem.bindPanel). Only the panels that share the question's data: a
-// matrix cell's stay on the survey. The panels created only: getPanels() creates none.
+// The created choice panels of a select question or of a custom question's content question (getPanels() creates
+// none), only those that share the question's data: a matrix cell's stay on the survey.
 export function forEachChoicePanel(el: any, callback: (panel: PanelModelBase) => void): void {
   if (!el.isQuestion) return;
   const select = el.contentQuestion || el;

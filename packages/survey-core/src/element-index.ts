@@ -3,21 +3,11 @@ import type { Question } from "./question";
 import type { PanelDataScope } from "./panel-data-scope";
 import { DataKeyHash, getElementDataScope } from "./data-key-index";
 
-// Elements by name, or the keys of one data scope or of one level of records. One class, used two ways:
-// - By name (the survey's flat structure, and the names a scope's walk reaches): add, remove, renamed, find. The
-//   owner decides which elements enter: the index has no rule of its own about pages, panels or data scopes. The
-//   library does not keep names unique across types (the Creator does), so a name gives a list, and a lookup takes
-//   the first element of the kind it asks for. Within a name the order is the order added. The index remembers the
-//   name it holds each element under: a name can change without a notification (a name set while the JSON loads),
-//   so the name a caller would pass is not always that one. A scope holds by name every element its walk reaches:
-//   its keyed elements and the panels that hold no data, the scope's own names (name-scope.ts). The root holds
-//   none: the survey's flat structure has them.
-// - By key (a data scope's instance, and a level of the records a template builds, RecordKeyLevel): addKeyed,
-//   reKey, getElements, getQuestions, getScopes. Questions under their value name and active containers under their
-//   key (a level's nesting panels under the key of the records built from it, active or not); for one key the
-//   questions come first. elements holds each element once, in document order (the lists read it), and each key's
-//   list follows the order of elements. A scope's instance is built, then changed in place only by an append and by
-//   a root question's new key; any other change drops it, and the scope builds it again on its next read.
+// Elements by name, or the keys of one data scope or of one level of records. By name, a name gives a list: the
+// library does not keep names unique across types (the Creator does). The index remembers the name it holds each
+// element under, since a name can change without a notification (a name set while the JSON loads). By key, the
+// questions of a key come before its containers, and elements holds each element once, in document order. A scope's
+// instance changes in place only by an append and by a root question's new key; any other change drops it.
 export class ElementIndex {
   private names = new DataKeyHash<ISurveyElement>();
   private heldNames = new WeakMap<ISurveyElement, string>();
@@ -61,9 +51,8 @@ export class ElementIndex {
   public has(el: ISurveyDataElement): boolean {
     return this.heldKeys.has(el);
   }
-  // Appended to elements and to its key's list: the owner adds in document order, or builds the instance again. An
-  // element without a key is in elements only (a walk reaches a question with no name). An element already held is
-  // not added again.
+  // Appended: the owner adds in document order, or builds the instance again. An element without a key is in
+  // elements only (a walk reaches a question with no name).
   public addKeyed(el: ISurveyDataElement, key: string): void {
     if (this.heldKeys.has(el)) return;
     this.heldKeys.set(el, key || "");
@@ -94,7 +83,6 @@ export class ElementIndex {
   public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
     return this.containerKeys.get(key, caseInsensitive).map(el => getElementDataScope(el));
   }
-  // Whether a container is held under a key.
   public hasScopes(): boolean {
     return !this.containerKeys.isEmpty();
   }

@@ -9,7 +9,6 @@ function isKey(value: any): boolean {
   return typeof value === "string" && value.trim() !== "";
 }
 
-// A panel of the composite definition typeName whose valueName stores nothing.
 function report(ctx: LintContext, panel: any, path: string, typeName: string): void {
   const name = panel.name || "";
   ctx.report({
@@ -23,13 +22,11 @@ function report(ctx: LintContext, panel: any, path: string, typeName: string): v
   });
 }
 
-// Nested data: a composite question's content panel is a value of its own, and a panel inside it never
-// nests - its valueName is ignored in every mode ("Limitations" in docs/design-survey-nested-data.md). A
-// panel inside a dynamic panel's template or a matrix detail panel nests by its valueName; the template
-// panel and the detail panel themselves never nest, as they are the record, but the JSON gives them no
-// valueName to report. With "dataNesting": "none" (the default) every valueName is ignored,
-// so nothing is reported there. The panels of a composite definition (options.components) are found at
-// any depth: the walker does not index them, since a definition is never part of the survey's own elements.
+// Nested data: a panel inside a composite question's content panel never nests - its valueName is ignored in every
+// mode (see "Limitations" in docs/design-survey-nested-data.md). A panel inside a template or a detail panel does
+// nest; the template and the detail panel themselves never do, but the JSON gives them no valueName to report.
+// "none" ignores every valueName, so nothing is reported there. The walker does not index a composite definition
+// (it is not part of the survey's elements), so its panels are found here at any depth.
 export const nestingIgnoredKeyRule: ILintRule = {
   id: "nesting/ignored-key",
   defaultSeverity: "warning",

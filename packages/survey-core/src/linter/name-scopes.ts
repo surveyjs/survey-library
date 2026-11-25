@@ -1,14 +1,10 @@
 import { CIMultiMap, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbols";
 
-// Scoped names (docs/design-survey-nested-data.md; the runtime's rule is src/name-scope.ts). In a nesting mode of
-// dataNesting a name is unique where its value lives, and a bare name resolves in its own scope, then in each scope
-// around it. The linter's name scope is the data scope (DataScopeRecord): the survey data, a nesting container's
-// object, a dynamic panel's or a matrix's record (its template, its detail panel). Where the runtime differs, the
-// linter follows the data:
-// - two containers on one key share one object, so they share one name scope: their questions write one value;
-// - a choice panel's questions are keys of their select question's data scope, so they are that scope's names (the
-//   choice panel never nests).
-// In "none" the survey is the only scope, as before.
+// Scoped names. See "Names Inside a Nesting Container" in docs/design-survey-nested-data.md; the runtime's rule is
+// src/name-scope.ts. The linter's name scope is the data scope (DataScopeRecord). Where the runtime differs, the
+// linter follows the data: two containers on one key share one object and one name scope (their questions write
+// one value), and a choice panel's questions are names of their select question's data scope.
+// In "none" the survey is the only scope.
 
 const NO_NAMES = new CIMultiMap<ElementRecord>();
 
@@ -21,7 +17,6 @@ export function getRecordNameScope(record: ElementRecord, index: SurveyIndex): D
   return record.dataScope || index.rootScope;
 }
 
-// The elements of one name scope, by name. The survey's are elementNames.
 export function getNameScopeNames(scope: DataScopeRecord, index: SurveyIndex): CIMultiMap<ElementRecord> {
   if (scope === index.rootScope) return index.elementNames;
   return index.nameScopes.get(scope) || NO_NAMES;
@@ -49,7 +44,7 @@ function getOwnerName(owner: ElementRecord): string {
   return owner.name || (!!owner.container && owner.container.dataKey) || "";
 }
 
-// The path of names the survey finds an element by (O2, O8): each scope owner's name, then the element's.
+// The path of names the survey finds an element by: each scope owner's name, then the element's.
 export function getRecordNamePath(record: ElementRecord, index: SurveyIndex): string {
   const names: Array<string> = [record.name];
   let owner = getNameScopeOwner(record, index);

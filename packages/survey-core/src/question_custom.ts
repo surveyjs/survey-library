@@ -1231,11 +1231,9 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   }
 }
 
-// The content panel's values as keys of the composite's value. The composite stays its
-// questions' data and keeps its own write pipeline (hooks, conversions, the Creator's editing object); the
-// scope gives it the reads, the key index and the loops that push a value into its questions.
-// It is no PanelDataScope but a root scope over the composite's value, as a record item is: a content
-// question's value scope stays the survey.
+// The content panel's values as keys of the composite's value. The composite stays its questions' data and keeps
+// its own write pipeline (hooks, conversions, the Creator's editing object). It is no PanelDataScope but a root
+// scope over the composite's value, as a record item is: a content question's value scope stays the survey.
 class CompositeDataScope extends ObjectDataScope {
   constructor(private question: QuestionCompositeModel) {
     super();
@@ -1477,8 +1475,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   // Created on first use, as newValueSettingScope below.
   private dataScopeValue: CompositeDataScope;
-  // The scope that holds the content questions' keys (getKeyHolderScope): an element added to the content goes
-  // into its instance.
+  // The scope that holds the content questions' keys: an element added to the content goes into its instance.
   public getContentDataScope(): ObjectDataScope {
     return this.dataScope;
   }
@@ -1565,8 +1562,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if (!val) val = this.buildContentPanelValue(this.getStoredValue());
     return this.customQuestion.setValueToQuestion(val);
   }
-  // The content panel's values, plus the empty values that data.keepEmptyValues kept, taken from the stored
-  // value.
   private buildContentPanelValue(stored: any): any {
     return this.addKeptEmptyValues(this.contentPanel.getValue(), stored);
   }
@@ -1581,14 +1576,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   private getEmptyValuesSurvey(): ISurvey {
     return getEmptyValuesSurvey(this.data, this.survey);
   }
-  // The composite's object is built from two sources. The answers come from the content panel's build
-  // (PanelModelBase.getValue), not from the stored value: a content question can change while the composite
-  // writes (an onValueChanged hook sets a sibling, newValueSettingScope keeps that write out of the data), and
-  // only the build sees it. The build skips an empty question, so with data.keepEmptyValues on, an empty value
-  // the key kept comes from the stored value (the survey data, or the value being set), for a key a content
-  // question owns: a key no content question owns is still dropped, as a composite's write always did (a
-  // nesting panel's object keeps such keys). Not from the content questions' values: an untouched checkbox's
-  // value is [], and a question keeps a value a system clear removed from the data.
+  // The answers come from the content panel's build, not the stored value: a content question can change while
+  // the composite writes (an onValueChanged hook sets a sibling, which newValueSettingScope keeps out of the data),
+  // so only the build sees it. The build skips an empty question, so a kept empty value comes from the stored value,
+  // for a key a content question owns. Not from the questions' values: an untouched checkbox's value is [], and a
+  // question keeps a value a system clear removed.
   private addKeptEmptyValues(val: any, stored: any): any {
     if (this.isEditingSurveyElement || !this.contentPanel) return val;
     const survey = this.getEmptyValuesSurvey();

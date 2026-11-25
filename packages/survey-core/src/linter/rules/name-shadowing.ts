@@ -256,10 +256,8 @@ function reportContainerBuiltIn(ctx: LintContext, scope: DataScopeRecord, nameKi
   });
 }
 
-// What answers {key} before a container key of the survey data: a calculated value, a host variable or
-// a variable a trigger sets. Variables are read first in expressions, and
-// a calculated value with includeIntoResult writes the same key of the survey data. Only a key of the
-// survey data itself: inside a container, the container's object answers first.
+// What answers {key} before a container key of the survey data: variables are read first in expressions, and a
+// calculated value with includeIntoResult writes the same key. Inside a container its object answers first.
 function findVariableOver(ctx: LintContext, key: string): { kind: string, name: string, path?: string } | undefined {
   const cv = ctx.index.calculatedValues.get(key);
   if (!!cv) return { kind: "calculatedValue", name: cv.name, path: cv.path };

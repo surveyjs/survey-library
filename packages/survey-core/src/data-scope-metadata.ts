@@ -8,12 +8,9 @@ import { settings } from "./settings";
 
 // The metadata mode's start context of an element inside a records template (design time): the element's own
 // context, then the levels of the template's nesting panels around it, innermost first, then the template's
-// record, then the records question's own metadata context (an outer template's levels come after an inner
-// template's record). A template with no data has no record: for a matrix's detail panel template the matrix's
-// design row stands for it, for a dynamic panel's template the template itself. A matrix column goes on to its matrix's metadata context. The element's own context otherwise.
-// A panel's own expressions run in its parent's scope, so its levels start at its parent; a template panel's
-// own expressions run in its record.
-// The elements are typed any: an element, a column or a template panel is read through the members it has.
+// record, then the records question's own metadata context. A panel's own expressions run in its parent's scope,
+// so its levels start at its parent; a template panel's own expressions run in its record. The elements are typed
+// any: an element, a column or a template panel is read through the members it has.
 export function getMetadataValueGetterContext(el: any): IValueGetterContext {
   const cxt: IValueGetterContext = el.getValueGetterContext();
   if (!!el.colOwner) return withOwnerRoot(cxt, el.colOwner);
@@ -40,22 +37,18 @@ function withOwnerRoot(cxt: IValueGetterContext, owner: any): IValueGetterContex
   return { getValue: params => cxt.getValue(params),
     getRootObj: () => ({ getValueGetterContext: () => getMetadataValueGetterContext(owner) }) };
 }
-// The record of a template with no data: for a matrix's detail panel template, the matrix's design row; for a
-// dynamic panel's template (the only owner without a design row), the template itself (getTemplateRecordContext).
-// A dynamic panel's template questions have no data outside design mode, and inside a matrix's detail panel
-// template in design mode too.
+// The record of a template with no data (a dynamic panel's template outside design mode, a matrix's detail panel
+// template in design mode): the matrix's design row, or for a dynamic panel's template the template itself.
 function getDesignRecordObj(template: any): IObjectValueContext {
   const owner: any = template.getRecordsOwner();
   if (!owner) return undefined;
   if (typeof owner.getDesignRowContext !== "function") return { getValueGetterContext: () => getTemplateRecordContext(template) };
   return { getValueGetterContext: () => owner.getDesignRowContext() };
 }
-// A dynamic panel's template as its record: it answers {panel.x}, from the template's keys, as a record's {panel.x}
-// reads the record's (PanelDynamicItemGetterContext). In a nested dynamic panel {parentPanel.x} is the outer
-// record's (or the outer template's) {panel.x}, as a record's getSpecificValue reads it. A bare name goes on to the
-// dynamic panel. The record's other variables ({panelIndex}, {prevPanel.x}, {nextPanel.x}) have no answer here:
-// the template is no record of the list. A top-level key with the unwrap postfix ({panel.x-unwrapped}) names
-// nothing, as in a record, whose top-level step does not strip it.
+// A dynamic panel's template as its record: it answers {panel.x} from the template's keys, and in a nested
+// dynamic panel {parentPanel.x} is the outer record's (or the outer template's) {panel.x}. A bare name goes on to
+// the dynamic panel. {panelIndex}, {prevPanel.x} and {nextPanel.x} have no answer: the template is no record of the
+// list. {panel.x-unwrapped} names nothing, as in a record, whose top-level step does not strip the postfix.
 function getTemplateRecordContext(template: any): IValueGetterContext {
   return { getValue: params => {
     const path = params.path;

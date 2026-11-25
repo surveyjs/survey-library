@@ -535,8 +535,8 @@ export class PanelModelBase extends SurveyElement<Question>
         this.elements[i].setSurveyImpl(elementsImpl, isLight);
       }
       this.containerNesting.elementsAttached();
-      // An instance the scope that holds the elements built while they were attached saw only some of them: it is
-      // dropped (one never built costs nothing). The survey may be gone already (a page taken out of the pages).
+      // A key index the holding scope built during the attach saw only some of the elements: drop it (one never
+      // built costs nothing). The survey may be gone already (a page taken out of the pages).
       getKeyHolderScope(this.data)?.resetDataKeyIndex();
       // An attach can start or stop the nesting (a panel attached before its parent is set does not nest, and nests
       // once attached again): the instances it touches are dropped, as at a key change.
@@ -552,9 +552,8 @@ export class PanelModelBase extends SurveyElement<Question>
     this.dataKeyChanging("valueName", val);
     this.setPropertyValue("valueName", val);
   }
-  // Nested data: a nesting panel or page hands its elements a PanelDataScope, so their values are stored
-  // in an object under its key. ContainerDataNesting decides where the container is, whether it nests and
-  // under which key, and attaches its elements again when the key changes.
+  // Nested data: ContainerDataNesting decides whether the container nests and under which key, and hands its
+  // elements a PanelDataScope that stores their values in an object under that key.
   private containerNestingValue: ContainerDataNesting;
   private get containerNesting(): ContainerDataNesting {
     if (!this.containerNestingValue) {
@@ -565,15 +564,11 @@ export class PanelModelBase extends SurveyElement<Question>
   public getDataScope(): PanelDataScope {
     return this.containerNesting.getScope();
   }
-  // The key this container nests under, "" when it does not.
   public getDataScopeKey(): string {
     return this.containerNesting.getKey();
   }
-  // The key this container nests under with these valueName and name (the Creator asks it before a rename),
-  // for where it is now: the dataNesting table on the survey; inside a record and in a records template
-  // under valueName only; "" for a record panel itself and inside a composite. A template panel
-  // answers with the key of the records built from it (getRecordDataNestingKey), not with its own,
-  // which is "" at design time.
+  // The key with these valueName and name where the container is now (the Creator asks it before a rename). A
+  // template panel answers with the key of the records built from it; its own is "" at design time.
   public getDataNestingKeyFor(valueName: string, name: string): string {
     return this.containerNesting.getKeyFor(valueName, name);
   }
@@ -586,12 +581,10 @@ export class PanelModelBase extends SurveyElement<Question>
   public getRecordDataNestingKey(): string {
     return this.containerNesting.getRecordKey();
   }
-  // Whether this container stores its elements' values in an object under its key now.
   public get isDataNesting(): boolean {
     return this.containerNesting.isNesting;
   }
-  // ISurveyDataElement: a nesting container owns its key in the data of its parent scope, as a question
-  // owns its value name. The survey reaches it through its data key index.
+  // ISurveyDataElement: a nesting container owns its key in its parent scope's data, as a question its value name.
   public getValueName(): string {
     return this.getDataScopeKey();
   }
@@ -610,9 +603,7 @@ export class PanelModelBase extends SurveyElement<Question>
       scope.updateValuesFromData();
     }
   }
-  // Writes this nesting container's stored object into data under its key, as one value: every structured
-  // data view shows a nesting container as <key>: <object> ("Structured Data Views" in
-  // docs/design-survey-nested-data.md).
+  // See "Structured Data Views" in docs/design-survey-nested-data.md.
   collectDataNestingValue(data: any): void {
     this.containerNesting.collectValue(data);
   }
@@ -623,7 +614,6 @@ export class PanelModelBase extends SurveyElement<Question>
   protected getElementsSurveyImpl(): ISurveyImpl {
     return this.getDataScope() || this.surveyImpl;
   }
-  // A dynamic panel's template, or a matrix's detail panel template: the panel the records are built from.
   public isRecordTemplatePanel(): boolean {
     return ContainerDataNesting.isRecordTemplate(this);
   }
@@ -632,10 +622,8 @@ export class PanelModelBase extends SurveyElement<Question>
   public getRecordsOwner(): Question {
     return ContainerDataNesting.getRecordsOwner(this);
   }
-  // Whether this container's key is ignored: in the survey's dataNesting "none" (the default), on a record panel
-  // itself (its object is the record) and inside a composite (the component owns the shape of its value). The
-  // valueName property is hidden there (its visibleIf asks this); it shows on a panel inside a dynamic panel or
-  // a detail panel in every other mode.
+  // The valueName property's visibleIf asks this: it is hidden in "none", on a record panel itself (its object is
+  // the record) and inside a composite (the component owns the shape of its value).
   public isDataNestingIgnored(): boolean {
     return this.containerNesting.isKeyIgnored();
   }
@@ -643,9 +631,8 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!this.surveyImpl) return;
     this.containerNesting.onKeyChanged(this.surveyImpl);
   }
-  // The container's key may have changed (its valueName or name, or the survey's dataNesting): a container
-  // that starts to nest gets its scope and re-attaches its elements. The data does not move ("Limitations"
-  // in docs/design-survey-nested-data.md).
+  // The key may have changed (valueName, name, the survey's dataNesting): a container that starts to nest gets its
+  // scope and re-attaches its elements. The data does not move ("Limitations" in docs/design-survey-nested-data.md).
   public updateDataScopeAttachment(): void {
     if (!this.surveyImpl) return;
     this.containerNesting.updateAttachment(this.surveyImpl);
@@ -1058,8 +1045,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see getDisplayValue
    */
   public getValue(): any {
-    // A nesting container's value is its stored object ("Structured Data Views" in
-    // docs/design-survey-nested-data.md).
+    // See "Structured Data Views" in docs/design-survey-nested-data.md.
     if (this.isDataNesting) {
       const val = this.getDataScope().getObjectValue();
       return Helpers.isValueObject(val, true) ? Helpers.getUnbindValue(val) : {};

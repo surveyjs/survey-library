@@ -13,11 +13,10 @@ interface IRecordNestedKey {
   value: any;
 }
 
-// The keys of one level of the records a template builds: its questions under their value names and its
-// nesting panels under their keys (PanelModelBase.getRecordDataNestingKey), each with the level of its own
-// keys. A select question's choice panels add their elements to the select question's level: a choice panel never
-// nests. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
-// panel template, or the panel of one record. The owner-level rules of the records read it.
+// The keys of one level of the records a template builds: its questions under their value names and its nesting
+// panels under their keys, each with the level of its own keys. A choice panel never nests: its elements join the
+// select question's level. Built from the elements whatever they are attached to: a dynamic panel's template, a
+// matrix's detail panel template, or the panel of one record.
 export class RecordKeyLevel implements IDataKeyLevel {
   // Its keys only: no lookup of a level goes by name.
   public readonly index = new ElementIndex();
@@ -76,7 +75,6 @@ export class RecordKeyLevel implements IDataKeyLevel {
     return res;
   }
 }
-// Whether a panel among the elements, at any depth, nests in the records built from them.
 export function hasRecordDataNesting(elements: Array<IElement>): boolean {
   return (elements || []).some((el: any): boolean => el.isPanel && (!!el.getRecordDataNestingKey() || hasRecordDataNesting(el.elements)));
 }
@@ -90,10 +88,8 @@ export function hasRecordKeyLevel(elements: Array<IElement>): boolean {
     return res;
   });
 }
-// Whether a nesting panel stands between the element and the template it is in: the element's value is then a
-// key of that panel's object, one level deeper than the record. The record's filter and sort fields leave it out,
-// and the property grid offers it no filter settings. The element is one of template.questions: a composite's
-// inner question would get a wrong answer, since getRecordDataNestingKey() doesn't know it is inside a composite.
+// Whether the element's value is a key of a nesting panel's object, not of the record. The element is one of
+// template.questions: getRecordDataNestingKey() doesn't know a composite's inner question is inside a composite.
 export function isInRecordNestingPanel(element: Question, template: PanelModelBase): boolean {
   let el: any = element.parent;
   while(!!el && el !== template) {

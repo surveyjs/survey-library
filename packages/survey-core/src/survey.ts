@@ -136,9 +136,8 @@ export var DefaultTheme = DefaultLightTheme;
 function createHash(): HashTable<any> {
   return Object.create(null);
 }
-// The kinds the survey asks its element index for. A page is a PageModel of survey.pages, whatever its isPage
-// says: inside the single-page container a page has a parent and reports isPage: false. Only pages enter the
-// index as pages. The question kind is name-scope's isQuestionElement.
+// A page is a PageModel of survey.pages, whatever its isPage says: inside the single-page container a page has a
+// parent and reports isPage: false.
 function isPageKind(el: ISurveyElement): boolean { return el instanceof PageModel; }
 function isPanelKind(el: ISurveyElement): boolean { return !el.isQuestion && !(el instanceof PageModel); }
 // Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
@@ -3125,13 +3124,12 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
-  // Nested data: called before a question's or a container's data key changes (its name or valueName), with the
-  // key before and after. It is for a designer that rewrites the expressions that read the element (Survey
-  // Creator): inside the callback the survey still resolves the old variables (getQuestionByVariable). The data
-  // does not move (D8). Not called while the survey loads, nor when the element has no key before or after; a
-  // change of the letter case is a change. Not called for a matrix column or cell, a multiple text item, or a
-  // matrix detail panel's template (it has no survey). At runtime a dynamic panel's template change is copied to
-  // each panel, which calls it again. It runs inside the setter: an exception stops the change.
+  // Nested data: called before a question's or a container's data key (its name or valueName) changes, for a
+  // designer that rewrites the expressions that read the element: inside the callback the survey still resolves the
+  // old variables. The data does not move. Not called while the survey loads, nor when the element has no key
+  // before or after; a change of the letter case is a change. Not called for a matrix column or cell, a multiple
+  // text item, or a matrix detail panel's template (it has no survey). At runtime a dynamic panel's template change
+  // is copied to each panel, which calls it again. It runs inside the setter: an exception stops the change.
   public onDataKeyChangingCallback: (element: Base, oldKey: string, newKey: string) => void;
   // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
   // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
@@ -3762,7 +3760,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
-    // In a nesting mode an element is kept under its path of names: a name is unique only in its scope (O2).
+    // In a nesting mode an element is kept under its path of names: a name is unique only in its scope.
     const nameOf = (el: ISurveyElement): string => this.getElementNamePath(el);
     if (this.lastActiveQuestion) {
       res.activeElementName = nameOf(this.lastActiveQuestion.rootParentQuestion);
@@ -4350,7 +4348,7 @@ export class SurveyModel extends SurveyElementCore
   public get currentElementName(): string {
     const el = this.currentElement;
     if (!el) return "";
-    // In a nesting mode the path of names the setter finds the element by (O2): a page holds its elements in "page".
+    // In a nesting mode the path of names the setter finds the element by: a page holds its elements in "page".
     return this.getElementNamePath(el) || "";
   }
   public set currentElementName(val: string) {
@@ -5164,13 +5162,11 @@ export class SurveyModel extends SurveyElementCore
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }
-  // The keys of obj (the survey data) that no element of the survey knows, at the top and in the objects of its
-  // containers, at any depth (containers that share one key share its object). With a context setData() reports them by path;
-  // without one clearIncorrectValues(true) removes them from obj, in a copy of each top-level container's object,
-  // and an object that becomes empty goes too.
+  // The keys of obj (the survey data) that no element knows, at the top and at any depth of its containers' objects.
+  // With a context setData() reports them by path; without one clearIncorrectValues(true) removes them, in a copy of
+  // each top-level container's object, and an object that becomes empty goes too.
   private checkUnknownDataKeys(obj: any, context?: IVerifyDataContext): boolean {
-    // The survey's own keys: its index, and its isKnownKey with the calculated values. Below them the scopes
-    // are the levels.
+    // The top level is the survey's index plus its calculated values; below it the scopes are the levels.
     const index = this.getDataKeyIndex();
     const top: IDataKeyLevel = { getInner: (key: string) => index.getScopes(key), isKnownKey: (key: string) => this.isKnownKey(key) };
     const onUnknown = (path: Array<string>, value: any, owner: any): void => {
@@ -7191,16 +7187,14 @@ export class SurveyModel extends SurveyElementCore
   public getQuestionByName(name: string, caseInsensitive: boolean = false): Question {
     return this.findElementByName(name, isQuestionElement, caseInsensitive, true);
   }
-  // A lookup from the survey. In "none" the flat structure answers, as before. In a nesting mode a name is unique in
-  // its name scope (name-scope.ts): a bare name finds only the survey's own elements (O1), and an element inside
-  // a scope is reached by a path of names (O2, O8).
+  // In a nesting mode a name is unique in its name scope: a bare name finds only the survey's own elements, and an
+  // element inside a scope is reached by a path of names.
   private findElementByName(name: string, isKind: (el: ISurveyElement) => boolean, caseInsensitive: boolean, exactFirst: boolean): any {
     if (!isNameScopeMode(this)) return this.elementIndex.find(name, isKind, caseInsensitive, exactFirst);
     return findElementInNameScope(this.ownNameScope, name, isKind, caseInsensitive, exactFirst);
   }
-  // The survey's own name scope: its flat structure without the elements inside another scope. The flat structure
-  // keeps holding every element, so a change of dataNesting, of a container's key or of an element's place
-  // rebuilds nothing here.
+  // The flat structure without the elements inside another scope. It keeps holding every element, so a change of
+  // dataNesting, of a container's key or of an element's place rebuilds nothing here.
   private ownNameScope: INameScope = {
     findOwnElement: (name: string, isKind: (el: ISurveyElement) => boolean, caseInsensitive?: boolean, exactFirst?: boolean): any =>
       this.elementIndex.find(name, (el: ISurveyElement): boolean => isKind(el) && !getNameScopeOwner(el), caseInsensitive, exactFirst)
@@ -7230,14 +7224,13 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByName
    */
   public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
-    // The exact value name first. Top-level keys only: an inner question's value name is no key of the survey
-    // data.
+    // Top-level keys only: an inner question's value name is no key of the survey data.
     const index = this.getDataKeyIndex();
     let res = index.getQuestions(valueName);
     if (res.length === 0 && caseInsensitive) res = index.getQuestions(valueName, true);
     if (res.length === 0) return null;
-    // Once a container has nested, a copy, as the filtered list it was: a survey without nesting gets the list as
-    // stored, as on master.
+    // Once a container has nested, a copy: the index edits its lists in place. Without nesting the stored list goes
+    // out, as released.
     return this.isDataScopeUsed() ? [].concat(res) : res;
   }
   public getCalculatedValueByName(name: string): CalculatedValue {
@@ -7409,8 +7402,8 @@ export class SurveyModel extends SurveyElementCore
     if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,
-      // A top-level write reports the first question on the value name, as it always has: the writer only when
-      // it is below the key (SurveyRootDataScope.getWriter).
+      // A top-level write reports the first question on the value name, as released: the writer only when it is
+      // below the key (SurveyRootDataScope.getWriter).
       question: write?.writer || <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
@@ -7423,9 +7416,8 @@ export class SurveyModel extends SurveyElementCore
     if (loc === false && Helpers.checkIfValuesEqual(value, oldValue, { ignoreOrder: false, caseSensitive: true, trimStrings: false })) return true;
     return loc;
   }
-  // The root's elements on a key, copied once a container has nested: a loop over them may change the root's
-  // instance, and the list was a filtered copy before. A survey without nesting loops over the list as stored, as
-  // on master.
+  // Copied once a container has nested: a loop over them may change the root's index in place. Without nesting the
+  // list goes as stored, as released.
   private getRootKeyElements(key: string): Array<ISurveyDataElement> {
     const res = this.getDataKeyIndex().getElements(key);
     return this.isDataScopeUsed() ? [].concat(res) : res;
@@ -7528,10 +7520,9 @@ export class SurveyModel extends SurveyElementCore
     keys[name] = value;
     return this.getLocStrChanges(keys);
   }
-  // A root container's object was written, and every container on the key told its questions (containers
-  // sharing a key share the object): the inner question that wrote is validated, and each question of the
-  // containers that shows an error is checked again, since the shared object may have fixed it. Once per
-  // write, whatever the number of containers.
+  // The inner question that wrote is validated, and each question of the containers on the key that shows an error
+  // is checked again: containers that share a key share the object, which may have fixed it. Once per write,
+  // whatever the number of containers.
   private validateDataScopesOnValueChanged(key: string, writer: Question): void {
     if (!this.isDataScopeUsed()) return;
     const scopes = this.rootDataScope.getRootScopes(key);
@@ -7639,22 +7630,17 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   //#region Nested data (PanelDataScope)
-  // The survey is the root data scope: an element's value is a key of its value scope's data,
-  // and getDataPath() gives its keys from the survey data down. A top-level question's path has one key.
-  // The root's keys and the trigger keys are the root data scope's; the expression
-  // variable lookup is data-scope-variables.ts.
+  // The survey is the root data scope: an element's value is a key of its value scope's data, and getDataPath()
+  // gives its keys from the survey data down. A top-level question's path has one key.
   private rootDataScope = new SurveyRootDataScope(this, (key: string) => this.getDataValueCore(this.valuesHash, key));
-  // The root data scope: the elements' notifications on nesting (a container attached, its key changed, an element
-  // moved) go to it.
   public getRootDataScope(): SurveyRootDataScope {
     return this.rootDataScope;
   }
   public isDataScopeUsed(): boolean {
     return this.rootDataScope.isUsed;
   }
-  // Whether a page or a panel of this survey nests now (isDataScopeUsed stays true once one has nested). The
-  // outermost nesting container is a root container, a key of the root's instance: that instance answers, built
-  // again only after a change of the containers. A container inside a record nests in the records, not here.
+  // Whether a page or a panel nests now (isDataScopeUsed stays true once one has nested): the outermost nesting
+  // container is a key of the root's instance. A container inside a record nests in the records, not here.
   public hasDataNesting(): boolean {
     return this.isDataScopeUsed() && this.getDataKeyIndex().hasScopes();
   }
@@ -7676,8 +7662,8 @@ export class SurveyModel extends SurveyElementCore
   public getQuestionVariableName(question: Question, context?: Base): string {
     return getQuestionVariableName(this, question, context);
   }
-  // The path of names getElementByName / getQuestionByName find the element by (O2, O8): each name scope owner's
-  // name, then the element's. Its name in "none" and for an element of the survey's own scope.
+  // The path of names getElementByName / getQuestionByName find the element by: each name scope owner's name, then
+  // the element's. Its name in "none" and for an element of the survey's own scope.
   public getElementNamePath(element: ISurveyElement): string {
     return isNameScopeMode(this) ? getNameScopePath(element) : element.name;
   }
@@ -8158,9 +8144,8 @@ export class SurveyModel extends SurveyElementCore
     this.resetHasLogo();
     this.resetPropertyValue("titleIsEmpty");
     this.elementIndex.clear();
-    // A JSON without pages keeps the pages: they and their panels stay found, as when they were scanned.
-    // Their questions are not, as before: the index is cleared, and only the pages and their panels are added
-    // again. A JSON with pages removes them.
+    // A JSON without pages keeps the pages: they and their panels stay found and their questions do not, as
+    // released. A JSON with pages removes them.
     this.pages.forEach(page => {
       this.elementIndex.add(page);
       this.innerPanelsAdded(page);
@@ -8657,8 +8642,7 @@ export class SurveyModel extends SurveyElementCore
     return this.deletingEmptyValuesScope.run(func);
   }
   // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
-  // undefined always removes the key: it is what Question.clearValue() assigns. ISurvey: the containers that
-  // keep values as keys of one object ask it (nested data).
+  // undefined always removes the key: it is what Question.clearValue() assigns.
   isEmptyValueKept(val: any): boolean {
     return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
   }
@@ -8670,10 +8654,9 @@ export class SurveyModel extends SurveyElementCore
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
     if (!this.editingObj) {
-      // A root container's object is removed only when it has no keys left (with the key on). A question's
-      // own object value keeps the rule below; the key tells them apart through the root's keys (a question
-      // whose value name equals a container key, allowed at runtime, shares the container's object and gets
-      // its rule).
+      // A root container's object is removed only when it has no keys left (with the key on); a question's own
+      // object value keeps the rule below. A question whose value name is a container key (allowed at runtime)
+      // shares the container's object and gets its rule.
       const isContainerKept = isContainerObjectKept(this, val);
       if (isContainerKept !== undefined && this.isDataScopeKey(name)) return !isContainerKept;
       if (this.isEmptyValueKept(val)) return false;
@@ -9005,16 +8988,14 @@ export class SurveyModel extends SurveyElementCore
     oldName: string,
     oldValueName: string
   ): any {
-    // Taken out and added again, not moved: a question the index does not hold yet (one inside a dynamic
-    // panel, which questionAdded did not add) is added by its rename, and the question goes after the others
-    // of its name, as before. The index knows the names it holds the question under.
+    // Taken out and added again (the index knows the names it holds the question under): a question it does not
+    // hold yet (one inside a dynamic panel) is added, and the question goes after the others of its name, as released.
     this.elementIndex.remove(question);
     this.elementIndex.add(question);
     this.rootDataScope.questionRenamed(<Question>question);
   }
-  // A panel or a page may have a new name: a name set while the JSON loads (in onPageAdded / onPanelAdded, or
-  // a JSON "name": "") sends no notification, so the panel reports at its load end too. Only an element the
-  // index holds moves: a panel of a dynamic panel's template is not added by its rename.
+  // A name set while the JSON loads sends no notification, so a panel reports at its load end too. Only an element
+  // the index holds moves: a panel of a dynamic panel's template is not added by its rename.
   elementRenamed(element: ISurveyElement): void {
     this.elementIndex.renamed(element);
     if (!(<any>element).isQuestion) {
@@ -9053,9 +9034,8 @@ export class SurveyModel extends SurveyElementCore
         "panel"
       );
     }
-    // As for a question (questionAdded), a panel without a page (in a dynamic panel's template or panels) is
-    // not added, the way getAllPanels() does not return it. The questions inside are added either way, as
-    // they always were.
+    // As for a question, a panel without a page (in a dynamic panel's template or panels) is not added, the way
+    // getAllPanels() does not return it. The questions inside are added either way, as released.
     const hasPage = !!panel.page;
     if (hasPage) {
       this.elementIndex.add(panel);
@@ -9131,7 +9111,7 @@ export class SurveyModel extends SurveyElementCore
       (name: string): Base => this.findOwnPageOrPanel(name));
   }
   // A property path's first name ({panel1.isVisible}): a page, else a panel, letter case ignored. In a nesting mode
-  // one of the survey's own (O1): the path is a property path, not a path of names.
+  // one of the survey's own: the path is a property path, not a path of names.
   private findOwnPageOrPanel(name: string): Base {
     if (!isNameScopeMode(this)) {
       return this.elementIndex.find(name, isPageKind, true, false) || this.elementIndex.find(name, isPanelKind, true, false);

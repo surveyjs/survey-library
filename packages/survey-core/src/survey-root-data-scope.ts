@@ -9,21 +9,17 @@ import type { ISurveyDataElement, IElement } from "./base-interfaces";
 import { IDataScope, getElementDataScope, getInnerLevels } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
 
-// One write of a survey data key, created where the value is written and passed down the write's steps
-// (the changing event, the validation, the triggers, the notification, auto-advance).
-//   name: the key the write or the request is for (a survey write: the top-level key written);
-//   question: the question that wrote, carried by the write (ISurveyData.setValue): onValueChanged reports it;
-//   questionName: a code write's report, the question named like the key, set by the survey when no container
-//     owns the key;
-//   writer: the question that wrote, when the survey must not look it up by the key: a question inside a
-//     nesting container (its data path goes below the key), or a question that asks to advance itself.
+// One write of a survey data key, passed down the write's steps (the changing event, the validation, the
+// triggers, the notification, auto-advance). name: the key written or requested. question: the question that
+// wrote, carried by the write; onValueChanged reports it. questionName: a code write's report, the question named
+// like the key when no container owns it. writer: the question that wrote, when the survey must not look it up by
+// the key (inside a nesting container, or a question that asks to advance itself).
 export interface IValueWrite {
   name: string;
   question?: Question;
   questionName?: string;
   writer?: Question;
 }
-// Each question reads its value, and its comment, again from the data scope that holds it.
 export function updateQuestionsFromData(questions: Array<Question>, clearData: boolean): void {
   questions.forEach(q => {
     const data = q.getValueScope();
@@ -35,13 +31,11 @@ export function updateQuestionsFromData(questions: Array<Question>, clearData: b
   });
 }
 
-// The survey's part of nested data: the root's keys (top-level questions and root containers), the root
-// containers by key and by path, and the keys a write of a container key changes for triggers and
-// conditions. The survey owns one (SurveyModel.getRootDataScope()) and is its host.
-// It follows the survey's notifications in the data scopes' instances (ElementIndex): the root's own, and below the
-// root the instance of the scope that holds the element (getKeyHolderScope) and those of the scopes inside it. An
-// element appended last in a scope's document order is added in place, and so is a root question's new key; any
-// other change drops the instance, which the base's walk (DataKeysScope) builds again on its next read.
+// The survey's part of nested data: the root's keys (top-level questions and root containers), the root containers
+// by key and by path, and the keys a write of a container key changes for triggers and conditions. It follows the
+// survey's notifications in the data scopes' instances (ElementIndex): an element appended last in a scope's
+// document order is added in place, and so is a root question's new key; any other change drops the instance,
+// which the base's walk builds again on its next read.
 export class SurveyRootDataScope extends DataKeysScope {
   private isUsedValue: boolean = false;
   // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
@@ -53,18 +47,16 @@ export class SurveyRootDataScope extends DataKeysScope {
   public get isUsed(): boolean {
     return this.isUsedValue;
   }
-  // Called on every attach of a nesting container. On the first one the root is built again: a walk made before it
-  // found no active scope of this survey's.
+  // On the first attach of a nesting container the root is built again: a walk made before found no active scope.
   public used(): void {
     if (this.isUsedValue) return;
     this.isUsedValue = true;
     this.resetDataKeyIndex();
   }
-  // The walk of the pages. A question is the root's when its value is a key of the survey data (before a container
-  // has nested, every question's is); a root container is an active scope with no active scope above it.
   protected getScopeElements(): Array<IElement> {
     return <Array<IElement>><any>this.host.pages;
   }
+  // A root question's value is a key of the survey data; before a container has nested, every question's is.
   protected isScopeQuestion(q: Question): boolean {
     return q.getValueScope() === this.host;
   }
@@ -75,10 +67,8 @@ export class SurveyRootDataScope extends DataKeysScope {
   protected isScopeName(el: ISurveyDataElement): boolean {
     return false;
   }
-  // An element joined a container (questionAdded, panelAdded, a page added). The instance of the scope it joined
-  // takes it in place when it comes last in that scope's document order (dataKeyElementAdded); otherwise that
-  // instance is dropped. That scope is the root for an element whose data is the survey's. Below the root the
-  // instances of the scopes inside the element are dropped too.
+  // The instance of the scope the element joined takes it in place when it comes last in document order, and is
+  // dropped otherwise. Below the root the instances of the scopes inside the element are dropped too.
   public elementAdded(el: IElement): void {
     const scope = getKeyHolderScope((<any>el).data);
     if (!!scope) {
@@ -97,10 +87,8 @@ export class SurveyRootDataScope extends DataKeysScope {
       this.dataKeyElementAdded(el);
     }
   }
-  // An element left its container (questionRemoved, panelRemoved, a page removed). Below the root, the container
-  // dropped the instance that held it (PanelModelBase.onRemoveElement); the instances of the scopes inside it are
-  // dropped here, and the root's when it holds the element or one inside it.
-  // A panel that comes back builds the instances inside it again (ContainerDataNesting.elementsAttached).
+  // Below the root, the container already dropped the instance that held the element; the instances of the scopes
+  // inside it are dropped here, and the root's when it holds the element or one inside it.
   public elementRemoved(el: IElement): void {
     const index = this.builtDataKeyIndex;
     let held = false;
@@ -114,41 +102,31 @@ export class SurveyRootDataScope extends DataKeysScope {
       this.resetDataKeyIndex();
     }
   }
-  // setPage moved the element, or took it off its page, with no add or remove notification. The container it left
-  // dropped the instance that held it, and an attach drops a panel's own instance and those inside it. The instance
-  // of the scope it joined is dropped, and so is the root's (an element taken off its page leaves it; one moved
-  // within the root takes its new place).
+  // setPage moved the element or took it off its page, unnotified (the container it left and a panel's attach drop
+  // theirs). Here the new holder's instance goes, and the root's: the element left it or takes a new place in it.
   public elementMoved(el: IElement): void {
     getKeyHolderScope((<any>el).data)?.resetDataKeyIndex();
     this.resetDataKeyIndex();
   }
-  // questionRenamed: below the root, the instance of the scope that holds the question is dropped (its name and its
-  // key changed). The root's holds no names: the question takes its new key in place and keeps its place in document
-  // order (reKey does nothing for a question it does not hold). A build instead would walk every page after each
-  // rename that is followed by a read.
+  // The root's instance holds no names: the question takes its new key in place, since a build would walk every page
+  // after each rename followed by a read. Below the root the holder's instance is dropped.
   public questionRenamed(question: Question): void {
     getKeyHolderScope(question.data)?.resetDataKeyIndex();
     this.builtDataKeyIndex?.reKey(question, question.getValueName());
   }
-  // elementRenamed: a panel's name changed, or its load ended. The instance below the root that holds it by name is
-  // dropped. Not for a panel that has a scope: its key change drops that instance, once (at runtime through
-  // PanelModelBase.onDataScopeKeyChanged, at the load end through PanelModelBase.endLoadingFromJson).
+  // Not for a panel that has a scope: its key change drops the instance that holds it by name, once.
   public panelRenamed(panel: PanelModelBase): void {
     if (!panel.getDataScope()) {
       getKeyHolderScope(panel.data)?.resetDataKeyIndex();
     }
   }
-  // A container started or stopped holding data, or changed its key. The instances it touches are dropped: its own,
-  // the one that holds it or its elements, and the root's. The root's is dropped as a whole, not only for the
-  // container's elements: a question whose data is the container's scope can be outside the container (a template
-  // question moved onto a page), and its value scope follows that scope. A choice panel that left its select
-  // question's choices calls this too (question_baseselect.ts): its questions leave the select question's scope.
+  // The root's instance is dropped as a whole: a question whose data is the container's scope can be outside the
+  // container (a template question moved onto a page), and its value scope follows that scope.
   public dataScopeKeysChanged(panel: PanelModelBase): void {
     panel.getDataScope()?.resetDataKeyIndex();
     getKeyHolderScope(panel.data)?.resetDataKeyIndex();
     this.resetDataKeyIndex();
   }
-  // The instances of the scopes inside el (el's own included) are dropped.
   private dropScopesInside(el: IElement): void {
     this.forEachInside(el, (inner: ISurveyDataElement): void => {
       if (!inner.isQuestion) {
@@ -166,7 +144,6 @@ export class SurveyRootDataScope extends DataKeysScope {
       elements.forEach(inner => this.forEachInside(inner, callback));
     }
   }
-  // Whether the root's instance holds an element inside el already.
   private holdsInside(el: IElement): boolean {
     const index = this.builtDataKeyIndex;
     if (!index) return false;
@@ -181,8 +158,7 @@ export class SurveyRootDataScope extends DataKeysScope {
   public dataScopeChanged(panel?: PanelModelBase): void {
     if (!panel) {
       this.updateDataScopeAttachments();
-      // The panels inside a record are not attached again (RN3): a records question builds its objects' instances
-      // again.
+      // The panels inside a record are not attached again: a records question builds its objects' instances again.
       this.host.getAllQuestions(false, true).forEach(q => (<any>q).resetDataKeyIndexes?.());
       this.resetDataKeyIndex();
     } else {
@@ -208,16 +184,14 @@ export class SurveyRootDataScope extends DataKeysScope {
     this.host.pages.forEach(page => visit(page));
   }
 
-  // The active scopes whose object is the top-level key: the root containers with this key.
   public getRootScopes(key: string): Array<PanelDataScope> {
     return this.getDataKeyIndex().getScopes(key);
   }
   public isScopeKey(key: string): boolean {
     return this.getRootScopes(key).length > 0;
   }
-  // The scopes whose object is at the data path: [] gives the survey, ["address"] the root containers with
-  // the key "address", ["page1", "address"] the containers with the key "address" inside them (each may
-  // be more than one).
+  // The scopes whose object is at the data path: [] gives the survey, ["page1", "address"] the containers with the
+  // key "address" inside the root containers with the key "page1" (each may be more than one).
   public getScopesByPath(path: Array<string>): Array<IDataScope> {
     if (path.length === 0) return [this.host];
     // The survey's keys are the root's (SurveyModel.getDataKeyIndex).
@@ -227,10 +201,8 @@ export class SurveyRootDataScope extends DataKeysScope {
     }
     return res;
   }
-  // The questions that hold the same value as question: its value name in the indexes of the scopes at its
-  // value scope's data path (two containers sharing a key share their object). At the root these are
-  // the survey's getQuestionsByValueName. A question inside a record is looked up at the root, as one
-  // directly in a record always was: its data path starts at the record, not at the survey data.
+  // Every scope at the value scope's data path is asked: two containers that share a key share their object. A
+  // question in a record is looked up at the root: its data path starts at the record, not the survey.
   public getQuestionsSharingValue(question: Question): Array<Question> {
     const res: Array<Question> = [];
     const path = !getRecordDataScope(question.data) ? question.getValueScope().getDataPath() : [];
@@ -241,24 +213,22 @@ export class SurveyRootDataScope extends DataKeysScope {
     return res;
   }
 
-  // The question that wrote the key valueName through a data scope: its data path goes below the key.
-  // Only then: a top-level writer would change the question onValueChanging reports and which questions
-  // sharing a value name are validated.
+  // Only a writer whose data path goes below the key: a top-level writer would change the question onValueChanging
+  // reports and which questions sharing a value name are validated.
   public getWriter(valueName: string, question: Question): Question {
     if (!question || !this.isUsedValue) return undefined;
     const path = question.getDataPath();
     return path.length > 1 && path[0] === valueName ? question : undefined;
   }
   // A code write of a key reports the question named like it, unless the key is a container key. The survey finds
-  // by a bare name only its own questions (scoped names 05, O1), whose values are keys of the survey data.
+  // by a bare name only its own questions, whose values are keys of the survey data.
   public isCodeWriteQuestionName(name: string): boolean {
     return !this.isUsedValue || !this.isScopeKey(name);
   }
 
-  // The changed keys below a container key, with their old and new values: the value name and the name of
-  // each inner question whose value or comment changed (and its comment key), and the key of each inner
-  // container whose object changed, so an expression reading {street} re-runs. Empty for a key that is
-  // no container key.
+  // The changed keys below a container key, with their old and new values: the value name and the name of each
+  // inner question whose value or comment changed (and its comment key), and the key of each inner container whose
+  // object changed, so an expression reading {street} re-runs.
   public getChangedKeys(key: string, newValue: any, oldValue: any): HashTable<{ newValue: any, oldValue: any }> {
     const res: HashTable<{ newValue: any, oldValue: any }> = {};
     if (!this.isUsedValue) return res;
@@ -296,10 +266,9 @@ export class SurveyRootDataScope extends DataKeysScope {
     this.getRootScopes(key).forEach(scope => collect(scope, oldValue, newValue));
     return res;
   }
-  // The trigger keys of a question's value: each key of its data path with its value. Not its name: a trigger is
-  // the survey's, and the survey does not find an inner question by its name (O3). A key already there stays.
-  // belowRoot: only a path that goes below the root, as runTriggers and performNext add (their root keys come
-  // from the data and the question's name); returns whether the keys were added.
+  // Each key of the question's data path with its value, not its name: a trigger is the survey's, and the survey does
+  // not find an inner question by its name. A key already there stays. belowRoot: only a path that goes below the
+  // root (runTriggers and performNext take the root keys from the data and the question's name).
   public addTriggerKeys(keys: any, question: Question, belowRoot?: boolean): boolean {
     const path = question.getDataPath();
     if (path.length === 0 || belowRoot && path.length < 2) return false;
@@ -317,9 +286,8 @@ export class SurveyRootDataScope extends DataKeysScope {
     }
     return true;
   }
-  // ISurveyTriggerOwner: whether the changed keys are only the ones a write of the question that name resolves
-  // to reports (its data path and its name): a setvalue / copyvalue trigger then skips the change of its own
-  // target. A top-level question's write reports one key, which the trigger checks itself.
+  // Whether the changed keys are only the ones a write of name's question reports (its data path and its name). A
+  // top-level question's write reports one key, which the trigger checks itself.
   public isOwnValueKeys(name: string, keys: Array<string>): boolean {
     if (!this.isUsedValue || !name || keys.length === 0) return false;
     const info = new ValueGetter().getValueInfo({ name: name, context: this.host.getValueGetterContext() });

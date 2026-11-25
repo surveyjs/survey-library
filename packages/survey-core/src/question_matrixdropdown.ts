@@ -605,8 +605,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super.clearGeneratedRows();
   }
   // The keys of a row's default values are removed: the new row's questions apply their defaults again. A
-  // default inside a nesting panel's object is removed from a copy of that object, and an object it
-  // leaves empty goes too; a path through a value that is no object (an array) is skipped.
+  // default inside a nesting panel's object is removed from a copy of that object.
   private getRowValueForCreation(val: any, rowName: any): any {
     const res = val[rowName];
     if (!res) return res;

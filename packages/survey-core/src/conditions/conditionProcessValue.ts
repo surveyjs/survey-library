@@ -30,8 +30,8 @@ export interface IValueGetterInfo {
   requireStrictCompare?: boolean;
   isFound?: boolean;
   value?: any;
-  // The metadata mode (IValueGetterContextGetValueParams.isMetadata, ValueGetter.getQuestionInfo): the walk
-  // stops at the first question found (obj); the name step marks a comment key and a stripped unwrap postfix.
+  // The metadata mode: the walk stops at the first question found (obj); the name step marks a comment key and a
+  // stripped unwrap postfix.
   isMetadata?: boolean;
   isComment?: boolean;
   isUnwrapped?: boolean;
@@ -50,8 +50,8 @@ export interface IValueGetterContextGetValueParams {
   isOriginalValue?: boolean;
   // The reader holds no object of its own: a records question answers with a row or a panel it already has, and builds none for the read.
   existingObjectsOnly?: boolean;
-  // Which question a name reads, without values: no value is read and the walk stops at the first question
-  // (ValueGetter.getQuestionInfo). A context that rebuilds the params passes it on.
+  // Which question a name reads: no value is read, and the walk stops at the first question. A context that
+  // rebuilds the params passes it on.
   isMetadata?: boolean;
 }
 export interface IValueGetterContext {
@@ -124,9 +124,8 @@ export class ValueGetter {
     }
     return res;
   }
-  // The question a name reads, as the runtime walk finds it, reading no values (the metadata mode): info.obj
-  // is the first question the walk reaches, info.restFrom where the rest of the name starts. Undefined when
-  // the walk ends without a question, or the name is a property path ({$page1.title}).
+  // The question a name reads, as the runtime walk finds it, reading no values. Undefined when the walk ends
+  // without a question, or the name is a property path ({$page1.title}).
   public getQuestionInfo(name: string, context: IValueGetterContext): IValueGetterInfo {
     if (!name || !context) return undefined;
     const propPrefix = settings.expressionElementPropertyPrefix;
@@ -452,14 +451,13 @@ export function findNameByPath(path: Array<IValueGetterItem>, start: number, isR
   }
   return -1;
 }
-// The name an unwrapped name ({q-unwrapped}) reads; undefined when the unwrap postfix is empty or the name
-// does not end with it.
+// The name an unwrapped name ({q-unwrapped}) reads; undefined for any other name.
 function getUnwrappedBaseName(name: string): string {
   const postfix = settings.expressionVariables.unwrapPostfix;
   if (!postfix || !name.endsWith(postfix)) return undefined;
   return name.substring(0, name.length - postfix.length);
 }
-// A name step's first part: the name without the unwrap postfix. The metadata mode marks the result unwrapped.
+// A name step's first part: the name without the unwrap postfix.
 export function stripUnwrapPostfix(name: string, res: IValueGetterInfo): string {
   const baseName = getUnwrappedBaseName(name);
   if (baseName === undefined) return name;

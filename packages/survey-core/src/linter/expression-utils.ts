@@ -176,7 +176,6 @@ function isKnownVariable(name: string, index: SurveyIndex, options: ISurveyLintO
   return isListedVariable(name, options);
 }
 
-// A name the host listed in options.knownVariables.
 export function isListedVariable(name: string, options: ISurveyLintOptions): boolean {
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
@@ -218,10 +217,8 @@ function isTopLevelNamed(record: ElementRecord): boolean {
   return record.kind !== "question" || isValueQuestion(record);
 }
 
-// "none": the root stage. ordered (an expression reference, a trigger's setToName / fromName, a dotted name): an
-// element of isTopLevelNamed, then a valueName, then any element of that name. A runtime name of one segment (a
-// gotoName, a function argument) is an element name first - isContainerReady('page1') names the page. Nothing nests
-// in "none", so no container key comes between them.
+// "none": the root stage. A runtime name of one segment (a gotoName, a function argument: not ordered) is an element
+// name first - isContainerReady('page1') names the page. Nothing nests in "none", so no container key comes between.
 function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean, ordered: boolean): ElementRecord | undefined {
   // byName is a multimap: a page and a question may share a name, and only the
   // question answers an expression reference
@@ -230,14 +227,13 @@ function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean, ord
   return named.filter(record => isTopLevelNamed(record))[0] || index.byValueName.first(root) || named[0];
 }
 
-// A nesting mode: an element the survey data answers by its key, never by its name (O8) - a question that stores
-// a value, a panel or a page that holds data.
+// A nesting mode: an element the survey data answers by its key, never by its name.
 function isKeyedRecord(record: ElementRecord): boolean {
   return record.kind === "question" ? isValueQuestion(record) : !!getNestedScope(record);
 }
 
-// A nesting mode: the one question the survey holds by that name outside the records (no name from outside reaches
-// into a record). Several give none: which one was meant is a guess (report-09, A3).
+// A nesting mode: the one question of that name outside the records (no name from outside reaches into a record).
+// Several give none: which one was meant is a guess.
 function getOnlyQuestionNamed(name: string, index: SurveyIndex): ElementRecord | undefined {
   const questions = index.flatNames.get(name).filter(record => record.kind === "question" && isValueQuestion(record));
   return questions.length === 1 ? questions[0] : undefined;
@@ -295,10 +291,9 @@ function findScopedTarget(ref: ParsedRef, index: SurveyIndex, namePath: boolean)
 }
 
 // A nesting mode: what an unknown name meant, when one question of the survey carries it, and how to write it from
-// here. For a reference, a setToName or a fromName (a data path, O4a), the variable getQuestionVariableName gives
-// (O3): the rest of the question's data path after the innermost scope around the site that leads to it and still
-// resolves to it there, else its path from the survey data. For a name property (gotoName, a function argument),
-// the shortest path of names that finds it.
+// here. A data path (a reference, a setToName or a fromName) gets the variable getQuestionVariableName gives: the
+// rest of the question's data path after the innermost scope around the site that still resolves to it, else its
+// path from the survey data. A name property (gotoName, a function argument) gets the shortest path of names.
 function getScopedSuggestion(ref: ParsedRef, site: { owner?: ElementRecord, scope: Array<ScopeFrame> }, index: SurveyIndex,
   options: ISurveyLintOptions, flags: ClassifyFlags): ScopedSuggestion | undefined {
   const found = findScopedTarget(ref, index, flags.target === "namePath");
@@ -335,7 +330,7 @@ export interface NameCandidateFilter {
   // which indexed elements answer the name being suggested for
   accepts: (record: ElementRecord) => boolean;
   // a nesting mode, a name property (gotoName, a function argument): an element answers by its name only, so no
-  // valueName joins the pool; otherwise a question with a valueName answers by that key only (O8)
+  // valueName joins the pool; otherwise a question with a valueName answers by that key only
   namePath?: boolean;
   // add the names that answer as data without being elements: valueNames, calculated
   // values, the host variables (options.knownVariables and the variable definition) and
@@ -687,19 +682,15 @@ interface RecordObjectUnknown {
   level?: SegmentLevel;
 }
 
-// Records nesting 02: a field of a panel or row object that is a nesting panel's object (its synthetic
-// record, of kind "dataObject"). fields are the record's fields on one key: objects whose keys differ in letter
-// case only are one object to the runtime. The segments from start continue inside them, in the
-// runtime's order: a question by value name, an object directly inside it by key, a display-only
-// question, a matrix's totals key, a question's comment key. A path never falls back to the record.
-// resolvedTo becomes what the path reached (a comment or a total: unset); an unknown segment is
-// returned with its suggestion. Nothing to do for another field or no segments left.
+// fields: a record's fields on one key, where objects whose keys differ in letter case only are one object to the
+// runtime. A path into a nesting panel's object ("dataObject") never falls back to the record.
 function resolveInRecordObject(ref: ParsedRef, start: number, fields: Array<ElementRecord>,
   lintSettings: ILintResolvedSettings): RecordObjectUnknown | undefined {
   const objects = fields.filter(field => field.kind === "dataObject").map(field => field.objectScope);
   if (objects.length === 0 || start >= ref.segments.length) return undefined;
   return resolveInRecordObjects(ref, start, objects, lintSettings);
 }
+// The runtime's order: a question by value name, an object by key, a display-only question, a totals key, a comment.
 function resolveInRecordObjects(ref: ParsedRef, start: number, objects: Array<DataScopeRecord>,
   lintSettings: ILintResolvedSettings): RecordObjectUnknown | undefined {
   const segments = ref.segments;
@@ -944,15 +935,11 @@ function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings:
   return false;
 }
 
-// Nested data. The names one object answers, tried from segment start on, longest name first in each
-// stage, in the runtime's order (PanelDataScopeValueGetterContext): a question by value name, a nesting
-// container directly inside it by key, a question's comment key, and a matrix's totals key. scopes are
-// the objects on one key: the runtime merges objects whose keys differ in letter case only. A container
-// key followed by more segments continues inside that container's object, which then answers the rest
-// or reports it unknown: a path never falls back to an outer object.
-// flags.childrenOnly: the survey data, whose questions the root stages answer. flags.fromRoot: the path
-// started at the survey data, so the raw data answers what the scope context does not - the runtime's
-// scope context has no totals step, and only such a path reaches a matrix total ({address.m-total.c}).
+// Nested data: the names one object answers from segment start on, longest name first in each stage, in the
+// runtime's order (PanelDataScopeValueGetterContext). scopes are the objects on one key: the runtime merges objects
+// whose keys differ in letter case only. A path never falls back to an outer object.
+// flags.childrenOnly: the survey data, whose questions the root stages answer. flags.fromRoot: the runtime's scope
+// context has no totals step, so only a path from the survey data reaches a matrix total ({address.m-total.c}).
 function resolveInDataScope(ref: ParsedRef, start: number, scopes: Array<DataScopeRecord>, index: SurveyIndex,
   flags: { childrenOnly?: boolean, fromRoot?: boolean }): boolean {
   const segments = ref.segments;
@@ -1012,12 +999,11 @@ function resolveInDataScope(ref: ParsedRef, start: number, scopes: Array<DataSco
   return false;
 }
 
-// A question that stores a value. A display-only one (html, image) holds no data key.
+// A display-only question (html, image) holds no data key.
 export function isValueQuestion(record: ElementRecord): boolean {
   return !record.valueType || record.valueType.shape !== "none";
 }
 
-// The keys of one object a typo suggestion is drawn from.
 function getDataScopeNames(scope: DataScopeRecord): Array<string> {
   return scope.questions.names().concat(scope.children.names());
 }
@@ -1161,7 +1147,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   const scoped = isNameScopeMode(index);
   let record: ElementRecord;
   if (scoped && flags.target === "namePath") {
-    // a name or a path of names (O2, O4a), from the owner's name scope outwards; a trigger is the survey's
+    // a name or a path of names, from the owner's name scope outwards; a trigger is the survey's
     record = findFromNameScope(getOwnerNameScope(flags.from, index), name, index, rec => isRootRecordVisible(rec, true));
     if (!!record) {
       ref.status = "resolved";
@@ -1171,9 +1157,8 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
       return ref;
     }
   } else if (scoped) {
-    // the survey data by its keys (O1, O8): a question by its data key, a container key, a comment or a totals
-    // key; then an element of the survey's own scope that holds no key (a panel that holds no data, a
-    // display-only question)
+    // the survey data by its keys; then an element of the survey's own scope that holds no key (a panel that
+    // holds no data, a display-only question)
     if (resolveInDataScope(ref, 0, [index.rootScope], index, { fromRoot: true })) return ref;
     record = index.byName.get(root).filter(rec => isRootRecordVisible(rec, nameOnly) && !isKeyedRecord(rec))[0];
   } else {
@@ -1277,8 +1262,8 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
 }
 
 // What a runtime name is. "dataPath": a trigger's setToName / fromName addresses a value, which the runtime looks
-// up as an expression reads it (setTriggerValue; O4a). "namePath": a gotoName or a function argument names an
-// element - in a nesting mode by a path of names, from its owner's scope outwards (O2, O4).
+// up as an expression reads it (setTriggerValue). "namePath": a gotoName or a function argument names an
+// element - in a nesting mode by a path of names, from its owner's scope outwards.
 export type TargetNameKind = "dataPath" | "namePath";
 
 // Resolves a runtime name (a trigger target) through the same chain as expression
@@ -1289,11 +1274,8 @@ export function classifyTargetName(raw: string, index: SurveyIndex, options: ISu
   return classifyRefCore(raw, { scope: [] }, index, options, { nameOnly: true, target: target, from: from });
 }
 
-// The value a trigger's setToName / fromName addresses, by the element NAME the cycle rules use as
-// a slot: a valueName, a dotted path into a nesting container ("address.street") and a sub-path all
-// land on the element. A name that addresses no element (a variable, a calculated value, an unknown
-// name) gives the caller's fallback: the slot the caller derives from the name's data key, so a
-// variable read or written by a trigger still links the cycle graph.
+// The slot the cycle rules use for a trigger's setToName / fromName: the NAME of the element it lands on. A name
+// that addresses no element gets the caller's fallback, so a variable a trigger touches still links the graph.
 export function canonicalTargetSlot(name: string, index: SurveyIndex, options: ISurveyLintOptions, fallback: string): string {
   if (typeof name !== "string" || !name) return fallback;
   const ref = classifyTargetName(name, index, options, "dataPath");
@@ -1377,11 +1359,10 @@ export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | un
   return undefined;
 }
 
-// {pd[0].address.street}, {mdyn[0].home.street2}: the question a path into a nesting panel's object
-// inside one record lands on. It steps through the object as resolveInRecordObjects
-// does: dotted names longest first ({pd[0].a.b.kind} for a key "a.b"), objects whose keys differ in letter
-// case only merged, a question before an object. An index inside the object, or a sub-path of the question
-// found, is not modelled.
+// {pd[0].address.street}, {mdyn[0].home.street2}: the question a path into a nesting panel's object inside one
+// record lands on. It steps through the object as resolveInRecordObjects does: dotted names longest first, objects
+// whose keys differ in letter case only merged, a question before an object. An index inside the object, or a
+// sub-path of the question found, is not modelled.
 function getRecordObjectPathRecord(record: ElementRecord, segments: Array<ParsedRefSegment>): ElementRecord | undefined {
   if (segments[0].index === undefined || segments.slice(1).some(seg => seg.index !== undefined)) return undefined;
   const fields = getItemFields(record);
@@ -1780,7 +1761,7 @@ export function resolveCarryForwardSource(sourceName: string, owner: ElementReco
     };
   }
   if (!isNameScopeMode(index)) return { source: index.findByDataName(sourceName) };
-  // a nesting mode: a name or a path of names, from the owner's name scope outwards (O4)
+  // a nesting mode: a name or a path of names, from the owner's name scope outwards
   const from = getOwnerNameScope(owner, index);
   const source = findFromNameScope(from, sourceName, index, record => record.kind === "question");
   if (!!source) return { source: source };

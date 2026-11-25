@@ -275,12 +275,8 @@ export class ChoiceItem extends ItemValue {
     const owner: any = this.choiceOwner;
     return !!owner && owner.isQuestion ? owner : null;
   }
-  // The panel takes the select question's parent and survey impl: its questions' values are keys of the data scope
-  // that holds the select question's own value (the survey data, a nesting container's object, a record), and the
-  // panel never nests (ContainerDataNesting.getPlace). Called again when the select question gets another survey
-  // impl or parent (QuestionSelectBase.bindChoicePanels); a panel bound to both already is left as it is.
-  // The content question of a custom question holds the wrapper's value: its panels go where the wrapper is. A select
-  // question with no parent (a matrix cell) keeps them on the survey, as before: a row does not hold their keys.
+  // The panel takes the select question's parent and survey impl: its questions' values are keys next to the select
+  // question's own value, and the panel never nests.
   public bindPanel(): void {
     this.setPanelSurvey(this.panelValue);
   }
@@ -289,11 +285,13 @@ export class ChoiceItem extends ItemValue {
     if (!pnl || !owner) return;
     pnl.selectedElementInDesign = owner;
     const data: any = owner.data;
+    // The content question of a custom question holds the wrapper's value: its panels go where the wrapper is.
     const host: any = !!data && data.isQuestion === true && data.contentQuestion === owner ? data : owner;
     // The parent even without a survey impl (a select question in a detail panel template has none): a panel inside
     // the choice panel finds its place through it.
     const isMoved = pnl.parent !== host.parent;
     if (isMoved) pnl.parent = <PanelModelBase>host.parent;
+    // A matrix cell has no parent: its panels stay on the survey, since a row does not hold their keys.
     // A question's survey impl is protected (SurveyElement.surveyImpl).
     const impl: ISurveyImpl = !!host.parent ? host["surveyImpl"] : owner.getSurvey();
     if (!owner.getSurvey() || !impl || !isMoved && pnl["surveyImpl"] === impl) return;
@@ -2251,9 +2249,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     this.forEachNestedElement(info => { (<PanelModel>info.element).onFirstRendering(); }, showingChoicePanels);
   }
-  // Whether the question that wrote is the one choicesFromQuestion names. A nesting mode compares the question
-  // the write carries with the one the name resolves to from here: a name is not unique there, and the name may
-  // be a path. "none" compares the names, as before.
+  // In a nesting mode a name is not unique and may be a path, so the question the write carries is compared with
+  // the one choicesFromQuestion resolves to from here.
   private isChoicesSourceWriter(questionName: string, question: IQuestion): boolean {
     if (!question || !isNameScopeMode(this.survey)) return questionName === this.choicesFromQuestion;
     return question === this.findCarryForwardQuestion();

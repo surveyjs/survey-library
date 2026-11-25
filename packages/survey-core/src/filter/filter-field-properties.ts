@@ -13,8 +13,8 @@ import { isInRecordNestingPanel } from "../record-key-level";
 // or in a question whose children are the fields (a composite question, a Multiple Textboxes).
 // A nested Dynamic Panel's template, a matrix cell and a matrix detail panel's question are not
 // fields: getFilterFields doesn't walk into them, and no source is nested. A column has its own rule.
-// A question inside a record's nesting panel is not a field either (isInRecordNestingPanel); a composite's
-// item is decided by its composite, the template's own question.
+// A question inside a record's nesting panel is not a field either; a composite's item is decided by its
+// composite, the template's own question.
 export function isFilterFieldInReach(question: Question): boolean {
   if (!question) return false;
   let field: Question = question;

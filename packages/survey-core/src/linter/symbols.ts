@@ -61,9 +61,8 @@ export class CIMultiMap<T> {
   }
 }
 
-// "dataObject": the synthetic record {key} of a nesting container resolves to (DataScopeRecord.valueRecord).
-// It stands for the container's object, not for the container: it holds an object value, and its type is the
-// container's, which a message names.
+// "dataObject": the synthetic record {key} of a nesting container resolves to (DataScopeRecord.valueRecord): the
+// container's object, not the container. Its type is the container's, which a message names.
 export type ElementKind = "question" | "panel" | "page" | "column" | "multipletextitem" | "dataObject";
 
 export interface ChoicesInfo {
@@ -154,26 +153,21 @@ export interface ElementRecord {
   mergedObject?: MergedObjectKeys;
   // memoized synthetic records for the fields a checkbox keeps in the object of a selected item
   itemFieldRecords?: CIMap<ElementRecord>;
-  // Nested data. The object an element writes into (a question) or keeps its key in (a panel or a
-  // page): the survey data, a record (a dynamic panel's panel, a matrix row: see recordScope), or a
-  // nesting container's object. Unset for a matrix column and inside a composite definition.
+  // nested data: the object a question writes into, or a panel or a page keeps its key in. Unset for a matrix
+  // column and inside a composite definition.
   dataScope?: DataScopeRecord;
-  // a panel or a page: its container record, which holds the nested-data facts (the key, where it comes
-  // from, the object the elements write into)
+  // a panel or a page: its container record, which holds the nested-data facts
   container?: ContainerRecord;
   // a "dataObject" record: the object it stands for, where a path into it continues ({panel.address.street})
   objectScope?: DataScopeRecord;
-  // a dynamic panel or a matrix: the record one of its panels or rows is, as a data scope (records
-  // nesting 02); a nesting panel inside the template or the detail panel keys an object inside it
+  // a dynamic panel or a matrix: the record one of its panels or rows is, as a data scope; a nesting panel
+  // inside the template or the detail panel keys an object inside it
   recordScope?: DataScopeRecord;
 }
 
-// Where a container's key comes from: its valueName, its name in a by-name dataNesting mode, or the
-// name the runtime generates for an unnamed container in such a mode.
+// "generated": the name the runtime generates for an unnamed container in a by-name dataNesting mode.
 export type ContainerKeySource = "valueName" | "name" | "generated";
 
-// What a DataScopeRecord is: the survey data itself, a record of a dynamic panel or a matrix, or the
-// object of a nesting container inside one of them.
 export type DataScopeKind = "survey" | "record" | "object";
 
 // One object of the survey data: the survey data itself (key "", no parent), a record of a dynamic panel
@@ -265,8 +259,7 @@ export interface ParsedRef {
   suggestionEnd?: number;
   // the variable the hint quotes (SurveyLintHintReasons.questionVariableName)
   hintVariable?: string;
-  // a trigger target or a function argument found by a path of names (O2): the element is named by the
-  // last segment, not the first
+  // a trigger target or a function argument found by a path of names: the last segment names the element
   byNamePath?: boolean;
 }
 
@@ -355,8 +348,7 @@ export interface ContainerRecord {
   name?: string;
   path: string;
   children: Array<ElementRecord>;
-  // nested data, set when the container nests: the key it stores its elements' values under, where the
-  // key comes from, and the object its elements write into
+  // nested data, set when the container nests
   dataKey?: string;
   dataKeySource?: ContainerKeySource;
   nestedScope?: DataScopeRecord;
@@ -373,13 +365,11 @@ export interface Namespace {
 export interface SurveyIndex {
   json: any;
   // the elements a bare {name} resolves to: survey-level pages, panels and questions. A question
-  // inside a dynamic-panel template or a matrix row is reached through its scope instead. In "none" a
-  // question inside a nesting container is here too; in a nesting mode it is not: the survey's own name
-  // scope ends at a container that holds data (scoped names, O1). In "none" this is flatNames itself.
+  // inside a dynamic-panel template or a matrix row is reached through its scope instead. In a nesting
+  // mode the survey's name scope ends at a container that holds data; in "none" this is flatNames itself.
   byName: CIMultiMap<ElementRecord>;
-  // every page, panel and question by name, outside the dynamic-panel templates and matrix rows, in every
-  // mode: byName as "none" fills it. The rules that count declarations read it (a name declared twice,
-  // a built-in shadowed inside a container).
+  // byName as "none" fills it, in every mode: every page, panel and question outside the dynamic-panel
+  // templates and matrix rows. The rules that count declarations read it.
   flatNames: CIMultiMap<ElementRecord>;
   // the questions writing a key of the survey data itself: a valueName inside a nesting container
   // answers inside that container only
@@ -393,10 +383,9 @@ export interface SurveyIndex {
   // question by name, templates and detail panels included: element names are unique across the whole
   // survey. In a nesting mode only the elements whose name scope is the survey (see nameScopes)
   elementNames: CIMultiMap<ElementRecord>;
-  // a nesting mode only: the elements of each other name scope, by name. A name scope is a data scope
-  // (SN1, O6, O9): a nesting container's object, a dynamic panel's or a matrix's record (its template, its
-  // detail panel). Matrix columns and multiple text items are no elements here (O9a): they keep their
-  // own namespaces.
+  // a nesting mode only: the elements of each other name scope, by name. A name scope is a data scope: a nesting
+  // container's object, or a dynamic panel's or a matrix's record. Matrix columns and multiple text items keep
+  // their own namespaces.
   nameScopes: Map<DataScopeRecord, CIMultiMap<ElementRecord>>;
   // a nesting mode, for the lookups by name only: the unnamed pages and panels that nest, by the name the runtime
   // generates for them (their key), per name scope; the page the survey creates for root elements is one. No
@@ -418,9 +407,8 @@ export interface SurveyIndex {
   // SurveyVariablePresets - empty when no definition was given. The value is the
   // definition's own spelling of the name, which a finding quotes.
   definitionVariables: CIMap<string>;
-  // The run's companion, unset when neither variablePresets nor variableDefinitionModel was given
-  // (without a definition its tree is empty): definition-variables.ts reads the definition's paths
-  // from it, matched as the runtime matches a variable's object.
+  // unset when neither variablePresets nor variableDefinitionModel was given (without a definition its tree is
+  // empty); the definition's paths are read from it, matched as the runtime matches a variable's object.
   definitionPresets?: SurveyVariablePresets;
   // The element a data key names: the runtime reads a value by name, and a valueName
   // replaces the name as that key.

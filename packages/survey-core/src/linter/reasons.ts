@@ -60,14 +60,13 @@ export const SurveyLintReasons = Object.freeze({
   "nesting/key-conflict": Object.freeze({
     questionKey: "questionKey",
   }),
-  // nested data: a panel valueName that stores nothing, inside a composite question's definition, whose
-  // value stays flat ("Limitations" in docs/design-survey-nested-data.md). A panel inside a dynamic panel
-  // or a matrix detail panel nests.
+  // nested data: a panel valueName inside a composite question's definition stores nothing: the value stays flat.
+  // See "Limitations" in docs/design-survey-nested-data.md.
   "nesting/ignored-key": Object.freeze({
     insideComposite: "insideComposite",
   }),
   // nested data: a by-name dataNesting mode nests a container under a generated name, or under the
-  // name the runtime generates for an unnamed one - renaming it moves the data
+  // name the runtime generates for an unnamed one - a rename leaves the data under the old key
   "nesting/generated-key": Object.freeze({
     generatedName: "generatedName",
     unnamed: "unnamed",
@@ -287,7 +286,7 @@ export const SurveyLintHintReasons = Object.freeze({
   // panel inside a record
   containerKeyNotNesting: "containerKeyNotNesting",
   // a nesting mode: the name is a question the reference does not reach by it - one inside another name
-  // scope, or one whose valueName is its data key (O1, O3, O8); the hint's variable reads it from here
+  // scope, or one whose valueName is its data key; the hint's variable reads it from here
   questionVariableName: "questionVariableName",
 });
 
@@ -364,7 +363,7 @@ export const SurveyLintFixReasons = Object.freeze({
     setName: "setName",
   }),
   "nesting/generated-key": Object.freeze({
-    // the container's valueName becomes its name: the key stays, a rename no longer moves the data
+    // the container's valueName becomes its name: the key stays whatever the name becomes
     setValueName: "setValueName",
   }),
 });

@@ -794,12 +794,10 @@ export class SurveyTestRunner {
     if (verdict.unknownVariables.length === 0) return variables;
     return this.removeUnknownVariables(variables, "", verdict.unknownVariables, presets.companion);
   }
-  // The unknown keys are paths in the case's own spelling, built the way validateVariables walks the
-  // object (the keys joined with "."), so the same walk finds them. Only an object on the way to an
-  // unknown key is copied; every other value is passed on as the case wrote it. No variable key holds a
-  // dot, so a dotted key is always unknown, and a path the definition declares is unknown only as such a
-  // key: with { "users.tier": 1, users: { tier } } the dotted key goes and the field stays. A question's
-  // value is never entered: validation reports nothing inside it, so a path below it is such a key too.
+  // The unknown keys are paths in the case's spelling, joined with "." as validateVariables walks the object.
+  // Only an object on the way to an unknown key is copied. No variable key holds a dot, so a dotted key is
+  // always unknown, and a declared path is unknown only as such a key: with { "users.tier": 1, users: { tier } }
+  // the dotted key goes and the field stays. A question's value is never entered: validation reports nothing in it.
   private removeUnknownVariables(values: { [name: string]: any }, prefix: string,
     unknown: Array<string>, companion: SurveyVariablePresets): { [name: string]: any } {
     const res: { [name: string]: any } = Object.create(null);

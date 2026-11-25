@@ -426,7 +426,7 @@ export class MultipleTextItemModel extends Base
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };
   }
-  // In a nesting mode the lookup starts in the multiple text question's scope (O4).
+  // In a nesting mode the lookup starts in the multiple text question's scope.
   findQuestionByName(name: string): IQuestion {
     const survey = this.getSurvey();
     const around: ISurveyData = isNameScopeMode(survey) ? (<any>this.data)?.data : undefined;

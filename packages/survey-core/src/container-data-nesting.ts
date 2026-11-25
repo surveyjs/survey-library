@@ -5,16 +5,16 @@ import { Helpers } from "./helpers";
 import { getDataNestingKey } from "./data-nesting-key";
 import { PanelDataScope, getDataScopeHost, getRecordDataScope } from "./panel-data-scope";
 
-// Where a container is for nested data: "survey" - on the survey's data, the dataNesting table applies;
-// "record" - inside a dynamic panel's or a detail panel's record, at any depth; "template" - inside such a record's
-// template, where the key applies to the records built from it; "" - never: a record panel or a template itself (it
-// is the record, or the records' shape), a composite's content panel and the panels in it (the component's author owns its value's shape).
+// Where a container is for nested data: "survey" - on the survey's data; "record" - inside a dynamic panel's or a
+// detail panel's record, at any depth; "template" - inside a records template, where the key applies to the records
+// built from it; "" - never: a record panel or a template itself (it is the record, or the records' shape), a
+// composite's content panel and the panels in it (the component's author owns its value's shape).
 type DataNestingPlace = "survey" | "record" | "template" | "";
 
 // A record item (a dynamic panel's item, a matrix row), told by a member only QuestionRecordItem has: an
 // ObjectDataScope check would match a composite's scope too.
 const isRecordItem = (data: any): boolean => typeof data?.getVariableName === "function";
-// Where the panels inside a top panel keep their values. Only a dynamic panel gives a panel a parent question.
+// Only a dynamic panel gives a panel a parent question.
 function getTopPanelPlace(top: any): DataNestingPlace {
   if (ContainerDataNesting.isRecordTemplate(top)) return "template";
   if (!!top.parentQuestion || isRecordItem(top.data)) return "record";
@@ -42,14 +42,12 @@ export class ContainerDataNesting {
   public getScope(): PanelDataScope {
     return this.isUsed ? this.scope : null;
   }
-  // The survey's dataNesting; undefined for a container no survey owns.
   private getMode(): string {
     const container = this.container;
     return getDataScopeHost(container.survey || ContainerDataNesting.getTemplateOwnerSurvey(container))?.dataNesting;
   }
-  // The one key rule (getDataNestingKey); the place gives the kind. Inside a record or a template the kind is
-  // "record", which no by-name mode lists: a by-name mode never changes a record's shape. A container that never
-  // nests (place "") asks with the kind "".
+  // Inside a record or a template the kind is "record", which no by-name mode lists: a by-name mode never changes a
+  // record's shape.
   private getKeyAt(place: DataNestingPlace, valueName: string, name: string): string {
     const kind = place === "survey" ? this.getContainerKind() : !!place ? "record" : "";
     return getDataNestingKey(this.getMode(), kind, valueName, name);
@@ -61,7 +59,6 @@ export class ContainerDataNesting {
   public getKeyFor(valueName: string, name: string): string {
     return this.getKeyAt(ContainerDataNesting.getPlace(this.container), valueName || "", name || "");
   }
-  // Whether the container's key is ignored whatever it is: in "none", and where the container never nests.
   public isKeyIgnored(): boolean {
     return this.getMode() === "none" || ContainerDataNesting.getPlace(this.container) === "";
   }
@@ -71,15 +68,13 @@ export class ContainerDataNesting {
   public get isNesting(): boolean {
     return !!this.getScope() && this.scope.isActive;
   }
-  // Every structured data view shows a nesting container as <key>: <object> ("Structured Data Views" in
-  // docs/design-survey-nested-data.md).
+  // See "Structured Data Views" in docs/design-survey-nested-data.md.
   public collectValue(data: any): void {
     const val = this.getScope().getObjectValue();
     if (!Helpers.isValueEmpty(val)) {
       data[this.getKey()] = Helpers.getUnbindValue(val);
     }
   }
-  // The survey impl the container's elements get: its scope when it nests, else value.
   public attach(value: ISurveyImpl): ISurveyImpl {
     this.place = ContainerDataNesting.getPlace(this.container);
     this.isUsed = !!value && this.canAttach(value);
@@ -100,7 +95,6 @@ export class ContainerDataNesting {
     // reach no panel inside a record, and its key turns on when the mode does.
     return place === "record" ? !!container.valueName : !!this.getKeyAt(place, container.valueName, container.name);
   }
-  // The container's valueName or name changed; impl is the container's survey impl.
   public onKeyChanged(impl: ISurveyImpl): void {
     const prevKey = this.attachedKey;
     this.updateAttachment(impl);
@@ -129,17 +123,14 @@ export class ContainerDataNesting {
     }
     this.elementsAttached();
   }
-  // The container's elements got their data (again): they may have changed while it was elsewhere or held no data,
-  // its parent may be another scope, and a read while they were attached saw only some of them. Its instance is
-  // built again on its next read.
+  // The elements may have changed while the container was elsewhere or held no data, its parent may be another
+  // scope, and a read during the attach saw only some of them: the instance is built again on its next read.
   public elementsAttached(): void {
     this.scope?.resetDataKeyIndex();
   }
 
-  // A panel is where its top panel's elements are. The top panel itself ignores its key when it is a record
-  // panel, a template or a composite's content: its object is the record or the component's value already.
-  // A choice panel never nests (CH2): it holds the select question's data, as a panel that does not nest holds its
-  // parent's; a panel inside it is where the select question is.
+  // A top record panel, template or composite's content ignores its key: its object is the record or the component's
+  // value. A choice panel never nests: it holds the select question's data; a panel in it is where that question is.
   public static getPlace(panel: PanelModelBase): DataNestingPlace {
     if (!!(<any>panel).choiceItem) return "";
     let top: any = panel;

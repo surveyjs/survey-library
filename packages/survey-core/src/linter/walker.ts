@@ -128,7 +128,7 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
       getFrameNames(frame).add(record.name, record);
     } else {
       state.index.flatNames.add(record.name, record);
-      // in a nesting mode the survey's own name scope ends at a container that holds data (O1)
+      // in a nesting mode the survey's own name scope ends at a container that holds data
       if (state.index.byName !== state.index.flatNames && !isInNestedObject(record)) state.index.byName.add(record.name, record);
       // a valueName inside a nesting container keys that container's object, not the survey data
       if (record.valueName && record.dataScope === state.index.rootScope) state.index.byValueName.add(record.valueName, record);
@@ -143,10 +143,9 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   }
 }
 
-// A nesting mode: the elements of one name scope other than the survey's, and the namespace name/duplicate reads
-// for it, labelled by its owner. They are one map, except for a matrix's record: its namespace holds the matrix's
-// columns too, which write into its rows next to the detail panel's questions, but a column is no element (O9a)
-// and a path of names never finds one.
+// A nesting mode: the elements of one name scope other than the survey's, and the namespace name/duplicate reads for
+// it. They are one map, except for a matrix's record: its namespace holds the columns too, which write into its rows
+// next to the detail panel's questions, but a path of names never finds a column.
 interface NameScopeMaps {
   names: CIMultiMap<ElementRecord>;
   namespace: CIMultiMap<ElementRecord>;
@@ -173,7 +172,6 @@ function addGeneratedName(index: SurveyIndex, scope: DataScopeRecord, name: stri
   }
   names.add(name, record);
 }
-// In "none" the survey is the only name scope (elementNames).
 function addToNameScope(state: WalkState, record: ElementRecord): void {
   const index = state.index;
   const scope = getRecordNameScope(record, index);
@@ -294,9 +292,8 @@ function walkElementsArray(state: WalkState, elements: Array<any>, basePath: str
   });
 }
 
-// Nested data: whether the container stores its elements' values in an object, and under which key.
-// The key rule is the runtime's (getDataNestingKey); an unnamed container nests under the name the
-// runtime generates for it. Answers the object its elements write into.
+// Nested data: whether the container stores its elements' values in an object, and under which key (the runtime's
+// getDataNestingKey); an unnamed container nests under the name the runtime generates for it.
 function applyDataNesting(state: WalkState, record: ElementRecord, container: ContainerRecord,
   names: Set<string>, dataScope: DataScopeRecord): DataScopeRecord {
   const kind = getContainerNestingKind(container);
@@ -315,7 +312,6 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   return container.nestedScope;
 }
 
-// The record of a dynamic panel or a matrix, created on first use.
 function getRecordScope(state: WalkState, owner: ElementRecord): DataScopeRecord {
   if (!owner.recordScope) {
     owner.recordScope = createScope(owner);
@@ -488,13 +484,11 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
 
   if (isSelectBase(type)) {
     addItemValueSites(state, json, "choices", type, path, record, scope);
-    // choiceitem.elements: full questions nested inside a choice. The runtime binds a choice panel to the
-    // select question's survey impl (ChoiceItem.bindPanel), and the panel never nests: its questions are keys of
-    // the select question's own data scope (the survey data, a nesting container's object, a record), and their
-    // expressions run in the select question's scope frames ({row.x} in a matrix's detail panel, the record's
-    // {panel.x} in a dynamic panel's template). Outside a dynamic panel their {panel.x} is the choice panel itself
-    // (a question's parent panel), so the choice stands for it: a panel record that names nothing and holds no key,
-    // and no outer panel answers {panel.x} there. Inside one the record's frame answers first.
+    // choiceitem.elements: questions nested inside a choice. The runtime binds a choice panel to the select
+    // question's survey impl (ChoiceItem.bindPanel) and the panel never nests: its questions are keys of the select
+    // question's own data scope, and their expressions run in its scope frames. Outside a dynamic panel their
+    // {panel.x} is the choice panel itself, so the choice stands for it (a panel record that names nothing and holds
+    // no key) and no outer panel answers {panel.x} there. Inside one the record's frame answers first.
     if (Array.isArray(json.choices)) {
       json.choices.forEach((choice: any, i: number) => {
         if (!choice || typeof choice !== "object" || !Array.isArray(choice.elements)) return;

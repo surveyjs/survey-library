@@ -278,9 +278,8 @@ export type NestedElementLocation =
   // The element holds the container's own value and adds no key: the content question of a custom
   // question (its getDataSegment() is undefined).
   | "same"
-  // The value is a key next to the container's own value, in the same data scope: the questions of a
-  // choice panel, whose panel takes the select question's survey impl (ChoiceItem.bindPanel). Addressed
-  // from the segments of that scope: the stack before the container's own key is pushed.
+  // The value is a key next to the container's own value: the questions of a choice panel, which takes the select
+  // question's survey impl. Addressed from the segment stack before the container's own key is pushed.
   | "beside"
   // The value is a root key of the survey data: the questions of a matrix cell's choice panel, which stays on the
   // survey (a row holds no keys of them). Addressed from an empty segment stack.
@@ -830,8 +829,7 @@ export class Question extends SurveyElement<Question>
     const scope = this.getValueScope();
     return !!scope ? scope.getQuestionsSharingValue(this) : [];
   }
-  // Internal: whether another visible question holds this question's value (then the value is not cleared as
-  // invisible). A dynamic panel asks it of the questions of its records.
+  // Internal: whether another visible question holds this question's value, so the value is not cleared as invisible.
   public hasVisibleValueSharer(): boolean {
     const qs = this.getQuestionsSharingValue();
     if (qs.length < 2) return false;
@@ -2799,10 +2797,8 @@ export class Question extends SurveyElement<Question>
         displayValue: this.displayValue,
         isNode: false,
         getString: (val: any) => this.getValueAsString(val),
-        /* Only a question's own item gives its question. A choice, a matrix row, a record and a comment are
-           parts of a question's value and give none; the survey's extra data keys belong to no listed question
-           and give none. A nesting container builds no item of its own (the survey lists its questions), so
-           there is no container item to give one. */
+        // Only a question's own item gives its question: a choice, a matrix row, a record and a comment are parts
+        // of its value, and a nesting container builds no item of its own.
         getQuestion: (): Question => this,
       };
       if (options.includeQuestionTypes === true) {
@@ -3864,24 +3860,18 @@ export class Question extends SurveyElement<Question>
   protected get isSurveyAutoAdvanceEnabled(): boolean {
     return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
   }
-  // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
-  // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
-  // must not advance on behalf of that other question. A question that holds its value where that question
-  // does not (inside a container) is its own owner. A question in a record never is: its value scope looks it
-  // up at the root, which holds no question of a record.
+  // Another question with the same value name must not advance on behalf of the question getQuestionByValueName finds.
+  // One whose value is in a container is its own owner. One in a record never is: the root holds no record's question.
   protected get isAutoAdvanceOwner(): boolean {
     const survey = this.survey as SurveyModel;
     if (!survey) return false;
-    // The survey's lookup stays: the first holder of a value name is the root's rule, and a container's
-    // questions keep it out of their own.
     const rootFirst = survey.getQuestionByValueName(this.getValueName());
     if (rootFirst === this) return true;
     const sharers = this.getQuestionsSharingValue();
     return sharers.indexOf(this) > -1 && sharers.indexOf(rootFirst) < 0;
   }
-  // A question nested in a choice item is found as the writer, and by its key in the select question's data scope,
-  // but it is not in the page's question list, so the survey advances for it only when it is the single input on
-  // screen.
+  // A question nested in a choice item is found as the writer, but it is not in the page's question list, so the
+  // survey advances for it only when it is the single input on screen.
   public canAdvanceOnEnter(): boolean {
     if (!this.isSurveyAutoAdvanceEnabled || !this.isAutoAdvanceOwner) return false;
     return !this.parentQuestion || this.parentQuestion.singleInputQuestion === this;
@@ -4186,7 +4176,7 @@ export class Question extends SurveyElement<Question>
     return this.validationDependentNames;
   }
   // question: the question that wrote, when the write carries it. A nesting mode uses it: a name is not unique
-  // there. "none" looks the name up, as before.
+  // there.
   private validateOnAnyQuestionValueChanged(name: string, questionName: string, question: IQuestion): void {
     if (!this.survey) return;
     const deps = this.getValidationDependentNames();

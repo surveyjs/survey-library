@@ -4,11 +4,9 @@ import { DEFINITION_PATH, definitionRelated } from "./variable-preset";
 
 const reasons = SurveyLintReasons["variable/dotted-key"];
 
-// A variable key holds no dot: a host variable works like a JavaScript variable or property, and a
-// path such as {users.tier} is then always one key per segment. The companion does not declare a
-// variable for an element whose data key holds one, nor for anything inside it, so the element is
-// silently unusable - no preset value reaches it and no condition can test it.
-//
+// A variable key holds no dot: a host variable works like a JavaScript variable or property, so {users.tier} is
+// always one key per segment. The companion declares no variable for an element whose data key holds one, nor for
+// anything inside it, so the element is silently unusable: no preset value reaches it and no condition tests it.
 // Off by construction when no definition was given: the companion lists no element.
 export const variableDottedKeyRule: ILintRule = {
   id: "variable/dotted-key",

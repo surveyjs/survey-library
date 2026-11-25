@@ -107,8 +107,7 @@ export class ConditionEditorItem {
     return ch == "'" || ch == "\"";
   }
 }
-// A row of a survey's condition: the text names the row's question by the variable the survey gives
-// questionName (SurveyModel.getExpressionVariableName). No survey: the name as it is.
+// A row of a survey's condition: the text names the row's question by the variable the survey gives it.
 export class SurveyConditionEditorItem extends ConditionEditorItem {
   public constructor(public survey: ISurvey) {
     super();

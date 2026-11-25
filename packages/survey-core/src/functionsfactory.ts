@@ -1008,8 +1008,8 @@ FunctionFactory.Instance.register({
   resultDependsOn: "survey",
 });
 
-// In a nesting mode of dataNesting a bare name resolves from the expression's owner outwards: its own scope, then
-// the scopes around it (scoped names 05, O3). "none" asks the survey, as before.
+// In a nesting mode a bare name resolves from the expression's owner outwards: its own scope, then the scopes
+// around it.
 function findQuestionFromOwner(context: any, name: string): any {
   const data = context.question?.data;
   if (!!data && typeof data.findQuestionByName === "function" && isNameScopeMode(context.survey)) return data.findQuestionByName(name);

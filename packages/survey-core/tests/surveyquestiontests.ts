@@ -42,7 +42,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
 import { SurveyError } from "../src/survey-error";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Survey_Questions", () => {
   settings.autoAdvanceDelay = 0;
 
@@ -4019,6 +4019,64 @@ describe("Survey_Questions", () => {
     expect(q.isEmpty(), "hidden and cleared").toBe(true);
     survey.setValue("b", 2);
     expect(q.value, "shown again").toBe(2);
+  });
+  test("defaultValueExpression of a question hidden with clearInvisibleValues: onHidden waits until the question is visible", () => {
+    const survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1", visibleIf: "{b} != 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("b", 1);
+    survey.setValue("a", 1);
+    expect(q.isVisible, "#1: hidden").toBe(false);
+    expect(q.isEmpty(), "#2: no value while hidden").toBe(true);
+    expect(survey.getValue("q"), "#3: no survey value while hidden").toBeUndefined();
+    survey.setValue("b", 2);
+    expect(q.value, "#4: the expression applies once visible").toBe(2);
+  });
+  test("defaultValueExpression set at runtime on a question without one follows the values it uses", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.isEmpty(), "#1: no expression, no value").toBe(true);
+    q.defaultValueExpression = "{a} + 1";
+    expect(q.value, "#2: applies at once").toBe(2);
+    survey.setValue("a", 5);
+    expect(q.value, "#3: follows a on the next pass").toBe(6);
+  });
+  test("a value change does not read isClearValueOnHidden for a question without a defaultValueExpression", () => {
+    const survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    });
+    const readers: Array<string> = [];
+    const descriptor = Object.getOwnPropertyDescriptor(Question.prototype, "isClearValueOnHidden");
+    const spy = vi.spyOn(<any>Question.prototype, "isClearValueOnHidden", "get").mockImplementation(function (this: Question) {
+      readers.push(this.name);
+      return descriptor.get.call(this);
+    });
+    try {
+      survey.setValue("a", 1);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(survey.getValue("q"), "#1: the expression applies").toBe(2);
+    expect(readers.indexOf("q") > -1, "#2: the question with an expression is checked").toBe(true);
+    expect(readers.filter(name => name !== "q"), "#3: the questions without one are not").toEqual([]);
   });
   test("defaultValueExpression with a custom function that reads another survey value by itself is stale while settings.expressionQuestionTrackDependencies is true (a change from the earlier behaviour)", () => {
     FunctionFactory.Instance.register("readOther", function (this: any) {

@@ -2260,7 +2260,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(properties);
-    if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
+    if (this.defaultValueExpression && this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       if (!this.canSkipDefaultValueExpression()) {
         this.runDefaultValueExpression(properties);
       }

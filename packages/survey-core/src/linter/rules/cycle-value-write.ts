@@ -32,6 +32,9 @@ interface ValueWriter {
   // how the expression producing the written value uses that value (Bug#12407)
   selfWrite: SelfWriteKind;
   usesDefaultValueExpression: boolean;
+  // set for a calculated value, as cycle/calculated-value names it, so a suppression by name applies
+  elementName?: string;
+  elementType?: string;
 }
 
 // The properties whose result is the written value; the others of a group only decide when it runs
@@ -179,7 +182,9 @@ function getMessage(members: Array<ValueWriter>, isSelf: boolean): string {
 // The cross-domain companion of cycle/calculated-value and cycle/trigger: one graph over
 // everything that writes a value (question setValue/reset/default expressions, triggers,
 // calculated values), so a loop spanning the domains is seen. A loop living entirely inside
-// one of the two older rules is skipped here - it is already reported there.
+// one of the two older rules is skipped here - it is already reported there. The exception is a
+// calculated value that only copies itself: it never loops, cycle/calculated-value skips it, and
+// it is reported here.
 export const cycleValueWriteRule: ILintRule = {
   id: "cycle/value-write",
   defaultSeverity: "warning",
@@ -202,6 +207,8 @@ export const cycleValueWriteRule: ILintRule = {
         reads: withoutSettledSelfReads(getSiteReads(ctx, cv.site), slot, selfWrite),
         selfWrite: selfWrite,
         usesDefaultValueExpression: false,
+        elementName: cv.name,
+        elementType: "calculatedvalue",
       });
     });
     const byId = new Map<string, ValueWriter>();
@@ -237,6 +244,8 @@ export const cycleValueWriteRule: ILintRule = {
       ctx.report({
         message: getMessage(members, isSelf),
         path: members[0].path,
+        elementName: members[0].elementName,
+        elementType: members[0].elementType,
         reason: isCopy ? reasons.copiesItself : isSelf ? reasons.self : reasons.loop,
         messageData: {
           cycle: cycle.concat([cycle[0]]),
@@ -246,7 +255,9 @@ export const cycleValueWriteRule: ILintRule = {
             path: member.path, kind: member.kind, slot: member.slot,
           })),
         },
-        related: members.map(member => ({ path: member.path })),
+        related: members.map(member => member.elementName
+          ? { path: member.path, elementName: member.elementName }
+          : { path: member.path }),
       });
     });
   },

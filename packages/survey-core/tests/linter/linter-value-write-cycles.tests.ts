@@ -215,6 +215,16 @@ describe("cycle/value-write - self references that settle (#12407)", () => {
     expect(findings[0].path).toBe("calculatedValues[0].expression");
     expect(new Model(json).getVariable("c1")).toBeUndefined();
   });
+  test("a calculated value that only copies itself is named and can be suppressed by name", () => {
+    const json = { calculatedValues: [{ name: "c1", expression: "{c1}" }] };
+    const findings = byRule(json);
+    expect(findings).toHaveLength(1);
+    expect(findings[0].elementName).toBe("c1");
+    expect(findings[0].elementType).toBe("calculatedvalue");
+    const suppressed = lintSurvey(json, { suppress: [{ elementName: "c1" }] }).findings;
+    expect(suppressed.filter(f => f.ruleId === "cycle/value-write")).toHaveLength(0);
+    expect(new Model(json).getVariable("c1")).toBeUndefined();
+  });
 });
 
 describe("cycle/value-write - inArray filters", () => {

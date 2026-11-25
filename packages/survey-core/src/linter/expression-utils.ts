@@ -716,6 +716,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     // a single trailing ".length" is valid whenever the base reference is
     if (ref.segments.length > 1 && ref.segments[ref.segments.length - 1].name === "length") {
       ref.segments = ref.segments.slice(0, ref.segments.length - 1);
+      ref.readsLength = true;
     }
     const first = ref.segments[0];
     const rootName = stripUnwrapPostfix(first.name, index.settings.expressionVariables.unwrapPostfix);

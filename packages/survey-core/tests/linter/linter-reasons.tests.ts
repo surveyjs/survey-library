@@ -554,7 +554,11 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   },
   {
     ruleId: "cycle/value-write", reason: "self",
-    json: { elements: [{ type: "text", name: "q1", resetValueIf: "{q1} = 'x'" }] },
+    json: { elements: [{ type: "text", name: "q1", setValueExpression: "{q1} + 1" }] },
+  },
+  {
+    ruleId: "cycle/value-write", reason: "copiesItself",
+    json: { elements: [{ type: "text", name: "q1", defaultValueExpression: "{q1}" }] },
   },
   {
     ruleId: "cycle/value-write", reason: "loop",

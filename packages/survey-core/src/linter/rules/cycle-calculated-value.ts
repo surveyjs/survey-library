@@ -1,5 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
-import { getDependencyRefs } from "../expression-utils";
+import { equalsCI, getDependencyRefs } from "../expression-utils";
+import { classifySelfWrite, getRefSelfKind } from "../self-write";
 import { reportCycles } from "../cycle-report";
 import { quoteValues } from "../message-utils";
 import { CalculatedValueRecord, ParsedRef } from "../symbols";
@@ -24,14 +25,27 @@ export const cycleCalculatedValueRule: ILintRule = {
         : []);
     });
     const getRecord = (name: string): CalculatedValueRecord => records.get(name.toLowerCase());
+    const getTargetName = (ref: ParsedRef): string => {
+      if (ref.resolvedKind !== "calculatedValue") return undefined;
+      const target = ctx.index.calculatedValues.get(ref.segments[0].name);
+      return target ? target.name : undefined;
+    };
+    // A value that reads itself only to keep its value once set settles after one run, and one that
+    // only copies itself is cycle/value-write's warning: only one that computes from itself loops.
+    const isRewritingItself = (name: string): boolean => {
+      const record = getRecord(name);
+      const refs = refsByName.get(name.toLowerCase());
+      return classifySelfWrite(record.site.ast, variable => {
+        const ref = refs.filter(item => item.raw === variable.variable)[0];
+        const target = !!ref ? getTargetName(ref) : undefined;
+        if (!target || !equalsCI(target, name)) return undefined;
+        return getRefSelfKind(ref);
+      }) === "rewrite";
+    };
     const getEdges = (name: string): Array<string> => {
       return refsByName.get(name.toLowerCase())
-        .filter(ref => ref.resolvedKind === "calculatedValue")
-        .map(ref => {
-          const target = ctx.index.calculatedValues.get(ref.segments[0].name);
-          return target ? target.name : undefined;
-        })
-        .filter(target => !!target);
+        .map(getTargetName)
+        .filter(target => !!target && (!equalsCI(target, name) || isRewritingItself(name)));
     };
 
     reportCycles<CalculatedValueRecord>(ctx, {

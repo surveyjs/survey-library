@@ -4,6 +4,7 @@ import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
 import type { IExpressionExecutorBase } from "./expressionExecutor";
 import type { ISurveyRuntimeSettings } from "../survey-settings";
+import { settings } from "../settings";
 
 export { IExpressionExecutorBase };
 
@@ -18,6 +19,8 @@ export class ExpressionRunnerBase {
   private variablesInfo: Array<IValueGetterNameInfo>;
   private containsFunc: boolean;
   private containsNoParamsFunc: boolean;
+  private selfVarName: string;
+  private containsSelf: boolean;
   private runIdCounter = 0;
   public getRunId: () => number;
   public onBeforeAsyncRun: (id: number) => void;
@@ -38,6 +41,7 @@ export class ExpressionRunnerBase {
     this.variablesInfo = undefined;
     this.containsFunc = undefined;
     this.containsNoParamsFunc = undefined;
+    this.selfVarName = undefined;
   }
 
   public getVariables(): Array<string> {
@@ -56,6 +60,19 @@ export class ExpressionRunnerBase {
     return this.variablesInfo;
   }
 
+  // Whether the expression reads {self} or {self.x}. The skip checks ask this on every value change and
+  // few expressions use {self}, so the answer is kept with the name it was found for: tests change
+  // settings.expressionVariables.self at runtime
+  public hasSelfVariable(): boolean {
+    const selfName = settings.expressionVariables.self;
+    if (this.selfVarName !== selfName) {
+      this.selfVarName = selfName;
+      const vars = this.getVariables();
+      const prefix = selfName + ".";
+      this.containsSelf = Array.isArray(vars) && vars.some(name => name === selfName || (typeof name === "string" && name.indexOf(prefix) === 0));
+    }
+    return this.containsSelf;
+  }
   public hasFunction(noParamsOnly?: boolean): boolean {
     if (noParamsOnly === true) {
       // The skip checks ask this on every value change. The answer depends only on the parsed

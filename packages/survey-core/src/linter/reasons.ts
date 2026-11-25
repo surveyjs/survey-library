@@ -167,7 +167,10 @@ export const SurveyLintReasons = Object.freeze({
   }),
   // value writers (setValue/reset/default expressions, triggers, calculated values) in a loop
   "cycle/value-write": Object.freeze({
+    // the written value is computed from itself ({q1} + 1)
     self: "self",
+    // the expression is a bare reference to the value it writes ({q1}), so it never sets one
+    copiesItself: "copiesItself",
     loop: "loop",
   }),
   // a value written in the JSON that the question it belongs to can never hold

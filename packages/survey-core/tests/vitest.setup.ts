@@ -749,6 +749,21 @@ __sv_reanchorEnvironment();
 
 const __defaultLocale = surveyLocalization.defaultLocale;
 afterAll(() => restoreSettings());
+// With isolate: false, Vitest 2 runs this file again for each test file: it deletes it from the
+// worker's module cache by its setupFiles path, then imports it. On Windows that path always has
+// an upper-case drive letter (C:), while the cache key keeps the case of the shell's cwd. From a
+// c:\ cwd (a VS Code terminal) the delete misses, this file runs only for a worker's first test
+// file, and later files get none of the resets and polyfills here. So drop our own cache entry,
+// whatever its case.
+afterAll(() => {
+  const worker = (globalThis as any).__vitest_worker__;
+  const cache: Map<string, unknown> | undefined = worker?.moduleCache;
+  if (!cache) return;
+  const setupFiles = (worker.config?.setupFiles || []).map((f: string) => f.replace(/\\/g, "/").toLowerCase());
+  for (const key of Array.from(cache.keys())) {
+    if (setupFiles.indexOf(key.toLowerCase()) > -1) cache.delete(key);
+  }
+});
 afterEach(() => {
   // Tests install fake timers and restore real ones at the end of their body; a failed
   // expect skips that line and would leave fake timers to every later test in the worker.

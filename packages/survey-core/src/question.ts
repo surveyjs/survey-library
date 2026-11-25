@@ -1173,6 +1173,17 @@ export class Question extends SurveyElement<Question>
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return this.getChangedKeys(keys).isAnyChanged(vars, undefined, runner.getVariablesInfo()) ? "var" : "";
   }
+  // {self} in the question's own expression (visibleIf: "{self} = 1") reads the question's value, but the
+  // value-change keys hold value names: the question's own one, or its container's inside a dynamic panel,
+  // a matrix row or a composite. {self} and {self.x} changed when one of those names did.
+  // The runner keeps whether it reads {self}, so an expression without it costs one field read
+  protected canSkipRunningExpression(propName: string): boolean {
+    const keys = this.getValueChangedKeys();
+    if (!keys) return false;
+    const runner = this.getExpressionByProperty(propName);
+    if (!!runner && runner.hasSelfVariable() && this.isOwnOrContainerValueChanged(keys, this.getSurvey())) return false;
+    return this.canSkipExpressionByKeys(runner, keys);
+  }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
   // a path under a cleared value ({m.r1} once m is cleared) counts as changed, since an item condition

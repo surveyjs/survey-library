@@ -187,7 +187,18 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
       surveyElement.innerHTML = "";
 
-      const shadowRoot = surveyElement.attachShadow({ mode: "open" });
+      // A host can keep only one shadow root. initSurvey runs again on the same page
+      // (a screenshot that renders two error locations, for example), so reuse it.
+      let shadowRoot = surveyElement.shadowRoot;
+      if (shadowRoot) {
+        const prevRoot = shadowRoot.querySelector(".root-element");
+        if (prevRoot) {
+          self.SurveyUI.unmountComponentAtNode(prevRoot);
+        }
+        shadowRoot.replaceChildren();
+      } else {
+        shadowRoot = surveyElement.attachShadow({ mode: "open" });
+      }
       const rootElement = document.createElement("div");
       rootElement.classList.add("root-element");
       const styles = document.createElement("style");

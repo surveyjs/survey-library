@@ -1288,3 +1288,12 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
     var(--sjs2-layout-component-panel-header-padding-top) - var(--sjs2-layout-component-panel-header-padding-bottom)
   );
 }
+
+.sd-paneldynamic__panel-wrapper > .sd-panel {
+  & > .sd-panel__expandable-content {
+    padding-top: calc(var(--sjs-mui-spacing) * 2);
+  }
+  & > .sd-panel__header + .sd-panel__expandable-content {
+    padding-top: 0;
+  }
+}

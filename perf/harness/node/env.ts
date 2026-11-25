@@ -18,6 +18,8 @@ export interface PerfEnv {
   resultFile?: string;
   machineExtra: string;
   extraJson?: string;
+  // Local only: the hang guard of an extra/ scenario process, for a slow local form (default scenarioTimeoutMs).
+  extraTimeoutMs?: number;
 }
 
 const value = (env: NodeJS.ProcessEnv, name: string): string | undefined => {
@@ -34,6 +36,8 @@ export function parseOnly(text: string | undefined): Array<string> | null {
 export function readEnv(env: NodeJS.ProcessEnv = process.env): PerfEnv {
   const kind = (value(env, "PERF_KIND") || "local") as RunKind;
   if (kinds.indexOf(kind) < 0) throw new Error("PERF_KIND must be one of " + kinds.join(", ") + ": " + kind);
+  const extraTimeout = value(env, "PERF_EXTRA_TIMEOUT_MS");
+  if (extraTimeout !== undefined && !(Number(extraTimeout) > 0)) throw new Error("PERF_EXTRA_TIMEOUT_MS must be a number of milliseconds: " + extraTimeout);
   return {
     coreDir: value(env, "PERF_CORE_DIR"),
     uiDir: value(env, "PERF_UI_DIR"),
@@ -46,6 +50,7 @@ export function readEnv(env: NodeJS.ProcessEnv = process.env): PerfEnv {
     resultsDir: path.resolve(value(env, "PERF_RESULTS_DIR") || path.join(runnerRoot, "perf", "results")),
     resultFile: value(env, "PERF_RESULT_FILE"),
     machineExtra: value(env, "PERF_MACHINE_EXTRA") || "",
-    extraJson: value(env, "PERF_EXTRA_JSON")
+    extraJson: value(env, "PERF_EXTRA_JSON"),
+    extraTimeoutMs: extraTimeout === undefined ? undefined : Number(extraTimeout)
   };
 }

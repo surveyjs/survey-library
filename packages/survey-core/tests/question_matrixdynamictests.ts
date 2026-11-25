@@ -7639,6 +7639,54 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(table.rows[2].visible).toBe(false);
   });
 
+  test("An error row uses the data row position modifier", () => {
+    const survey = new SurveyModel({
+      questionErrorLocation: "bottom",
+      elements: [{
+        type: "matrixdynamic", name: "matrix", rowCount: 2, alternateRows: true,
+        columns: [{ name: "col1", isRequired: true }]
+      }]
+    });
+    const table = (<QuestionMatrixDynamicModel>survey.getQuestionByName("matrix")).renderedTable;
+    expect(table.rows[0].className).not.toContain("sd-table__row--data-with-error-below");
+    survey.tryComplete();
+    expect(table.rows[0].className).toContain("sd-table__row--data-with-error-below");
+    expect(table.rows[1].className).toContain("sd-table__row--error-below");
+    expect(table.rows[1].className).toContain("sd-table__row--alternate");
+    expect(table.rows[2].className).toContain("sd-table__row--data-with-error-below");
+    expect(table.rows[3].className).not.toContain("sd-table__row--alternate");
+
+    const top = new SurveyModel({
+      questionErrorLocation: "top",
+      elements: [{
+        type: "matrixdynamic", name: "matrix", rowCount: 1, alternateRows: true,
+        columns: [{ name: "col1", isRequired: true }]
+      }]
+    });
+    const topTable = (<QuestionMatrixDynamicModel>top.getQuestionByName("matrix")).renderedTable;
+    top.tryComplete();
+    expect(topTable.rows[1].className).toContain("sd-table__row--data-with-error-above");
+    expect(topTable.rows[0].className).toContain("sd-table__row--error-above");
+    expect(topTable.rows[0].className).toContain("sd-table__row--alternate");
+  });
+  test("No row is marked as alternate when alternateRows is off", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "matrix", rowCount: 3,
+        columns: [{ name: "col1" }]
+      }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const alternateRows = () => matrix.renderedTable.rows
+      .filter(row => !row.isErrorsRow && !row.isDetailRow)
+      .map(row => row.className.indexOf("sd-table__row--alternate") > -1);
+    expect(alternateRows(), "no stripes by default").toEqual([false, false, false]);
+    matrix.alternateRows = true;
+    expect(alternateRows(), "every other row").toEqual([true, false, true]);
+    matrix.alternateRows = false;
+    expect(alternateRows(), "the stripes are gone").toEqual([false, false, false]);
+  });
+
   test("Errors: matrixdynamic", () => {
     const survey = new SurveyModel({
       elements: [

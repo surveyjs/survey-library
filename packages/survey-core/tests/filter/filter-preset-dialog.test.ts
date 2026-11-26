@@ -8,7 +8,7 @@ import { PanelModel } from "../../src/panel";
 // fields' editors, and the checks of its Apply.
 const presets = [{ name: "adults", title: "Adults", expression: "{age} > 18" }];
 function control(over: any = {}): QuestionFilterModel {
-  return createFilter(Object.assign({ items: presets }, over));
+  return createFilter(Object.assign({ presets: presets }, over));
 }
 function panel(dialog: FilterPresetDialog): PanelModel {
   return <PanelModel>dialog.form.getPanelByName("contains");
@@ -34,15 +34,15 @@ describe("FilterPresetDialog: what it opens with", () => {
     expect(dialog.editor.fieldNames, "#3").toEqual(["country", "age"]);
     expect(dialog.editor.getConditions(), "#4").toEqual([{ field: "country", operator: "anyof", value: ["de"] },
       { field: "age", operator: "greater", value: 18 }]);
-    expect(dialog.form.getPanelByName("presetName").title, "#5").toBe("Name");
-    expect(panel(dialog).title, "#6").toBe("Contains");
+    expect(dialog.form.getPanelByName("presetName").title, "#5").toBe("Preset name");
+    expect(panel(dialog).title, "#6").toBe("Fields to filter by");
     dialog.dispose();
   });
   test("the tagbox offers every field by its title; its hidden title is its accessible name", () => {
     const dialog = control().createAddPresetDialog([]);
     const q = tagbox(dialog);
     expect([q.getType(), q.parent.name, q.titleLocation, q.title, q.placeholder], "#1")
-      .toEqual(["tagbox", "contains", "hidden", "Contains", "Select..."]);
+      .toEqual(["tagbox", "contains", "hidden", "Fields to filter by", "Select..."]);
     expect(q.choices.map((c: any) => [c.value, c.text]), "#2").toEqual([["name", "name"], ["country", "country"], ["age", "age"]]);
     dialog.dispose();
   });
@@ -86,8 +86,8 @@ describe("FilterPresetDialog: Apply", () => {
     const dialog = q.createAddPresetDialog(conditions);
     dialog.form.setValue("presetTitle", "  German adults ");
     expect(dialog.apply(), "#1").toBe(true);
-    const item = q.visibleItems[1];
-    expect([item.title, item.expression, q.activeItemName], "#2").toEqual(["German adults", "{country} anyof ['de'] and {age} > 18", ""]);
+    const item = q.visiblePresets[1];
+    expect([item.title, item.expression, q.selectedPreset], "#2").toEqual(["German adults", "{country} anyof ['de'] and {age} > 18", ""]);
     dialog.dispose();
   });
   test("a title that is missing, too long or another preset's, and no condition, are errors and add nothing", () => {
@@ -102,7 +102,7 @@ describe("FilterPresetDialog: Apply", () => {
     expect(errors(dialog)[0], "#3").toBe("A preset with this name already exists.");
     tagbox(dialog).value = ["age"];
     dialog.form.setValue("presetTitle", "Mine");
-    expect([dialog.apply(), q.visibleItems.length], "#4: a field with no value is no condition").toEqual([false, 1]);
+    expect([dialog.apply(), q.visiblePresets.length], "#4: a field with no value is no condition").toEqual([false, 1]);
     dialog.dispose();
   });
   test("apply() of a closed dialog does nothing", () => {
@@ -110,6 +110,6 @@ describe("FilterPresetDialog: Apply", () => {
     const dialog = q.createAddPresetDialog(conditions);
     dialog.form.setValue("presetTitle", "Mine");
     dialog.dispose();
-    expect([dialog.apply(), q.visibleItems.length], "#1").toEqual([false, 1]);
+    expect([dialog.apply(), q.visiblePresets.length], "#1").toEqual([false, 1]);
   });
 });

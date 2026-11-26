@@ -335,12 +335,6 @@ export var lithuaniaSurveyStrings = {
   conditionOperatorGreaterorequal: "Didesnis arba lygus",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mažiau arba lygu",
-  // [Auto-translated] "Save"
-  filterSave: "Išsaugoti",
-  // [Auto-translated] "Filters"
-  filterFilters: "Filtrai",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtrai: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtrai",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var lithuaniaSurveyStrings = {
   filterClearAll: "Išvalyti viską",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Aiškus {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Išankstinis nustatymas",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Išskyrus kaip...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Išsaugoti",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Pridėk \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Išankstiniai nustatymai",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Rodyti {0} daiktus",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var lithuaniaSurveyStrings = {
   filterShowResults: "Parodos rezultatai",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Naujas išankstinis nustatymas",
-  // [Auto-translated] "Name"
-  filterPresetName: "Vardas, pavadinimas",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Yra",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Jau egzistuoja išankstinis nustatymas su šiuo pavadinimu.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var lithuaniaSurveyStrings = {
   filterPresetNoExpression: "Įeina išraiška.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Šis išsireiškimas nėra galiojantis.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Redaguoti kaip išraišką",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Redaguoti kaip žymų dėžutė",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Įrašykite išraišką čia...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var lithuaniaSurveyStrings = {
   filterPresetExpression: "{0} Išraiška",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Redagavimas...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Paieška filtruose",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nieko nerasta, išbandykite kitus raktažodžius",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Sukurkite išankstinį nustatymą su dirbtiniu intelektu",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Redaguoti išankstinį nustatymą su dirbtiniu intelektu",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Pavyzdžiui, \"Kava ir arbata iš Vokietijos\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Sukurti",
   // [Auto-translated] "Edit"
   filterAiEdit: "Redagavimas",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Kurti...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redagavimas...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -335,12 +335,6 @@ export var greekSurveyStrings = {
   conditionOperatorGreaterorequal: "Μεγαλύτερο ή ίσο με",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Μικρότερο ή ίσο με",
-  // [Auto-translated] "Save"
-  filterSave: "Αποθήκευση",
-  // [Auto-translated] "Filters"
-  filterFilters: "Φίλτρα",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Φίλτρα: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Φίλτρα",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var greekSurveyStrings = {
   filterClearAll: "Καθαρισμός Όλων",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Καθαρό {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Προεπιλογή",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Αποθήκευση ως...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Αποθήκευση",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Πρόσθεσε «{0}»...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Προεπιλογές",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Εμφάνιση {0} αντικειμένων",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var greekSurveyStrings = {
   filterShowResults: "Εμφάνιση αποτελεσμάτων",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Νέα Προεπιλογή",
-  // [Auto-translated] "Name"
-  filterPresetName: "Όνομα",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Περιέχει",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Υπάρχει ήδη μια προεπιλογή με αυτό το όνομα.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var greekSurveyStrings = {
   filterPresetNoExpression: "Εισάγετε μια έκφραση.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Η έκφραση δεν είναι έγκυρη.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Επεξεργασία ως Έκφραση",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Επεξεργασία ως Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Πληκτρολογήστε μια έκφραση εδώ...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var greekSurveyStrings = {
   filterPresetExpression: "{0} Έκφραση",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Επεξεργασία...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Αναζήτηση σε φίλτρα",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Δεν βρέθηκε τίποτα, δοκίμασε διαφορετικές λέξεις-κλειδιά",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Δημιουργήστε προκαθορισμένες ρυθμίσεις με AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Επεξεργασία προεπιλογής με AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Για παράδειγμα, «Καφές & Τσάι από τη Γερμανία»",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Δημιουργία",
   // [Auto-translated] "Edit"
   filterAiEdit: "Επεξεργασία",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Δημιουργώντας...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Επεξεργασία...",
   // [Auto-translated] "AI could not make a filter. Try again."

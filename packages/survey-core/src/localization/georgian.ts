@@ -335,12 +335,6 @@ export var georgianSurveyStrings = {
   conditionOperatorGreaterorequal: "მეტია ან ტოლია",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "ნაკლები ან ტოლია",
-  // [Auto-translated] "Save"
-  filterSave: "შენახვა",
-  // [Auto-translated] "Filters"
-  filterFilters: "ფილტრები",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "ფილტრები: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "ფილტრები",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var georgianSurveyStrings = {
   filterClearAll: "წაშლა",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "სუფთა {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "წინასწარ განსაზღვრული პარამეტრები",
   // [Auto-translated] "Save as..."
   filterSaveAs: "შეინახეთ როგორც...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "შენახვა",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "დაამატეთ \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "პრესეტები",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} ელემენტის ჩვენება",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var georgianSurveyStrings = {
   filterShowResults: "შედეგების ჩვენება",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "ახალი პრესეტი",
-  // [Auto-translated] "Name"
-  filterPresetName: "სახელი",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "შეიცავს",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "ამ სახელით წინასწარ განსაზღვრული პარამეტრი უკვე არსებობს.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var georgianSurveyStrings = {
   filterPresetNoExpression: "შეიყვანეთ გამოსახულება.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "გამოთქმა არ არის ვალიდური.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "რედაქტირება როგორც გამოსახულება",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "რედაქტირება ტეგბოქსის სახით",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "შეიყვანეთ გამოსახულება აქ...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var georgianSurveyStrings = {
   filterPresetExpression: "{0} გამოხატულება",
   // [Auto-translated] "Edit..."
   filterEditExpression: "რედაქტირება...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "ძებნა ფილტრებში",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "არაფერი ვიპოვეთ, სცადეთ სხვადასხვა საკვანძო სიტყვები",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "შექმენით წინასწარ განსაზღვრული პარამეტრები AI-ით",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "პრესეტის რედაქტირება AI-ით",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "მაგალითად, \"ყავა და ჩაი გერმანიიდან\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "შექმნა",
   // [Auto-translated] "Edit"
   filterAiEdit: "რედაქტირება",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "შექმნა...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "რედაქტირება...",
   // [Auto-translated] "AI could not make a filter. Try again."

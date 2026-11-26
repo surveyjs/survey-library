@@ -335,12 +335,6 @@ export var bulgarianStrings = {
   conditionOperatorGreaterorequal: "По-голямо или равно на",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "По-малко или равно на",
-  // [Auto-translated] "Save"
-  filterSave: "Запази",
-  // [Auto-translated] "Filters"
-  filterFilters: "Филтри",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Филтри: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Филтри",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var bulgarianStrings = {
   filterClearAll: "Изчисти всичко",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Изчисти {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Предварително зададена настройка",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Запази като...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Запази",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Добавете \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Предварителни настройки",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Покажи {0} елемента",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var bulgarianStrings = {
   filterShowResults: "Покажи резултати",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Нова предварителна настройка",
-  // [Auto-translated] "Name"
-  filterPresetName: "Име",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Съдържа",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Вече съществува предварителна настройка с това име.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var bulgarianStrings = {
   filterPresetNoExpression: "Въведете израз.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Изразът не е валиден.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Редактиране като израз",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Редактиране като Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Напишете израз тук...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var bulgarianStrings = {
   filterPresetExpression: "{0} Израз",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Редакция...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Търсене във филтри",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Нищо не намери, пробвай различни ключови думи",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Създаване на предварителна настройка с AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Редактиране на предварителна настройка с AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Например, \"Кафе и чай от Германия\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Създайте",
   // [Auto-translated] "Edit"
   filterAiEdit: "Редакция",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Създаване...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Монтаж...",
   // [Auto-translated] "AI could not make a filter. Try again."

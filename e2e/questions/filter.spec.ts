@@ -14,13 +14,16 @@ const columns = [
 ];
 const json = (extraColumns: Array<any> = [], filterProps: any = {}): any => ({
   elements: [
-    Object.assign({ type: "filter", name: "f1", source: "m", items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, filterProps),
+    Object.assign({ type: "filter", name: "f1", targetQuestion: "m", presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, filterProps),
     { type: "matrixdynamic", name: "m", columns: columns.concat(extraColumns),
       defaultValue: [{ country: "de", age: 30, name: "Ann" }, { country: "fr", age: 12, name: "Bob" }, { country: "it", age: 45, name: "Dan" }] }
   ]
 });
 const nameColumn = { name: "name", title: "Name", cellType: "text" };
-const twoPresets = { items: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
+// The respondent's permissions on presets are off by default: a scenario that adds, edits or deletes one
+// turns them on.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
+const twoPresets = { presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "kids", title: "Kids", expression: "{age} < 18" }] };
 const longColumns = (): Array<any> => {
   const res: Array<any> = [];
@@ -36,7 +39,7 @@ async function getVisibleRowCount(page: Page): Promise<number> {
 }
 // The presets the control shows: the authored ones not deleted, then the respondent's own.
 async function getItemTitles(page: Page): Promise<Array<string>> {
-  return await page.evaluate(() => (window as any).survey.getQuestionByName("f1").visibleItems.map((item: any) => item.title));
+  return await page.evaluate(() => (window as any).survey.getQuestionByName("f1").visiblePresets.map((item: any) => item.title));
 }
 // js-ui draws the survey in a shadow root: there document.activeElement is its host.
 async function hasFocus(container: Locator): Promise<boolean> {
@@ -53,7 +56,7 @@ function chip(page: Page, text: string): Locator {
   return page.locator(".sd-filter__chip").filter({ hasText: text });
 }
 async function openFilters(page: Page): Promise<Locator> {
-  await page.locator(".sd-filter button[title='Filters']").click();
+  await page.locator(".sd-filter button[title='All Filters']").click();
   const dialog = popupWith(page, ".sd-filter-modal__content");
   await expect(dialog).toBeVisible();
   return dialog;
@@ -78,6 +81,15 @@ async function initPhone(page: Page, framework: string, surveyJson: any = json()
   await initSurvey(page, framework, surveyJson);
   await page.evaluate(() => { (window as any).survey.setIsMobile(true); });
   await expect(page.locator(".sd-filter--mobile")).toBeVisible();
+}
+// On a phone the chips row scrolls sideways, and a click scrolls a chip out of sight into it first. The
+// row's scroll event comes a frame later and would close the popup the click has just opened: a dropdown
+// hides on a scroll where the device has no touch (PopupDropdownViewModel). The row is scrolled before
+// the click, and its event let pass.
+async function clickChipOnPhone(page: Page, text: string): Promise<void> {
+  await chip(page, text).scrollIntoViewIfNeeded();
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await chip(page, text).click();
 }
 // fill() fires "input" only. The Angular and Vue text inputs pass a typed value on keyup (or on
 // change, at blur): a key sends it on, as typing would.
@@ -143,7 +155,7 @@ frameworks.forEach((framework) => {
     // As a dropdown's list: a chip's menu covers nothing but itself and hides as the focus leaves it,
     // so one click outside it both closes it and works.
     test("one click outside a chip's menu closes it and reaches what it clicked", async ({ page }) => {
-      await initSurvey(page, framework, json([], Object.assign({ showSearch: true }, twoPresets)));
+      await initSurvey(page, framework, json([], Object.assign({ showSearchBar: true }, twoPresets)));
       const popup = popupWith(page, ".sd-filter-popup");
       const list = popupWith(page, ".sv-list");
       await chip(page, "Country").click();
@@ -154,7 +166,7 @@ frameworks.forEach((framework) => {
       await chip(page, "Age").click();
       await expect(popup, "#3: one menu - the Age chip's").toHaveCount(1);
       await expect(popup, "#4").not.toContainText("Germany");
-      await chip(page, "Preset").click();
+      await chip(page, "Filter Presets").click();
       await expect(list.getByRole("menuitemradio"), "#5: the presets' list").toHaveText(["Adults", "Kids"]);
       await expect(popup, "#6").toHaveCount(0);
       const search = page.locator(".sd-filter__search input");
@@ -177,7 +189,7 @@ frameworks.forEach((framework) => {
     // checkbox: a checked row keeps the text color of the others.
     test("on a phone a checked row of a chip's sheet keeps the text color of the others", async ({ page }) => {
       await initPhone(page, framework);
-      await chip(page, "Country").click();
+      await clickChipOnPhone(page, "Country");
       const popup = popupWith(page, ".sd-filter-popup");
       const text = (value: string): Locator => popup.getByText(value, { exact: true });
       const color = (value: string): Promise<string> => text(value).evaluate((el: HTMLElement) => getComputedStyle(el).color);
@@ -195,8 +207,8 @@ frameworks.forEach((framework) => {
       await row.evaluate((el: HTMLElement) => { el.style.transform = "translateZ(0)"; });
       const rowBox = await row.boundingBox();
       const sheet = page.locator(".sv-popup--sheet .sv-popup__container").filter({ visible: true });
-      for (const name of ["Country", "Preset"]) {
-        await chip(page, name).click();
+      for (const name of ["Country", "Filter Presets"]) {
+        await clickChipOnPhone(page, name);
         await expect(sheet, name).toBeVisible();
         const box = await sheet.boundingBox();
         expect(box.width, name + ": wider than the row").toBeGreaterThan(rowBox.width);
@@ -215,7 +227,7 @@ frameworks.forEach((framework) => {
 
     // As the mockup: Save as... and Clear All stand at the chips row's end, 16px after the chips.
     test("Save as... and Clear All stand 16px after the chips", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("age", "greater", 18); });
       const saveAs = page.locator(".sd-filter__save-as");
       await expect(saveAs).toBeVisible();
@@ -226,7 +238,7 @@ frameworks.forEach((framework) => {
     // As the mockup's phone: the chips, Save as... and Clear All are one row that scrolls sideways, the
     // buttons 16px after the last chip; the chips have the whole width.
     test("on a phone Save as... and Clear All follow the last chip in the row that scrolls sideways", async ({ page }) => {
-      await initPhone(page, framework, json(longColumns()));
+      await initPhone(page, framework, json(longColumns(), editable));
       await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("age", "greater", 18); });
       const row = page.locator(".sd-filter__chips-row");
       const lastChip = page.locator(".sd-filter__chips .sd-filter__chip").last();
@@ -262,7 +274,7 @@ frameworks.forEach((framework) => {
 
     test("the Preset chip turns a preset on from its list, and its cross turns it off", async ({ page }) => {
       await initSurvey(page, framework, json([], twoPresets));
-      await chip(page, "Preset").click();
+      await chip(page, "Filter Presets").click();
       const list = popupWith(page, ".sv-list");
       await expect(list.getByRole("menuitemradio")).toHaveText(["Adults", "Kids"]);
       await list.getByRole("menuitemradio", { name: "Adults" }).click();
@@ -271,7 +283,7 @@ frameworks.forEach((framework) => {
       await expect(chip(page, "Adults"), "the chip shows the preset that is on").toBeVisible();
       await page.locator(".sd-filter").getByRole("button", { name: "Clear Adults" }).click();
       await expect.poll(() => getVisibleRowCount(page)).toBe(3);
-      await expect(chip(page, "Preset")).toBeVisible();
+      await expect(chip(page, "Filter Presets")).toBeVisible();
     });
 
     // The list moves the focus to its first preset as it opens. As in the mockup, a click paints no
@@ -282,12 +294,12 @@ frameworks.forEach((framework) => {
       const fill = (index: number): Promise<string> => list.locator(".sv-list__item-body").nth(index)
         .evaluate((el: HTMLElement) => getComputedStyle(el).backgroundColor);
       const isFocused = (): Promise<boolean> => list.locator(".sv-list__item").first().evaluate((el: HTMLElement) => el.matches(":focus"));
-      await chip(page, "Preset").click();
+      await chip(page, "Filter Presets").click();
       await expect.poll(isFocused, { message: "the first preset has the focus" }).toBe(true);
       expect(await fill(0), "a click paints it as any other").toBe(await fill(1));
       await page.keyboard.press("Escape");
       await expect(list).toBeHidden();
-      await chip(page, "Preset").focus();
+      await chip(page, "Filter Presets").focus();
       await page.keyboard.press("Enter");
       await expect.poll(isFocused).toBe(true);
       expect(await fill(0), "a keyboard paints it").not.toBe(await fill(1));
@@ -301,7 +313,7 @@ frameworks.forEach((framework) => {
       const focused = (): Promise<number> => items.evaluateAll((els: Array<Element>) => els.findIndex((el: Element) => el.matches(":focus")));
       const painted = (): Promise<Array<boolean>> => list.locator(".sv-list__item-body")
         .evaluateAll((els: Array<Element>) => els.map((el: Element) => getComputedStyle(el).backgroundColor !== "rgba(0, 0, 0, 0)"));
-      await chip(page, "Preset").focus();
+      await chip(page, "Filter Presets").focus();
       await page.keyboard.press("Enter");
       await expect.poll(focused, { message: "a keyboard opened the list" }).toBe(0);
       await expect.poll(painted).toEqual([true, false]);
@@ -314,7 +326,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Save as... adds the chips' conditions as a preset and turns it on", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       const saveAs = page.locator(".sd-filter").getByRole("button", { name: "Save as..." });
       await expect(saveAs, "nothing to save").toBeHidden();
       await pick(page, "Country", "Germany");
@@ -341,10 +353,10 @@ frameworks.forEach((framework) => {
 
     test("the Filters dialog shows presets and fields", async ({ page }) => {
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await page.locator(".sd-filter button[title='All Filters']").click();
       const dialog = page.locator(".sd-filter-modal__content").filter({ visible: true });
       await expect(dialog).toBeVisible();
-      await expect(dialog.locator(".sd-filter-modal__section-title")).toHaveText("Presets");
+      await expect(dialog.locator(".sd-filter-modal__section-title")).toHaveText("Filter Presets");
       await expect(dialog).toContainText("Adults");
       await expect(dialog.locator(".sd-filter-modal__editor")).toBeVisible();
     });
@@ -352,7 +364,7 @@ frameworks.forEach((framework) => {
     test("Search in Filters finds the fields, their values and the presets; its cross clears it", async ({ page }) => {
       await initSurvey(page, framework, json([nameColumn]));
       const dialog = await openFilters(page);
-      const search = dialog.getByRole("textbox", { name: "Search in Filters" });
+      const search = dialog.getByRole("textbox", { name: "Search in filters and presets" });
       const editor = dialog.locator(".sd-filter-modal__editor");
       await search.fill("germ");
       await expect(editor, "a value found shows its field").toContainText("Germany");
@@ -371,7 +383,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Add New... opens New Preset", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       const dialog = await openFilters(page);
       await dialog.getByRole("button", { name: "Add New..." }).click();
       const presetDialog = popupWith(page, ".sd-filter-preset-dialog__form");
@@ -380,7 +392,7 @@ frameworks.forEach((framework) => {
     });
 
     test("a preset is saved from the Filters dialog", async ({ page }) => {
-      await initSurvey(page, framework, json());
+      await initSurvey(page, framework, json([], editable));
       // The chip's condition is what the new preset contains.
       await chip(page, "Country").click();
       const popup = popupWith(page, ".sd-filter-popup");
@@ -402,7 +414,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Edit Preset: Apply renames the preset picked, Delete takes it away", async ({ page }) => {
-      await initSurvey(page, framework, json([], twoPresets));
+      await initSurvey(page, framework, json([], Object.assign({}, twoPresets, editable)));
       const dialog = await openFilters(page);
       const editSelected = dialog.getByRole("button", { name: "Edit Selected..." });
       await expect(editSelected, "no preset picked").toBeHidden();
@@ -424,41 +436,29 @@ frameworks.forEach((framework) => {
       expect(await getItemTitles(page)).toEqual(["Grown-ups"]);
       await dialog.getByRole("button", { name: /^Show/ }).click();
       await expect(dialog).toBeHidden();
-      await chip(page, "Preset").click();
+      await chip(page, "Filter Presets").click();
       await expect(popupWith(page, ".sv-list").getByRole("menuitemradio")).toHaveText(["Grown-ups"]);
     });
 
-    // Save and Clear All are there in single-preset mode: with several presets, a chip's edit turns the
-    // preset off. There the preset can't be taken off: Clear All drops the edits and the preset filters again.
-    test("the quick row's Save writes a chip's edit into the active preset, and Clear All drops an edit", async ({ page }) => {
-      await initSurvey(page, framework, json([], { allowMultipleItems: false,
-        items: [{ name: "germans", title: "Germans", expression: "{country} anyof ['de']" }], defaultItem: "germans" }));
+    // With the presets hidden defaultPreset is only the filter the control starts with: a chip's edit
+    // turns the preset off and keeps its conditions, nothing saves into it, and Clear All clears it all.
+    test("with the presets hidden a chip's edit keeps the default preset's conditions, and Clear All clears them", async ({ page }) => {
+      await initSurvey(page, framework, json([], { showPresets: false,
+        presets: [{ name: "germans", title: "Germans", expression: "{country} anyof ['de']" }], defaultPreset: "germans" }));
       expect(await getVisibleRowCount(page)).toBe(1);
-      const save = page.locator(".sd-filter").getByRole("button", { name: "Save", exact: true });
       const clear = page.locator(".sd-filter .sd-filter__clear");
-      await expect(save).toBeHidden();
       await pick(page, "Country", "France");
-      expect(await getVisibleRowCount(page)).toBe(2);
-      await expect(save, "the active preset is changed").toBeVisible();
-      await save.click();
-      await expect(save).toBeHidden();
-      const expression = await page.evaluate(() => (window as any).survey.getQuestionByName("f1").items[0].expression);
-      expect(expression).toContain("de");
-      expect(expression).toContain("fr");
-      expect(await getVisibleRowCount(page)).toBe(2);
-
-      await pick(page, "Country", "Italy");
-      expect(await getVisibleRowCount(page)).toBe(3);
+      expect(await getVisibleRowCount(page), "Germany and France").toBe(2);
+      await expect(page.locator(".sd-filter").getByRole("button", { name: "Save", exact: true }), "no Save").toHaveCount(0);
       await expect(clear).toBeVisible();
       await clear.click();
       await expect(clear).toBeHidden();
-      await expect(save).toBeHidden();
-      expect(await getVisibleRowCount(page), "the saved preset filters again").toBe(2);
+      expect(await getVisibleRowCount(page), "nothing brings the hidden preset back").toBe(3);
     });
 
     test("the search box filters the matrix", async ({ page }) => {
       // Only the names: "an" is also in "Germany".
-      await initSurvey(page, framework, json([nameColumn], { showSearch: true, searchFields: ["name"] }));
+      await initSurvey(page, framework, json([nameColumn], { showSearchBar: true, searchFields: ["name"] }));
       const input = page.locator(".sd-filter .sd-filter__search input");
       await expect(input).toBeVisible();
       await input.fill("an");
@@ -522,7 +522,7 @@ frameworks.forEach((framework) => {
       await expect(popup).toBeHidden();
       await expect(country, "Escape gives the focus back to the chip").toBeFocused();
 
-      const filters = page.locator(".sd-filter button[title='Filters']");
+      const filters = page.locator(".sd-filter button[title='All Filters']");
       await filters.focus();
       await page.keyboard.press("Enter");
       const dialog = popupWith(page, ".sd-filter-modal__content");

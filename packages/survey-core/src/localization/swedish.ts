@@ -335,12 +335,6 @@ export var swedishSurveyStrings = {
   conditionOperatorGreaterorequal: "Större än eller lika med",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre än eller lika med",
-  // [Auto-translated] "Save"
-  filterSave: "Spara",
-  // [Auto-translated] "Filters"
-  filterFilters: "Filter",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filter: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filter",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var swedishSurveyStrings = {
   filterClearAll: "Rensa allt",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Klart {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Förinställning",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Spara som...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Spara",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Lägg till \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Förinställningar",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Visa {0} objekt",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var swedishSurveyStrings = {
   filterShowResults: "Resultat",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Ny förinställning",
-  // [Auto-translated] "Name"
-  filterPresetName: "Namn",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Innehåller",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "En förinställning med detta namn finns redan.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var swedishSurveyStrings = {
   filterPresetNoExpression: "Skriv in ett uttryck.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Uttrycket är inte giltigt.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Redigera som uttryck",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Redigera som Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Skriv ett uttryck här...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var swedishSurveyStrings = {
   filterPresetExpression: "{0} Uttryck",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Sök i filter",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Inget hittats, prova olika nyckelord",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Skapa förinställningar med AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Redigera förinställning med AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Till exempel \"Coffee & Tea from Germany\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Skapa",
   // [Auto-translated] "Edit"
   filterAiEdit: "Redigera",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Skapar...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redigering...",
   // [Auto-translated] "AI could not make a filter. Try again."

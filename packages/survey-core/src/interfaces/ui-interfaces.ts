@@ -12,7 +12,7 @@ export interface IScrollElementToTopOptions {
   onScolledCallback?: () => void;
 }
 
-// One row of a Filter Control's own conditions (as opposed to a preset FilterItem's expression
+// One row of a Filter Control's own conditions (as opposed to a preset FilterPreset's expression
 // text): a field, an operator and the value the operator needs. field is the field's valueName,
 // the same key the built expression names the field by ({valueName} operator value).
 export interface IFilterCondition {
@@ -24,14 +24,16 @@ export interface IFilterCondition {
 // on while it is as it was (conditions undefined - the preset's own text applies), or the conditions
 // that apply instead, and the search text.
 export interface IFilterState {
-  activeItemName: string;
+  selectedPreset: string;
   conditions?: Array<IFilterCondition>;
+  // The control's own filter as a text the fields cannot show (applyFilter); conditions is undefined then.
+  expression?: string;
   searchString: string;
 }
 // One preset's change (Edit Preset's Apply or Delete), applied with any others as one change: deleted,
 // or reset to what the JSON authored and then given a new title and filter - each optional. The
 // filter is conditions, or expression for a preset edited as text.
-export interface IFilterItemEdit {
+export interface IFilterPresetEdit {
   name: string;
   title?: string;
   conditions?: Array<IFilterCondition>;
@@ -40,35 +42,40 @@ export interface IFilterItemEdit {
   isDeleted?: boolean;
 }
 // A preset the respondent added, as uiState keeps it: its title and its expression.
-export interface IFilterUserItemState {
+export interface IFilterUserPresetState {
   name: string;
   title: string;
   expression: string;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  allowCopy?: boolean;
 }
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
 export interface IFilterElementUIState {
-  // The name of the applied item. "" means the respondent switched the default item off, which is
+  // The name of the selected preset. "" means the respondent turned the default preset off, which is
   // not the same as "not stored" - the restore has to be able to say that.
-  activeItemName?: string;
+  selectedPreset?: string;
   searchString?: string;
   searchFields?: Array<string>;
-  // The respondent's unsaved edits - the full set, not a diff against the preset - as the expression
-  // they compose. Stored only when there are any: over an active preset only when they change it
-  // ("" = its conditions were cleared), with no preset only when not empty.
+  // The respondent's own filter as text: the conditions of the fields, or a text applyFilter() took.
+  // Stored only when there is one.
   expression?: string;
-  // Authored presets the respondent changed, by name: the expression saved into one (Save in single
-  // mode, Edit Preset) and the title given to one.
-  items?: { [name: string]: IFilterSavedItemState };
+  // Authored presets the respondent changed, by name: what changed of one - its title, its expression,
+  // its permissions (Edit Preset, updatePreset()).
+  presets?: { [name: string]: IFilterSavedPresetState };
   // The presets the respondent added, in their order.
-  userItems?: Array<IFilterUserItemState>;
+  userPresets?: Array<IFilterUserPresetState>;
   // The authored presets the respondent deleted, by name.
-  deletedItems?: Array<string>;
+  deletedPresets?: Array<string>;
 }
-// An authored preset the respondent changed, as uiState keeps it - see IFilterElementUIState.items.
-export interface IFilterSavedItemState {
+// An authored preset the respondent changed, as uiState keeps it - see IFilterElementUIState.presets.
+export interface IFilterSavedPresetState {
   expression?: string;
   title?: string;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  allowCopy?: boolean;
 }
 export interface IElementUIState {
   collapsed?: boolean;

@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { createFilter } from "./filter-test-helpers";
+import { createFilter, onCombinedExpressionChanged } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterPresetDialog } from "../../src/filter/filter-preset-dialog";
@@ -7,13 +7,15 @@ import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 
 // New Preset and Edit Preset: a preset that does not decompose is edited as text, and any other
-// may be ("Edit as Expression"); a text of the fields' kind goes back to the tagbox ("Edit as Tagbox").
+// may be ("Switch to Expression"); a text of the fields' kind goes back to the tagbox ("Switch to Fields").
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" },
   { name: "fixed", title: "Fixed", expression: "{age} < 1 or {age} > 99", allowEdit: false }];
+// The respondent may add, edit and delete presets here: the permissions are off by default.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
 function control(over: any = {}): QuestionFilterModel {
-  return createFilter(Object.assign({ items: presets }, over));
+  return createFilter(Object.assign({ presets: presets }, editable, over));
 }
 function panels(dialog: FilterPresetDialog): Array<string> {
   return dialog.form.pages[0].elements.map((e: any): string => e.name);
@@ -37,27 +39,27 @@ function errors(dialog: FilterPresetDialog): Array<string> {
 }
 function trackEvents(q: QuestionFilterModel): { filter: number, uiState: number } {
   const res = { filter: 0, uiState: 0 };
-  (<SurveyModel>q.survey).onFilterChanged.add(() => { res.filter++; });
+  onCombinedExpressionChanged(q, () => { res.filter++; });
   (<SurveyModel>q.survey).onUIStateChanged.add(() => { res.uiState++; });
   return res;
 }
 
 describe("New Preset: a preset as text", () => {
-  test("a text that does not decompose opens in place of Contains", () => {
+  test("a text that does not decompose opens in place of the tagbox", () => {
     const dialog = control().createAddPresetDialog([], "{age} < 5 or {age} > 90");
     expect([panels(dialog), text(dialog), dialog.isTextMode, dialog.editor, dialog.canEditAsFields], "#1")
       .toEqual([["presetName", "expression"], "{age} < 5 or {age} > 90", true, undefined, false]);
-    expect((<PanelModel>dialog.form.getPanelByName("expression")).title, "#2").toBe("Contains");
+    expect((<PanelModel>dialog.form.getPanelByName("expression")).title, "#2").toBe("Filter expression");
     dialog.dispose();
   });
-  test("Edit as Expression shows the fields' conditions as text; Edit as Tagbox takes a text of their kind back", () => {
+  test("Switch to Expression shows the fields' conditions as text; Switch to Fields takes a text of their kind back", () => {
     const dialog = control().createAddPresetDialog([{ field: "age", operator: "greater", value: 18 }]);
     const toText = titleActions(dialog, "contains").filter((a: Action): boolean => a.id === "sv-filter-preset-edit-as-text")[0];
-    expect([toText.title, toText.enabled !== false], "#1").toEqual(["Edit as Expression", true]);
+    expect([toText.title, toText.enabled !== false], "#1").toEqual(["Switch to Expression", true]);
     toText.action();
     expect([panels(dialog), text(dialog), dialog.canEditAsFields], "#2").toEqual([["presetName", "expression"], "{age} > 18", true]);
     const toFields = titleActions(dialog, "expression").filter((a: Action): boolean => a.id === "sv-filter-preset-edit-as-fields")[0];
-    expect(toFields.title, "#2a").toBe("Edit as Tagbox");
+    expect(toFields.title, "#2a").toBe("Switch to Fields");
     setText(dialog, "{age} > 1 or {age} < 0");
     expect([dialog.canEditAsFields, toFields.enabled], "#3: not while the text is no list of the fields' conditions").toEqual([false, false]);
     dialog.editAsFields();
@@ -86,7 +88,7 @@ describe("New Preset: a preset as text", () => {
     expect([dialog.apply(), errors(dialog)], "#2").toEqual([false, ["The expression is not valid."]]);
     setText(dialog, " {age} < 5 or {age} > 90 ");
     expect(dialog.apply(), "#3").toBe(true);
-    const item = q.getItemByName("userItem1");
+    const item = q.getPresetByName("userPreset1");
     expect([item.title, item.expression], "#4").toEqual(["Ends", "{age} < 5 or {age} > 90"]);
     dialog.dispose();
   });
@@ -96,7 +98,7 @@ describe("New Preset: a preset as text", () => {
     dialog.form.setValue("presetTitle", "Unnamed");
     setText(dialog, "{name} = ''");
     expect([dialog.canEditAsFields, dialog.apply()], "#1").toEqual([false, true]);
-    const item = q.getItemByName("userItem1");
+    const item = q.getPresetByName("userPreset1");
     expect(!!item ? item.expression : undefined, "#2").toBe("{name} = ''");
     dialog.dispose();
   });
@@ -109,12 +111,12 @@ describe("Edit Preset: a preset as text", () => {
     expect([panels(dialog), text(dialog), dialog.isReadOnly], "#1").toEqual([["presetName", "expression"], "{age} < 18 or {age} > 35", false]);
     setText(dialog, "{age} < 10 or {age} > 60");
     expect(dialog.apply(), "#2").toBe(true);
-    expect(q.getItemByName("edges").expression, "#3").toBe("{age} < 10 or {age} > 60");
+    expect(q.getPresetByName("edges").expression, "#3").toBe("{age} < 10 or {age} > 60");
     dialog.dispose();
   });
   test("a preset changed to a text that decomposes opens as fields", () => {
     const q = control();
-    q.updateItem("edges", "", undefined, "{age} < 10");
+    q.updatePresetFromConditions("edges", "", undefined, "{age} < 10");
     const dialog = q.createEditPresetDialog("edges");
     expect([panels(dialog), picked(dialog)], "#1").toEqual([["presetName", "contains"], ["age"]]);
     dialog.dispose();
@@ -129,7 +131,7 @@ describe("Edit Preset: a preset as text", () => {
     expect(picked(dialog), "#2").toEqual(["age"]);
     dialog.editAsText();
     expect(dialog.apply(), "#3").toBe(true);
-    expect([events, q.getItemByName("adults").expression], "#4").toEqual([{ filter: 0, uiState: 0 }, "{age} > 18"]);
+    expect([events, q.getPresetByName("adults").expression], "#4").toEqual([{ filter: 0, uiState: 0 }, "{age} > 18"]);
     dialog.dispose();
   });
   test("a broken text holds Apply back, its error shown", () => {
@@ -138,7 +140,7 @@ describe("Edit Preset: a preset as text", () => {
     setText(dialog, "{age} <");
     expect(dialog.apply(), "#1").toBe(false);
     expect(errors(dialog), "#2").toEqual(["The expression is not valid."]);
-    expect(q.getItemByName("edges").expression, "#3").toBe("{age} < 18 or {age} > 35");
+    expect(q.getPresetByName("edges").expression, "#3").toBe("{age} < 18 or {age} > 35");
     dialog.dispose();
   });
   test("a condition with no value is written as typed, and the preset opens as text again", () => {
@@ -147,7 +149,7 @@ describe("Edit Preset: a preset as text", () => {
     setText(dialog, "{name} = ''");
     expect([dialog.canEditAsFields, dialog.apply()], "#1").toEqual([false, true]);
     dialog.dispose();
-    expect(q.getItemByName("edges").expression, "#2").toBe("{name} = ''");
+    expect(q.getPresetByName("edges").expression, "#2").toBe("{name} = ''");
     dialog = q.createEditPresetDialog("edges");
     expect([panels(dialog), text(dialog)], "#3").toEqual([["presetName", "expression"], "{name} = ''"]);
     dialog.dispose();

@@ -335,12 +335,6 @@ export var italianSurveyStrings = {
   conditionOperatorGreaterorequal: "Maggiore o uguale a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inferiore o uguale a",
-  // [Auto-translated] "Save"
-  filterSave: "Salva",
-  // [Auto-translated] "Filters"
-  filterFilters: "Filtri",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtri: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtri",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var italianSurveyStrings = {
   filterClearAll: "Cancella tutto",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Chiara {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Preset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Salva come...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Salva",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Aggiungi \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Mostra {0} elementi",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var italianSurveyStrings = {
   filterShowResults: "Mostra i risultati",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nuovo preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nome",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Contiene",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Un preset con questo nome esiste già.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var italianSurveyStrings = {
   filterPresetNoExpression: "Inserisci un'espressione.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "L'espressione non è valida.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Modifica come espressione",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Modifica come Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Digita un'espressione qui...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var italianSurveyStrings = {
   filterPresetExpression: "{0} Espressione",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Modifica...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Cerca nei Filtri",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Niente trovato, prova diverse parole chiave",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Crea preset con AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Modifica preset con AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Per esempio, \"Caffè e tè dalla Germania\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Crea",
   // [Auto-translated] "Edit"
   filterAiEdit: "Modifica",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Creando...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Montaggio...",
   // [Auto-translated] "AI could not make a filter. Try again."

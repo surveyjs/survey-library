@@ -335,12 +335,6 @@ export var swahiliStrings = {
   conditionOperatorGreaterorequal: "Zaidi ya au sawa na",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Chini au sawa na",
-  // [Auto-translated] "Save"
-  filterSave: "Hifadhi",
-  // [Auto-translated] "Filters"
-  filterFilters: "Vichujio",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Vichujio: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Vichujio",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var swahiliStrings = {
   filterClearAll: "Futa Yote",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Wazi {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Mpangilio wa awali",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Hifadhi kama...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Hifadhi",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Ongeza \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Mipangilio ya awali",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Onyesha vitu {0}",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var swahiliStrings = {
   filterShowResults: "Onyesha matokeo",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Preset mpya",
-  // [Auto-translated] "Name"
-  filterPresetName: "Jina",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Inajumuisha",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Tayari kuna preset yenye jina hili.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var swahiliStrings = {
   filterPresetNoExpression: "Ingiza usemi.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Usemi huo si halali.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Hariri kama usemi",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Hariri kama kisanduku cha lebo",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Andika usemi hapa...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var swahiliStrings = {
   filterPresetExpression: "{0} Maonyesho",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Hariri...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Tafuta katika Vichujio",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Hakuna kilichopatikana, jaribu maneno tofauti",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Unda mpangilio wa awali kwa kutumia AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Hariri mpangilio wa awali kwa kutumia AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Kwa mfano, \"Kahawa & Chai kutoka Ujerumani\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Unda",
   // [Auto-translated] "Edit"
   filterAiEdit: "Hariri",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Kuunda...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Kuhariri...",
   // [Auto-translated] "AI could not make a filter. Try again."

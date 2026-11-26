@@ -335,12 +335,6 @@ export var dutchSurveyStrings = {
   conditionOperatorGreaterorequal: "Groter dan of gelijk aan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Minder dan of gelijk aan",
-  // [Auto-translated] "Save"
-  filterSave: "Opslaan",
-  // [Auto-translated] "Filters"
-  filterFilters: "Filters",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filters: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filters",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var dutchSurveyStrings = {
   filterClearAll: "Alles schoonmaken",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clear {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Vooraf ingesteld",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Opgeslagen als...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Opslaan",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Voeg \"{0}\" toe...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Toon {0} items",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var dutchSurveyStrings = {
   filterShowResults: "Resultaten tonen",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nieuwe Preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Naam",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Bevat",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Er bestaat al een preset met deze naam.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var dutchSurveyStrings = {
   filterPresetNoExpression: "Voer een uitdrukking in.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "De uitdrukking is niet geldig.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Bewerking als expressie",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Bewerking als Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Typ hier een uitdrukking...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var dutchSurveyStrings = {
   filterPresetExpression: "{0} Uiting",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Zoeken in filters",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Niets gevonden, probeer verschillende zoekwoorden",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Maak preset met AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Preset bewerken met AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Bijvoorbeeld, \"Koffie & Thee uit Duitsland\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Aanmaken",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Creëren...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Bewerken...",
   // [Auto-translated] "AI could not make a filter. Try again."

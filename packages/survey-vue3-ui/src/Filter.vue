@@ -1,6 +1,6 @@
 <template>
   <div :class="question.getQuestionRootCss()" ref="root">
-    <div v-if="question.showSearch" :class="question.cssClasses.searchRow">
+    <div v-if="question.showSearchBar" :class="question.cssClasses.searchRow">
       <div :class="question.searchRootCss">
         <SvComponent :is="'sv-svg-icon'" :className="question.cssClasses.searchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
         <input type="text" autocomplete="off" :class="question.searchCss.control" :value="question.searchString" :placeholder="question.searchPlaceholder"

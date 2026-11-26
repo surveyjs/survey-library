@@ -30,7 +30,7 @@ export function getFilterExpressionError(text: string, locale?: string): string 
 // The text of a filter expression in a survey of someone else's: a panel named "expression" with a
 // comment question in it, which the survey's own validation checks (empty, or text that does not
 // parse - getFilterExpressionError) unless it is read-only. A panel of its own, as the presets'
-// Contains is: a question that is not in a panel gets a frame, and the mockup frames neither. A
+// fields' tagbox is: a question that is not in a panel gets a frame, and the mockup frames neither. A
 // renderer draws it as the survey it is in. The survey belongs to its owner: dispose() takes only
 // the panel and its value away.
 export class FilterExpressionPanel {

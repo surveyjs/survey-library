@@ -335,12 +335,6 @@ export var teluguStrings = {
   conditionOperatorGreaterorequal: "కంటే ఎక్కువ లేదా సమానం",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "కంటే తక్కువ లేదా సమానం",
-  // [Auto-translated] "Save"
-  filterSave: "సేవ్ చేయండి",
-  // [Auto-translated] "Filters"
-  filterFilters: "ఫిల్టర్లు",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "ఫిల్టర్లు: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "ఫిల్టర్లు",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var teluguStrings = {
   filterClearAll: "అన్నీ క్లియర్ చేయండి",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "క్లియర్ {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "ప్రీసెట్",
   // [Auto-translated] "Save as..."
   filterSaveAs: "సేవ్ చేయండి...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "సేవ్ చేయండి",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\" జోడించండి...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "ప్రీసెట్స్",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} అంశాలను చూపించండి",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var teluguStrings = {
   filterShowResults: "ఫలితాలు చూపించు",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "కొత్త ప్రీసెట్",
-  // [Auto-translated] "Name"
-  filterPresetName: "పేరు",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "కలిగి ఉంది",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "ఈ పేరుతో ఒక ప్రీసెట్ ఇప్పటికే ఉంది.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var teluguStrings = {
   filterPresetNoExpression: "ఒక వ్యక్తీకరణను నమోదు చేయండి.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "ఆ వ్యక్తీకరణ చెల్లుబాటు కాదు.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "వ్యక్తీకరణగా సవరించండి",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "ట్యాగ్ బాక్స్ గా సవరించండి",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "ఇక్కడ ఒక ఎక్స్ ప్రెషన్ టైప్ చేయండి...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var teluguStrings = {
   filterPresetExpression: "{0} వ్యక్తీకరణ",
   // [Auto-translated] "Edit..."
   filterEditExpression: "సవరణ...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "ఫిల్టర్లలో శోధించండి",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "ఏమీ కనుగొనబడలేదు, వేరే కీవర్డ్స్ ప్రయత్నించండి",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "AIతో ప్రీసెట్ సృష్టించండి",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AIతో ప్రీసెట్ ను సవరించండి",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "ఉదాహరణకు, \"జర్మనీ నుండి కాఫీ & టీ\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "సృష్టించండి",
   // [Auto-translated] "Edit"
   filterAiEdit: "సవరింపు",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "సృష్టించడం...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "సవరణ...",
   // [Auto-translated] "AI could not make a filter. Try again."

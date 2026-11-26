@@ -335,12 +335,6 @@ export var philippinesStrings = {
   conditionOperatorGreaterorequal: "Mas malaki o katumbas ng",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mas mababa o katumbas ng",
-  // [Auto-translated] "Save"
-  filterSave: "I-save",
-  // [Auto-translated] "Filters"
-  filterFilters: "Mga Filter",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Mga filter: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Mga Filter",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var philippinesStrings = {
   filterClearAll: "Linisin Lahat",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Linisin ang {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Preset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "I-save bilang...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "I-save",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Idagdag ang \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Mga preset",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Ipakita ang mga {0} item",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var philippinesStrings = {
   filterShowResults: "Ipakita ang mga resulta",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Bagong Preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Pangalan",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Naglalaman",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "May preset na may ganitong pangalan na.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var philippinesStrings = {
   filterPresetNoExpression: "Ipasok ang isang ekspresyon.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Hindi wasto ang ekspresyon.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "I-edit bilang Ekspresyon",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "I-edit bilang Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Mag-type ng ekspresyon dito...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var philippinesStrings = {
   filterPresetExpression: "{0} Pagpapahayag",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Maghanap sa Filters",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Walang nahanap, subukan ang iba't ibang keywords",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Gumawa ng preset gamit ang AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "I-edit ang preset gamit ang AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Halimbawa, \"Kape at Tsaa mula sa Germany\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Lumikha",
   // [Auto-translated] "Edit"
   filterAiEdit: "I-edit",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Paglikha...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editing...",
   // [Auto-translated] "AI could not make a filter. Try again."

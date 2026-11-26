@@ -148,9 +148,6 @@ export interface ISurveyOldValueReads {
 // onUIStateChanged with the "filter" reason and a host that persists uiState knows it has to save.
 export interface ISurveyFilterCallbacks {
   filterStateChanged(question: IQuestion): void;
-  // The composed expression of a Filter Control, raised after the source question has already been
-  // re-filtered with it. sourceQuestion is undefined for a control that is bound to nothing.
-  filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void;
   // Whether the application answers AI requests of a Filter Control: onAIFilterRequest has a handler.
   isAIFilterRequestAvailable(): boolean;
   aiFilterRequest(options: FilterAIRequestEvent): void;

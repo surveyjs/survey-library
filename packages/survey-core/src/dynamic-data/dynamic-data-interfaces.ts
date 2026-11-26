@@ -249,11 +249,23 @@ export interface IDynamicDataOwner {
 
 // What a question that can be filtered by a Filter Control answers. The records questions implement
 // it; the control never imports them and asks by capability.
-export interface IDynamicDataFilterSource {
+export interface IDynamicDataFilterTarget {
   getFilterFields(): Array<IDynamicDataFilterField>;
   setControlFilter(key: string, expression: string): void;
   getControlFilter(key: string): string;
   // Optional: how many records there would be if this control filtered by expression - before the
   // control applies it. undefined (or no method) when the count cannot be known.
   getControlFilterCount?(key: string, expression: string): Promise<number | undefined>;
+  // Optional: a target with no such method takes no name, and every such entry is a field of the record.
+  // Whether a name is a record key this target's questions take: a column's or a template question's
+  // name or value name, or the dotted path of a child of a record question (Multiple Textboxes, a
+  // composite) - or a path into a key the filter cannot filter by (isFilterRecordKeyExcluded). A
+  // Filter Control's fields entry that names no field of the target's list and no such key is a field
+  // of the record the target has no column for, a path into a key the filter offers included
+  // ("customer.country" next to a "customer" column).
+  hasRecordField?(name: string): boolean;
+  // Optional: the rows of a target whose rows are its records (a matrix with fixed rows) - a record is
+  // one of them, which a filter reads by the row's own variables ({rowValue}, {rowTitle}). The AI of a
+  // Filter Control lists them.
+  getFilterRows?(): Array<{ value: any, text: string }>;
 }

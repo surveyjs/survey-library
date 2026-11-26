@@ -335,12 +335,6 @@ export var spanishSurveyStrings = {
   conditionOperatorGreaterorequal: "Mayor o igual a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Menor o igual a",
-  // [Auto-translated] "Save"
-  filterSave: "Guardar",
-  // [Auto-translated] "Filters"
-  filterFilters: "Filtros",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtros: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtros",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var spanishSurveyStrings = {
   filterClearAll: "Borrar todo",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Claro {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Preset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Salva como...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Guardar",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Añade \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Mostrar {0} elementos",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var spanishSurveyStrings = {
   filterShowResults: "Mostrar resultados",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nuevo preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nombre",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Contiene",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Ya existe un ajuste preestablecido con este nombre.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var spanishSurveyStrings = {
   filterPresetNoExpression: "Introduce una expresión.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "La expresión no es válida.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Editar como expresión",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Editar como Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Escribe una expresión aquí...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var spanishSurveyStrings = {
   filterPresetExpression: "{0} Expresión",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edito...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Buscar en filtros",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "No se ha encontrado nada, prueba con diferentes palabras clave",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Crear preajuste con IA",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Editar preajuste con IA",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Por ejemplo, \"Café y té de Alemania\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Crear",
   // [Auto-translated] "Edit"
   filterAiEdit: "Editar",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Creando...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Edición...",
   // [Auto-translated] "AI could not make a filter. Try again."

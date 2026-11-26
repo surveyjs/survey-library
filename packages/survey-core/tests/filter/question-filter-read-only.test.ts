@@ -2,14 +2,14 @@ import { describe, test, expect } from "vitest";
 import { createFilter, pickPreset } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
-import { FilterItem } from "../../src/filter/filter-item";
+import { FilterPreset } from "../../src/filter/filter-preset";
 import { FilterModal } from "../../src/filter/filter-modal";
 import { Serializer } from "../../src/jsonobject";
 import { settings } from "../../src/settings";
 import { ActionContainer } from "../../src/actions/container";
 
 function action(container: any, id: string): any { return container.getActionById(id); }
-const chipIds = ["sv-filter-filters", "sv-filter-preset", "sv-filter-field-name", "sv-filter-field-country", "sv-filter-field-age"];
+const chipIds = ["sv-filter-all-filters", "sv-filter-presets", "sv-filter-field-name", "sv-filter-field-country", "sv-filter-field-age"];
 function enabledChips(q: QuestionFilterModel): Array<boolean> {
   return chipIds.map((id: string): boolean => action(q.chipsToolbar, id).enabled);
 }
@@ -29,17 +29,17 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
   test("readOnly in JSON: the chips are disabled and do nothing, the active preset still filters", () => {
     const dialogs = stubDialogs();
     try {
-      const q = createFilter({ readOnly: true, defaultItem: "adults" });
+      const q = createFilter({ readOnly: true, defaultPreset: "adults" });
       expect(q.isControlReadOnly, "#1").toBe(true);
-      expect(q.filterExpression, "#2: the active preset filters").toBe("{age} > 18");
+      expect(q.combinedExpression, "#2: the active preset filters").toBe("{age} > 18");
       expect(enabledChips(q), "#3").toEqual([false, false, false, false, false]);
-      const preset = action(q.chipsToolbar, "sv-filter-preset");
+      const preset = action(q.chipsToolbar, "sv-filter-presets");
       expect([preset.active, preset.title, preset.isClearable], "#4: the chips show the active filter, no cross").toEqual([true, "adults", false]);
       preset.action();
       expect(preset.popupModel.isVisible, "#5: no list").toBe(false);
       pickPreset(q, "kids");
-      expect(q.activeItemName, "#5.1: no switching").toBe("adults");
-      action(q.chipsToolbar, "sv-filter-filters").action();
+      expect(q.selectedPreset, "#5.1: no switching").toBe("adults");
+      action(q.chipsToolbar, "sv-filter-all-filters").action();
       expect(dialogs.calls.length, "#6: no Filters dialog").toBe(0);
       const age = action(q.chipsToolbar, "sv-filter-field-age");
       age.action();
@@ -53,21 +53,20 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
       dialogs.restore();
     }
   });
-  test("single mode: Save is hidden while locked", () => {
-    const q = createFilter({ allowMultipleItems: false, defaultItem: "adults" });
+  test("Clear All is hidden while locked", () => {
+    const q = createFilter({ showPresets: false, defaultPreset: "adults" });
     q.setFieldCondition("age", "greater", 30);
-    expect(action(q.clearToolbar, "sv-filter-save").visible, "#1").toBe(true);
+    expect(action(q.clearToolbar, "sv-filter-clear").visible, "#1").toBe(true);
     q.readOnly = true;
-    expect([action(q.clearToolbar, "sv-filter-save").visible, action(q.clearToolbar, "sv-filter-clear").visible], "#2")
-      .toEqual([false, false]);
+    expect(action(q.clearToolbar, "sv-filter-clear").visible, "#2").toBe(false);
   });
   test("an editor and the Filters dialog opened from code are read-only", () => {
     const dialogs = stubDialogs();
     try {
-      const q = createFilter({ readOnly: true, showSearch: true });
-      expect(q.createFastModeEditor("age").isReadOnly, "#1").toBe(true);
-      expect(q.createAdvancedModeEditor().isReadOnly, "#2").toBe(true);
-      q.showAdvancedEditor();
+      const q = createFilter({ readOnly: true, showSearchBar: true });
+      expect(q.createQuickFilterEditor("age").isReadOnly, "#1").toBe(true);
+      expect(q.createAllFiltersEditor().isReadOnly, "#2").toBe(true);
+      q.showAllFilters();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
       expect([modal.isReadOnly, modal.presetsToolbar.actions.some((a: any): boolean => a.isVisible && a.enabled)], "#3").toEqual([true, false]);
       expect(dialogs.calls[0].footerToolbar.actions.length, "#4: nothing to apply").toBe(0);
@@ -79,36 +78,36 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "x" },
       { type: "filter", name: "f1", enableIf: "{x} = 1", fields: [{ name: "age" }],
-        items: [{ name: "adults", expression: "{age} > 18" }] }] });
+        presets: [{ name: "adults", expression: "{age} > 18" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    expect([q.isControlReadOnly, action(q.chipsToolbar, "sv-filter-preset").enabled], "#1").toEqual([true, false]);
+    expect([q.isControlReadOnly, action(q.chipsToolbar, "sv-filter-presets").enabled], "#1").toEqual([true, false]);
     survey.setValue("x", 1);
-    expect([q.isControlReadOnly, action(q.chipsToolbar, "sv-filter-preset").enabled, q.isSearchDisabled], "#2")
+    expect([q.isControlReadOnly, action(q.chipsToolbar, "sv-filter-presets").enabled, q.isSearchDisabled], "#2")
       .toEqual([false, true, false]);
     pickPreset(q, "adults");
-    expect(q.activeItemName, "#3").toBe("adults");
+    expect(q.selectedPreset, "#3").toBe("adults");
     survey.setValue("x", 2);
-    expect([q.isControlReadOnly, action(q.chipsToolbar, "sv-filter-preset").enabled], "#4").toEqual([true, false]);
+    expect([q.isControlReadOnly, action(q.chipsToolbar, "sv-filter-presets").enabled], "#4").toEqual([true, false]);
   });
   test("survey display mode and a read-only parent panel do not lock it", () => {
     const survey = new SurveyModel({ elements: [
       { type: "panel", name: "p", readOnly: true, elements: [
-        { type: "filter", name: "f1", fields: [{ name: "age" }], items: [{ name: "adults", expression: "{age} > 18" }] }] }] });
+        { type: "filter", name: "f1", fields: [{ name: "age" }], presets: [{ name: "adults", expression: "{age} > 18" }] }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     expect([q.isReadOnly, q.isControlReadOnly], "#1: the panel").toEqual([true, false]);
     survey.mode = "display";
     expect(q.isControlReadOnly, "#2: display mode").toBe(false);
     pickPreset(q, "adults");
-    expect([q.activeItemName, q.isSearchDisabled], "#3").toEqual(["adults", false]);
+    expect([q.selectedPreset, q.isSearchDisabled], "#3").toEqual(["adults", false]);
   });
   test("a locked control restores its uiState, and an application's calls still work", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", readOnly: true, fields: [{ name: "age" }],
-      items: [{ name: "adults", expression: "{age} > 18" }] }] });
+      presets: [{ name: "adults", expression: "{age} > 18" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     survey.uiState = { questions: { f1: { filter: { expression: "{age} < 5" } } } };
-    expect(q.filterExpression, "#1: restored").toBe("{age} < 5");
+    expect(q.combinedExpression, "#1: restored").toBe("{age} < 5");
     q.setFieldCondition("age", "greater", 30);
-    expect(q.filterExpression, "#2: from code").toBe("{age} > 30");
+    expect(q.combinedExpression, "#2: from code").toBe("{age} > 30");
   });
   test("an open field popup is hidden and an open Filters dialog closed when the lock turns on", () => {
     const dialogs = stubDialogs();
@@ -120,12 +119,12 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
       q.readOnly = true;
       expect(age.popupModel.isVisible, "#2").toBe(false);
       q.readOnly = false;
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const holder = dialogs.calls[0].options.data.holder;
       const modal: FilterModal = holder.modal;
       q.readOnly = true;
       expect([modal.isDisposed, holder.modal], "#3: closed and released").toEqual([true, undefined]);
-      q.showAdvancedEditor();
+      q.showAllFilters();
       expect(dialogs.calls.length, "#4: opens again, read-only").toBe(2);
       expect(dialogs.calls[1].options.data.holder.modal.isReadOnly, "#5").toBe(true);
     } finally {
@@ -136,7 +135,7 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
     const dialogs = stubDialogs();
     try {
       const q = createFilter({ readOnly: true });
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const holder = dialogs.calls[0].options.data.holder;
       const modal: FilterModal = holder.modal;
       q.width = "300px";
@@ -151,15 +150,15 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({ elements: [{ type: "filter", name: "f1", readOnly: true, fields: [{ name: "age" }],
-      items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" }] });
+      presets: [{ name: "adults", expression: "{age} > 18" }], defaultPreset: "adults" }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const clicked: Array<FilterItem> = [];
-    q.setDesignItemClickCallback((item?: FilterItem): void => { clicked.push(item); });
+    const clicked: Array<FilterPreset> = [];
+    q.setDesignPresetClickCallback((item?: FilterPreset): void => { clicked.push(item); });
     expect(q.isControlReadOnly, "#1").toBe(false);
-    expect(action(q.chipsToolbar, "sv-filter-preset").enabled, "#2").not.toBe(false);
-    action(q.chipsToolbar, "sv-filter-preset").action();
-    action(q.chipsToolbar, "sv-filter-filters").action();
-    expect(clicked.map((item?: FilterItem): string => !!item ? item.name : ""), "#3").toEqual(["adults", ""]);
+    expect(action(q.chipsToolbar, "sv-filter-presets").enabled, "#2").not.toBe(false);
+    action(q.chipsToolbar, "sv-filter-presets").action();
+    action(q.chipsToolbar, "sv-filter-all-filters").action();
+    expect(clicked.map((item?: FilterPreset): string => !!item ? item.name : ""), "#3").toEqual(["adults", ""]);
   });
   test("the property grid: readOnly and enableIf are shown, readOnlyMode is not", () => {
     const q = createFilter({ readOnly: true });

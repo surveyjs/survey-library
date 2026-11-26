@@ -10,9 +10,9 @@ const title = "Filter";
 // checked once it is open.
 const json = (filterProps: any = {}): any => ({
   elements: [
-    Object.assign({ type: "filter", name: "f1", source: "m", showSearch: true,
-      items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }, { name: "kids", title: "Kids", expression: "{age} < 18" }],
-      defaultItem: "adults" }, filterProps),
+    Object.assign({ type: "filter", name: "f1", targetQuestion: "m", showSearchBar: true,
+      presets: [{ name: "adults", title: "Adults", expression: "{age} > 18" }, { name: "kids", title: "Kids", expression: "{age} < 18" }],
+      defaultPreset: "adults" }, filterProps),
     { type: "matrixdynamic", name: "m", columns: [
       { name: "country", title: "Country", cellType: "dropdown", allowCustomChoices: true,
         choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }] },
@@ -20,6 +20,9 @@ const json = (filterProps: any = {}): any => ({
     defaultValue: [{ country: "de", age: 30 }, { country: "fr", age: 12 }] }
   ]
 });
+// The respondent's permissions on presets are off by default: a scenario that adds, edits or deletes one
+// turns them on.
+const editable = { allowAddPresets: true, allowEditPresets: true, allowDeletePresets: true };
 // A dialog by its own class. The close button is the shared popup container's, the same in every
 // dialog of the library, and has no accessible name (axe: button-name): a library issue, not the
 // control's, so it is left out here.
@@ -60,37 +63,37 @@ frameworks.forEach((framework) => {
       await checkA11y(page, axeContext, { axeOptions });
     });
     test("Save as...'s open popup", async ({ page }) => {
-      await initSurvey(page, framework, json({ defaultItem: "" }));
+      await initSurvey(page, framework, json({ defaultPreset: "", allowAddPresets: true }));
       await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("country", "anyof", ["de"]); });
       await page.locator(".sd-filter").getByRole("button", { name: "Save as..." }).click();
       await expect(visiblePopup(page, ".sd-filter-popup")).toBeVisible();
       await checkA11y(page, axeContext, { axeOptions });
     });
     test("the Filters dialog", async ({ page }) => {
-      await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await initSurvey(page, framework, json(editable));
+      await page.locator(".sd-filter button[title='All Filters']").click();
       await expect(visiblePopup(page, ".sd-filter-modal__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-modal"), { axeOptions });
     });
     test("the Filters dialog: nothing found", async ({ page }) => {
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await page.locator(".sd-filter button[title='All Filters']").click();
       const dialog = visiblePopup(page, ".sd-filter-modal__content");
-      await dialog.getByRole("textbox", { name: "Search in Filters" }).fill("zzz");
+      await dialog.getByRole("textbox", { name: "Search in filters and presets" }).fill("zzz");
       await expect(dialog.locator(".sd-filter-modal__nothing-found")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-modal"), { axeOptions });
     });
     test("New Preset", async ({ page }) => {
-      await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await initSurvey(page, framework, json(editable));
+      await page.locator(".sd-filter button[title='All Filters']").click();
       await visiblePopup(page, ".sd-filter-modal__content").getByRole("button", { name: "Add New..." }).click();
       await expect(visiblePopup(page, ".sd-filter-preset-dialog__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-preset-dialog"), { axeOptions });
     });
     test("Edit Preset", async ({ page }) => {
       // Adults is on, so its pill is picked: Edit Selected... opens it.
-      await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
+      await initSurvey(page, framework, json(editable));
+      await page.locator(".sd-filter button[title='All Filters']").click();
       await visiblePopup(page, ".sd-filter-modal__content").getByRole("button", { name: "Edit Selected..." }).click();
       await expect(visiblePopup(page, ".sd-filter-preset-dialog__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-preset-dialog"), { axeOptions });

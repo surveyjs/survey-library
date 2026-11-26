@@ -335,12 +335,6 @@ export var catalanSurveyStrings = {
   conditionOperatorGreaterorequal: "Superior o igual a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inferior o igual a",
-  // [Auto-translated] "Save"
-  filterSave: "Guarda",
-  // [Auto-translated] "Filters"
-  filterFilters: "Filtres",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Filtres: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtres",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var catalanSurveyStrings = {
   filterClearAll: "Esborrar-ho tot",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clar {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Preset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Guarda com...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Guarda",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Afegeix \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Mostra {0} elements",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var catalanSurveyStrings = {
   filterShowResults: "Mostra els resultats",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nou Preset",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nom",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Conté",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Ja existeix un predefinit amb aquest nom.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var catalanSurveyStrings = {
   filterPresetNoExpression: "Introdueix una expressió.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "L'expressió no és vàlida.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Editar com a expressió",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Edita com a Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Escriu una expressió aquí...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var catalanSurveyStrings = {
   filterPresetExpression: "{0} Expressió",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edito...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Cerca en filtres",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "No s'ha trobat res, prova amb diferents paraules clau",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Crea un predefinit amb IA",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Edita el preset amb IA",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Per exemple, \"Cafè i Te d'Alemanya\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Crea",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edita",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Creant...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editant...",
   // [Auto-translated] "AI could not make a filter. Try again."

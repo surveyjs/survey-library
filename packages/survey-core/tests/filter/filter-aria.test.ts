@@ -8,24 +8,24 @@ import { Action } from "../../src/actions/action";
 describe("Filter Control: ARIA", () => {
   test("the presets' list is a menu of radio items, the active preset's checked", () => {
     const q = createFilter();
-    const list = (<Action>q.chipsToolbar.getActionById("sv-filter-preset")).popupModel.contentComponentData.model;
-    const adults = list.getActionById("sv-filter-item-adults");
-    const kids = list.getActionById("sv-filter-item-kids");
+    const list = (<Action>q.chipsToolbar.getActionById("sv-filter-presets")).popupModel.contentComponentData.model;
+    const adults = list.getActionById("sv-filter-preset-adults");
+    const kids = list.getActionById("sv-filter-preset-kids");
     expect([list.listRole, list.listItemRole, list.getA11yItemAriaChecked(adults), list.getA11yItemAriaChecked(kids)], "#1")
       .toEqual(["menu", "menuitemradio", "false", "false"]);
-    q.toggleItem("adults");
+    q.togglePreset("adults");
     expect([list.getA11yItemAriaChecked(adults), list.getA11yItemAriaChecked(kids)], "#2").toEqual(["true", "false"]);
-    const chip = <Action>q.chipsToolbar.getActionById("sv-filter-preset");
+    const chip = <Action>q.chipsToolbar.getActionById("sv-filter-presets");
     const age = <Action>q.chipsToolbar.getActionById("sv-filter-field-age");
     expect([chip.ariaRole, chip.ariaChecked, age.ariaRole, age.ariaChecked], "#3: the chips open popups, no checked state")
       .toEqual(["button", undefined, "button", undefined]);
   });
   test("a preset chip in the Filters dialog is a checkbox too", () => {
-    const q = createFilter({ defaultItem: "kids" });
+    const q = createFilter({ defaultPreset: "kids" });
     const modal = q.createFilterModal();
-    const chip = (name: string): Action => <Action>modal.presetsToolbar.getActionById("sv-filter-modal-item-" + name);
+    const chip = (name: string): Action => <Action>modal.presetsToolbar.getActionById("sv-filter-modal-preset-" + name);
     expect([chip("adults").ariaRole, chip("adults").ariaChecked, chip("kids").ariaChecked], "#1").toEqual(["checkbox", false, true]);
-    modal.togglePreset(q.getItemByName("adults"));
+    modal.togglePreset(q.getPresetByName("adults"));
     expect([chip("adults").ariaChecked, chip("kids").ariaChecked], "#2").toEqual([true, false]);
     modal.dispose();
   });

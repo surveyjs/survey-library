@@ -63,14 +63,14 @@ export interface IFilterConditionsEditorOptions {
   // The search box's placeholder; the library's "Type to search..." when not given.
   searchPlaceholder?: string;
   // Each field's panel titled by the field. A mode that edits one field opened from something that
-  // already names it (a fast mode badge) leaves it off; one that edits all of them (advanced mode)
+  // already names it (a quick filter chip) leaves it off; one that edits all of them (the Filters dialog)
   // needs it, or the fields could not be told apart.
   showFieldTitles?: boolean;
   // Each field edits in the form its kind gives it (getFilterFieldEditorKind): checkboxes or a
   // tagbox for a list of values, Yes and No for a boolean, a dropdown for a single pick - and an
   // operator next to a value where the kind is "condition", or where the field's condition is one
   // the kind cannot show. The Filters dialog's fields. Without it every field is an operator and a
-  // value, as in a fast mode popup.
+  // value, as in a quick filter chip's popup.
   useFieldKinds?: boolean;
   // The class that draws a list's Show More as a text link (the control's cssClasses.link).
   linkCss?: string;
@@ -89,7 +89,7 @@ export interface IFilterConditionsEditorOptions {
   // undefined when no field was changed since the editor opened or was last applied, only the
   // search box: the fields then hold only their prefill, which the owner must not write back - and
   // with the search text, undefined when there is no search box. Both modes write on their own
-  // command - the advanced dialog's Apply, a fast mode popup's Apply - and listen here; without it
+  // command - the Filters dialog's Apply, the Apply of a quick filter chip's popup - and listen here; without it
   // apply() has nothing to do.
   onApply?: (conditions: Array<IFilterCondition> | undefined, searchString?: string) => void;
 }
@@ -308,7 +308,7 @@ export class FilterConditionsEditor {
     return survey;
   }
   // The panel groups a field's editors, and is titled by the field only where the editor shows
-  // several fields (showFieldTitles): opened from a fast mode badge, the badge names it. The title is
+  // several fields (showFieldTitles): opened from a quick filter chip, the chip names it. The title is
   // the field's text in the control's locale as it is now - an editor lives as long as the popup or
   // the dialog it is shown in. The editors themselves are added by buildField().
   private createPanelJson(name: string, index: number): any {
@@ -585,7 +585,8 @@ export class FilterConditionsEditor {
   }
   // A multi-value answer (anyof/noneof/allof) is in the order it was clicked, which says nothing
   // about the filter: the same set clicked in another order must be the same condition, or
-  // isActiveItemModified - an exact comparison - would take a reclicked preset for an edited one.
+  // the control - which compares an edit with the selected preset's conditions exactly - would take a
+  // reclicked preset for an edited one.
   // So it goes in the order of the question's choices; a value no choice has keeps its own order
   // after them.
   private normalizeValue(question: Question, value: any): any {

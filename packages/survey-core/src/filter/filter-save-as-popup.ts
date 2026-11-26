@@ -3,19 +3,20 @@ import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { SurveyModel } from "../survey";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
-import { FilterItem } from "./filter-item";
+import { FilterPreset, filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset";
 import { filterPopupFooterAppearance } from "./filter-field-popup";
-import { filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset-dialog";
+import { setupApplyOnEnter } from "./filter-enter-key";
 import { getLocaleString } from "../surveyStrings";
 // The name is a text question: registered with the serializer before a survey of one is made.
 import "../question_text";
 
 // What "Save as..." reads from the control and calls on it: the control's public API only.
 export interface IFilterSaveAsPopupOwner {
-  visibleItems: Array<FilterItem>;
+  visiblePresets: Array<FilterPreset>;
   ownConditions: Array<IFilterCondition>;
-  addItem(title: string, conditions: Array<IFilterCondition>): FilterItem;
-  toggleItem(item: FilterItem | string): void;
+  ownRawExpression: string;
+  addPresetFromConditions(title: string, conditions: Array<IFilterCondition>, options?: { expression?: string }): FilterPreset;
+  togglePreset(preset: FilterPreset | string): void;
   getLocale(): string;
   cssClasses: any;
 }
@@ -44,6 +45,8 @@ export class FilterSaveAsPopup extends Base {
       options.error = getFilterPresetTitleError(options.value, this.getTitles(), this.owner.getLocale());
     });
     this.surveyValue = survey;
+    // Enter in the name is Save.
+    setupApplyOnEnter(survey, (): void => { this.save(); });
     this.footerToolbarValue = new ActionContainer();
     this.footerToolbarValue.setActionsAppearance(filterPopupFooterAppearance);
     this.footerToolbarValue.setItems([new Action({ id: "sv-filter-save-as-save", title: getLocaleString("filterSaveAsSave", owner.getLocale()),
@@ -62,9 +65,11 @@ export class FilterSaveAsPopup extends Base {
   public save(): boolean {
     if (this.isDisposed || !this.surveyValue.validate(true)) return false;
     const title = (this.surveyValue.getValue("presetTitle") || "").toString().trim();
-    const item = this.owner.addItem(title, this.owner.ownConditions || []);
-    if (!item) return false;
-    this.owner.toggleItem(item);
+    // A filter applied as a text the fields cannot show is saved as that text.
+    const raw = this.owner.ownRawExpression;
+    const preset = this.owner.addPresetFromConditions(title, this.owner.ownConditions || [], raw !== undefined ? { expression: raw } : undefined);
+    if (!preset) return false;
+    this.owner.togglePreset(preset);
     this.close();
     return true;
   }
@@ -74,6 +79,6 @@ export class FilterSaveAsPopup extends Base {
     super.dispose();
   }
   private getTitles(): Array<string> {
-    return this.owner.visibleItems.map((item: FilterItem): string => item.title);
+    return this.owner.visiblePresets.map((preset: FilterPreset): string => preset.title);
   }
 }

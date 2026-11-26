@@ -335,12 +335,6 @@ export var traditionalChineseSurveyStrings = {
   conditionOperatorGreaterorequal: "大於或等於",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "小於或等於",
-  // [Auto-translated] "Save"
-  filterSave: "儲存",
-  // [Auto-translated] "Filters"
-  filterFilters: "篩選器",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "篩選條件：{0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "篩選器",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var traditionalChineseSurveyStrings = {
   filterClearAll: "清除全部",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "清{0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "預設",
   // [Auto-translated] "Save as..."
   filterSaveAs: "另存為...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "儲存",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "加上「{0}」......",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "預設",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "顯示{0}項目",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var traditionalChineseSurveyStrings = {
   filterShowResults: "顯示結果",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "新預設",
-  // [Auto-translated] "Name"
-  filterPresetName: "名稱",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "包含",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "已有同名預設存在。",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var traditionalChineseSurveyStrings = {
   filterPresetNoExpression: "輸入一個表達式。",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "此表達式無效。",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "以表達式形式編輯",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "編輯為標籤方塊",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "在此輸入一個表達式...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var traditionalChineseSurveyStrings = {
   filterPresetExpression: "{0}表達式",
   // [Auto-translated] "Edit..."
   filterEditExpression: "編輯...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "在篩選器中搜尋",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "沒找到任何東西，試試不同的關鍵字",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "用 AI 建立預設",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "使用 AI 編輯預設",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "例如，「來自德國的咖啡與茶」",
-  // [Auto-translated] "Create"
-  filterAiCreate: "創建",
   // [Auto-translated] "Edit"
   filterAiEdit: "編輯",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "創造......",
   // [Auto-translated] "Editing..."
   filterAiEditing: "編輯中......",
   // [Auto-translated] "AI could not make a filter. Try again."

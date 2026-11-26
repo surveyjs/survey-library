@@ -68,10 +68,10 @@ describe("toFilterTree: what the Filter Control emits", () => {
         { name: "cat", cellType: "dropdown", choices: [{ value: "b", text: "Beverages" }, "c"] },
         { name: "tags", cellType: "checkbox", choices: ["x", "y"] },
         { name: "price", cellType: "text", inputType: "number" }] },
-      { type: "filter", name: "f1", source: "m", showSearch: true, searchFields: ["name", "cat", "tags"],
-        items: [{ name: "p", expression: "{cat} anyof ['b'] and {price} < 20" }] }] });
+      { type: "filter", name: "f1", targetQuestion: "m", showSearchBar: true, searchFields: ["name", "cat", "tags"],
+        presets: [{ name: "p", expression: "{cat} anyof ['b'] and {price} < 20" }] }] });
     const filter = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const expression = filter.composeFilterExpression({ activeItemName: "p", searchString: "bev" });
+    const expression = filter.composeFilterExpression({ selectedPreset: "p", searchString: "bev" });
     expect(expression).toBe("({cat} anyof ['b'] and {price} < 20) and ({name} contains 'bev' or {cat} anyof ['b'])");
     expect(toFilterTree(expression)).toEqual(presetAndSearch);
   });

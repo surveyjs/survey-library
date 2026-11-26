@@ -335,12 +335,6 @@ export var malaySurveyStrings = {
   conditionOperatorGreaterorequal: "Lebih besar atau sama dengan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Kurang daripada atau sama dengan",
-  // [Auto-translated] "Save"
-  filterSave: "Simpan",
-  // [Auto-translated] "Filters"
-  filterFilters: "Penapis",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Penapis: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Penapis",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var malaySurveyStrings = {
   filterClearAll: "Kosongkan semua",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Bersihkan {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Pratetap",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Simpan sebagai...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Simpan",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Tambah \"{0}\"...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Pratetap",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Tunjukkan item {0}",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var malaySurveyStrings = {
   filterShowResults: "Tunjukkan keputusan",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Pratetap Baru",
-  // [Auto-translated] "Name"
-  filterPresetName: "Nama",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Mengandungi",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Pratetap dengan nama ini sudah wujud.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var malaySurveyStrings = {
   filterPresetNoExpression: "Masukkan satu ungkapan.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Ungkapan ini tidak sah.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Edit sebagai Ekspresi",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Edit sebagai Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Taip ungkapan di sini...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var malaySurveyStrings = {
   filterPresetExpression: "{0} Ekspresi",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Sunting...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Carian dalam Penapis",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Tiada apa-apa ditemui, cuba kata kunci yang berbeza",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Cipta pratetap dengan AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Edit pratetap dengan AI",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Sebagai contoh, \"Kopi & Teh dari Jerman\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Cipta",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Mencipta...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Menyunting...",
   // [Auto-translated] "AI could not make a filter. Try again."

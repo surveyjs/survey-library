@@ -202,12 +202,12 @@ describe("JsonSchemaTests", () => {
   });
   test("Bug#12385: a string[] property with choices is an array of strings, the choices are the items enum", () => {
     const schema = Serializer.generateSchema();
-    const prop = schema.definitions.question.properties.filterOperators;
-    expect(prop.type, "filterOperators is array").toBe("array");
-    expect(prop.$ref, "filterOperators has no $ref").toBeUndefined();
+    const prop = schema.definitions.filterfield.properties.operators;
+    expect(prop.type, "operators is array").toBe("array");
+    expect(prop.$ref, "operators has no $ref").toBeUndefined();
     expect(prop.enum, "the enum is not on the array").toBeUndefined();
-    expect(prop.items.type, "filterOperators items are strings").toBe("string");
-    expect(prop.items.enum, "filterOperators items enum").toEqual(Serializer.findProperty("question", "filterOperators").getChoices(null));
+    expect(prop.items.type, "operators items are strings").toBe("string");
+    expect(prop.items.enum, "operators items enum").toEqual(Serializer.findProperty("filterfield", "operators").getChoices(null));
   });
   test("Bug#12385: a custom string[] property is an array of strings", () => {
     Serializer.addProperty("question", { name: "tags:string[]" });

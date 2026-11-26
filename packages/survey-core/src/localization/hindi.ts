@@ -335,12 +335,6 @@ export var hindiStrings = {
   conditionOperatorGreaterorequal: "से बड़ा या बराबर",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "से कम या बराबर",
-  // [Auto-translated] "Save"
-  filterSave: "सेव करें",
-  // [Auto-translated] "Filters"
-  filterFilters: "फिल्टर्स",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "फिल्टर: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "फिल्टर्स",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var hindiStrings = {
   filterClearAll: "सभी साफ़ करें",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "क्लियर {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "प्रीसेट",
   // [Auto-translated] "Save as..."
   filterSaveAs: "सेव करें...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "सेव करें",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\" जोड़ें...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "प्रीसेट्स",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} आइटम दिखाएं",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var hindiStrings = {
   filterShowResults: "परिणाम दिखाएं",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "नया प्रीसेट",
-  // [Auto-translated] "Name"
-  filterPresetName: "नाम",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "शामिल है",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "इस नाम वाला एक प्रीसेट पहले से मौजूद है।",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var hindiStrings = {
   filterPresetNoExpression: "एक अभिव्यक्ति दर्ज करें।",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "यह अभिव्यक्ति मान्य नहीं है।",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "अभिव्यक्ति के रूप में संपादित करें",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "टैगबॉक्स के रूप में संपादित करें",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "यहाँ एक अभिव्यक्ति टाइप करें...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var hindiStrings = {
   filterPresetExpression: "{0} अभिव्यक्ति",
   // [Auto-translated] "Edit..."
   filterEditExpression: "संपादन...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "फ़िल्टर में खोजें",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "कुछ नहीं मिला, अलग-अलग कीवर्ड्स आज़माएं",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "AI के साथ प्रीसेट बनाएं",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AI के साथ प्रीसेट संपादित करें",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "उदाहरण के लिए, \"जर्मनी से कॉफी और चाय\"",
-  // [Auto-translated] "Create"
-  filterAiCreate: "बनाएं",
   // [Auto-translated] "Edit"
   filterAiEdit: "संपादन",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "बनाना...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "संपादन...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -47,7 +47,7 @@ function containsText(value: string, text: string): boolean {
   if (settings.comparator.caseSensitive) return value.indexOf(text) > -1;
   return value.toLowerCase().indexOf(text.toLowerCase()) > -1;
 }
-// The choices the respondent sees for the field: the ones the source resolved for it, else those of
+// The choices the respondent sees for the field: the ones the target resolved for it, else those of
 // the question that supplies the editor, else none. A field with no choices is searched by
 // "contains" over the raw value - which is also what a choicesByUrl field gets: neither a FilterField's
 // template question nor a matrix column's is ever run, only the questions a respondent answers are.

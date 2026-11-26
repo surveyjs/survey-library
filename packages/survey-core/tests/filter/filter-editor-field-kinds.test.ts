@@ -10,12 +10,12 @@ const fields = [
   { name: "many", fieldType: "dropdown", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"] },
   { name: "product", fieldType: "dropdown", choices: ["Chai", "Beer"], allowCustomChoices: true },
   { name: "active", fieldType: "boolean", labelTrue: "On", labelFalse: "Off" },
-  { name: "strict", fieldType: "boolean", filterOperators: ["equal"] },
-  { name: "gender", fieldType: "dropdown", choices: ["male", "female"], filterOperators: ["equal"] },
+  { name: "strict", fieldType: "boolean", operators: ["equal"] },
+  { name: "gender", fieldType: "dropdown", choices: ["male", "female"], operators: ["equal"] },
   { name: "age", fieldType: "text", inputType: "number" }
 ];
 function control(): QuestionFilterModel {
-  return createFilter({ fields: fields, items: [] });
+  return createFilter({ fields: fields, presets: [] });
 }
 // An editor of the Filters dialog over one field: its questions are f0_*.
 function editor(q: QuestionFilterModel, name: string, onFieldChanged?: () => void): FilterConditionsEditor {

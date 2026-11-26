@@ -44,15 +44,15 @@ describe("toODataQuery: the filter demo's presets and search", () => {
   });
   test("a search a real Filter Control composes over name, category and quantity, with the paging request", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "filter", name: "f", source: "products", showSearch: true, searchFields: ["name", "category", "quantity"],
-        items: [{ name: "cheap", expression: "{category} anyof ['Beverages'] and {price} < 20" }] },
+      { type: "filter", name: "f", targetQuestion: "products", showSearchBar: true, searchFields: ["name", "category", "quantity"],
+        presets: [{ name: "cheap", expression: "{category} anyof ['Beverages'] and {price} < 20" }] },
       { type: "matrixdynamic", name: "products", columns: [
         { name: "name", cellType: "text" },
         { name: "category", cellType: "dropdown", choices: ["Beverages", "Condiments"] },
         { name: "quantity", cellType: "text" },
         { name: "price", cellType: "text", inputType: "number" }] }] });
     const filter = <QuestionFilterModel>survey.getQuestionByName("f");
-    const expression = filter.composeFilterExpression({ activeItemName: "cheap", searchString: "bev" });
+    const expression = filter.composeFilterExpression({ selectedPreset: "cheap", searchString: "bev" });
     expect(expression).toBe("({category} anyof ['Beverages'] and {price} < 20) and " +
       "({name} contains 'bev' or {category} anyof ['Beverages'] or {quantity} contains 'bev')");
     const category = "(Category/CategoryName ne null and (trim(tolower(Category/CategoryName)) eq tolower('Beverages')))";

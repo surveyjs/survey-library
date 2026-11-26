@@ -84,11 +84,11 @@ const kinds: Array<IKind> = [
     recordCount: (q: any): number => q.panelCount
   }
 ];
-const preset = { items: [{ name: "more", expression: "{n} > 1" }], defaultItem: undefined };
+const preset = { presets: [{ name: "more", expression: "{n} > 1" }] };
 async function create(kind: IKind, source: IDynamicDataSource, json: any, withControl?: boolean):
   Promise<{ survey: SurveyModel, question: any, control: QuestionFilterModel }> {
   const elements: Array<any> = [Object.assign({}, kind.element, json)];
-  if (withControl) elements.push(Object.assign({ type: "filter", name: "f1", source: "q" }, preset));
+  if (withControl) elements.push(Object.assign({ type: "filter", name: "f1", targetQuestion: "q" }, preset));
   const survey = new SurveyModel({ elements: elements });
   const question = <any>survey.getQuestionByName("q");
   question.dataSource = source;
@@ -143,7 +143,7 @@ kinds.forEach((kind: IKind) => {
       await flush();
       expect([source.counts, modal.resultCount], "#1: on open").toEqual([[""], 7]);
       source.countAnswer = "real";
-      modal.togglePreset(control.getItemByName("more"));
+      modal.togglePreset(control.getPresetByName("more"));
       await vi.advanceTimersByTimeAsync(filterModalCountDelay);
       expect([source.counts, modal.resultCount], "#2: after the edit").toEqual([["", "{n} > 1"], 2]);
       expect(source.requests, "#3: no read while counting").toEqual([]);

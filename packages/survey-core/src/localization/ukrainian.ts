@@ -335,12 +335,6 @@ export var ukrainianSurveyStrings = {
   conditionOperatorGreaterorequal: "Більше або дорівнює",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Менше або дорівнює",
-  // [Auto-translated] "Save"
-  filterSave: "Зберегти",
-  // [Auto-translated] "Filters"
-  filterFilters: "Фільтри",
-  // [Auto-translated] "Filters: {0}"
-  filterFiltersCount: "Фільтри: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Фільтри",
   // [Auto-translated] "Search"
@@ -355,16 +349,12 @@ export var ukrainianSurveyStrings = {
   filterClearAll: "Очистити все",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Очистити {0}",
-  // [Auto-translated] "Preset"
-  filterPreset: "Пресет",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Зберегти як...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Зберегти",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Додайте «{0}»...",
-  // [Auto-translated] "Presets"
-  filterPresetsTitle: "Пресети",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Показати {0} товари",
   // [Auto-translated] "Show 1 item"
@@ -373,10 +363,6 @@ export var ukrainianSurveyStrings = {
   filterShowResults: "Показати результати",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Новий пресет",
-  // [Auto-translated] "Name"
-  filterPresetName: "Ім'я",
-  // [Auto-translated] "Contains"
-  filterPresetContains: "Містить",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Пресет із такою назвою вже існує.",
   // [Auto-translated] "Add at least one condition."
@@ -385,10 +371,6 @@ export var ukrainianSurveyStrings = {
   filterPresetNoExpression: "Вводьте вираз.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Цей вираз не є дійсним.",
-  // [Auto-translated] "Edit as Expression"
-  filterEditAsText: "Редагувати як вираз",
-  // [Auto-translated] "Edit as Tagbox"
-  filterEditAsFields: "Редагувати як Tagbox",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Введіть тут вираз...",
   // [Auto-translated] "Edit Preset"
@@ -403,22 +385,12 @@ export var ukrainianSurveyStrings = {
   filterPresetExpression: "{0} Вираз",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Редагування...",
-  // [Auto-translated] "Search in Filters"
-  filterSearchInFilters: "Пошук у фільтрах",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Нічого не знайшли, спробуйте різні ключові слова",
-  // [Auto-translated] "Create preset with AI"
-  filterAiPromptNew: "Створюйте пресет за допомогою штучного інтелекту",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Редагувати пресет за допомогою штучного інтелекту",
-  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
-  filterAiPromptPlaceholder: "Наприклад, «Кава та чай з Німеччини»",
-  // [Auto-translated] "Create"
-  filterAiCreate: "Створити",
   // [Auto-translated] "Edit"
   filterAiEdit: "Редагувати",
-  // [Auto-translated] "Creating..."
-  filterAiCreating: "Створюючи...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Редагування...",
   // [Auto-translated] "AI could not make a filter. Try again."

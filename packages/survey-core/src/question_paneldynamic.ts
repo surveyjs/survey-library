@@ -36,12 +36,12 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
+import { addFilterRecordKey, collectFilterRecordKeys, getFilterFieldsForQuestions, IDynamicDataFilterField, IFilterRecordKeys, isFilterRecordKeyExcluded, isRecordFieldName } from "./dynamic-data/dynamic-data-filter-fields";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, addRecordGetter
+  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, addRecordGetter, isVisibleInTemplate
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -463,7 +463,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.getFieldsOfQuestions(this.template.questions);
   }
   public getFilterFields(): Array<IDynamicDataFilterField> {
-    return getFilterFieldsForQuestions(this.template.questions);
+    const template = this.template;
+    return getFilterFieldsForQuestions(template.questions, (q: Question): boolean => isVisibleInTemplate(q, template));
+  }
+  // A template question at any depth by its name or value name, a child of its record by its path, or a
+  // path into a key the filter cannot filter by (see isRecordFieldName).
+  public hasRecordField(name: string): boolean {
+    const keys: IFilterRecordKeys = { keys: [], excluded: [] };
+    this.template.questions.forEach((q: Question): void => {
+      addFilterRecordKey(keys, q.name, isFilterRecordKeyExcluded(q));
+      collectFilterRecordKeys(keys, q, "");
+    });
+    return isRecordFieldName(name, keys);
   }
   protected getRecordSortTemplate(): PanelModelBase {
     return this.template;

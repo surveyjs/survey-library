@@ -109,7 +109,7 @@ function narrowTypelessOperators(names: Array<string>, valueType: string): Array
 // (QuestionFilterModel.updateToolbars): its operators and its editor's kind, by the field's
 // descriptor - the pass reads the field list once, so a field is the same object for all of it. Kept
 // for the length of the synchronous call and dropped at its end, never longer: a bound field list can
-// change with no notification (see filterExpressionParseCache), and a change of the source, its
+// change with no notification (see filterExpressionParseCache), and a change of the target, its
 // columns or the locale comes as a pass of its own. A call inside a running pass shares its cache.
 let filterFieldPassCache: { [name: string]: Map<IDynamicDataFilterField, any> };
 export function runWithFilterFieldCache(fn: () => void): void {
@@ -140,7 +140,7 @@ export function getFilterFieldPassValue<T>(name: string, field: IDynamicDataFilt
 // not per operator: asking per operator would give every text field anyof (its checkbox editor
 // json) and take contains away from a checkbox field (its editor json for contains is a
 // radiogroup).
-// The author's filterOperators narrow that set further and order it: an operator the editor does not
+// The fields entry's operators narrow that set further and order it: an operator the editor does not
 // take is dropped, and when none is left the field keeps the whole set - a field no condition can
 // be written for would only be a dead badge. qType comes from the natural default operator and never
 // from the author's first one: anyof alone would read a dropdown field's editor as a checkbox.
@@ -454,19 +454,6 @@ export function analyzeFilterExpression(text: string, fields: Array<IDynamicData
 // is none.
 export function canParseFilterExpression(text: string): boolean {
   return !!text && ConditionEditorItemsBuilder.canParseExpression(text);
-}
-// A text as the rows it is made of, read without checking them against any field: the conditions of
-// a list joined by "and", each with the name it uses as its field. What a restore starts from - each
-// row is checked against the fields later (normalizeFilterConditions), so a field that is gone drops
-// its own condition and not the rest. null for a text that is not such a list (an "or", a function
-// call, a comparison of two fields, a text that does not parse); "" is the empty list.
-export function splitFilterExpression(text: string): Array<IFilterCondition> | null {
-  if (!text) return [];
-  const items = buildFilterExpressionItems(text);
-  if (items.length === 0) return null;
-  if (items.some((item: IFilterExpressionRow, index: number): boolean => index > 0 && item.conjunction !== "and")) return null;
-  return items.map((item: IFilterExpressionRow): IFilterCondition =>
-    ({ field: item.questionName, operator: item.operator, value: Array.isArray(item.value) ? item.value.slice() : item.value }));
 }
 // A preset's expression as the conditions it edits with, or null when it is not that kind of text
 // (see analyzeFilterExpression). null (not []) tells the caller the text is raw and has to stay raw.

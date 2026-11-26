@@ -37,48 +37,48 @@ function countDisposes(cls: any, fn: () => void): Map<any, number> {
 function disposedTwice(counts: Map<any, number>): number {
   return Array.from(counts.values()).filter((n: number) => n > 1).length;
 }
-const userItem = (name: string, title: string, value: number): any =>
+const userPreset = (name: string, title: string, value: number): any =>
   ({ name: name, title: title, expression: "{age} < " + value });
 
 describe("QuestionFilterModel: the presets and fields it lets go of", () => {
   afterEach(() => { vi.restoreAllMocks(); });
   test("dispose takes its handlers off the authored presets and fields and disposes the respondent's own", () => {
     const q = createFilter();
-    const item = q.items[0];
+    const item = q.presets[0];
     const field = q.fields[0];
     const handlers = [item.onPropertyChanged.length, field.onPropertyChanged.length];
-    const own = q.addItem("Mine", [{ field: "age", operator: "less", value: 5 }]);
+    const own = q.addPresetFromConditions("Mine", [{ field: "age", operator: "less", value: 5 }]);
     q.dispose();
     expect([item.onPropertyChanged.length, field.onPropertyChanged.length], "#1").toEqual([handlers[0] - 1, handlers[1] - 1]);
-    expect([item.itemOwner, field.fieldOwner], "#2: they know the control no more").toEqual([undefined, undefined]);
+    expect([item.presetOwner, field.fieldOwner], "#2: they know the control no more").toEqual([undefined, undefined]);
     expect([item.isDisposed, field.isDisposed], "#3: they are the author's JSON").toEqual([false, false]);
     expect(own.isDisposed, "#4").toBe(true);
   });
   test("a restore that replaces the respondent's presets disposes the ones it replaces", () => {
     const q = createFilter();
-    const old = q.addItem("Old", [{ field: "age", operator: "less", value: 5 }]);
-    (<SurveyModel>q.survey).uiState = { questions: { f1: { filter: { userItems: [userItem("userItem1", "New", 6)] } } } };
-    const restored = q.getItemByName("userItem1");
+    const old = q.addPresetFromConditions("Old", [{ field: "age", operator: "less", value: 5 }]);
+    (<SurveyModel>q.survey).uiState = { questions: { f1: { filter: { userPresets: [userPreset("userPreset1", "New", 6)] } } } };
+    const restored = q.getPresetByName("userPreset1");
     expect([old.isDisposed, restored !== old, restored.isDisposed], "#1").toEqual([true, true, false]);
   });
   test("deleting the respondent's preset disposes it, once its row in the presets' list is gone", () => {
     const q = createFilter();
     const list = presetList(q);
-    const own = q.addItem("Mine", [{ field: "age", operator: "less", value: 5 }]);
-    const row = <Action>list.getActionById("sv-filter-item-userItem1");
-    q.deleteItem(own.name);
+    const own = q.addPresetFromConditions("Mine", [{ field: "age", operator: "less", value: 5 }]);
+    const row = <Action>list.getActionById("sv-filter-preset-userPreset1");
+    q.deletePreset(own.name);
     expect([own.isDisposed, row.isDisposed, list.actions.indexOf(row)], "#1").toEqual([true, true, -1]);
   });
   test("a preset replaced by another one of the same name gets a row of its own in the presets' list", () => {
     const q = createFilter();
     const list = presetList(q);
-    q.addItem("Old", [{ field: "age", operator: "less", value: 5 }]);
-    const old = <Action>list.getActionById("sv-filter-item-userItem1");
-    (<SurveyModel>q.survey).uiState = { questions: { f1: { filter: { userItems: [userItem("userItem1", "New", 6)] } } } };
-    const row = <Action>list.getActionById("sv-filter-item-userItem1");
+    q.addPresetFromConditions("Old", [{ field: "age", operator: "less", value: 5 }]);
+    const old = <Action>list.getActionById("sv-filter-preset-userPreset1");
+    (<SurveyModel>q.survey).uiState = { questions: { f1: { filter: { userPresets: [userPreset("userPreset1", "New", 6)] } } } };
+    const row = <Action>list.getActionById("sv-filter-preset-userPreset1");
     expect([row !== old, old.isDisposed, row.isDisposed, row.title], "#1").toEqual([true, true, false, "New"]);
     list.onItemClick(row);
-    expect(q.activeItemName, "#2: the row works").toBe("userItem1");
+    expect(q.selectedPreset, "#2: the row works").toBe("userPreset1");
   });
 });
 
@@ -106,24 +106,24 @@ describe("FilterToolbars: what is disposed, and only once", () => {
       return () => res;
     };
     const list = presetList(q);
-    const row = <Action>list.getActionById("sv-filter-item-kids");
+    const row = <Action>list.getActionById("sv-filter-preset-kids");
     let rowInList: boolean;
     const disposeRow = row.dispose.bind(row);
     row.dispose = (): void => { rowInList = list.actions.indexOf(row) > -1; disposeRow(); };
     const badge = <Action>chips.getActionById("sv-filter-field-age");
     const badgeInRow = inRow(badge);
-    q.items.splice(1, 1);
-    q.allowFastMode = false;
+    q.presets.splice(1, 1);
+    q.showQuickFilters = false;
     expect([rowInList, row.isDisposed, badgeInRow(), badge.isDisposed], "#1").toEqual([false, true, false, true]);
   });
   test("a holder is disposed once it is emptied: a closed dialog's, a gone chip's, and every one on dispose", () => {
     const dialogs = stubDialogs();
     try {
-      const q = createFilter({ items: [] });
+      const q = createFilter({ presets: [] });
       const badge = <Action>q.chipsToolbar.getActionById("sv-filter-field-country");
       const fieldHolder = badge.popupModel.contentComponentData.holder;
       badge.action();
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const modalHolder = dialogs.calls[0].options.data.holder;
       q.showPresetDialog(modalHolder.modal, false);
       const presetHolder = dialogs.calls[1].options.data.holder;
@@ -135,7 +135,7 @@ describe("FilterToolbars: what is disposed, and only once", () => {
       q.fields.splice(1, 1);
       expect(fieldHolder.isDisposed, "#3: the chip is gone").toBe(true);
       const ageHolder = (<Action>q.chipsToolbar.getActionById("sv-filter-field-age")).popupModel.contentComponentData.holder;
-      q.showAdvancedEditor();
+      q.showAllFilters();
       const reopened = dialogs.calls[2].options.data.holder;
       q.dispose();
       expect([ageHolder.isDisposed, reopened.isDisposed], "#4: on dispose").toEqual([true, true]);

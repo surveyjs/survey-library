@@ -17,7 +17,7 @@ function control(over: any = {}): QuestionFilterModel {
       { name: "category", title: "Category", fieldType: "dropdown", choices: categories },
       { name: "price", title: "Price", fieldType: "text", inputType: "number" },
       { name: "discontinued", title: "Discontinued", fieldType: "boolean" }],
-    items: [{ name: "cheap", title: "Cheap Beverages", expression: "{price} < 10" }, { name: "low", title: "Low Stock", expression: "{price} > 1" }]
+    presets: [{ name: "cheap", title: "Cheap Beverages", expression: "{price} < 10" }, { name: "low", title: "Low Stock", expression: "{price} > 1" }]
   }, over));
 }
 function shownFields(modal: FilterModal): Array<string> {
@@ -36,11 +36,11 @@ function shownPresets(modal: FilterModal): Array<string> {
 
 describe("FilterModal: Search in Filters", () => {
   test("is the dialog's search box: always there, and not the records' search", () => {
-    const q = control({ showSearch: false });
+    const q = control({ showSearchBar: false });
     const modal = q.createFilterModal();
-    expect([modal.filterText, modal.searchPlaceholder, modal.isNothingFound], "#1").toEqual(["", "Search in Filters", false]);
+    expect([modal.filterText, modal.searchPlaceholder, modal.isNothingFound], "#1").toEqual(["", "Search in filters and presets", false]);
     modal.dispose();
-    const searched = control({ showSearch: true });
+    const searched = control({ showSearchBar: true });
     searched.searchString = "an";
     const other = searched.createFilterModal();
     other.filterText = "price";
@@ -63,13 +63,13 @@ describe("FilterModal: Search in Filters", () => {
     modal.dispose();
   });
   test("the presets show by their titles; Add New and Edit Selected hide while it looks", () => {
-    const q = control();
+    const q = control({ allowAddPresets: true, allowEditPresets: true });
     const modal = q.createFilterModal();
-    modal.togglePreset(q.getItemByName("cheap"));
-    expect(shownPresets(modal), "#1").toEqual(["sv-filter-modal-item-cheap", "sv-filter-modal-item-low", "sv-filter-modal-add-preset", "sv-filter-modal-edit-preset"]);
+    modal.togglePreset(q.getPresetByName("cheap"));
+    expect(shownPresets(modal), "#1").toEqual(["sv-filter-modal-preset-cheap", "sv-filter-modal-preset-low", "sv-filter-modal-add-preset", "sv-filter-modal-edit-preset"]);
     modal.filterText = "beverage";
     expect([shownPresets(modal), shownFields(modal), renderedCategories(modal)], "#2")
-      .toEqual([["sv-filter-modal-item-cheap"], ["Category"], ["Beverages"]]);
+      .toEqual([["sv-filter-modal-preset-cheap"], ["Category"], ["Beverages"]]);
     modal.filterText = "";
     expect(shownPresets(modal).length, "#3").toBe(4);
     modal.dispose();
@@ -100,9 +100,9 @@ describe("FilterModal: Search in Filters", () => {
     const modal = q.createFilterModal();
     modal.filterText = "dairy";
     modal.editor.survey.getQuestionByName("f2_value").value = 5;
-    modal.togglePreset(q.getItemByName("cheap"));
+    modal.togglePreset(q.getPresetByName("cheap"));
     expect([shownFields(modal), renderedCategories(modal)], "#1").toEqual([["Category"], ["Dairy Products"]]);
-    modal.togglePreset(q.getItemByName("cheap"));
+    modal.togglePreset(q.getPresetByName("cheap"));
     modal.filterText = "";
     modal.editor.survey.getQuestionByName("f2_operator").value = "less";
     modal.editor.survey.getQuestionByName("f2_value").value = 7;

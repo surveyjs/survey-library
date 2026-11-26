@@ -17,7 +17,7 @@ import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
   DynamicDataErrorOperation, DynamicDataFieldType, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  ISortCriterion, IDynamicDataSource, SortDirection, IDynamicDataFilterSource
+  ISortCriterion, IDynamicDataSource, SortDirection, IDynamicDataFilterTarget
 } from "./dynamic-data/dynamic-data-interfaces";
 // For its side effect: the "sortcriterion" serializer class, which sortCriteria loads its items with.
 import "./records/records-sort-criterion";
@@ -128,7 +128,7 @@ const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "rad
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
  * @since 3.2.2
  */
-export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
+export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterTarget {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -2541,6 +2541,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   // The fields a Filter Control offers for the records: the matrix columns, the panel template's
   // questions. A records question with no fields of its own offers none.
   public getFilterFields(): Array<IDynamicDataFilterField> { return []; }
+  public hasRecordField(name: string): boolean { return false; }
   public refreshView(): void { this.paging.refreshView(); }
   /* The bar the renderers show: the pager under the records and the sort bar in the header. Created on
      its first read; the question keeps it current through updateRecordsBar(). */
@@ -4849,7 +4850,7 @@ export function isSortAllowed(obj: any): boolean {
    adds its own: showSortBar and the header row's inputs (QuestionMatrixDropdownModelBase.onPropertyValueChanged). */
 const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "maxSortLevel", "state",
   "_isMobile", "isDataLoading", pagingStateKeys.isPageMovePending, "titleLocation", "title"];
-function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
+export function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
   let el: any = q;
   while(!!el && el !== template) {
     if (!el.visible) return false;

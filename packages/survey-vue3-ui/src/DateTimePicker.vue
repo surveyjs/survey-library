@@ -1,8 +1,8 @@
 <template>
   <div :class="question.getRootClass()" ref="root">
-    <component :is="question.range ? 'div' : Fragment" :class="question.range ? question.cssClasses.fields : undefined">
+    <div v-if="question.range" :class="question.cssClasses.fields">
       <template v-for="(field, index) in fields" :key="field.id">
-        <span v-if="question.range && index === 1" :class="question.cssClasses.rangeSeparator">{{ question.rangeSeparatorText }}</span>
+        <span v-if="index === 1" :class="question.cssClasses.rangeSeparator">{{ question.rangeSeparatorText }}</span>
         <div :class="question.getFieldClass()">
           <input
             :id="field.id"
@@ -26,7 +26,31 @@
           <SvComponent :is="'sv-action-bar'" :model="question.getEditorButtons(index)"></SvComponent>
         </div>
       </template>
-    </component>
+    </div>
+    <template v-else>
+      <div v-for="(field, index) in fields" :key="field.id" :class="question.getFieldClass()">
+        <input
+          :id="field.id"
+          type="text"
+          autocomplete="off"
+          :class="question.getControlClass()"
+          :placeholder="field.placeholder"
+          :disabled="question.isDisabledAttr"
+          :readonly="question.isReadOnlyAttr"
+          ref="inputs"
+          @blur="question.onBlur"
+          @focus="question.onFocus"
+          @keyup="question.onKeyUp"
+          :aria-required="question.a11y_input_ariaRequired"
+          :aria-label="question.a11y_input_ariaLabel"
+          :aria-labelledby="question.a11y_input_ariaLabelledBy"
+          :aria-describedby="question.a11y_input_ariaDescribedBy"
+          :aria-invalid="question.a11y_input_ariaInvalid"
+          :aria-errormessage="question.a11y_input_ariaErrormessage"
+        />
+        <SvComponent :is="'sv-action-bar'" :model="question.getEditorButtons(index)"></SvComponent>
+      </div>
+    </template>
     <SvComponent v-if="!question.isInputReadOnly" :is="'sv-popup'" :model="question.popupModel"></SvComponent>
   </div>
 </template>
@@ -35,7 +59,7 @@
 import type { QuestionDateTimePickerModel } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
 import { useQuestion } from "./base";
-import { computed, Fragment, nextTick, onMounted, onUpdated, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUpdated, ref, watch } from "vue";
 
 const props = defineProps<{ question: QuestionDateTimePickerModel }>();
 const root = ref<HTMLElement | null>(null);

@@ -335,12 +335,20 @@ export var urduSurveyStrings = {
   conditionOperatorGreaterorequal: "زیادہ یا مساوی",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "کم یا برابر",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "تمام فلٹرز",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "تمام فلٹرز: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "فلٹرز",
   // [Auto-translated] "Search"
   filterSearchLabel: "تلاش کریں",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "{0} کے حساب سے تلاش کریں",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} یا {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}، یا {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "مزید دکھائیں",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var urduSurveyStrings = {
   filterClearAll: "سب صاف کریں",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "صاف {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "فلٹر پری سیٹس",
   // [Auto-translated] "Save as..."
   filterSaveAs: "محفوظ کریں جسے...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "محفوظ کریں",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\" شامل کریں...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "فلٹر پری سیٹس",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} آئٹمز دکھائیں",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var urduSurveyStrings = {
   filterShowResults: "نتائج دکھائیں",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "نیا پری سیٹ",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "پری سیٹ نام",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "فلٹر کرنے کے لیے فیلڈز",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "فلٹر اظہار",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "اس نام کا ایک پری سیٹ پہلے سے موجود ہے۔",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var urduSurveyStrings = {
   filterPresetNoExpression: "ایک اظہار داخل کریں۔",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "اظہار درست نہیں ہے۔",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "ایکسپریشن پر سوئچ کریں",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "فیلڈز پر سوئچ کریں",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "یہاں ایک اظہار ٹائپ کریں...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var urduSurveyStrings = {
   filterPresetExpression: "{0} اظہار",
   // [Auto-translated] "Edit..."
   filterEditExpression: "ترمیم...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "فلٹرز اور پری سیٹس میں تلاش کریں",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "کچھ نہیں ملا، مختلف کی ورڈز آزما کر دیکھیں",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "AI کے ذریعے فلٹر تیار کریں",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AI کے ساتھ پری سیٹ میں ترمیم کریں",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "وہ فلٹر بیان کریں جو آپ چاہتے ہیں...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "فلٹر تیار کریں",
   // [Auto-translated] "Edit"
   filterAiEdit: "ترمیم کریں",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "جنریٹنگ...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "ایڈیٹنگ...",
   // [Auto-translated] "AI could not make a filter. Try again."

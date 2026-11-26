@@ -335,12 +335,20 @@ export var catalanSurveyStrings = {
   conditionOperatorGreaterorequal: "Superior o igual a",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inferior o igual a",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Tots els filtres",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Tots els filtres: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtres",
   // [Auto-translated] "Search"
   filterSearchLabel: "Cerca",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Cerca per {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} o {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, o {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Mostra més",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var catalanSurveyStrings = {
   filterClearAll: "Esborrar-ho tot",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clar {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Presets de filtre",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Guarda com...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Guarda",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Afegeix \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Presets de filtre",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Mostra {0} elements",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var catalanSurveyStrings = {
   filterShowResults: "Mostra els resultats",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nou Preset",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Nom predefinit",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Camps per filtrar",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Expressió del filtre",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Ja existeix un predefinit amb aquest nom.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var catalanSurveyStrings = {
   filterPresetNoExpression: "Introdueix una expressió.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "L'expressió no és vàlida.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Canviar a Expressió",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Canviar a Camps",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Escriu una expressió aquí...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var catalanSurveyStrings = {
   filterPresetExpression: "{0} Expressió",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edito...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Cerca en filtres i presets",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "No s'ha trobat res, prova amb diferents paraules clau",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Genera un filtre amb IA",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Edita el preset amb IA",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Descriu el filtre que vols...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generar filtre",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edita",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Generant...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editant...",
   // [Auto-translated] "AI could not make a filter. Try again."

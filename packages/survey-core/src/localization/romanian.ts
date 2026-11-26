@@ -335,12 +335,20 @@ export var romanianSurveyStrings = {
   conditionOperatorGreaterorequal: "Mai mare sau egal cu",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mai mic sau egal cu",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Toate filtrele",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Toate filtrele: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"
   filterSearchLabel: "Caută",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Caută după {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} sau {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, sau {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Arată mai mult",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var romanianSurveyStrings = {
   filterClearAll: "Șterge totul",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clar {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Presetări de filtru",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Salvează ca...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Salvează",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Adaugă \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Presetări de filtru",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Arată {0} elemente",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var romanianSurveyStrings = {
   filterShowResults: "Arată rezultatele",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Preset nou",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Nume presetat",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Câmpuri după care să se filtreze",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Expresie de filtru",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Există deja un preset cu acest nume.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var romanianSurveyStrings = {
   filterPresetNoExpression: "Introduceți o expresie.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Expresia nu este validă.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Trece la Expresie",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Comută la Câmpuri",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Tastează o expresie aici...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var romanianSurveyStrings = {
   filterPresetExpression: "{0} Expresie",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Editare...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Căutare în filtre și presetări",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nimic găsit, încearcă cuvinte cheie diferite",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Generează un filtru cu AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Editează preseta cu AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Descrie filtrul pe care îl dorești...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generează filtru",
   // [Auto-translated] "Edit"
   filterAiEdit: "Editare",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Generând...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editare...",
   // [Auto-translated] "AI could not make a filter. Try again."

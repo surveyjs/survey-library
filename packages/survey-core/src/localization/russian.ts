@@ -335,12 +335,20 @@ export var russianSurveyStrings = {
   conditionOperatorGreaterorequal: "Больше или равно",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Меньше или равно",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Все фильтры",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Все фильтры: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Фильтры",
   // [Auto-translated] "Search"
   filterSearchLabel: "Поиск",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Поиск по {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} или {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, или {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Показать больше",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var russianSurveyStrings = {
   filterClearAll: "Очистить всё",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Очистить {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Предустановки фильтров",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Сохранить как...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Сохранить",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Добавьте «{0}»...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Предустановки фильтров",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Показать {0} элементы",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var russianSurveyStrings = {
   filterShowResults: "Показать результаты",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Новый пресет",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Имя пресета",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Поля для фильтрации",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Выражение фильтра",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Пресет с таким именем уже существует.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var russianSurveyStrings = {
   filterPresetNoExpression: "Вводите выражение.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Это выражение недействительно.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Переключиться на выражение",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Переключиться на поля",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Введите здесь выражение...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var russianSurveyStrings = {
   filterPresetExpression: "{0} Выражение",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Редактирование...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Поиск по фильтрам и пресетам",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ничего не нашли, попробуй разные ключевые слова",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Генерируйте фильтр с помощью искусственного интеллекта",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Редактирование пресета с помощью ИИ",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Опишите фильтр, который вы хотите...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Создать фильтр",
   // [Auto-translated] "Edit"
   filterAiEdit: "Редактировать",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Генерирую...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Монтаж...",
   // [Auto-translated] "AI could not make a filter. Try again."

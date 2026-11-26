@@ -335,12 +335,20 @@ export var turkishSurveyStrings = {
   conditionOperatorGreaterorequal: "Büyük veya eşit",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Küçük veya eşit",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Tüm Filtreler",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Tüm Filtreler: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtreler",
   // [Auto-translated] "Search"
   filterSearchLabel: "Ara",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Ara {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} veya {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0} ya da {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Daha Fazla Göster",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var turkishSurveyStrings = {
   filterClearAll: "Tümünü Temizle",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Temiz {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filtre Ön Ayarları",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Kaydet...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Kaydet",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\" ekle...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filtre Ön Ayarları",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} öğeleri göster",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var turkishSurveyStrings = {
   filterShowResults: "Sonuçları göster",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Yeni Ön Ayar",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Ön ayar adı",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Filtrelenecek alanlar",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filtre ifadesi",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Bu isimde bir ön ayar zaten mevcut.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var turkishSurveyStrings = {
   filterPresetNoExpression: "Bir ifade girin.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "İfade geçerli değil.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "İfadeye Geç",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Alanlara Geç",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Buraya bir ifade yazın...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var turkishSurveyStrings = {
   filterPresetExpression: "{0} İfadesi",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Düzenleme...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Filtrelerde ve ön ayarlarda arama",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Hiçbir şey bulunamadı, farklı anahtar kelimeler deneyin",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Yapay zeka ile filtre oluşturun",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Yapay zeka ile ön ayarı düzenleyin",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "İstediğiniz filtreyi tanımlayın...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Filtre Oluştur",
   // [Auto-translated] "Edit"
   filterAiEdit: "Düzenle",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Üretiyor...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Düzenleme...",
   // [Auto-translated] "AI could not make a filter. Try again."

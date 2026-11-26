@@ -335,12 +335,20 @@ export var icelandicSurveyStrings = {
   conditionOperatorGreaterorequal: "Stærri eða jafnt og",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Minna en eða jafnt",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Allar síur",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Allar síur: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Síur",
   // [Auto-translated] "Search"
   filterSearchLabel: "Leita",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Leitaðu eftir {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} eða {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, eða {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Sýna meira",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var icelandicSurveyStrings = {
   filterClearAll: "Hreinsið allt",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Skýrt {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Síu forstillingar",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Vista sem...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Vista",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Bæta við \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Síu forstillingar",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Sýna {0} atriði",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var icelandicSurveyStrings = {
   filterShowResults: "Niðurstöður sýna",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Ný forstilling",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Forstillt nafn",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Reitir til að sía eftir",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Síunartjáning",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Forstilling með þessu nafni er þegar til.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var icelandicSurveyStrings = {
   filterPresetNoExpression: "Sláðu inn tjáningu.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Tjáningin er ekki gild.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Skipta yfir í Expression",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Skipta yfir í reiti",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Sláðu inn orðatiltæki hér...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var icelandicSurveyStrings = {
   filterPresetExpression: "{0} Tjáning",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Breyting...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Leitaðu í síum og forstillingum",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ekkert fannst, prófaðu mismunandi leitarorð",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Búa til síu með gervigreind",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Breyta forstillingu með gervigreind",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Lýstu síunni sem þú vilt...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Búa til síu",
   // [Auto-translated] "Edit"
   filterAiEdit: "Breyta",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Að framleiða...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Klipping...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -335,12 +335,20 @@ export var danishSurveyStrings = {
   conditionOperatorGreaterorequal: "Større end eller lig med",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre end eller lig med",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Alle filtre",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Alle filtre: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"
   filterSearchLabel: "Søg",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Søg efter {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} eller {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, eller {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Vis mere",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var danishSurveyStrings = {
   filterClearAll: "Ryd alt",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clear {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filterindstillinger",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Gem som...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Gem",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Tilføj \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filterindstillinger",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Vis {0} elementer",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var danishSurveyStrings = {
   filterShowResults: "Vis resultater",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nyt forudindstilling",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Forudindstillet navn",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Felter, der skal filtreres efter",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filterudtryk",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Et preset med dette navn eksisterer allerede.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var danishSurveyStrings = {
   filterPresetNoExpression: "Indtast et udtryk.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Udtrykket er ikke gyldigt.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Skift til udtryk",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Skift til felter",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Skriv et udtryk her...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var danishSurveyStrings = {
   filterPresetExpression: "{0} Udtryk",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Rediger...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Søg i filtre og forudindstillinger",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Intet fundet, prøv forskellige søgeord",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Generer et filter med AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Rediger forudindstilling med AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Beskriv det filter, du ønsker...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generer filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "Rediger",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Genererer...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redigering...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -335,12 +335,20 @@ export var slovakSurveyStrings = {
   conditionOperatorGreaterorequal: "Väčšie alebo rovné",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Menšie alebo rovné",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Všetky filtre",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Všetky filtre: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"
   filterSearchLabel: "Vyhľadávanie",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Vyhľadávanie podľa {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} alebo {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, alebo {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Zobraziť viac",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var slovakSurveyStrings = {
   filterClearAll: "Vymazať všetko",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Čisté {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Prednastavenia filtra",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Uložiť ako...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Uložiť",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Pridajte \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Prednastavenia filtra",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Zobraziť {0} položky",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var slovakSurveyStrings = {
   filterShowResults: "Zobraziť výsledky",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nové prednastavenie",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Názov prednastavenia",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Polia na filtrovanie podľa",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Výraz filtra",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Prednastavenie s týmto názvom už existuje.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var slovakSurveyStrings = {
   filterPresetNoExpression: "Zadajte výraz.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Tento výraz nie je platný.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Prepnúť na výraz",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Prepnúť na polia",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Zadajte tu výraz...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var slovakSurveyStrings = {
   filterPresetExpression: "{0} Výraz",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Vyhľadávanie vo filtroch a prednastaveniach",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nič sa nenašlo, skúste rôzne kľúčové slová",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Vygenerujte filter pomocou AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Úprava prednastavenia pomocou AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Opíšte filter, ktorý chcete...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generovať filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "Upraviť",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Generovanie...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Úprava...",
   // [Auto-translated] "AI could not make a filter. Try again."

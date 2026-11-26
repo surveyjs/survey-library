@@ -335,12 +335,20 @@ export var serbianStrings = {
   conditionOperatorGreaterorequal: "Veće ili jednako",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Manje ili jednako",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Svi filteri",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Svi filteri: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filteri",
   // [Auto-translated] "Search"
   filterSearchLabel: "Pretraga",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Pretraži po {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} ili {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, ili {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Prikaži više",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var serbianStrings = {
   filterClearAll: "Obriši sve",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Očisti {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filter podešavanja",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Sačuvaj kao...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Sačuvaj",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Dodaj \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filter podešavanja",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Prikaži {0} stavke",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var serbianStrings = {
   filterShowResults: "Prikaži rezultate",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Novi unapred podešen",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Naziv unapred podešenog podeška",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Polja za filtriranje",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filter izraz",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Preset sa ovim imenom već postoji.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var serbianStrings = {
   filterPresetNoExpression: "Unesite izraz.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Izraz nije važeći.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Prebaci na izraz",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Prebaci na polja",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Ovde unesite izraz...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var serbianStrings = {
   filterPresetExpression: "{0} Izraz",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Izmena...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Pretražujte filtere i unapred podešene opcije",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ništa nije pronađeno, probaj različite ključne reči",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Generišite filter pomoću veštačke inteligencije",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Uređivanje predložaka pomoću veštačke inteligencije",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Opišite filter koji želite...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generiši filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "Izmena",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Generiše...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Uređivanje...",
   // [Auto-translated] "AI could not make a filter. Try again."

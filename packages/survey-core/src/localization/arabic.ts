@@ -335,12 +335,20 @@ export var arabicSurveyStrings = {
   conditionOperatorGreaterorequal: "أكبر من أو يساوي",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "أقل من أو يساوي",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "جميع الفلاتر",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "جميع الفلاتر: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "الفلاتر",
   // [Auto-translated] "Search"
   filterSearchLabel: "بحث",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "البحث حسب {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} أو {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}، أو {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "عرض المزيد",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var arabicSurveyStrings = {
   filterClearAll: "مسح الكل",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "مسح {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "إعدادات الفلتر المسبقة",
   // [Auto-translated] "Save as..."
   filterSaveAs: "باستثناء ك...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "حفظ",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "أضف \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "إعدادات الفلتر المسبقة",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "عرض عناصر {0}",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var arabicSurveyStrings = {
   filterShowResults: "عرض النتائج",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "إعداد مسبق جديد",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "اسم الإعداد المسبق",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "الحقول التي يجب تصفيتها",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "تعبير المرشح",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "يوجد إعداد مسبق بهذا الاسم بالفعل.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var arabicSurveyStrings = {
   filterPresetNoExpression: "أدخل تعبيرا.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "التعبير غير صالح.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "التبديل إلى التعبير",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "التبديل إلى الحقول",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "اكتب تعبيرا هنا...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var arabicSurveyStrings = {
   filterPresetExpression: "تعبير {0}",
   // [Auto-translated] "Edit..."
   filterEditExpression: "تعديل...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "البحث في الفلاتر والإعدادات المسبقة",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "لم يتم العثور على شيء، جرب كلمات مفتاحية مختلفة",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "إنشاء فلتر باستخدام الذكاء الاصطناعي",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "تحرير الإعداد المسبق باستخدام الذكاء الاصطناعي",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "صف الفلتر الذي تريده...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "إنشاء فلتر",
   // [Auto-translated] "Edit"
   filterAiEdit: "تعديل",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "يولد...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "جار التحرير...",
   // [Auto-translated] "AI could not make a filter. Try again."

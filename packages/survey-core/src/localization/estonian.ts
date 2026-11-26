@@ -335,12 +335,20 @@ export var estonianSurveyStrings = {
   conditionOperatorGreaterorequal: "Suurem või võrdne",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Väiksem või võrdne",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Kõik filtrid",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Kõik filtrid: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtrid",
   // [Auto-translated] "Search"
   filterSearchLabel: "Otsing",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Otsi {0} järgi",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} või {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0} või {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Näita rohkem",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var estonianSurveyStrings = {
   filterClearAll: "Tühjenda kõik",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Tühjenda {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filtri eelseadistused",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Salvesta kui...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Salvesta",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Lisa \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filtri eelseadistused",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Näita {0} üksust",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var estonianSurveyStrings = {
   filterShowResults: "Näita tulemusi",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Uus eelseadistus",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Eelseade nimi",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Filtreeritavad väljad",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filtri avaldis",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Selle nimega eelseadistus on juba olemas.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var estonianSurveyStrings = {
   filterPresetNoExpression: "Sisestage avaldis.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Avaldis ei ole kehtiv.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Lülitu avaldisele",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Lülitu väljadele",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Kirjuta siia väljend...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var estonianSurveyStrings = {
   filterPresetExpression: "{0} väljendus",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Muuda...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Otsing filtrites ja eelseadistustes",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Midagi ei leitud, proovi erinevaid märksõnu",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Loo filter tehisintellekti abil",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Muuda eelseadet AI-ga",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Kirjelda filtrit, mida soovid...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Genereeri filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "Muuda",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Genereerimine...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Toimetamine...",
   // [Auto-translated] "AI could not make a filter. Try again."

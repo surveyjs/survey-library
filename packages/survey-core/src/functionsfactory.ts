@@ -5,7 +5,7 @@ import { getQuestionErrorText } from "./expressions/expressionError";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IValueGetterContext, IValueGetterItem, ValueGetter, VariableGetterContext, parseValuePath } from "./conditions/conditionProcessValue";
 import type { ExpressionRunner } from "./expressions/expressionRunner";
-import { isNameScopeMode } from "./name-scope";
+import { isNameScopeMode } from "./nested-data/name-scope";
 
 // A function registered without resultDependsOn, or with "elements", may read element state
 export function canFunctionReadElements(name: string): boolean {

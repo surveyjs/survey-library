@@ -28,8 +28,8 @@ import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { Scope } from "./utils/scope";
-import { ObjectDataScope, getEmptyValuesSurvey } from "./panel-data-scope";
-import { setObjectKey, asScopeObject } from "./data-object-utils";
+import { ObjectDataScope, getEmptyValuesSurvey } from "./nested-data/panel-data-scope";
+import { setObjectKey, asScopeObject } from "./nested-data/data-object-utils";
 
 /**
  * An interface used to create custom question types.

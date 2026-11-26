@@ -1,9 +1,9 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { PanelModel, PanelModelBase } from "../src/panel";
-import { PageModel } from "../src/page";
-import { Question } from "../src/question";
-import { settings } from "../src/settings";
+import { SurveyModel } from "../../src/survey";
+import { PanelModel, PanelModelBase } from "../../src/panel";
+import { PageModel } from "../../src/page";
+import { Question } from "../../src/question";
+import { settings } from "../../src/settings";
 
 // One data path per element, and the survey as the root data scope. Each check runs for a
 // top-level question and for the same question two levels deep (outer.inner.<key>): the two take one code

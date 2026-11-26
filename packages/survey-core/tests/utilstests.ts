@@ -13,7 +13,7 @@ import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropert
 import { createBoxShadow, parseBoxShadow } from "../src/utils/shadow-effects";
 import { Base } from "../src/base";
 import { EventBase } from "../src/event";
-import { getValueByPath, setValueByPath } from "../src/data-object-utils";
+import { getValueByPath, setValueByPath } from "../src/nested-data/data-object-utils";
 
 import { describe, test, expect, vi, afterEach } from "vitest";
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {

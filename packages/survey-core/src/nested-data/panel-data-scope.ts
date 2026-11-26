@@ -1,9 +1,9 @@
-import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "./base-interfaces";
-import type { PanelModelBase } from "./panel";
-import type { SurveyModel } from "./survey";
-import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
-import type { Question } from "./question";
-import { Helpers } from "./helpers";
+import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "../base-interfaces";
+import type { PanelModelBase } from "../panel";
+import type { SurveyModel } from "../survey";
+import type { IObjectValueContext, IValueGetterContext } from "../conditions/conditionProcessValue";
+import type { Question } from "../question";
+import { Helpers } from "../helpers";
 import { IDataScope, IDataKeyLevel, getElementDataScope, isKnownDataKey, forEachChoicePanel } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils";

@@ -1,11 +1,11 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { PanelModel } from "../src/panel";
-import { PageModel } from "../src/page";
-import { QuestionTextModel } from "../src/question_text";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { panelNamed } from "./test-helpers";
+import { SurveyModel } from "../../src/survey";
+import { PanelModel } from "../../src/panel";
+import { PageModel } from "../../src/page";
+import { QuestionTextModel } from "../../src/question_text";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { panelNamed } from "../test-helpers";
 
 // The index of data keys per data scope, through public behaviour: after a change, a write reaches the right
 // question and an expression resolves.

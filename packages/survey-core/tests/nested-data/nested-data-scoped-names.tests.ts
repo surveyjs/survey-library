@@ -1,10 +1,10 @@
 import { describe, test, expect } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { Question } from "../src/question";
-import { PanelModel } from "../src/panel";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { QuestionDropdownModel } from "../src/question_dropdown";
+import { SurveyModel } from "../../src/survey";
+import { Question } from "../../src/question";
+import { PanelModel } from "../../src/panel";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { QuestionDropdownModel } from "../../src/question_dropdown";
 
 // In a nesting mode of dataNesting a name is unique where its value lives (SN1, SN3). A
 // container that holds data opens a name scope, and so does a records template; the survey reaches an element

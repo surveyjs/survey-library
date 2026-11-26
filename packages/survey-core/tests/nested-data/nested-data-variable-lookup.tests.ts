@@ -1,19 +1,19 @@
 import { describe, test, expect, afterEach } from "vitest";
 import { getDataNestingKey as entryGetDataNestingKey } from "survey-core";
-import { SurveyModel, IExpressionVariableInfo } from "../src/survey";
-import { Base } from "../src/base";
-import { settings } from "../src/settings";
-import { ValueGetter, parseValuePath } from "../src/conditions/conditionProcessValue";
-import { SurveyConditionEditorItem } from "../src/conditions/conditionEditorItems";
-import { getDataNestingKey } from "../src/data-nesting-key";
-import { PanelModel } from "../src/panel";
-import { Question } from "../src/question";
-import { QuestionTextModel } from "../src/question_text";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
-import "../src/question_matrix";
-import "../src/question_multipletext";
-import { questionNamed, panelNamed } from "./test-helpers";
+import { SurveyModel, IExpressionVariableInfo } from "../../src/survey";
+import { Base } from "../../src/base";
+import { settings } from "../../src/settings";
+import { ValueGetter, parseValuePath } from "../../src/conditions/conditionProcessValue";
+import { SurveyConditionEditorItem } from "../../src/conditions/conditionEditorItems";
+import { getDataNestingKey } from "../../src/nested-data/data-nesting-key";
+import { PanelModel } from "../../src/panel";
+import { Question } from "../../src/question";
+import { QuestionTextModel } from "../../src/question_text";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
+import "../../src/question_matrix";
+import "../../src/question_multipletext";
+import { questionNamed, panelNamed } from "../test-helpers";
 
 // Decisions L1-L6: survey.getQuestionByVariable(name, context) names the question an expression
 // variable reads, by the runtime's own walk without values.

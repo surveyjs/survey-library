@@ -43,7 +43,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, addRecordGetter
 } from "./question_records";
-import { deleteObjectPaths } from "./data-object-utils";
+import { deleteObjectPaths } from "./nested-data/data-object-utils";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {

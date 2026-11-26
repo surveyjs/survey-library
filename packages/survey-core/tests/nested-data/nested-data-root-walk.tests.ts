@@ -1,14 +1,14 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { Question } from "../src/question";
-import { QuestionTextModel } from "../src/question_text";
-import { QuestionCheckboxModel } from "../src/question_checkbox";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { QuestionMultipleTextModel } from "../src/question_multipletext";
-import { PageModel } from "../src/page";
-import { PanelModel } from "../src/panel";
-import "../src/question_checkbox";
+import { SurveyModel } from "../../src/survey";
+import { Question } from "../../src/question";
+import { QuestionTextModel } from "../../src/question_text";
+import { QuestionCheckboxModel } from "../../src/question_checkbox";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { QuestionMultipleTextModel } from "../../src/question_multipletext";
+import { PageModel } from "../../src/page";
+import { PanelModel } from "../../src/panel";
+import "../../src/question_checkbox";
 
 // The root data scope walks its pages in document order, as every scope below it does: its questions are the
 // ones a walk of its pages reaches, in that order. Each row holds in "none" and in "auto", where a container nests

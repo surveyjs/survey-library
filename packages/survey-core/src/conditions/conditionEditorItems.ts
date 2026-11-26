@@ -1,7 +1,7 @@
 import { Helpers } from "../helpers";
 import { settings } from "../settings";
 import { ISurvey } from "../interfaces/survey-interfaces";
-import { getDataScopeHost } from "../panel-data-scope";
+import { getDataScopeHost } from "../nested-data/panel-data-scope";
 import { ConditionsParser } from "./conditionsParser";
 import { getConditionDefaultOperator } from "./conditionOperators";
 import { Operand, UnaryOperand, BinaryOperand, Variable, Const, ArrayOperand } from "../expressions/expressions";

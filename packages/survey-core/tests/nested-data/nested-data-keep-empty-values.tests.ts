@@ -1,16 +1,16 @@
-import { SurveyModel } from "../src/survey";
-import { settings } from "../src/settings";
-import { Question } from "../src/question";
-import { Base } from "../src/base";
-import { QuestionTextModel } from "../src/question_text";
-import { QuestionCheckboxModel } from "../src/question_checkbox";
-import { QuestionDropdownModel } from "../src/question_dropdown";
-import { QuestionRatingModel } from "../src/question_rating";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionCompositeModel, ComponentCollection } from "../src/question_custom";
-import { ConditionRunner } from "../src/conditions/conditionRunner";
-import { IAction } from "../src/actions/action";
-import { defaultCss } from "../src/defaultCss/defaultCss";
+import { SurveyModel } from "../../src/survey";
+import { settings } from "../../src/settings";
+import { Question } from "../../src/question";
+import { Base } from "../../src/base";
+import { QuestionTextModel } from "../../src/question_text";
+import { QuestionCheckboxModel } from "../../src/question_checkbox";
+import { QuestionDropdownModel } from "../../src/question_dropdown";
+import { QuestionRatingModel } from "../../src/question_rating";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionCompositeModel, ComponentCollection } from "../../src/question_custom";
+import { ConditionRunner } from "../../src/conditions/conditionRunner";
+import { IAction } from "../../src/actions/action";
+import { defaultCss } from "../../src/defaultCss/defaultCss";
 import { describe, expect, test, afterEach } from "vitest";
 
 // Nested data (decisions K1-K5): the values inside a nesting container follow keepEmptyValues

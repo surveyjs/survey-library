@@ -1,17 +1,17 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { Serializer } from "../src/jsonobject";
-import { Question } from "../src/question";
-import { ComponentCollection } from "../src/question_custom";
-import { PanelModel, PanelModelBase } from "../src/panel";
-import { PageModel } from "../src/page";
-import { QuestionTextModel } from "../src/question_text";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { PanelDataScope } from "../src/panel-data-scope";
-import { settings } from "../src/settings";
-import { SurveyElement } from "../src/survey-element";
-import { questionNamed, panelNamed } from "./test-helpers";
+import { SurveyModel } from "../../src/survey";
+import { Serializer } from "../../src/jsonobject";
+import { Question } from "../../src/question";
+import { ComponentCollection } from "../../src/question_custom";
+import { PanelModel, PanelModelBase } from "../../src/panel";
+import { PageModel } from "../../src/page";
+import { QuestionTextModel } from "../../src/question_text";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { PanelDataScope } from "../../src/nested-data/panel-data-scope";
+import { settings } from "../../src/settings";
+import { SurveyElement } from "../../src/survey-element";
+import { questionNamed, panelNamed } from "../test-helpers";
 
 const addressJson = (extra?: any): any => Object.assign({
   dataNesting: "auto",

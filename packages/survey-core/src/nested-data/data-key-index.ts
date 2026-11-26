@@ -1,10 +1,10 @@
-import type { ISurveyDataElement } from "./base-interfaces";
-import type { Question } from "./question";
+import type { ISurveyDataElement } from "../base-interfaces";
+import type { Question } from "../question";
 import type { PanelDataScope } from "./panel-data-scope";
-import type { PanelModelBase } from "./panel";
+import type { PanelModelBase } from "../panel";
 import type { ElementIndex } from "./element-index";
-import { HashTable } from "./helpers";
-import { settings } from "./settings";
+import { HashTable } from "../helpers";
+import { settings } from "../settings";
 import { asScopeObject } from "./data-object-utils";
 
 // A data scope: the survey, the root, or an active PanelDataScope. Its elements' values are

@@ -1,8 +1,8 @@
-import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
-import type { Question } from "./question";
+import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "../conditions/conditionProcessValue";
+import type { Question } from "../question";
 import type { PanelDataScope } from "./panel-data-scope";
-import { PropertyGetterContext, ValueGetterContextCore, stripUnwrapPostfix } from "./conditions/conditionProcessValue";
-import { Helpers } from "./helpers";
+import { PropertyGetterContext, ValueGetterContextCore, stripUnwrapPostfix } from "../conditions/conditionProcessValue";
+import { Helpers } from "../helpers";
 import { RecordKeyLevel } from "./record-key-level";
 import { getInnerLevels } from "./data-key-index";
 

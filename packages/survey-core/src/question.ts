@@ -34,7 +34,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
-import { isNameScopeMode } from "./name-scope";
+import { isNameScopeMode } from "./nested-data/name-scope";
 import { getFilterOperatorChoices, isFilterFieldInReach } from "./filter/filter-field-properties";
 
 export const readOnlyViewEmptyText = "\u2014";

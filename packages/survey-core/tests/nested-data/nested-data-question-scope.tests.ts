@@ -1,9 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { Question } from "../src/question";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { NumericValidator } from "../src/validator";
-import { QuestionTextModel } from "../src/question_text";
+import { SurveyModel } from "../../src/survey";
+import { Question } from "../../src/question";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { NumericValidator } from "../../src/validator";
+import { QuestionTextModel } from "../../src/question_text";
 
 // A question asks its data scope who else holds its value, and a write carries the
 // question that wrote instead of its name.

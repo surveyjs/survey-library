@@ -1,6 +1,6 @@
-import type { IElement, ISurveyDataElement } from "./base-interfaces";
-import type { Question } from "./question";
-import type { PanelModelBase } from "./panel";
+import type { IElement, ISurveyDataElement } from "../base-interfaces";
+import type { Question } from "../question";
+import type { PanelModelBase } from "../panel";
 import type { IDataKeyLevel } from "./data-key-index";
 import { isKnownDataKey, forEachUnknownKey, forEachChoicePanel } from "./data-key-index";
 import { ElementIndex } from "./element-index";

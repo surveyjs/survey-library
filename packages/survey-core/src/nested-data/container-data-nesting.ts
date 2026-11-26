@@ -1,7 +1,7 @@
-import type { ISurvey, ISurveyImpl } from "./base-interfaces";
-import type { PanelModelBase } from "./panel";
-import type { Question } from "./question";
-import { Helpers } from "./helpers";
+import type { ISurvey, ISurveyImpl } from "../base-interfaces";
+import type { PanelModelBase } from "../panel";
+import type { Question } from "../question";
+import { Helpers } from "../helpers";
 import { getDataNestingKey } from "./data-nesting-key";
 import { PanelDataScope, getDataScopeHost, getRecordDataScope } from "./panel-data-scope";
 

@@ -1,4 +1,4 @@
-import { deleteObjectPaths } from "./data-object-utils";
+import { deleteObjectPaths } from "./nested-data/data-object-utils";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,

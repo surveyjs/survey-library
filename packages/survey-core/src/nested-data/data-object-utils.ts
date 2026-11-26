@@ -1,5 +1,5 @@
-import type { ISurvey } from "./base-interfaces";
-import { Helpers } from "./helpers";
+import type { ISurvey } from "../base-interfaces";
+import { Helpers } from "../helpers";
 
 // The plain-object side of nested data: no scope or element here.
 

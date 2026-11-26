@@ -1,5 +1,5 @@
-import type { ISurveyElement, ISurveyDataElement } from "./base-interfaces";
-import type { Question } from "./question";
+import type { ISurveyElement, ISurveyDataElement } from "../base-interfaces";
+import type { Question } from "../question";
 import type { PanelDataScope } from "./panel-data-scope";
 import { DataKeyHash, getElementDataScope } from "./data-key-index";
 

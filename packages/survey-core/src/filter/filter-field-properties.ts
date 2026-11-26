@@ -2,7 +2,7 @@ import type { Question } from "../question";
 import { settings } from "../settings";
 import { IDynamicDataFilterField, collectFilterFields } from "../dynamic-data/dynamic-data-filter-fields";
 import { getFilterFieldOperators } from "./filter-conditions";
-import { isInRecordNestingPanel } from "../record-key-level";
+import { isInRecordNestingPanel } from "../nested-data/record-key-level";
 
 // The property grid rules of allowFiltering and filterOperators: a question's and a matrix column's
 // registrations share them.

@@ -6,7 +6,7 @@ import type { PanelModelBase } from "../panel";
 import type { ItemValue } from "../itemvalue";
 import type { DynamicDataList } from "../dynamic-data/dynamic-data-list";
 import type { IRecordCleanupObject, QuestionRecordItem } from "../question_records";
-import { deleteObjectPaths } from "../data-object-utils";
+import { deleteObjectPaths } from "../nested-data/data-object-utils";
 
 // What the records clean-up reads from the records question.
 export interface IRecordCleanupRunnerOwner {

@@ -1,11 +1,11 @@
-import type { Question } from "./question";
-import type { PanelModelBase } from "./panel";
-import type { SurveyModel } from "./survey";
-import { ValueGetter } from "./conditions/conditionProcessValue";
-import { Helpers, HashTable } from "./helpers";
+import type { Question } from "../question";
+import type { PanelModelBase } from "../panel";
+import type { SurveyModel } from "../survey";
+import { ValueGetter } from "../conditions/conditionProcessValue";
+import { Helpers, HashTable } from "../helpers";
 import type { PanelDataScope } from "./panel-data-scope";
 import { DataKeysScope, getRecordDataScope, getKeyHolderScope } from "./panel-data-scope";
-import type { ISurveyDataElement, IElement } from "./base-interfaces";
+import type { ISurveyDataElement, IElement } from "../base-interfaces";
 import { IDataScope, getElementDataScope, getInnerLevels } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
 

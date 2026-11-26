@@ -1,4 +1,4 @@
-import type { ISurvey, ISurveyElement } from "./base-interfaces";
+import type { ISurvey, ISurveyElement } from "../base-interfaces";
 
 // See "Names Inside a Nesting Container" in docs/design-survey-nested-data.md.
 // Where each scope holds its elements by name: the survey in its flat elementIndex, read through a filter (in a

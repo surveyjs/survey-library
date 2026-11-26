@@ -1,13 +1,13 @@
 import { describe, test, expect, afterEach } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { Question } from "../src/question";
-import { QuestionCheckboxModel } from "../src/question_checkbox";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { ComponentCollection } from "../src/question_custom";
-import "../src/question_radiogroup";
-import "../src/question_text";
-import "../src/question_expression";
+import { SurveyModel } from "../../src/survey";
+import { Question } from "../../src/question";
+import { QuestionCheckboxModel } from "../../src/question_checkbox";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { ComponentCollection } from "../../src/question_custom";
+import "../../src/question_radiogroup";
+import "../../src/question_text";
+import "../../src/question_expression";
 
 // Review 04, prompt 11 (CH1-CH4): a choice panel takes its select question's survey impl (ChoiceItem.bindPanel) and
 // never nests, so its questions read, write and index keys of the select question's own data scope: the survey data at

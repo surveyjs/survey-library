@@ -27,7 +27,7 @@ import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditions/conditionProcessValue";
-import { isNameScopeMode } from "./name-scope";
+import { isNameScopeMode } from "./nested-data/name-scope";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {

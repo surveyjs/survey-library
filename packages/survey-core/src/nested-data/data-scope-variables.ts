@@ -1,11 +1,11 @@
-import type { Base } from "./base";
-import type { Question } from "./question";
-import type { SurveyModel, IExpressionScopePath, IExpressionVariableInfo } from "./survey";
-import type { IValueGetterContext } from "./conditions/conditionProcessValue";
-import { ValueGetter, parseValuePath } from "./conditions/conditionProcessValue";
-import { settings } from "./settings";
-import { ItemValue } from "./itemvalue";
-import { SurveyValidator } from "./validator";
+import type { Base } from "../base";
+import type { Question } from "../question";
+import type { SurveyModel, IExpressionScopePath, IExpressionVariableInfo } from "../survey";
+import type { IValueGetterContext } from "../conditions/conditionProcessValue";
+import { ValueGetter, parseValuePath } from "../conditions/conditionProcessValue";
+import { settings } from "../settings";
+import { ItemValue } from "../itemvalue";
+import { SurveyValidator } from "../validator";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
 import { getMetadataValueGetterContext } from "./data-scope-metadata";
 

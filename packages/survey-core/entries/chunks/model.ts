@@ -296,7 +296,7 @@ export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export { IRunningAsyncOperation, SurveyAsyncOperationType, IExpressionVariableInfo, IExpressionScopePath } from "../../src/survey";
-export { getDataNestingKey } from "../../src/data-nesting-key";
+export { getDataNestingKey } from "../../src/nested-data/data-nesting-key";
 export * from "../../src/survey-events-api";
 export type {
   AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent, FilterAIRequestEvent,

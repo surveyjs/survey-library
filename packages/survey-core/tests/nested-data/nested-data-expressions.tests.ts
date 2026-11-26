@@ -1,10 +1,10 @@
 import { describe, test, expect } from "vitest";
-import { SurveyModel } from "../src/survey";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { ComponentCollection } from "../src/question_custom";
-import { settings } from "../src/settings";
-import { FunctionFactory } from "../src/functionsfactory";
+import { SurveyModel } from "../../src/survey";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { ComponentCollection } from "../../src/question_custom";
+import { settings } from "../../src/settings";
+import { FunctionFactory } from "../../src/functionsfactory";
 
 const addressJson = (extraElements?: Array<any>, extra?: any): any => Object.assign({
   dataNesting: "auto",

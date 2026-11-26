@@ -1,10 +1,10 @@
-import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
-import { stripUnwrapPostfix } from "./conditions/conditionProcessValue";
+import type { IObjectValueContext, IValueGetterContext } from "../conditions/conditionProcessValue";
+import { stripUnwrapPostfix } from "../conditions/conditionProcessValue";
 import { RecordKeyLevel } from "./record-key-level";
 import { getInnerLevels } from "./data-key-index";
 import { RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
 import { getRecordTemplatePanel, isTemplatePanel } from "./name-scope";
-import { settings } from "./settings";
+import { settings } from "../settings";
 
 // The metadata mode's start context of an element inside a records template (design time): the element's own
 // context, then the levels of the template's nesting panels around it, innermost first, then the template's

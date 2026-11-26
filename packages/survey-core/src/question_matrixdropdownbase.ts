@@ -37,9 +37,9 @@ import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dyn
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
-import { PanelDataScope, getActiveDataScope } from "./panel-data-scope";
-import { getElementDataScope } from "./data-key-index";
-import { asScopeObject, deleteObjectPaths, setObjectKey } from "./data-object-utils";
+import { PanelDataScope, getActiveDataScope } from "./nested-data/panel-data-scope";
+import { getElementDataScope } from "./nested-data/data-key-index";
+import { asScopeObject, deleteObjectPaths, setObjectKey } from "./nested-data/data-object-utils";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */

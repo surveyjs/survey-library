@@ -6,7 +6,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDropdownRowModelBase } from "../src/question_matrixdropdownbase";
-import { PanelDataScope } from "../src/panel-data-scope";
+import { PanelDataScope } from "../src/nested-data/panel-data-scope";
 import { ValueGetter } from "../src/conditions/conditionProcessValue";
 import { ComponentCollection } from "../src/question_custom";
 import { afterEach, describe, test, expect } from "vitest";

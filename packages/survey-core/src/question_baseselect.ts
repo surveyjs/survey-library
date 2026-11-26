@@ -23,14 +23,14 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { ArrayChanges, Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { getDataScopeHost } from "./panel-data-scope";
+import { getDataScopeHost } from "./nested-data/panel-data-scope";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
 import { getIdSelector } from "./utils/dom-utils";
-import { isNameScopeMode } from "./name-scope";
+import { isNameScopeMode } from "./nested-data/name-scope";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).

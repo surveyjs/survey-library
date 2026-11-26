@@ -39,9 +39,9 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
-import type { PanelDataScope } from "./panel-data-scope";
-import { getDataScopeHost, getKeyHolderScope } from "./panel-data-scope";
-import { ContainerDataNesting } from "./container-data-nesting";
+import type { PanelDataScope } from "./nested-data/panel-data-scope";
+import { getDataScopeHost, getKeyHolderScope } from "./nested-data/panel-data-scope";
+import { ContainerDataNesting } from "./nested-data/container-data-nesting";
 import { Scope } from "./utils/scope";
 
 class LazyRowsObserver {

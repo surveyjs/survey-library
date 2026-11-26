@@ -802,9 +802,6 @@ export abstract class QuestionCustomModelBase extends Question
   indexOf(el: IElement): number {
     return -1;
   }
-  ensureRowsVisibility(): void {
-    // do nothing
-  }
   validateContainerOnly(): void {
     // do nothing
   }
@@ -1584,7 +1581,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   private addKeptEmptyValues(val: any, stored: any): any {
     if (this.isEditingSurveyElement || !this.contentPanel) return val;
     const survey = this.getEmptyValuesSurvey();
-    if (!survey || !survey.getSettings().data.keepEmptyValues) return val;
+    if (!survey || !survey.runtimeSettings.keepEmptyValues) return val;
     const src = asScopeObject(this.getValueForContentPanel(Helpers.getUnbindValue(stored)));
     if (!src) return val;
     this.contentPanel.questions.forEach(q => {

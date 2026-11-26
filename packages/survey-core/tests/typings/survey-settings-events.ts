@@ -10,7 +10,7 @@ function saveResults(sender: SurveyModel, options: CompleteEvent): void { }
 function notify(sender: SurveyModel, options: CompleteEvent): void { }
 
 export const survey = new SurveyModel({}, {
-  comparator: { caseSensitive: true },
+  runtimeSettings: { comparator: { caseSensitive: true } },
   events: {
     onQuestionCreated: (sender, options) => { options.question.name.toUpperCase(); },
     onComplete: [saveResults, notify],
@@ -47,6 +47,10 @@ export const notAFunction: SurveyEventHandlers = {
 export const protectedEvent: SurveyEventHandlers = {
   // @ts-expect-error: a protected event is not a key
   _onElementRerendered: () => { }
+};
+export const flatRuntimeSetting: ISurveyOptions = {
+  // @ts-expect-error: a runtime setting belongs under runtimeSettings
+  comparator: { caseSensitive: true }
 };
 export const notAnEvent: SurveyEventHandlers = {
   // @ts-expect-error: a property that is not an event

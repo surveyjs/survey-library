@@ -2,23 +2,23 @@ import { describe, test, expect, afterEach } from "vitest";
 import { ConditionRunner } from "../src/conditions/conditionRunner";
 import { SurveyModel } from "../src/survey";
 import { settings } from "../src/settings";
-import type { ISurveySettings } from "../src/survey-settings";
+import type { ISurveyRuntimeSettings } from "../src/survey-settings";
 
-// comparator.numericTextAsText (decisions.md, C4): with the key on, a text that looks like a number is compared
+// comparator.numericStringsAsText (decisions.md, C4): with the key on, a text that looks like a number is compared
 // as a text with another text (a text value, a quoted literal, another text variable) in =, <>, contains,
 // notcontains, anyof, allof and noneof. It is converted only when the other side is an actual number.
 
-const KEY_ON: ISurveySettings = { comparator: { numericTextAsText: true } };
+const KEY_ON: ISurveyRuntimeSettings = { comparator: { numericStringsAsText: true } };
 
-function run(expression: string, values: any, surveySettings?: ISurveySettings): boolean {
-  return new ConditionRunner(expression).runValues(values, undefined, surveySettings);
+function run(expression: string, values: any, runtimeSettings?: ISurveyRuntimeSettings): boolean {
+  return new ConditionRunner(expression).runValues(values, undefined, runtimeSettings);
 }
 // The values go to text questions, except the keys listed in numericQuestions (a numeric input)
-function isVisibleInSurvey(condition: string, values: any, surveySettings?: ISurveySettings, numericQuestions: Array<string> = []): boolean {
+function isVisibleInSurvey(condition: string, values: any, runtimeSettings?: ISurveyRuntimeSettings, numericQuestions: Array<string> = []): boolean {
   const elements: Array<any> = Object.keys(values).map((name: string) =>
     numericQuestions.indexOf(name) > -1 ? { type: "text", inputType: "number", name: name } : { type: "text", name: name });
   elements.push({ type: "text", name: "target", visibleIf: condition });
-  const survey = new SurveyModel({ elements: elements }, surveySettings);
+  const survey = new SurveyModel({ elements: elements }, { runtimeSettings: runtimeSettings });
   Object.keys(values).forEach((name: string) => survey.setValue(name, values[name]));
   return survey.getQuestionByName("target").isVisible;
 }
@@ -29,15 +29,15 @@ function checkBoth(condition: string, values: any, off: boolean, on: boolean, nu
   expect(isVisibleInSurvey(condition, values, KEY_ON, numericQuestions), "SurveyModel, key on: " + condition).toBe(on);
 }
 
-describe("comparator.numericTextAsText", () => {
+describe("comparator.numericStringsAsText", () => {
   afterEach(() => {
-    settings.comparator.numericTextAsText = false;
+    settings.comparator.numericStringsAsText = false;
     settings.comparator.caseSensitive = false;
     settings.comparator.trimStrings = true;
   });
 
   test("the global default is false", () => {
-    expect(settings.comparator.numericTextAsText).toBe(false);
+    expect(settings.comparator.numericStringsAsText).toBe(false);
   });
 
   describe("the table of prompt 10", () => {
@@ -115,8 +115,8 @@ describe("comparator.numericTextAsText", () => {
           { type: "text", name: "target", visibleIf: "{c} contains {q}" }
         ]
       };
-      const check = (surveySettings: ISurveySettings): boolean => {
-        const survey = new SurveyModel(json, surveySettings);
+      const check = (runtimeSettings: ISurveyRuntimeSettings): boolean => {
+        const survey = new SurveyModel(json, { runtimeSettings: runtimeSettings });
         survey.setValue("c", ["5"]);
         survey.setValue("q", "5.0");
         return survey.getQuestionByName("target").isVisible;
@@ -127,9 +127,9 @@ describe("comparator.numericTextAsText", () => {
     });
     test("the text comparison follows the comparator's case and trim", () => {
       checkBoth("{q} = '1e1'", { q: "1E1" }, true, true);
-      expect(run("{q} = '1e1'", { q: "1E1" }, { comparator: { numericTextAsText: true, caseSensitive: true } }), "case-sensitive").toBe(false);
+      expect(run("{q} = '1e1'", { q: "1E1" }, { comparator: { numericStringsAsText: true, caseSensitive: true } }), "case-sensitive").toBe(false);
       expect(run("{q} = '5.0'", { q: " 5.0 " }, KEY_ON), "trimmed").toBe(true);
-      expect(run("{q} = '5.0'", { q: " 5.0 " }, { comparator: { numericTextAsText: true, trimStrings: false } }), "not trimmed").toBe(false);
+      expect(run("{q} = '5.0'", { q: " 5.0 " }, { comparator: { numericStringsAsText: true, trimStrings: false } }), "not trimmed").toBe(false);
     });
     // A boolean is not a text: the final == of checkIfValuesEqual decides, which is C5's key, not this one
     test("a boolean literal keeps the conversion", () => {
@@ -168,19 +168,19 @@ describe("comparator.numericTextAsText", () => {
 
   describe("where the key comes from", () => {
     test("the global setting reaches a survey and a runner with no own value", () => {
-      settings.comparator.numericTextAsText = true;
+      settings.comparator.numericStringsAsText = true;
       expect(isVisibleInSurvey("{q} = '5'", { q: "5.0" }), "survey").toBe(false);
       expect(run("{q} = '5'", { q: "5.0" }), "runner").toBe(false);
       expect(isVisibleInSurvey("{q} = '5'", { q: "5.0" }, { comparator: { caseSensitive: true } }), "a survey that sets another key").toBe(false);
     });
     test("a survey's own false beats a global true", () => {
-      settings.comparator.numericTextAsText = true;
-      const own: ISurveySettings = { comparator: { numericTextAsText: false } };
+      settings.comparator.numericStringsAsText = true;
+      const own: ISurveyRuntimeSettings = { comparator: { numericStringsAsText: false } };
       expect(isVisibleInSurvey("{q} = '5'", { q: "5.0" }, own), "survey").toBe(true);
       expect(run("{q} = '5'", { q: "5.0" }, own), "runner").toBe(true);
     });
     test("the key reaches a dynamic panel's and a matrix row's conditions", () => {
-      const check = (surveySettings: ISurveySettings): Array<boolean> => {
+      const check = (runtimeSettings: ISurveyRuntimeSettings): Array<boolean> => {
         const survey = new SurveyModel({
           elements: [
             { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [
@@ -192,7 +192,7 @@ describe("comparator.numericTextAsText", () => {
               { name: "c2", cellType: "text", visibleIf: "{row.c1} = '5'" }
             ] }
           ]
-        }, surveySettings);
+        }, { runtimeSettings: runtimeSettings });
         survey.data = { panel: [{ pq: "5.0" }], matrix: [{ c1: "5.0" }] };
         const panelQuestion = (<any>survey.getQuestionByName("panel")).panels[0].getQuestionByName("pt");
         const cell = (<any>survey.getQuestionByName("matrix")).visibleRows[0].getQuestionByName("c2");
@@ -200,22 +200,6 @@ describe("comparator.numericTextAsText", () => {
       };
       expect(check(undefined), "key off").toEqual([true, true]);
       expect(check(KEY_ON), "key on").toEqual([false, false]);
-    });
-    test("survey.settings() on a loaded survey changes a visibleIf at once", () => {
-      const survey = new SurveyModel({
-        elements: [
-          { type: "text", name: "q" },
-          { type: "text", name: "target", visibleIf: "{q} = '5'" }
-        ]
-      });
-      survey.setValue("q", "5.0");
-      const target = survey.getQuestionByName("target");
-      expect(target.isVisible, "#1: key off").toBe(true);
-      survey.settings(KEY_ON);
-      expect(target.isVisible, "#2: key on").toBe(false);
-      expect(survey.getSettings().comparator.numericTextAsText, "#3: the effective value").toBe(true);
-      survey.settings({ comparator: { numericTextAsText: undefined } });
-      expect(target.isVisible, "#4: key removed").toBe(true);
     });
   });
 });

@@ -897,9 +897,6 @@ export class QuestionMultipleTextModel extends Question
   indexOf(el: IElement): number {
     return -1;
   }
-  ensureRowsVisibility(): void {
-    // do nothing
-  }
   validateContainerOnly(): void {
     // do nothing
   }

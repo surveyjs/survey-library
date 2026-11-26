@@ -325,6 +325,17 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
+  public pairedErrorRow: QuestionMatrixDropdownRenderedRow;
+  public pairedDataRow: QuestionMatrixDropdownRenderedRow;
+  public detailRow: QuestionMatrixDropdownRenderedRow;
+  // The error row is rendered under the data row. Above otherwise.
+  public isBelowDataRow = false;
+  // False on a phone, where the error row is not a separate table row.
+  public isPlacedInTable = false;
+  @property({ defaultValue: false }) hasVisibleError: boolean;
+  @property({ defaultValue: false }) isAlternate: boolean;
+  @property({ defaultValue: false }) detailIsOpen: boolean;
+  @property({ defaultValue: false }) errorIsVisible: boolean;
 
   public constructor(public cssClasses: any, public isDetailRow: boolean = false) {
     super();
@@ -376,6 +387,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return toCssClasses(
       this.cssClasses.row,
       this.cssClasses.dataRow,
+      this.isAlternate && this.cssClasses.alternateRow,
       this.row?.hasPanel && this.cssClasses.rowHasPanel,
       this.hasEndActions && this.cssClasses.rowHasEndActions
     );
@@ -399,8 +411,18 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
       this.row?.isDetailPanelShowing && !this.isDetailRow && this.cssClasses.expandedRow,
       this.hasEndActions && this.cssClasses.rowHasEndActions,
       this.isGhostRow && this.cssClasses.ghostRow,
-      this.isAdditionalClasses && this.cssClasses.rowAdditional
+      this.isAdditionalClasses && this.cssClasses.rowAdditional,
+      this.isAlternate && this.cssClasses.alternateRow,
+      this.hasVisibleError && this.pairedErrorRow?.isBelowDataRow && this.cssClasses.dataRowWithErrorBelow,
+      this.hasVisibleError && this.pairedErrorRow && !this.pairedErrorRow.isBelowDataRow && this.cssClasses.dataRowWithErrorAbove,
+      this.isDetailRow && this.errorIsVisible && this.pairedDataRow?.pairedErrorRow?.isBelowDataRow && this.cssClasses.detailUnderError
     );
+  }
+  public syncVisibleError(visible: boolean): void {
+    this.hasVisibleError = visible;
+    if (this.detailRow) {
+      this.detailRow.errorIsVisible = visible;
+    }
   }
   private rootElement: HTMLTableRowElement;
   public setRootElement(val: HTMLTableRowElement): void {
@@ -429,11 +451,19 @@ export class QuestionMatrixDropdownRenderedErrorRow extends QuestionMatrixDropdo
     return {};
   }
   public get className(): string {
-    return toCssClasses(this.cssClasses.row, this.cssClasses.errorRow);
+    return toCssClasses(
+      this.cssClasses.row,
+      this.cssClasses.errorRow,
+      this.isBelowDataRow && this.cssClasses.errorRowBelow,
+      !this.isBelowDataRow && this.cssClasses.errorRowAbove,
+      this.isAlternate && this.cssClasses.alternateRow,
+      this.isBelowDataRow && this.detailIsOpen && this.cssClasses.errorRowHasDetail
+    );
   }
   public onAfterCreated(): void {
     const callback = () => {
       this.visible = this.cells.some((cell) => cell.question && cell.question.hasVisibleErrors);
+      this.pairedDataRow?.syncVisibleError(this.visible && this.isPlacedInTable);
     };
     this.cells.forEach((cell) => {
       if (cell.question) {
@@ -471,9 +501,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   @propertyArray({
     onPush: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
       target.updateRenderedRows();
+      target.updateAlternateMarks();
     },
     onRemove: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
       target.updateRenderedRows();
+      target.updateAlternateMarks();
     }
   }) rows: Array<QuestionMatrixDropdownRenderedRow>;
   protected getIsAnimationAllowed(): boolean {
@@ -588,6 +620,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     //todo
     return this.matrix.getErrorLocation() === "bottom";
   }
+  // Stripes are drawn only when the matrix asks for them, and never in the list layout.
+  private getAlternateRows(): boolean {
+    return this.matrix.alternateRows && !this.matrix.isMobile;
+  }
 
   protected build() {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
@@ -683,8 +719,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       return;
     if (isShowing) {
       var detailRow = this.createDetailPanelRow(row, this.rows[rowIndex]);
+      if (this.rows[rowIndex].pairedErrorRow) {
+        this.rows[rowIndex].pairedErrorRow.detailIsOpen = true;
+      }
       this.rows.splice(currentIndex + 1, 0, detailRow);
     } else {
+      if (this.rows[rowIndex].pairedErrorRow) {
+        this.rows[rowIndex].pairedErrorRow.detailIsOpen = false;
+      }
+      this.rows[rowIndex].detailRow = undefined;
       this.rows.splice(panelRowIndex, 1);
     }
   }
@@ -864,6 +907,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         ? this.buildHorizontalRows()
         : this.buildVerticalRows();
       this.rows = rows;
+      this.updateAlternateMarks();
     });
   }
   private hasActionCellInRowsValues: any = {};
@@ -897,6 +941,27 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return renderedRows;
   }
+  private linkErrorRow(dataRow: QuestionMatrixDropdownRenderedRow, errorRow: QuestionMatrixDropdownRenderedRow, placeInTable: boolean): void {
+    dataRow.pairedErrorRow = errorRow;
+    errorRow.pairedDataRow = dataRow;
+    errorRow.isBelowDataRow = !this.showCellErrorsTop;
+    errorRow.isPlacedInTable = placeInTable;
+    errorRow.detailIsOpen = !!dataRow.row?.isDetailPanelShowing;
+    dataRow.syncVisibleError(errorRow.visible && placeInTable);
+  }
+  private updateAlternateMarks(): void {
+    if (!this.rows) return;
+    const useAlternateRows = this.getAlternateRows();
+    let dataIndex = 0;
+    for (let i = 0; i < this.rows.length; i++) {
+      const row = this.rows[i];
+      if (row.isErrorsRow || row.isDetailRow || row instanceof QuestionMatrixDropdownRenderedEmptyRow) continue;
+      const alternate = useAlternateRows && dataIndex % 2 === 0;
+      row.isAlternate = alternate;
+      if (row.pairedErrorRow) row.pairedErrorRow.isAlternate = alternate;
+      dataIndex++;
+    }
+  }
   private addHorizontalRow(
     renderedRows: Array<QuestionMatrixDropdownRenderedRow>,
     row: MatrixDropdownRowModelBase,
@@ -905,6 +970,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     const renderedRow = this.createHorizontalRow(row);
     const errorRow = this.createErrorRow(renderedRow);
     renderedRow.row = row;
+    this.linkErrorRow(renderedRow, errorRow, !this.matrix.isMobile);
     this.updateRowCustomCss(renderedRow);
     if (index < 0) {
       index = renderedRows.length;
@@ -1132,6 +1198,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     const panelFullWidth: boolean = this.matrix.isDesignMode;
     const res = this.createRenderedRow(this.cssClasses, true);
     res.row = row;
+    res.pairedDataRow = renderedRow;
+    renderedRow.detailRow = res;
+    res.errorIsVisible = renderedRow.hasVisibleError;
     let buttonCell = null;
     if ((this.hasActionCellInRows("start") || this.matrix.hasRowText) && !panelFullWidth) {
       buttonCell = this.createEmptyCell();
@@ -1179,6 +1248,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         } else {
           const renderedRow = this.createVerticalRow(col, i);
           const errorRow = this.createErrorRow(renderedRow);
+          this.linkErrorRow(renderedRow, errorRow, true);
           if (this.showCellErrorsTop) {
             renderedRows.push(errorRow);
             renderedRows.push(renderedRow);
@@ -1204,6 +1274,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < choices.length; i++) {
       const renderedRow = this.createVerticalRow(column, index, choices[i], i);
       const errorRow = this.createErrorRow(renderedRow);
+      this.linkErrorRow(renderedRow, errorRow, true);
       if (this.showCellErrorsTop) {
         renderedRows.push(errorRow);
         renderedRows.push(renderedRow);

@@ -2693,7 +2693,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       const skipped = this.template.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name);
       return removeRecordCleanupSkipped(res, skipped);
     });
-    new JsonObject().toObject(json, panel);
+    new JsonObject().toObject(json, panel, this.getLoadOptionsForCopy());
     panel.questions.forEach(q => q.setParentQuestion(this));
     // Attached without running its conditions: they run once the record is loaded (runCondition).
     const item = new QuestionPanelDynamicItem(this, panel, true);
@@ -3272,7 +3272,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.areRecordsDecidingVisibility) {
       delete json.visibleIf;
     }
-    new JsonObject().toObject(json, panel);
+    new JsonObject().toObject(json, panel, this.getLoadOptionsForCopy());
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     panel.questions.forEach(q => q.setParentQuestion(this));
@@ -3733,9 +3733,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.dynamicActions.updateTabbedMenuCss(classes);
     }
     return classes;
-  }
-  public ensureRowsVisibility(): void {
-    this.visiblePanels.forEach(panel => panel.ensureRowsVisibility());
   }
 }
 

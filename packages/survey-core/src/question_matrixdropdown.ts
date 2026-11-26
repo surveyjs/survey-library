@@ -39,7 +39,9 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
     if (path.length === 0) return { isFound: true, value: this.question.value, context: this };
     const res = super.getValue(params);
     if (res && res.isFound) return res;
-    return new VariableGetterContext(this.question.value).getValue(params);
+    // An empty value has nothing to find
+    const value = this.question.value;
+    return !!value ? new VariableGetterContext(value).getValue(params) : undefined;
   }
   public getFieldValueConverter(name: string): (val: any) => any {
     return getRecordFieldValueConverter(this.question, name);

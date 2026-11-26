@@ -864,7 +864,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   @property({ getDefaultValue: (obj: QuestionRatingModel) => obj.getDefaultItemComponent() }) itemComponent: string;
 
   protected valueToData(val: any): any {
-    // A rating the respondent cleared with data.keepEmptyValues on holds null, which is not a number
+    // A rating the respondent cleared with keepEmptyValues on holds null, which is not a number
     if (val === null && this.isKeepingEmptyValues()) return val;
     if (this.useRateValues()) {
       var item = ItemValue.getItemByValue(this.visibleChoices, val);

@@ -65,7 +65,6 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   needResponsiveWidth(): boolean;
   updateRootStyle(): void;
   updateElementVisibility(): void;
-  ensureRowsVisibility(): void;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {
@@ -105,7 +104,6 @@ export interface IPanel extends ISurveyElement, IParentElement {
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
   elements: Array<IElement>;
-  ensureRowsVisibility(): void;
   validateContainerOnly(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {

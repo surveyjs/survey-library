@@ -95,6 +95,23 @@ describe("Survey_QuestionMatrix", () => {
     expect(question.visibleRows[0].rowClasses, "first row value is set").toBe("row");
     expect(question.visibleRows[1].rowClasses, "Error for the second row").toBe("row row_error");
   });
+  test("matrix rows are marked as alternate only when alternateRows is on", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrix", name: "q1", columns: ["col1", "col2"], rows: ["row1", "row2", "row3"] },
+      ],
+    });
+    const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+    const alternateRows = () => question.visibleRows.map(row => row.rowClasses.indexOf("sd-table__row--alternate") > -1);
+    expect(alternateRows(), "no stripes by default").toEqual([false, false, false]);
+    question.alternateRows = true;
+    expect(alternateRows(), "every other visible row").toEqual([true, false, true]);
+    question.rowsVisibleIf = "{item} != 'row1'";
+    expect(question.visibleRows.length, "the first row is hidden").toBe(2);
+    expect(alternateRows(), "a hidden row does not shift the stripes").toEqual([true, false]);
+    survey.setIsMobile(true);
+    expect(alternateRows(), "no stripes in the list layout").toEqual([false, false]);
+  });
   test("matrix row, rowClasses property, eachRowUnique", () => {
     const survey = new SurveyModel({
       elements: [

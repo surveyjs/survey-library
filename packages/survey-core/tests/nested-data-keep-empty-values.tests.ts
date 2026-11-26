@@ -13,9 +13,9 @@ import { IAction } from "../src/actions/action";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { describe, expect, test, afterEach } from "vitest";
 
-// Nested data (decisions K1-K5): the values inside a nesting container follow data.keepEmptyValues
+// Nested data (decisions K1-K5): the values inside a nesting container follow keepEmptyValues
 // as a top-level question's value does.
-const keepOn = { data: { keepEmptyValues: true } };
+const keepOn = { runtimeSettings: { keepEmptyValues: true } };
 const createSurvey = (json: any, isKeepOn: boolean): SurveyModel => isKeepOn ? new SurveyModel(json, keepOn) : new SurveyModel(json);
 const offAndOn = [false, true];
 const caseName = (isKeepOn: boolean): string => isKeepOn ? "the key on" : "the key off";
@@ -25,7 +25,7 @@ const inAddress = (elements: Array<any>, extra?: any): any => Object.assign({ da
   { type: "panel", name: "panel1", valueName: "address", elements: elements }
 ] }, extra || {});
 
-describe("nested data, data.keepEmptyValues: a respondent's own clear inside a container", () => {
+describe("nested data, keepEmptyValues: a respondent's own clear inside a container", () => {
   offAndOn.forEach(isKeepOn => {
     test("a text: type a text, then erase it, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), isKeepOn);
@@ -93,17 +93,17 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
     expect(survey.data).toStrictEqual({ address: { street: "" } });
   });
   describe("the global settings", () => {
-    afterEach(() => { settings.data.keepEmptyValues = false; });
+    afterEach(() => { settings.keepEmptyValues = false; });
     test("a survey without its own value follows the global key, inside a container", () => {
-      settings.data.keepEmptyValues = true;
+      settings.keepEmptyValues = true;
       const survey = new SurveyModel(inAddress([{ type: "text", name: "street" }]));
       blurText(survey.getQuestionByName("panel1.street"), "x");
       blurText(survey.getQuestionByName("panel1.street"), "");
       expect(survey.data).toStrictEqual({ address: { street: "" } });
     });
     test("a survey's own false wins over the global true, inside a container", () => {
-      settings.data.keepEmptyValues = true;
-      const survey = new SurveyModel(inAddress([{ type: "text", name: "street" }]), { data: { keepEmptyValues: false } });
+      settings.keepEmptyValues = true;
+      const survey = new SurveyModel(inAddress([{ type: "text", name: "street" }]), { runtimeSettings: { keepEmptyValues: false } });
       blurText(survey.getQuestionByName("panel1.street"), "x");
       blurText(survey.getQuestionByName("panel1.street"), "");
       expect(survey.data).toStrictEqual({});
@@ -111,7 +111,7 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
   });
 });
 
-describe("nested data, data.keepEmptyValues: a system clear inside a container removes the key with the key on", () => {
+describe("nested data, keepEmptyValues: a system clear inside a container removes the key with the key on", () => {
   test("clearInvisibleValues: \"onHidden\" hides an inner question with a value, and one with a kept value", () => {
     const survey = createSurvey(inAddress([
       { type: "text", name: "street", visibleIf: "{a} != 'hide'" },
@@ -180,7 +180,7 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
   });
 });
 
-describe("nested data, data.keepEmptyValues: K3, an object that still has keys stays", () => {
+describe("nested data, keepEmptyValues: K3, an object that still has keys stays", () => {
   offAndOn.forEach(isKeepOn => {
     test("a sibling's system clear leaves the object with the kept key, " + caseName(isKeepOn), () => {
       const survey = createSurvey({ dataNesting: "auto", clearInvisibleValues: "onHidden", elements: [
@@ -243,7 +243,7 @@ describe("nested data, data.keepEmptyValues: K3, an object that still has keys s
   });
 });
 
-describe("nested data, data.keepEmptyValues: comments, hasValue, clearEmptyValues, records", () => {
+describe("nested data, keepEmptyValues: comments, hasValue, clearEmptyValues, records", () => {
   offAndOn.forEach(isKeepOn => {
     test("K2: an empty comment (showOtherItem) inside a container is removed, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "dropdown", name: "kind", choices: ["home"], showOtherItem: true }]), isKeepOn);
@@ -298,7 +298,7 @@ describe("nested data, data.keepEmptyValues: comments, hasValue, clearEmptyValue
   });
 });
 
-describe("nested data, data.keepEmptyValues: K5, a composite question", () => {
+describe("nested data, keepEmptyValues: K5, a composite question", () => {
   afterEach(() => {
     ComponentCollection.Instance.clear();
   });

@@ -42,14 +42,14 @@ export function deleteObjectPaths(obj: any, paths: Array<Array<string>>): void {
   });
 }
 
-// What a key of an object holds, for data.keepEmptyValues: "value" a question's value, "comment" a comment key
+// What a key of an object holds, for keepEmptyValues: "value" a question's value, "comment" a comment key
 // (never kept, as at the top level), "container" the object of a nesting container inside.
 export type ObjectKeyKind = "value" | "comment" | "container";
-// With data.keepEmptyValues on, a container's object stays while it has keys, even deep empty ({ street: "" })
+// With keepEmptyValues on, a container's object stays while it has keys, even deep empty ({ street: "" })
 // and in a system clear. undefined when the rule does not apply: the caller's own rule decides.
 export function isContainerObjectKept(survey: ISurvey, value: any): boolean {
   const obj = asScopeObject(value);
-  if (!obj || !survey || !survey.getSettings().data.keepEmptyValues) return undefined;
+  if (!obj || !survey || !survey.runtimeSettings.keepEmptyValues) return undefined;
   return Object.keys(obj).length > 0;
 }
 function isEmptyObjectKeyKept(value: any, survey: ISurvey, kind: ObjectKeyKind): boolean {
@@ -58,7 +58,7 @@ function isEmptyObjectKeyKept(value: any, survey: ISurvey, kind: ObjectKeyKind):
   return kept !== undefined ? kept : survey.isEmptyValueKept(value);
 }
 // A copy of obj with one key set, or removed when the value is empty; keys no question owns are kept. An empty
-// value stays only when a survey keeps it (data.keepEmptyValues); without one (a record) every empty value goes.
+// value stays only when a survey keeps it (keepEmptyValues); without one (a record) every empty value goes.
 export function setObjectKey(obj: any, name: string, value: any, survey?: ISurvey, kind: ObjectKeyKind = "value"): any {
   const res = Object.assign({}, obj);
   if (Helpers.isValueEmpty(value) && !isEmptyObjectKeyKept(value, survey, kind)) {

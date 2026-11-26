@@ -327,7 +327,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     if (this.getComment(name) === (newValue || "")) return;
     // A comment write reports the first question on the value name, as SurveyModel.setComment does.
     const question = this.getDataKeyIndex().getQuestions(name)[0];
-    // An empty comment key is removed whatever data.keepEmptyValues says, as SurveyModel.setComment does.
+    // An empty comment key is removed whatever keepEmptyValues says, as SurveyModel.setComment does.
     this.setObjectValue(Helpers.getCommentKey(name), newValue, "comment", locNotification, true, question);
   }
   getFilteredProperties(): any {

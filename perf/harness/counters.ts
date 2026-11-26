@@ -1,7 +1,7 @@
 // Call counts through a few funnels of survey-core, read in the untimed counter run. Only these methods are
 // wrapped; a funnel the build lacks gives null, not 0. On master element conditions (visibleIf, enableIf, ...) run
 // through ExpressionRunner, so expressionRuns counts them; conditionRuns counts ConditionRunner runs (filters of the
-// array functions, triggers and the callers that still use it).
+// array functions, triggers and the callers that still use it); conditionsPasses counts SurveyModel.runConditionsCore.
 // What a counter is, not how to judge it (the caller decides): work: calls through the funnels; dom: elements under
 // #root; render: layouts and style recalcs; leak: growth of listeners and nodes; heap: growth of a heap in KB (CDP,
 // browser suites only, cdp.ts).
@@ -24,7 +24,10 @@ export const funnels: ReadonlyArray<Funnel> = [
   { name: "conditionRuns", className: "ConditionRunner", method: "runContext" },
   { name: "expressionRuns", className: "ExpressionRunner", method: "runContextCore" },
   { name: "rowsCreated", className: "QuestionMatrixDynamicModel", method: "createMatrixRow" },
-  { name: "panelsCreated", className: "QuestionPanelDynamicModel", method: "createNewPanel" }
+  { name: "panelsCreated", className: "QuestionPanelDynamicModel", method: "createNewPanel" },
+  // One pass over the survey's conditions (calculated values, element conditions, triggers): what a value change
+  // costs on a survey with many conditions is passes x the cost of one.
+  { name: "conditionsPasses", className: "SurveyModel", method: "runConditionsCore" }
 ];
 
 export interface FunnelCounters {

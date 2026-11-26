@@ -8,7 +8,9 @@ import {
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
-import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
+import { ISurveyRuntimeSettings, getRuntimeSettingsOfSurvey } from "./survey-settings";
+import { PropertyDefaultsLayer } from "./survey-property-defaults";
+import { propertyDefaultsState } from "./survey-property-defaults-state";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./expressions/expressionRunner";
@@ -773,7 +775,7 @@ export class Base implements IObjectValueContext {
    */
   public clone(): Base {
     var clonedObj = <Base>Serializer.createClass(this.getType());
-    clonedObj.fromJSON(this.toJSON());
+    clonedObj.fromJSON(this.toJSON(), this.getLoadOptionsForCopy());
     return clonedObj;
   }
   /**
@@ -900,6 +902,15 @@ export class Base implements IObjectValueContext {
     return Helpers.isValueUndefined(value);
   }
   public getDefaultPropertyValue(name: string): any {
+    // A survey's own property defaults. With no live layer anywhere, this is one compare and the old path below.
+    // A value from a layer never reads or writes the class cache below: that cache is shared by every survey.
+    if (propertyDefaultsState.liveLayerCount > 0) {
+      const layer = this.getPropertyDefaultsLayer();
+      if (!!layer) {
+        const layerRes = layer.resolve(this, name);
+        if (layerRes !== PropertyDefaultsLayer.notCovered) return layerRes;
+      }
+    }
     const classInfo = this.getClassMetaData();
     const entry = !!classInfo && !!classInfo["defaultValues"] ? classInfo["defaultValues"].get(name) : undefined;
     if (!!entry) {
@@ -922,6 +933,28 @@ export class Base implements IObjectValueContext {
       }
     }
     return res;
+  }
+  // Set by a JSON load with the propertyDefaults option (JsonObject.toObjectCore)
+  public propertyDefaultsOfLoad: PropertyDefaultsLayer;
+  // The defaults of the survey the object is in; an object not in a survey yet uses the defaults it was loaded with
+  protected getPropertyDefaultsLayer(): PropertyDefaultsLayer {
+    const survey = this.getSurvey();
+    if (!survey) return this.propertyDefaultsOfLoad;
+    return typeof survey.getOwnPropertyDefaults === "function" ? survey.getOwnPropertyDefaults() : undefined;
+  }
+  // The load options for a copy that is added to this object's survey after it loads (a clone, a dynamic panel,
+  // a row's detail panel, a matrix cell): the copy compares its JSON with the survey's defaults while it loads.
+  protected getLoadOptionsForCopy(): ILoadFromJSONOptions {
+    if (propertyDefaultsState.liveLayerCount === 0) return undefined;
+    const propertyDefaults = this.getPropertyDefaultsLayer();
+    return !!propertyDefaults ? { propertyDefaults: propertyDefaults } : undefined;
+  }
+  // The survey's own default of the property for this object, or propertyDefaultNotSet. For serialization: a value
+  // equal to it is the default in this survey and is not written. A column keeps its values on its template question.
+  public getSurveyPropertyDefault(name: string): any {
+    const obj = this.getOriginalByProperty(name);
+    const layer = obj.getPropertyDefaultsLayer();
+    return !!layer ? layer.resolve(obj, name) : PropertyDefaultsLayer.notCovered;
   }
   private isDefaultPropertyValueCacheable(prop: JsonObjectProperty, name: string, res: any): boolean {
     if (prop.isCustom || prop.isLocalizable || !!prop.defaultValueFunc || !!prop.onGetValue || !!prop.className) return false;
@@ -1115,7 +1148,10 @@ export class Base implements IObjectValueContext {
     } else {
       if (val !== oldValue) {
         this.setPropertyValueDirectly(name, val);
-        if (!this.isTwoValueEquals(oldValue, val)) {
+        /* A new Base instance is a change. Comparing two Base objects serializes both of them (equalsCore
+           compares toJSON()), and classes not registered in Serializer (Action, PopupModel) serialize to {},
+           so any two of them compared equal. Other values keep the value comparison. */
+        if ((oldValue instanceof Base && val instanceof Base) || !this.isTwoValueEquals(oldValue, val)) {
           this.propertyValueChanged(name, oldValue, val);
         }
       }
@@ -1921,11 +1957,11 @@ export class Base implements IObjectValueContext {
     const tX = typeof x;
     const tY = typeof y;
     const mayCompareStrings = tX === "string" && tY === "string" || tX === "object" && tY === "object" && x !== null && y !== null;
-    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, settings: mayCompareStrings ? this.getSurveySettings() : undefined });
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, settings: mayCompareStrings ? this.getSurveyRuntimeSettings() : undefined });
   }
   // The settings of the survey this object belongs to; undefined (the global settings) without one
-  protected getSurveySettings(): ISurveySettings {
-    return getSettingsOfSurvey(this.getSurvey());
+  protected getSurveyRuntimeSettings(): ISurveyRuntimeSettings {
+    return getRuntimeSettingsOfSurvey(this.getSurvey());
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

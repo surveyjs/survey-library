@@ -3108,14 +3108,20 @@ describe("JsonSerializationTests", () => {
     const pageDescription = Serializer.findProperty("page", "description");
     const panelTitle = Serializer.findProperty("panel", "title");
     const panelDescription = Serializer.findProperty("panel", "description");
-    pageTitle.placeholder = "pageT";
-    pageDescription.placeholder = "pageD";
-    panelTitle.placeholder = "panelT";
-    panelDescription.placeholder = "panelD";
-    expect(pageTitle.placeholder, "page title unique").toBe("pageT");
-    expect(pageDescription.placeholder, "page description unique").toBe("pageD");
-    expect(panelTitle.placeholder, "panel title unique").toBe("panelT");
-    expect(panelDescription.placeholder, "panel description unique").toBe("panelD");
+    const props = [pageTitle, pageDescription, panelTitle, panelDescription];
+    const savedPlaceholders = props.map(p => p.placeholder);
+    try {
+      pageTitle.placeholder = "pageT";
+      pageDescription.placeholder = "pageD";
+      panelTitle.placeholder = "panelT";
+      panelDescription.placeholder = "panelD";
+      expect(pageTitle.placeholder, "page title unique").toBe("pageT");
+      expect(pageDescription.placeholder, "page description unique").toBe("pageD");
+      expect(panelTitle.placeholder, "panel title unique").toBe("panelT");
+      expect(panelDescription.placeholder, "panel description unique").toBe("panelD");
+    } finally {
+      props.forEach((p, i) => { p.placeholder = savedPlaceholders[i]; });
+    }
   });
   test("property showMode -> locationInTable, #9291", () => {
     const prop1 = Serializer.addProperty("question", { name: "prop1", showMode: "form" });

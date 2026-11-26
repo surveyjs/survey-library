@@ -390,7 +390,7 @@ export var settings = {
    */
   enterKeyAction: "default" as "moveToNextEditor" | "loseFocus" | "default",
   /**
-   * An object that configures string comparison.
+   * An object that configures comparisons between survey values.
    *
    * Nested properties:
    *
@@ -399,12 +399,14 @@ export var settings = {
    *
    * - `caseSensitive`: `boolean`\
    * Specifies whether to differentiate between capital and lower-case letters. Default value: `false`.
+   *
+   * - `numericStringsAsText`: `boolean`\
+   * Specifies whether to match numeric strings as text when both values in the expression are strings. When enabled, a text answer of `"5.0"` differs from `"5"` but can still match the number `5`. Default value: `false`.
    */
   comparator: {
     trimStrings: true,
     caseSensitive: false,
-    numericTextAsText: false,
-    strictEquality: false,
+    numericStringsAsText: false,
     normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",
@@ -1015,9 +1017,12 @@ export var settings = {
     archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
   },
   customFileCategoryName: "custom",
-  // Stored survey data. keepEmptyValues: a respondent's own clear keeps the question's key in the data with the
-  // empty value its UI produces ("", [] or null). A clear by the survey itself still removes the key.
-  data: {
-    keepEmptyValues: false
-  }
+  /**
+   * Specifies whether to keep a top-level answer key in the survey's [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) when a respondent clears a supported question or an empty value is assigned explicitly. The stored value can be `""`, `[]`, `{}`, or `null`.
+   *
+   * Assigning `undefined` or calling [`clearValue()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#clearValue) removes the key. SurveyJS also removes the key when it clears an answer automatically, such as when a question with [`clearIfInvisible`](https://surveyjs.io/form-library/documentation/api-reference/question#clearIfInvisible) set to `"onHidden"` becomes hidden or a [`choicesByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) reload removes the selected choice.
+   *
+   * Default value: `false`
+   */
+  keepEmptyValues: false
 };

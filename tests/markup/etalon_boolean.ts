@@ -247,6 +247,20 @@ registerMarkupTests(
     snapshot: "boolean-radio",
   },
   {
+    name: "Test Boolean Radio question markup: visible title labels the group",
+    json: {
+      elements: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          displayMode: "radio"
+        }
+      ]
+    },
+    snapshot: "boolean-radio-labelled",
+  },
+  {
     name: "Test Boolean question Radio markup Default V2",
     json: {
       elements: [

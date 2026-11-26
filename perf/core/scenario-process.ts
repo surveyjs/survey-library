@@ -11,6 +11,7 @@ import { missingRequirement } from "../harness/scenario.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { resolveCoreDir } from "../harness/node/build.ts";
 import { readEnv } from "../harness/node/env.ts";
+import { isLocalId } from "../harness/ids.ts";
 
 // One scenario in this fresh process: `node --expose-gc perf/core/scenario-process.ts <id>`. It prints one JSON
 // line on stdout, { type: "entry" | "skipped" | "failed", ... }, and nothing on stderr.
@@ -23,7 +24,8 @@ const print = (line: any): void => { printed = line; };
 async function main(): Promise<void> {
   const env = readEnv();
   const core = resolveCoreDir();
-  const scenario = scenarioById(id);
+  const extra = id.indexOf("extra/") === 0 ? getExtraFixtures(env.extraJson || "").filter((f: any) => id.indexOf(f.key + "/") === 0)[0] : undefined;
+  const scenario = scenarioById(id, extra ? extra.ops : undefined);
   if (!scenario) throw new Error("Unknown scenario " + id);
   if (typeof gc !== "function") throw new Error("gc() is missing: run with node --expose-gc");
   // A console.warn or console.error during a scenario fails it.
@@ -41,12 +43,18 @@ async function main(): Promise<void> {
   const isExtra = scenario.fixture.indexOf("extra/") === 0;
   let fixture: PerfFixture;
   if (isExtra) {
-    const extra = getExtraFixtures(env.extraJson || "").filter((f: any) => f.key === scenario.fixture)[0];
-    if (!extra) throw new Error("No PERF_EXTRA_JSON file for " + scenario.fixture);
+    if (!extra || extra.key !== scenario.fixture) throw new Error("No PERF_EXTRA_JSON file for " + scenario.fixture);
+    // <base>.setup.mjs: once, before any survey of this process is created (it registers the form's functions).
+    if (extra.setup) {
+      const setup = await import(pathToFileURL(extra.setup).href);
+      if (typeof setup.default !== "function") throw new Error(extra.setup + ": the default export is not a function");
+      await setup.default(Survey);
+    }
+    // meta counts the questions without the data: load/model sets none.
     const probe = new Survey.Model(extra.json);
     const meta = { pages: probe.pages.length, questions: probe.getAllQuestions(false).length };
     probe.dispose();
-    fixture = { key: extra.key, json: extra.json, text: JSON.stringify(extra.json), meta: meta };
+    fixture = { key: extra.key, json: extra.json, text: JSON.stringify(extra.json), data: extra.data, meta: meta };
   } else {
     const f = getFixture(scenario.fixture);
     fixture = { key: f.key, json: f.json, text: JSON.stringify(f.json), data: f.data, meta: f.meta };
@@ -59,9 +67,11 @@ async function main(): Promise<void> {
     installFunnels: () => installFunnels(Survey)
   });
   // maxMs 3 s (5 s before 2026-11-10): the samples' spread is a few percent against a 25% threshold, so the extra
-  // samples bought little; at least 5 are kept either way.
-  const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 2 : scenario.warmup, samples: scenario.samples || 12,
-    maxMs: scenario.maxMs || 3000, minSamples: 5, now: now });
+  // samples bought little; at least 5 are kept either way, or all of them when a scenario asks for fewer (a slow
+  // extra/ op).
+  const samples = scenario.samples || 12;
+  const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 2 : scenario.warmup, samples: samples,
+    maxMs: scenario.maxMs || 3000, minSamples: Math.min(5, samples), now: now });
   (gc as () => void)();
   if (warnings.length > 0 && !isExtra) throw new Error("warnings during the scenario: " + warnings.slice(0, 3).join(" | "));
   const jsonErrors = ctx.cache.jsonErrors || 0;
@@ -83,7 +93,7 @@ async function main(): Promise<void> {
     phases: phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), heapMB: Math.round(process.memoryUsage().heapUsed / 1048576),
       gc: true, fixtureMeta: isExtra ? fixture.meta : undefined, warnings: isExtra ? warnings.length : undefined },
-    jsonErrors: jsonErrors, tolerance: scenario.tolerance === undefined ? null : scenario.tolerance, local: isExtra
+    jsonErrors: jsonErrors, tolerance: scenario.tolerance === undefined ? null : scenario.tolerance, local: isExtra || isLocalId(id)
   };
   if (scenario.repeat) entry.repeat = scenario.repeat;
   if (scenario.counterOnly) entry.counterOnly = true;

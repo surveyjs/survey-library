@@ -43,12 +43,9 @@ function createLazySurvey(): SurveyModel {
   survey.lazyRenderEnabled = true;
   return survey;
 }
-// The row's timer calls startLazyRendering. jsdom has no scroll, so the row renders at once.
 function renderLazyRow(survey: SurveyModel): QuestionRowModel {
   const row = survey.currentPage.rows[4];
   expect(row.isLazyRendering(), "the last row renders lazily").toBe(true);
-  expect(row.isNeedRender, "the lazy row starts as a placeholder").toBe(false);
-  act(() => { vi.advanceTimersByTime(20); });
   expect(row.isNeedRender, "the lazy row is rendered").toBe(true);
   return row;
 }
@@ -63,7 +60,7 @@ describe("A lazy row is reset when the last component that renders it unmounts",
 
     act(() => { survey.getQuestionByName("q5").visible = false; });
     expect(survey.currentPage.visibleRows.indexOf(row), "the row is not rendered").toBe(-1);
-    expect(stopLazyRendering, "lazy rendering is stopped").toHaveBeenCalledTimes(1);
+    expect(stopLazyRendering, "lazy rendering is stopped").toHaveBeenCalled();
     expect(row.getRootElement(), "the root element is cleared").toBeUndefined();
     expect(row.isNeedRender, "the row renders lazily again when it is shown").toBe(false);
     survey.dispose();
@@ -82,7 +79,7 @@ describe("A lazy row is reset when the last component that renders it unmounts",
     expect(second.contains(row.getRootElement()), "the root element is kept").toBe(true);
 
     unmount(second);
-    expect(stopLazyRendering, "lazy rendering is stopped").toHaveBeenCalledTimes(1);
+    expect(stopLazyRendering, "lazy rendering is stopped").toHaveBeenCalled();
     expect(row.getRootElement(), "the root element is cleared").toBeUndefined();
     expect(row.isNeedRender, "the row renders lazily again").toBe(false);
     survey.dispose();

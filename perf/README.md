@@ -10,7 +10,7 @@ contract in [CONTRACT.md](CONTRACT.md).
 
 | path | what |
 |---|---|
-| `fixtures/` | generated survey JSON and data (`large`, `expressions`, `calculations`, `complexLogic`, `manyPages`, `records-1k`, `records-10k`, `records-plain`) |
+| `fixtures/` | generated survey JSON and data (`large`, `expressions`, `calculations`, `complexLogic`, `manyPages`, `records-1k`, `records-10k`, `records-plain`, `slotForm`) |
 | `scenarios/` | the operations measured on them; `revs.json` holds each scenario's `rev` and hash |
 | `harness/` | sample loop, stats, counters, ids; `harness/node/`: build checks, environment, machine key, dependency fingerprint, the result file |
 | `core/` | the core suite: one fresh `node --expose-gc` process per scenario |
@@ -45,6 +45,70 @@ from the first warm-up) decides how many. The order is warm-ups, then the sample
 check, teardown), then one counter run. A browser load scenario has no warm-ups and opens a fresh page per sample
 instead of a teardown. A suite runs as long as it runs; a hung scenario is stopped by its hang guard (5 minutes) and
 fails alone (`CONTRACT.md`).
+
+### Local forms (`PERF_EXTRA_JSON`)
+
+`PERF_EXTRA_JSON=<file>;<file>` adds survey JSON files of your own to a local core run, as fixtures
+`extra/<basename>`. Their scenarios are never baselined, and warnings and `jsonErrors` on them are counted
+(`info.warnings`, `jsonErrors`), not failures. Each file gets `extra/<base>/load/model` and
+`extra/<base>/answer/first` (the first choice of the first question with choices). Optional files next to
+`<base>.json`, found by name, add more:
+
+| file | what |
+|---|---|
+| `<base>.data.json` | the survey data: the `data` ops assign it, every other op starts from a model that has it |
+| `<base>.setup.mjs` | a module whose default export `(Survey) => void` runs once per scenario process before any survey is created, with the measured build's module: register the form's custom functions here |
+| `<base>.ops.json` | a JSON array of operations, one scenario each: `extra/<base>/ops/<id>` |
+
+An operation is `{ "id": "<id>", "op": "<kind>", ... }`. Each sample creates a fresh model in the untimed setup; every
+op except `data` also assigns the data there, then runs `before` (an optional list of `{ "name", "value" }`
+`setValue` calls). Only the operation itself is timed, and its check runs after it.
+
+| `op` | fields | the timed call | the check |
+|---|---|---|---|
+| `data` | | `survey.data = data` on a model without data | some data values are set; the `dataDiffs` counter is the number of top-level keys whose value differs from the data |
+| `data-again` | | the same assignment a second time | as `data` |
+| `merge` | `value` | `survey.mergeData(value)` | each key of `value` |
+| `set` | `name`, `value` | `survey.setValue(name, value)` | the value |
+| `cell` | `question`, `row`, `column`, `value` | `matrix.value` with one cell changed (`row`: a row value, or an index of a dynamic matrix) | the cell |
+| `row-cell` | `question`, `row`, `column`, `value` | the cell question of the visible row gets `value` | the cell question and the row |
+| `panel-question` | `question`, `panelIndex`, `name`, `value` | the question `name` of the panel gets `value` | the question |
+| `type` | `question`, `text` | one `value` assignment per character, as `textUpdateMode: "onTyping"` makes them | the text |
+
+A slow op sets `"samples"` (the samples kept: all of them when 5 or fewer) and `"warmup"` (default 2). A sample that
+takes minutes needs a longer hang guard: `PERF_EXTRA_TIMEOUT_MS` sets it for `extra/` ids and the local ids (`slotForm-full`) only.
+
+```bash
+PERF_EXTRA_JSON=/abs/form.json PERF_EXTRA_TIMEOUT_MS=1800000 PERF_ONLY=extra/form/ops/data,extra/form/ops/type npm run perf
+```
+
+The core suite counts `conditionsPasses` for every scenario: the passes over the survey's conditions
+(`SurveyModel.runConditionsCore`) in the counter run.
+
+### The slot form (`slotForm`, `slotForm-full`)
+
+`fixtures/slot-form.ts` generates a form of 20 fixed keyed slots that count answers switch on: a keyed
+`matrixdropdown` row and a keyed dynamic panel item per slot (`keyName`, `valueName`, a `defaultValue` with the keys,
+`templateVisibleIf` by each slot's "on" value), six nested dynamic panels and six nested matrices in every slot item,
+"who" checkboxes with a choice per slot and a `setValueIf` on the number of slots on, and a large set of calculated
+values: per slot, per row, reading each other several levels deep, long nested `iif` expressions over indexed paths
+(`{slotValues[2].nestB[0].q}`) and keyed grid cells (`{grid.k2.col1}`), with `textUpdateMode: "onTyping"`. Its cost
+is in conditions passes: how many a data load runs (each nested item copies its slot key in and writes the slot record
+back) and what one pass costs (the calculated values, the slots' element conditions).
+
+`slotForm` is the nightly fixture, at a tenth of the full form's calculated values and plain questions (`scale` in
+`fixtures/index.ts`); the slots, their grid rows, the nested containers and the "who" checkboxes are the same at every
+scale, so a data load runs as many passes at every scale. Every answer scenario assigns the data in its untimed setup,
+once per sample. `slotForm-full` is the full size: its ids (`LOCAL_IDS` in `harness/ids.ts`) are in no suite and no
+manifest, run only when `PERF_ONLY` names them, take one sample and no warm-up, and use `PERF_EXTRA_TIMEOUT_MS` as
+their hang guard, as `extra/` ids do:
+
+```bash
+PERF_EXTRA_TIMEOUT_MS=3600000 PERF_ONLY=slotForm-full/load/data,slotForm-full/answer/type npm run perf
+```
+
+A data load of the slot form writes `['k0']` over some loaded "who" answers (`meta.overwrittenBefore02`); the
+`load/data` checks skip those answers until that is fixed.
 
 ## The browser suites
 

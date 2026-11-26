@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { splitOnly } from "../harness/ids.ts";
+import { splitOnly, isExtraId, isLocalId } from "../harness/ids.ts";
 import { fixtureOfId } from "../harness/scenario.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { getExtraFixtures } from "../fixtures/extra.ts";
@@ -13,7 +13,7 @@ import { headCommit } from "../harness/node/git.ts";
 import { machineInfo } from "../harness/node/machine.ts";
 import { dependencyInfo } from "../harness/node/deps.ts";
 import { buildPart, resultFilePath, writeJsonAtomic } from "../harness/node/result.ts";
-import { sha1, fixtureHashes } from "../harness/node/fixture-hash.ts";
+import { fixtureHashes } from "../harness/node/fixture-hash.ts";
 import type { ResultFile, ResultEntry } from "../harness/node/result.ts";
 import { scenarioTimeoutMs, resultSchema } from "../manifest.ts";
 
@@ -36,7 +36,7 @@ if (!env.coreDir) {
 const split = splitOnly(env.only, "core");
 let ids = split.run.filter((id: string) => id.indexOf("extra/") !== 0);
 const extras = getExtraFixtures(env.extraJson || "");
-extras.forEach((f: any) => extraScenarioIds(f.key).forEach((id: string) => {
+extras.forEach((f: any) => extraScenarioIds(f.key, f.ops).forEach((id: string) => {
   if (!env.only || env.only.indexOf(id) > -1) ids.push(id);
 }));
 const unknownExtra = split.run.filter((id: string) => id.indexOf("extra/") === 0 && ids.indexOf(id) < 0);
@@ -47,7 +47,10 @@ const fixtures: ResultFile["fixtures"] = {};
 Array.from(new Set(ids.map(fixtureOfId))).sort().forEach((key: string) => {
   if (key.indexOf("extra/") === 0) {
     const extra = extras.filter((f: any) => f.key === key)[0];
-    fixtures[key] = { hash: sha1(JSON.stringify(extra.json)), options: { path: path.basename(extra.path) } };
+    const options: any = { path: path.basename(extra.path) };
+    if (extra.setup) options.setup = path.basename(extra.setup);
+    if (extra.ops) options.ops = extra.ops.length;
+    fixtures[key] = Object.assign(fixtureHashes(extra), { options: options });
     return;
   }
   const f = getFixture(key);
@@ -101,6 +104,12 @@ const stop = (reason: "timeout" | "killed"): void => {
 process.on("SIGTERM", () => stop("timeout"));
 process.on("SIGINT", () => stop("killed"));
 
+// The hang guard: scenarioTimeoutMs, or PERF_EXTRA_TIMEOUT_MS for an extra/ id or a local id (a local form, or the
+// full-size slot form, may take minutes a sample).
+function timeoutOf(id: string): number {
+  return (isExtraId(id) || isLocalId(id)) && env.extraTimeoutMs ? env.extraTimeoutMs : scenarioTimeoutMs;
+}
+
 function runOne(id: string): Promise<any> {
   return new Promise((resolve: (v: any) => void) => {
     let out = "";
@@ -108,7 +117,8 @@ function runOne(id: string): Promise<any> {
     const proc = spawn(process.execPath, ["--expose-gc", processScript, id], { cwd: runnerRoot, env: process.env, stdio: ["ignore", "pipe", "pipe"] });
     child = proc;
     let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; proc.kill(); }, scenarioTimeoutMs);
+    const timeoutMs = timeoutOf(id);
+    const timer = setTimeout(() => { timedOut = true; proc.kill(); }, timeoutMs);
     proc.stdout.on("data", (d: Buffer) => { out += d.toString(); });
     proc.stderr.on("data", (d: Buffer) => { err += d.toString(); });
     proc.on("close", (code: number | null) => {
@@ -123,7 +133,7 @@ function runOne(id: string): Promise<any> {
       }
       // Child processes print nothing on stderr: anything there fails the scenario.
       if (err.trim()) msg = { type: "failed", id: id, error: "stderr: " + err.trim().substring(0, 2000) };
-      if (timedOut) msg = { type: "failed", id: id, error: "killed after " + scenarioTimeoutMs / 1000 + " s" };
+      if (timedOut) msg = { type: "failed", id: id, error: "killed after " + timeoutMs / 1000 + " s" };
       if (!msg) msg = { type: "failed", id: id, error: "no result (exit code " + code + ")" + (out ? ": " + out.substring(0, 500) : "") };
       resolve(msg);
     });

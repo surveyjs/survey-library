@@ -1,6 +1,6 @@
 import type { PerfScenario } from "../harness/scenario.ts";
 import { defineScenarios } from "../harness/scenario.ts";
-import { suitesOf } from "../harness/ids.ts";
+import { suitesOf, isLocalId } from "../harness/ids.ts";
 import * as helpers from "./helpers.ts";
 import * as common from "./common.ts";
 import * as large from "./large.ts";
@@ -10,7 +10,9 @@ import * as complexLogic from "./complex-logic.ts";
 import * as manyPages from "./many-pages.ts";
 import * as records from "./records.ts";
 import * as extra from "./extra.ts";
+import * as slotForm from "./slot-form.ts";
 import * as browser from "./browser.ts";
+import type { ExtraOp } from "./extra.ts";
 
 // The rev of the page code a browser sample's time depends on (perf/browser/page-helpers.ts, angular-entry.ts; revs.ts
 // hashes them into every browser id): a browser id's rev is its own rev plus PAGE_REV - 1, so a change of the page
@@ -30,27 +32,31 @@ export function allScenarios(): Array<PerfScenario> {
     complexLogic.complexLogicScenarios(),
     manyPages.manyPagesScenarios(),
     records.recordsScenarios(),
+    slotForm.slotFormScenarios("slotForm"),
     browser.browserScenarios()
   ).map(withPageRev));
 }
 
-export function scenarioById(id: string): PerfScenario | undefined {
+// extraOps: the operations of the extra file an extra/ id belongs to (its <base>.ops.json).
+export function scenarioById(id: string, extraOps?: Array<ExtraOp>): PerfScenario | undefined {
   if (id.indexOf("extra/") === 0) {
     const key = id.split("/").slice(0, 2).join("/");
-    return defineScenarios(extra.extraScenarios(key)).filter((s: PerfScenario) => s.id === id)[0];
+    return defineScenarios(extra.extraScenarios(key, extraOps)).filter((s: PerfScenario) => s.id === id)[0];
   }
+  // The local ids (ids.ts LOCAL_IDS): in no suite, so not in allScenarios() or revs.json.
+  if (isLocalId(id)) return defineScenarios(slotForm.slotFormFullScenarios()).filter((s: PerfScenario) => s.id === id)[0];
   return allScenarios().filter((s: PerfScenario) => s.id === id)[0];
 }
 
-export function extraScenarioIds(key: string): Array<string> {
-  return extra.extraScenarios(key).map((s: PerfScenario) => s.id);
+export function extraScenarioIds(key: string, ops?: Array<ExtraOp>): Array<string> {
+  return extra.extraScenarios(key, ops).map((s: PerfScenario) => s.id);
 }
 
 // What a scenario may name in `uses`, for its rev hash (revs.ts): the exported functions and constants of
 // perf/scenarios.
 export function helperFunctions(): { [name: string]: any } {
   const res: { [name: string]: any } = {};
-  [helpers, common, large, expressions, calculations, complexLogic, manyPages, records, extra, browser].forEach((mod: any) => {
+  [helpers, common, large, expressions, calculations, complexLogic, manyPages, records, extra, slotForm, browser].forEach((mod: any) => {
     for (const key of Object.keys(mod)) res[key] = mod[key];
   });
   return res;

@@ -36,6 +36,7 @@ export interface IMatrixData {
   isDisabledAttr: boolean;
   isReadOnlyAttr: boolean;
   hasErrorInRow(row: MatrixRowModel): boolean;
+  isRowAlternate(row: MatrixRowModel): boolean;
 }
 class MatrixRowValueGetterContext implements IValueGetterContext {
   constructor(private row: MatrixRowModel) {}
@@ -115,13 +116,17 @@ export class MatrixRowModel extends Base {
     return toCssClasses(this.data.cssClasses.rowTextCell);
   }
   @property({ defaultValue: false }) hasError: boolean;
+  public get isAlternate(): boolean {
+    return this.data.isRowAlternate(this);
+  }
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
     return toCssClasses(
       cssClasses.row,
       this.hasError && cssClasses.rowError,
       this.isReadOnly && cssClasses.rowReadOnly,
-      this.data.isDisabledStyle && cssClasses.rowDisabled
+      this.data.isDisabledStyle && cssClasses.rowDisabled,
+      this.isAlternate && cssClasses.alternateRow
     );
   }
   public getValueGetterContext(): IValueGetterContext {
@@ -330,7 +335,9 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
       const res = super.getValue(params);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(params);
+    // An empty value has nothing to find
+    const value = this.question.value;
+    return !!value ? new VariableGetterContext(value).getValue(params) : undefined;
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
@@ -831,6 +838,7 @@ export class QuestionMatrixModel
     }
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
+  // Rows are shaded by their place among the visible ones: a hidden row does not shift the stripes.
   protected getVisibleRows(): Array<MatrixRowModel> {
     const rows = [];
     this.getMatrixRows().forEach(row => {
@@ -1355,6 +1363,11 @@ export class QuestionMatrixModel
   }
   hasErrorInRow(row: MatrixRowModel): boolean {
     return !!this.errorsInRow && !!this.errorsInRow[row.name];
+  }
+  // Stripes are drawn only when the matrix asks for them, and never in the list layout.
+  isRowAlternate(row: MatrixRowModel): boolean {
+    if (!this.alternateRows || this.isMobile) return false;
+    return this.visibleRows.indexOf(row) % 2 === 0;
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("columns");

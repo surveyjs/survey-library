@@ -63,7 +63,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
+import { isContainerVisible, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
 import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
@@ -124,7 +124,9 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
+import { ISurveyOptions, ISurveyRuntimeSettings, SurveyRuntimeSettingsValues, isPlainObject, addEventHandlersFromOptions, warnUnknownSurveyOptions } from "./survey-settings";
+import { IPropertyDefaults, PropertyDefaultsLayer } from "./survey-property-defaults";
+import { propertyDefaultsState } from "./survey-property-defaults-state";
 import DefaultLightTheme from "./themes/default-light";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
@@ -142,11 +144,12 @@ function isPageKind(el: ISurveyElement): boolean { return el instanceof PageMode
 function isPanelKind(el: ISurveyElement): boolean { return !el.isQuestion && !(el instanceof PageModel); }
 // Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
 // key that can answer a name ignoring letter case is the name's lower-case form: no key scan
+function getVariableByName(variablesHash: HashTable<any>, name: string): any {
+  const key = name.toLowerCase();
+  return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
+}
 function createVariablesContext(variablesHash: HashTable<any>): VariableGetterContext {
-  return new VariableGetterContext(variablesHash, (name: string): any => {
-    const key = name.toLowerCase();
-    return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
-  });
+  return new VariableGetterContext(variablesHash, (name: string): any => getVariableByName(variablesHash, name));
 }
 // The stored answers only, by name ignoring letter case, the way expressions read the values hash
 function createDataContext(valuesHash: HashTable<any>, valuesKeyIndex: HashKeyIndex): VariableGetterContext {
@@ -201,7 +204,10 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
         return new PropertyGetterContext(element).getValue({ path: path.slice(1), isRoot: false, index: -1 });
       }
     }
-    let res = createVariablesContext(this.variablesHash).getValue(params);
+    // A one-part name is a key of the hash: it is read directly, with no context built over the hash
+    const isKey = path.length === 1 && path[0].index === undefined;
+    let res = isKey ? this.getKeyValue(getVariableByName(this.variablesHash, path[0].name)) :
+      createVariablesContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
@@ -209,7 +215,12 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       res = this.getTopLevelCommentInfo(path);
       if (!!res) return res;
     }
-    return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
+    return isKey ? this.getKeyValue(this.valuesKeyIndex.getValue(this.valuesHash, path[0].name)) :
+      createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
+  }
+  // A context over the hash answers undefined as not found
+  private getKeyValue(value: any): IValueGetterInfo {
+    return value !== undefined ? { isFound: true, value: value, context: this } : undefined;
   }
   // The metadata mode: a top-level question's comment key ({kind-Comment}), which the runtime reads from the
   // raw data (the step after this one). It names the question, not the stored key.
@@ -529,7 +540,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+   * To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
    *
    * ```js
    * import { Model } from "survey-core";
@@ -537,14 +548,13 @@ export class SurveyModel extends SurveyElementCore
    * const surveyJson = {
    *    // ...
    * };
-   * // Create an empty model
-   * const survey = new Model();
-   * // Add an event handler
-   * survey.onQuestionCreated.add((sender, options) => {
-   *   //...
+   * const survey = new Model(surveyJson, {
+   *   events: {
+   *     onQuestionCreated: (sender, options) => {
+   *       // Customize the new question
+   *     }
+   *   }
    * });
-   * // Load the survey JSON schema
-   * survey.fromJSON(surveyJson);
    * ```
    * @see onQuestionAdded
    */
@@ -554,7 +564,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+   * To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
    *
    * ```js
    * import { Model } from "survey-core";
@@ -562,14 +572,13 @@ export class SurveyModel extends SurveyElementCore
    * const surveyJson = {
    *    // ...
    * };
-   * // Create an empty model
-   * const survey = new Model();
-   * // Add an event handler
-   * survey.onQuestionAdded.add((sender, options) => {
-   *   //...
+   * const survey = new Model(surveyJson, {
+   *   events: {
+   *     onQuestionAdded: (sender, options) => {
+   *       // Handle the added question
+   *     }
+   *   }
    * });
-   * // Load the survey JSON schema
-   * survey.fromJSON(surveyJson);
    * ```
    * @see onQuestionCreated
    */
@@ -1304,8 +1313,13 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
-    // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
-    this.surveySettingsValues.merge(options, true);
+    // The options are read once, before the JSON loads, and cannot change later. A value that is not a plain object is ignored.
+    warnUnknownSurveyOptions(options);
+    if (isPlainObject(options)) {
+      // Everything loaded reads the survey's own property defaults
+      this.setPropertyDefaults(options.propertyDefaults);
+      this.runtimeSettingsValues.setValues(options.runtimeSettings);
+    }
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
 
@@ -1485,39 +1499,54 @@ export class SurveyModel extends SurveyElementCore
       this.renderCallback();
     }
   }
-  private surveySettingsValuesValue: SurveySettingsValues;
-  private get surveySettingsValues(): SurveySettingsValues {
+  private runtimeSettingsValuesValue: SurveyRuntimeSettingsValues;
+  private get runtimeSettingsValues(): SurveyRuntimeSettingsValues {
     // Created on first use, not in a field initializer: it can be read during construction
-    if (!this.surveySettingsValuesValue) {
-      this.surveySettingsValuesValue = new SurveySettingsValues();
+    if (!this.runtimeSettingsValuesValue) {
+      this.runtimeSettingsValuesValue = new SurveyRuntimeSettingsValues();
     }
-    return this.surveySettingsValuesValue;
+    return this.runtimeSettingsValuesValue;
   }
-  public settings(value: ISurveySettings): void {
-    // The conditions re-run at once, as for showInvisibleElements, so no re-render is needed
-    if (this.surveySettingsValues.merge(value, false) && !this.isLoadingFromJson) {
-      this.runConditions();
-    }
+  // The effective runtime settings: a read-only view, set by the constructor's runtimeSettings option
+  public get runtimeSettings(): ISurveyRuntimeSettings {
+    return this.runtimeSettingsValues.view;
   }
-  public getSettings(): ISurveySettings {
-    return this.surveySettingsValues.view;
-  }
-  // For the comparisons (ISurvey.getOwnSettings): the view when the survey sets a key itself, else undefined,
+  // For the comparisons (ISurvey.getOwnRuntimeSettings): the view when the survey sets a key itself, else undefined,
   // so a survey without its own settings reads the global settings directly, at no extra cost.
-  public getOwnSettings(): ISurveySettings {
-    const values = this.surveySettingsValuesValue;
+  public getOwnRuntimeSettings(): ISurveyRuntimeSettings {
+    const values = this.runtimeSettingsValuesValue;
     return !!values && values.hasOwnValues ? values.view : undefined;
+  }
+  private propertyDefaultsLayerValue: PropertyDefaultsLayer;
+  private isPropertyDefaultsLayerLive: boolean;
+  // Set once, by the constructor's propertyDefaults option
+  private setPropertyDefaults(value: IPropertyDefaults): void {
+    if (value === undefined) return;
+    this.propertyDefaultsLayerValue = new PropertyDefaultsLayer(value);
+    this.updatePropertyDefaultsLayerCount();
+  }
+  // Removes the survey's own property defaults: its objects read the global defaults from now on. dispose() calls it;
+  // the Creator calls it for a survey it keeps without disposing (its designer survey, a survey whose pages it moved).
+  public releasePropertyDefaults(): void {
+    if (!!this.propertyDefaultsLayerValue) {
+      this.propertyDefaultsLayerValue.clear();
+    }
+    this.updatePropertyDefaultsLayerCount();
+  }
+  // For Base.getDefaultPropertyValue: the layer when it has values, else undefined
+  public getOwnPropertyDefaults(): PropertyDefaultsLayer {
+    return this.isPropertyDefaultsLayerLive ? this.propertyDefaultsLayerValue : undefined;
+  }
+  // propertyDefaultsState.liveLayerCount counts the live surveys with a layer that has values
+  private updatePropertyDefaultsLayerCount(): void {
+    const isLive = !this.isDisposed && !!this.propertyDefaultsLayerValue && this.propertyDefaultsLayerValue.hasValues;
+    if (isLive === !!this.isPropertyDefaultsLayerLive) return;
+    this.isPropertyDefaultsLayerLive = isLive;
+    propertyDefaultsState.liveLayerCount += isLive ? 1 : -1;
   }
   public updateSurvey(newProps: any, oldProps?: any) {
     for (var key in newProps) {
       if (key == "model" || key == "children") continue;
-      if (key === "settings") {
-        // Data for the settings() method; assigning it would replace the method. An absent value applies nothing
-        if (newProps[key] !== undefined && newProps[key] !== null) {
-          this.settings(newProps[key]);
-        }
-        continue;
-      }
       if (key.indexOf("on") == 0 && this[key] && this[key].add) {
         let funcBody = newProps[key];
         let func = function (sender: any, options: any) {
@@ -1710,14 +1739,13 @@ export class SurveyModel extends SurveyElementCore
   protected releaseLazyRendering(): void {
     if (!this.isLazyRendering) return;
     this._isLazyRenderingSuspended = false;
+    const callbacks = this.lazyRenderingReleaseCallbacks;
+    this.lazyRenderingReleaseCallbacks = [];
+    callbacks.forEach(callback => callback());
   }
-  private updateLazyRenderingRowsOnRemovingElements() {
-    if (!this.isLazyRendering) return;
-    var page = this.currentPage;
-    if (!!page) {
-      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(getIdSelector(page.renderedId));
-      activateLazyRenderingChecks(htmlElement);
-    }
+  private lazyRenderingReleaseCallbacks: Array<() => void> = [];
+  public addLazyRenderingReleaseCallback(callback: () => void): void {
+    this.lazyRenderingReleaseCallbacks.push(callback);
   }
   /**
    * A list of triggers in the survey.
@@ -6811,9 +6839,6 @@ export class SurveyModel extends SurveyElementCore
     this.doCurrentPageComplete(true);
   }
   elementContentVisibilityChanged(element: ISurveyElement): void {
-    if (this.currentPage) {
-      this.currentPage.ensureRowsVisibility();
-    }
     this.onElementContentVisibilityChanged.fire(this, { element });
     this.doUIStateChanged("collapsed", element);
   }
@@ -6966,8 +6991,6 @@ export class SurveyModel extends SurveyElementCore
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            const pageRootElement = surveyRootElement.querySelector(getIdSelector(elementPage.renderedId));
-            activateLazyRenderingChecks(pageRootElement);
             optOnScolledCallback && optOnScolledCallback();
           });
         }, elementsToRenderBefore);
@@ -6981,14 +7004,11 @@ export class SurveyModel extends SurveyElementCore
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
-            // Without lazy rendering no row waits for the check, and its synthetic scroll is not needed.
-            if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           } else {
             this.suspendLazyRendering();
             SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
               this.releaseLazyRendering();
-              if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
               optOnScolledCallback && optOnScolledCallback();
             });
           }
@@ -7745,7 +7765,7 @@ export class SurveyModel extends SurveyElementCore
       for (let i = 0; i < maxIterations; i++) {
         this.runSurveyTriggers(options, isQuestionInvalid);
         if (this.isCompleted || this.isTwoValueEqualsInSurvey(originalKeys, this.triggerKeys)) break;
-        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnSettings());
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnRuntimeSettings());
         originalKeys = Helpers.createCopy(this.triggerKeys);
       }
       let prevCanBeCompleted = this.canBeCompletedByTrigger;
@@ -8153,6 +8173,11 @@ export class SurveyModel extends SurveyElementCore
     this.jsonErrors = null;
     this.sjsVersion = undefined;
     const jsonConverter = new JsonObject();
+    const ownDefaults = this.getOwnPropertyDefaults();
+    if (!!ownDefaults && !(options && options.propertyDefaults)) {
+      // Elements read the survey's defaults while they load, before they are added to a page
+      options = Object.assign({}, options, { propertyDefaults: ownDefaults });
+    }
     jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
@@ -8637,18 +8662,18 @@ export class SurveyModel extends SurveyElementCore
   private deletingEmptyValuesScope = new Scope();
   // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
   // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
-  // the data even with data.keepEmptyValues on.
+  // the data even with keepEmptyValues on.
   runDeletingEmptyValues<T>(func: () => T): T {
     return this.deletingEmptyValuesScope.run(func);
   }
-  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
   // undefined always removes the key: it is what Question.clearValue() assigns.
   isEmptyValueKept(val: any): boolean {
-    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.runtimeSettings.keepEmptyValues;
   }
   // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
   private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
-    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    if (!name || !this.runtimeSettings.keepEmptyValues) return false;
     return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
@@ -8725,7 +8750,6 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    this.updateLazyRenderingRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -8981,7 +9005,6 @@ export class SurveyModel extends SurveyElementCore
       question: question,
       name: question.name,
     });
-    this.updateLazyRenderingRowsOnRemovingElements();
   }
   questionRenamed(
     question: IQuestion,
@@ -9063,7 +9086,6 @@ export class SurveyModel extends SurveyElementCore
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
-    this.updateLazyRenderingRowsOnRemovingElements();
   }
   validateQuestion(question: Question, errors: Array<SurveyError>, fireCallback: boolean): void {
     if (!this.onValidateQuestion.isEmpty) {
@@ -10013,6 +10035,8 @@ export class SurveyModel extends SurveyElementCore
     this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
+    // Objects loaded with these defaults may outlive the survey: they read the global defaults from now on
+    this.releasePropertyDefaults();
     this.editingObj = null;
     if (!this.pages) return;
     this.currentPage = null;

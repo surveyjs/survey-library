@@ -1203,6 +1203,17 @@ export class Question extends SurveyElement<Question>
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return this.getChangedKeys(keys).isAnyChanged(vars, undefined, runner.getVariablesInfo()) ? "var" : "";
   }
+  // {self} in the question's own expression (visibleIf: "{self} = 1") reads the question's value, but the
+  // value-change keys hold value names: the question's own one, or its container's inside a dynamic panel,
+  // a matrix row or a composite. {self} and {self.x} changed when one of those names did.
+  // The runner keeps whether it reads {self}, so an expression without it costs one field read
+  protected canSkipRunningExpression(propName: string): boolean {
+    const keys = this.getValueChangedKeys();
+    if (!keys) return false;
+    const runner = this.getExpressionByProperty(propName);
+    if (!!runner && runner.hasSelfVariable() && this.isOwnOrContainerValueChanged(keys, this.getSurvey())) return false;
+    return this.canSkipExpressionByKeys(runner, keys);
+  }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
   // a path under a cleared value ({m.r1} once m is cleared) counts as changed, since an item condition
@@ -2290,7 +2301,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(properties);
-    if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
+    if (this.defaultValueExpression && this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       if (!this.canSkipDefaultValueExpression()) {
         this.runDefaultValueExpression(properties);
       }
@@ -2523,7 +2534,7 @@ export class Question extends SurveyElement<Question>
     this.clearValueByRespondent(true, true);
   }
   /* A clear the respondent makes in the question's UI: the clear button, or a click on the selected rating.
-     With data.keepEmptyValues on, the question gets the empty value its UI produces, so its key stays in the
+     With keepEmptyValues on, the question gets the empty value its UI produces, so its key stays in the
      data: [] for an array value, {} for an object value, else null. A clear by code goes through clearValue(). */
   protected clearValueByRespondent(keepComment: boolean, fromUI: boolean): void {
     if (!this.isKeepingEmptyValues() || !this.canKeepEmptyValue()) {
@@ -2537,7 +2548,7 @@ export class Question extends SurveyElement<Question>
     if (Array.isArray(val)) return [];
     return Helpers.isValueObject(val) ? {} : null;
   }
-  // An empty value data.keepEmptyValues kept equals undefined, so the value setter skips it: it is removed here.
+  // An empty value kept by keepEmptyValues equals undefined, so the value setter skips it: it is removed here.
   private removeKeptEmptyValue(): void {
     if (!this.data || !this.isKeepingEmptyValues() || !this.canSetValueToSurvey()) return;
     const val = this.data.getValue(this.getValueName());
@@ -2545,7 +2556,7 @@ export class Question extends SurveyElement<Question>
     this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this);
   }
   protected isKeepingEmptyValues(): boolean {
-    return !!this.survey && !!this.survey.getSettings().data.keepEmptyValues;
+    return !!this.survey && !!this.survey.runtimeSettings.keepEmptyValues;
   }
   // See ISurvey.runDeletingEmptyValues: the empty values func writes remove their keys.
   protected runDeletingEmptyValues<T>(func: () => T): T {
@@ -2873,7 +2884,7 @@ export class Question extends SurveyElement<Question>
   }
   protected checkIfAnswerCorrect(): boolean {
     // caseSensitive is left to the settings: the survey's own value, else the global one
-    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveySettings() });
+    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveyRuntimeSettings() });
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -3643,7 +3654,7 @@ export class Question extends SurveyElement<Question>
   private setValueToData(newValue: any): void {
     this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this);
   }
-  // data.keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
+  // keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
   protected canKeepEmptyValue(): boolean {
     return true;
   }

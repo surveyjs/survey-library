@@ -61,7 +61,7 @@ Input, all optional, as environment variables:
 | `PERF_UI_DIR` | the UI build to measure (browser suites) |
 | `PERF_RESULT_FILE` | where to write the result file |
 | `PERF_RESULTS_DIR` | the folder for result files when `PERF_RESULT_FILE` is unset (default `perf/results`) |
-| `PERF_ONLY` | comma-separated ids; ids of another suite are listed as `notInSuite`, unknown ids are an error |
+| `PERF_ONLY` | comma-separated ids; ids of another suite are listed as `notInSuite`, unknown ids are an error (a local run also takes `extra/` ids and the local ids of `LOCAL_IDS`, which no manifest lists) |
 | `PERF_KIND` | `local` (default), `nightly`, `on-demand`, `record`, `bisect`, `rerun`; recorded in the file |
 | `PERF_LABEL`, `PERF_REF` | free text recorded in the file |
 | `PERF_TARGET_COMMIT`, `PERF_PREVIOUS_COMMIT` | commits recorded in the file |
@@ -94,7 +94,7 @@ counter run or from outside the samples' timed runs:
 
 | kind | counters | what |
 |---|---|---|
-| `work` | `conditionRuns`, `expressionRuns`, `rowsCreated`, `panelsCreated`, a scenario's own | calls in survey-core during the counter run |
+| `work` | `conditionRuns`, `expressionRuns`, `conditionsPasses`, `rowsCreated`, `panelsCreated`, a scenario's own | calls in survey-core during the counter run (`conditionsPasses`: passes over the survey's conditions, `SurveyModel.runConditionsCore`) |
 | `dom` | `domNodes` (browser) | elements under the survey's root after the counter run |
 | `render` | `layoutCount`, `recalcStyleCount` (browser) | layouts and style recalcs (CDP `Performance.getMetrics`) from the counter run's first run until the rendering is quiet (the counts the same for 2 frames in a row; `null` when it is not quiet within 60 frames) |
 | `leak` | `listenerGrowth`, `nodeGrowth` (browser actions) | growth per sample of the JS event listeners and the DOM nodes, after a full gc (CDP `HeapProfiler.collectGarbage`), from the end of the first sample to the end of the last one: what a page keeps once is not counted |

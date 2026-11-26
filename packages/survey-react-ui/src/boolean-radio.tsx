@@ -46,7 +46,16 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
     const cssClasses = this.question.cssClasses;
     return (
       <div className={cssClasses.rootRadio} onKeyDown={this.handleOnKeyDown}>
-        <fieldset role="presentation" className={cssClasses.radioFieldset}>
+        <fieldset
+          className={cssClasses.radioFieldset}
+          role="radiogroup"
+          aria-required={this.question.a11y_input_ariaRequired}
+          aria-label={this.question.a11y_input_ariaLabel}
+          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+          aria-describedby={this.question.a11y_input_ariaDescribedBy}
+          aria-invalid={this.question.a11y_input_ariaInvalid}
+          aria-errormessage={this.question.a11y_input_ariaErrormessage}
+        >
           {!this.question.swapOrder ?
             (<>{this.renderRadioItem(this.question.getValueFalse(), this.question.locLabelFalse)}
               {this.renderRadioItem(this.question.getValueTrue(), this.question.locLabelTrue)}</>)

@@ -1,7 +1,19 @@
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, doDrag, setData, doDragDrop, baseTest as test } from "../e2e/helper";
 
 const title = "Matrixdynamic Screenshot";
+
+// The default matrix separator is transparent and 0px wide, so these screenshots set both.
+async function applyMatrixSeparatorTheme(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    window["survey"].applyTheme({
+      cssVariables: {
+        "--sjs2-color-component-matrix-default-separator": "#2563EB",
+        "--sjs2-border-width-component-matrix-default-separator": "4px"
+      }
+    });
+  });
+}
 
 frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
@@ -273,6 +285,164 @@ frameworks.forEach(framework => {
       const matrixdynamicRoot = page.locator(".sd-question");
       await page.click(".sd-navigation__complete-btn");
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-errors-in-cell-bottom.png");
+    });
+
+    test("Check matrix separator under bottom error rows", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        questionErrorLocation: "bottom",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            title: "Matrix",
+            cellType: "text",
+            columns: [
+              { name: "col1", title: "Column 1", isRequired: true },
+              { name: "col2", title: "Column 2" }
+            ],
+            rowCount: 3,
+            addRowText: "Add a New Record",
+            minWidth: "724px",
+            maxWidth: "724px",
+            width: "724px"
+          }
+        ]
+      });
+      await page.locator(".sd-table__row--data").nth(1).locator("input").first().fill("Answered");
+      await page.click(".sd-navigation__complete-btn");
+      await applyMatrixSeparatorTheme(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question"), "matrixdynamic-separator-under-bottom-error.png");
+    });
+
+    test("Check matrix separator under bottom error and detail", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        questionErrorLocation: "bottom",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            title: "Matrix",
+            cellType: "text",
+            columns: [
+              { name: "col1", title: "Column 1", isRequired: true },
+              { name: "col2", title: "Column 2" }
+            ],
+            detailPanelMode: "underRow",
+            detailElements: [
+              { type: "text", name: "extra", title: "Detail" }
+            ],
+            rowCount: 2,
+            minWidth: "724px",
+            maxWidth: "724px",
+            width: "724px"
+          }
+        ]
+      });
+      await page.click(".sd-navigation__complete-btn");
+      await page.locator("button[title='Show Details']").first().click();
+      await page.locator(".sd-table__row--detail").waitFor();
+      await applyMatrixSeparatorTheme(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question"), "matrixdynamic-separator-under-bottom-error-detail.png");
+    });
+
+    test("Check matrix separator with top error rows", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        questionErrorLocation: "top",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            title: "Matrix",
+            cellType: "text",
+            columns: [
+              { name: "col1", title: "Column 1", isRequired: true },
+              { name: "col2", title: "Column 2" }
+            ],
+            rowCount: 3,
+            addRowText: "Add a New Record",
+            minWidth: "724px",
+            maxWidth: "724px",
+            width: "724px"
+          }
+        ]
+      });
+      await page.locator(".sd-table__row--data").nth(1).locator("input").first().fill("Answered");
+      await page.click(".sd-navigation__complete-btn");
+      await applyMatrixSeparatorTheme(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question"), "matrixdynamic-separator-with-top-error.png");
+    });
+
+    test("Check matrix separator with top error and detail", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        questionErrorLocation: "top",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            title: "Matrix",
+            cellType: "text",
+            columns: [
+              { name: "col1", title: "Column 1", isRequired: true },
+              { name: "col2", title: "Column 2" }
+            ],
+            detailPanelMode: "underRow",
+            detailElements: [
+              { type: "text", name: "extra", title: "Detail" }
+            ],
+            rowCount: 2,
+            minWidth: "724px",
+            maxWidth: "724px",
+            width: "724px"
+          }
+        ]
+      });
+      await page.click(".sd-navigation__complete-btn");
+      await page.locator("button[title='Show Details']").first().click();
+      await page.locator(".sd-table__row--detail").waitFor();
+      await applyMatrixSeparatorTheme(page);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question"), "matrixdynamic-separator-with-top-error-detail.png");
+    });
+
+    test("Check alternate rows share background with error rows", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      for (const location of ["bottom", "top"]) {
+        await initSurvey(page, framework, {
+          questionErrorLocation: location,
+          showQuestionNumbers: false,
+          elements: [
+            {
+              type: "matrixdynamic",
+              name: "matrix",
+              title: "Matrix",
+              alternateRows: true,
+              cellType: "text",
+              columns: [
+                { name: "col1", title: "Column 1", isRequired: true },
+                { name: "col2", title: "Column 2" }
+              ],
+              rowCount: 3,
+              minWidth: "724px",
+              maxWidth: "724px",
+              width: "724px"
+            }
+          ]
+        });
+        await page.click(".sd-navigation__complete-btn");
+        await resetFocusToBody(page);
+        await compareScreenshot(page, page.locator(".sd-question"), `matrixdynamic-alternate-rows-error-${location}.png`);
+      }
     });
 
     test("Check Matrixdynamic with allowRowReorder", async ({ page }) => {

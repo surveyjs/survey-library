@@ -360,6 +360,11 @@ describe("Expressions", () => {
     expect(runner.runValues({ num: 0.00000012345, precision: 9 }), "1.2345e-7 is truncated to 1.23e-7 with precision of 9").toBe(0.000000123);
     expect(runner.runValues({ num: 1e21 }), "1e21 has no fraction part").toBe(1e21);
     expect(runner.runValues({ num: -1.5e22, precision: 2 }), "-1.5e22 has no fraction part").toBe(-1.5e22);
+    expect(runner.runValues({ num: -0.00000012345, precision: 9 }), "-1.2345e-7 is truncated to -1.23e-7 with precision of 9").toBe(-0.000000123);
+    expect(runner.runValues({ num: 0.0000001, precision: 7 }), "1e-7 stays 1e-7 with precision of 7").toBe(0.0000001);
+    expect(runner.runValues({ num: "1.5e-7", precision: 2 }), "A string value \"1.5e-7\" is truncated to 0").toBe(0);
+    expect(runner.runValues({ num: "1e22" }), "A string value \"1e22\" is returned as a number").toBe(1e22);
+    expect(runner.runValues({ num: " 1.57", precision: 1 }), "A string value with a leading space is read as a number").toBe(1.5);
   });
   test("Run age function", () => {
     var runner = new ConditionRunner("age({bithday}) >= 21");

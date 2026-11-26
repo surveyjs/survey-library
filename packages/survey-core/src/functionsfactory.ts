@@ -439,10 +439,11 @@ function trunc(params: any[]): any {
     const num = arr[0];
     const precision = arr[1] || -1;
     if (Helpers.isNumber(num) && Helpers.isNumber(precision)) {
+      const value = Helpers.getNumber(num);
       // a number written as 1e21 or larger has no fraction part
-      if (Math.abs(num) >= 1e21) return num;
+      if (Math.abs(value) >= 1e21) return value;
       const regexp = new RegExp("^-?\\d+(?:.\\d{0," + precision + "})?");
-      return Number(numberToDecimalString(num).match(regexp)[0]);
+      return Number(numberToDecimalString(value).match(regexp)[0]);
     }
   }
   return NaN;

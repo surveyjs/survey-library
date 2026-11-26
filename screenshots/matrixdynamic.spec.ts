@@ -447,9 +447,6 @@ frameworks.forEach(framework => {
 
     test("Check row css background covers the sticky action and row title cells", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.addStyleTag({
-        content: ".row--draft { background-color: #fff4e5; } .row--failed { background-color: #fde7ec; } .row--approved { background-color: #e6f6ef; }"
-      });
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
         elements: [
@@ -483,6 +480,12 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
+        // survey-js-ui renders the survey in a shadow root, which the page's styles do not reach.
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const host = document.getElementById("surveyElement");
+        const style = document.createElement("style");
+        style.textContent = ".row--draft { background-color: #fff4e5; } .row--failed { background-color: #fde7ec; } .row--approved { background-color: #e6f6ef; }";
+        (host?.shadowRoot || document.head).appendChild(style);
         const survey = window["survey"];
         survey.onUpdateMatrixRowCss.add((_, options) => {
           const status = (options.getRecord() || {}).status;

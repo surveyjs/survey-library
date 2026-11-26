@@ -266,6 +266,11 @@
   .sd-boolean-root {
     margin: auto;
   }
+  // A boolean checkbox in view mode is a single item. The cell already pads it, so the
+  // labeled-group padding of the first and last item would add vertical space around the box.
+  .sd-checkbox--view {
+    padding-block: 0;
+  }
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {

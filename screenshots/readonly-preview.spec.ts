@@ -854,6 +854,38 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question__content", "view-matrix-dropdown.png");
     });
 
+    test("Matrix Dropdown Boolean Checkbox View", async ({ page }) => {
+      await page.setViewportSize({ width: 900, height: 600 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        autoFocusFirstQuestion: false,
+        elements: [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "readOnly": true,
+            "readOnlyMode": "view",
+            "columns": [
+              { "name": "col1", "title": "Column 1", "cellType": "text" },
+              {
+                "name": "col2",
+                "title": "Column 2",
+                "cellType": "boolean",
+                "displayMode": "checkbox"
+              }
+            ],
+            "rows": ["Row 1", "Row 2"],
+            "defaultValue": {
+              "Row 1": { "col1": "Text", "col2": true },
+              "Row 2": { "col1": "Text", "col2": false }
+            }
+          }
+        ]
+      });
+
+      await compareScreenshot(page, ".sd-table", "view-matrix-dropdown-boolean-checkbox.png");
+    });
+
     test("Matrix Dynamic ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 900, height: 600 });
       await initSurvey(page, framework, {

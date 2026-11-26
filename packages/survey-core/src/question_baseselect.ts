@@ -2356,7 +2356,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.choicesFromUrl = newChoices;
     this.filterItems();
     this.onVisibleChoicesChanged();
-    // The loaded choices decide the value: a value they drop is a system clear (data.keepEmptyValues)
+    // The loaded choices decide the value: a value they drop is a system clear (keepEmptyValues)
     this.runDeletingEmptyValues((): void => this.updateValueOnChoicesFromUrl(newChoices, cachedValues));
     this.errors = errors;
     this.choicesLoaded();

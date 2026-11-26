@@ -114,7 +114,9 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
+import { ISurveyOptions, ISurveyRuntimeSettings, SurveyRuntimeSettingsValues, isPlainObject, addEventHandlersFromOptions, warnUnknownSurveyOptions } from "./survey-settings";
+import { IPropertyDefaults, PropertyDefaultsLayer } from "./survey-property-defaults";
+import { propertyDefaultsState } from "./survey-property-defaults-state";
 import DefaultLightTheme from "./themes/default-light";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
@@ -521,7 +523,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+   * To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
    *
    * ```js
    * import { Model } from "survey-core";
@@ -529,14 +531,13 @@ export class SurveyModel extends SurveyElementCore
    * const surveyJson = {
    *    // ...
    * };
-   * // Create an empty model
-   * const survey = new Model();
-   * // Add an event handler
-   * survey.onQuestionCreated.add((sender, options) => {
-   *   //...
+   * const survey = new Model(surveyJson, {
+   *   events: {
+   *     onQuestionCreated: (sender, options) => {
+   *       // Customize the new question
+   *     }
+   *   }
    * });
-   * // Load the survey JSON schema
-   * survey.fromJSON(surveyJson);
    * ```
    * @see onQuestionAdded
    */
@@ -546,7 +547,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+   * To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
    *
    * ```js
    * import { Model } from "survey-core";
@@ -554,14 +555,13 @@ export class SurveyModel extends SurveyElementCore
    * const surveyJson = {
    *    // ...
    * };
-   * // Create an empty model
-   * const survey = new Model();
-   * // Add an event handler
-   * survey.onQuestionAdded.add((sender, options) => {
-   *   //...
+   * const survey = new Model(surveyJson, {
+   *   events: {
+   *     onQuestionAdded: (sender, options) => {
+   *       // Handle the added question
+   *     }
+   *   }
    * });
-   * // Load the survey JSON schema
-   * survey.fromJSON(surveyJson);
    * ```
    * @see onQuestionCreated
    */
@@ -1294,8 +1294,13 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
-    // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
-    this.surveySettingsValues.merge(options, true);
+    // The options are read once, before the JSON loads, and cannot change later. A value that is not a plain object is ignored.
+    warnUnknownSurveyOptions(options);
+    if (isPlainObject(options)) {
+      // Everything loaded reads the survey's own property defaults
+      this.setPropertyDefaults(options.propertyDefaults);
+      this.runtimeSettingsValues.setValues(options.runtimeSettings);
+    }
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
 
@@ -1472,39 +1477,54 @@ export class SurveyModel extends SurveyElementCore
       this.renderCallback();
     }
   }
-  private surveySettingsValuesValue: SurveySettingsValues;
-  private get surveySettingsValues(): SurveySettingsValues {
+  private runtimeSettingsValuesValue: SurveyRuntimeSettingsValues;
+  private get runtimeSettingsValues(): SurveyRuntimeSettingsValues {
     // Created on first use, not in a field initializer: it can be read during construction
-    if (!this.surveySettingsValuesValue) {
-      this.surveySettingsValuesValue = new SurveySettingsValues();
+    if (!this.runtimeSettingsValuesValue) {
+      this.runtimeSettingsValuesValue = new SurveyRuntimeSettingsValues();
     }
-    return this.surveySettingsValuesValue;
+    return this.runtimeSettingsValuesValue;
   }
-  public settings(value: ISurveySettings): void {
-    // The conditions re-run at once, as for showInvisibleElements, so no re-render is needed
-    if (this.surveySettingsValues.merge(value, false) && !this.isLoadingFromJson) {
-      this.runConditions();
-    }
+  // The effective runtime settings: a read-only view, set by the constructor's runtimeSettings option
+  public get runtimeSettings(): ISurveyRuntimeSettings {
+    return this.runtimeSettingsValues.view;
   }
-  public getSettings(): ISurveySettings {
-    return this.surveySettingsValues.view;
-  }
-  // For the comparisons (ISurvey.getOwnSettings): the view when the survey sets a key itself, else undefined,
+  // For the comparisons (ISurvey.getOwnRuntimeSettings): the view when the survey sets a key itself, else undefined,
   // so a survey without its own settings reads the global settings directly, at no extra cost.
-  public getOwnSettings(): ISurveySettings {
-    const values = this.surveySettingsValuesValue;
+  public getOwnRuntimeSettings(): ISurveyRuntimeSettings {
+    const values = this.runtimeSettingsValuesValue;
     return !!values && values.hasOwnValues ? values.view : undefined;
+  }
+  private propertyDefaultsLayerValue: PropertyDefaultsLayer;
+  private isPropertyDefaultsLayerLive: boolean;
+  // Set once, by the constructor's propertyDefaults option
+  private setPropertyDefaults(value: IPropertyDefaults): void {
+    if (value === undefined) return;
+    this.propertyDefaultsLayerValue = new PropertyDefaultsLayer(value);
+    this.updatePropertyDefaultsLayerCount();
+  }
+  // Removes the survey's own property defaults: its objects read the global defaults from now on. dispose() calls it;
+  // the Creator calls it for a survey it keeps without disposing (its designer survey, a survey whose pages it moved).
+  public releasePropertyDefaults(): void {
+    if (!!this.propertyDefaultsLayerValue) {
+      this.propertyDefaultsLayerValue.clear();
+    }
+    this.updatePropertyDefaultsLayerCount();
+  }
+  // For Base.getDefaultPropertyValue: the layer when it has values, else undefined
+  public getOwnPropertyDefaults(): PropertyDefaultsLayer {
+    return this.isPropertyDefaultsLayerLive ? this.propertyDefaultsLayerValue : undefined;
+  }
+  // propertyDefaultsState.liveLayerCount counts the live surveys with a layer that has values
+  private updatePropertyDefaultsLayerCount(): void {
+    const isLive = !this.isDisposed && !!this.propertyDefaultsLayerValue && this.propertyDefaultsLayerValue.hasValues;
+    if (isLive === !!this.isPropertyDefaultsLayerLive) return;
+    this.isPropertyDefaultsLayerLive = isLive;
+    propertyDefaultsState.liveLayerCount += isLive ? 1 : -1;
   }
   public updateSurvey(newProps: any, oldProps?: any) {
     for (var key in newProps) {
       if (key == "model" || key == "children") continue;
-      if (key === "settings") {
-        // Data for the settings() method; assigning it would replace the method. An absent value applies nothing
-        if (newProps[key] !== undefined && newProps[key] !== null) {
-          this.settings(newProps[key]);
-        }
-        continue;
-      }
       if (key.indexOf("on") == 0 && this[key] && this[key].add) {
         let funcBody = newProps[key];
         let func = function (sender: any, options: any) {
@@ -7585,7 +7605,7 @@ export class SurveyModel extends SurveyElementCore
       for (let i = 0; i < maxIterations; i++) {
         this.runSurveyTriggers(options, isQuestionInvalid);
         if (this.isCompleted || this.isTwoValueEqualsInSurvey(originalKeys, this.triggerKeys)) break;
-        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnSettings());
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnRuntimeSettings());
         originalKeys = Helpers.createCopy(this.triggerKeys);
       }
       let prevCanBeCompleted = this.canBeCompletedByTrigger;
@@ -7983,6 +8003,11 @@ export class SurveyModel extends SurveyElementCore
     this.jsonErrors = null;
     this.sjsVersion = undefined;
     const jsonConverter = new JsonObject();
+    const ownDefaults = this.getOwnPropertyDefaults();
+    if (!!ownDefaults && !(options && options.propertyDefaults)) {
+      // Elements read the survey's defaults while they load, before they are added to a page
+      options = Object.assign({}, options, { propertyDefaults: ownDefaults });
+    }
     jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
@@ -8466,18 +8491,18 @@ export class SurveyModel extends SurveyElementCore
   private deletingEmptyValuesScope = new Scope();
   // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
   // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
-  // the data even with data.keepEmptyValues on.
+  // the data even with keepEmptyValues on.
   runDeletingEmptyValues<T>(func: () => T): T {
     return this.deletingEmptyValuesScope.run(func);
   }
-  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
   // undefined always removes the key: it is what Question.clearValue() assigns.
   private isEmptyValueKeptOnSetValue(val: any): boolean {
-    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.runtimeSettings.keepEmptyValues;
   }
   // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
   private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
-    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    if (!name || !this.runtimeSettings.keepEmptyValues) return false;
     return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
@@ -9872,6 +9897,8 @@ export class SurveyModel extends SurveyElementCore
     this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
+    // Objects loaded with these defaults may outlive the survey: they read the global defaults from now on
+    this.releasePropertyDefaults();
     this.editingObj = null;
     if (!this.pages) return;
     this.currentPage = null;

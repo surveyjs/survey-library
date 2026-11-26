@@ -2504,7 +2504,7 @@ export class Question extends SurveyElement<Question>
     this.clearValueByRespondent(true, true);
   }
   /* A clear the respondent makes in the question's UI: the clear button, or a click on the selected rating.
-     With data.keepEmptyValues on, the question gets the empty value its UI produces, so its key stays in the
+     With keepEmptyValues on, the question gets the empty value its UI produces, so its key stays in the
      data: [] for an array value, {} for an object value, else null. A clear by code goes through clearValue(). */
   protected clearValueByRespondent(keepComment: boolean, fromUI: boolean): void {
     if (!this.isKeepingEmptyValues() || !this.canKeepEmptyValue()) {
@@ -2518,7 +2518,7 @@ export class Question extends SurveyElement<Question>
     if (Array.isArray(val)) return [];
     return Helpers.isValueObject(val) ? {} : null;
   }
-  // An empty value data.keepEmptyValues kept equals undefined, so the value setter skips it: it is removed here.
+  // An empty value kept by keepEmptyValues equals undefined, so the value setter skips it: it is removed here.
   private removeKeptEmptyValue(): void {
     if (!this.data || !this.isKeepingEmptyValues() || !this.canSetValueToSurvey()) return;
     const val = this.data.getValue(this.getValueName());
@@ -2526,7 +2526,7 @@ export class Question extends SurveyElement<Question>
     this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
   }
   protected isKeepingEmptyValues(): boolean {
-    return !!this.survey && !!this.survey.getSettings().data.keepEmptyValues;
+    return !!this.survey && !!this.survey.runtimeSettings.keepEmptyValues;
   }
   // See ISurvey.runDeletingEmptyValues: the empty values func writes remove their keys.
   protected runDeletingEmptyValues<T>(func: () => T): T {
@@ -2851,7 +2851,7 @@ export class Question extends SurveyElement<Question>
   }
   protected checkIfAnswerCorrect(): boolean {
     // caseSensitive is left to the settings: the survey's own value, else the global one
-    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveySettings() });
+    const isEqual = Helpers.checkIfValuesEqual(this.value, this.getCorrectAnswerValue(), { ignoreOrder: this.getAnswerCorrectIgnoreOrder(), trimStrings: true, settings: this.getSurveyRuntimeSettings() });
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -3601,7 +3601,7 @@ export class Question extends SurveyElement<Question>
   private setValueToData(newValue: any): void {
     this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this.name);
   }
-  // data.keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
+  // keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
   protected canKeepEmptyValue(): boolean {
     return true;
   }

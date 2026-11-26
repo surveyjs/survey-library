@@ -2,7 +2,7 @@ import { describe, test, expect, afterEach, beforeEach, vi } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { Event } from "../src/event";
-import { SurveySettingsValues } from "../src/survey-settings";
+import { SurveyRuntimeSettingsValues } from "../src/survey-settings";
 
 export * from "../src/question_text";
 export * from "../src/question_checkbox";
@@ -231,14 +231,6 @@ describe("Survey settings: event handlers in the constructor options", () => {
     });
     expect(warnSpy).not.toHaveBeenCalled();
   });
-  test("survey.settings({ events }) after construction stays ignored with a warning", () => {
-    const survey = new SurveyModel(questionsJson);
-    const handler = (): void => { };
-    survey.settings(<any>{ events: { onComplete: handler } });
-    expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0]).toContain("events");
-    expect(survey.onComplete.isEmpty).toBe(true);
-  });
   test("remove and clear work on handlers added through the options; dispose releases them", () => {
     const log: Array<string> = [];
     const a = (): void => { log.push("a"); };
@@ -269,23 +261,23 @@ describe("Survey settings: event handlers in the constructor options", () => {
       spy.mockRestore();
     }
   });
-  test("The handlers are subscribed after the settings are applied and before fromJSON", () => {
+  test("The handlers are subscribed after the runtime settings are applied and before fromJSON", () => {
     // Applying the settings raises no event, so the order is read from the call order of spies that call through.
-    const mergeSpy = vi.spyOn(SurveySettingsValues.prototype, "merge");
+    const setValuesSpy = vi.spyOn(SurveyRuntimeSettingsValues.prototype, "setValues");
     const addSpy = vi.spyOn(Event.prototype, "add");
     const fromJSONSpy = vi.spyOn(SurveyModel.prototype, "fromJSON");
     try {
       let caseSensitive: boolean;
-      const handler = (sender: SurveyModel): void => { caseSensitive = sender.getSettings().comparator.caseSensitive; };
-      new SurveyModel(questionsJson, { comparator: { caseSensitive: true }, events: { onQuestionCreated: handler } });
+      const handler = (sender: SurveyModel): void => { caseSensitive = sender.runtimeSettings.comparator.caseSensitive; };
+      new SurveyModel(questionsJson, { runtimeSettings: { comparator: { caseSensitive: true } }, events: { onQuestionCreated: handler } });
       expect(caseSensitive).toBe(true);
       const addIndex = addSpy.mock.calls.findIndex(args => args[0] === handler);
       expect(addIndex).toBeGreaterThan(-1);
       const addOrder = addSpy.mock.invocationCallOrder[addIndex];
-      expect(mergeSpy.mock.invocationCallOrder[0]).toBeLessThan(addOrder);
+      expect(setValuesSpy.mock.invocationCallOrder[0]).toBeLessThan(addOrder);
       expect(addOrder).toBeLessThan(fromJSONSpy.mock.invocationCallOrder[0]);
     } finally {
-      mergeSpy.mockRestore();
+      setValuesSpy.mockRestore();
       addSpy.mockRestore();
       fromJSONSpy.mockRestore();
     }

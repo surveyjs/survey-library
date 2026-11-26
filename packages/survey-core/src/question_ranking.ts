@@ -141,7 +141,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoicesSync();
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArraysEqual(this.value, this.correctAnswer, false, undefined, undefined, this.getSurveySettings());
+    return Helpers.isArraysEqual(this.value, this.correctAnswer, false, undefined, undefined, this.getSurveyRuntimeSettings());
   }
   get requireStrictCompare(): boolean { return true; }
   onSurveyValueChanged(newValue: any) {

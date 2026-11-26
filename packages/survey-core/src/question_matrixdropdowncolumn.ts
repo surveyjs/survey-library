@@ -963,7 +963,7 @@ export class MatrixDropdownColumn extends Base
           json[prop] = this.jsonObj[prop];
         });
       }
-      new JsonObject().toObject(json, question);
+      new JsonObject().toObject(json, question, this.getLoadOptionsForCopy());
       question.isContentElement = this.templateQuestion.isContentElement;
       question.loadedChoicesFromServerCallback = () => {
         if (!this.isShowInMultipleColumns) return;

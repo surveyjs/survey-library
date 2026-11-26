@@ -1,7 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
 import type { ISurvey } from "../interfaces/survey-interfaces";
-import { ISurveySettings, getSettingsOfSurvey } from "../survey-settings";
+import { ISurveyRuntimeSettings, getRuntimeSettingsOfSurvey } from "../survey-settings";
 import { Scope } from "../utils/scope";
 import {
   DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
@@ -68,7 +68,7 @@ export class DynamicDataList {
     getFields: (): Array<IDynamicDataField> => this.getFields(),
     getLocalFilterRunners: (): Array<ConditionRunner> => this.isWindowWholeStorage ? this.view.filterRunners : [],
     getLocalSort: (): Array<ISortCriterion> => this.isWindowWholeStorage ? this.view.sort : [],
-    getSurveySettings: (): ISurveySettings => this.getSurveySettings(),
+    getSurveyRuntimeSettings: (): ISurveyRuntimeSettings => this.getSurveyRuntimeSettings(),
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
   // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.
@@ -889,11 +889,11 @@ export class DynamicDataList {
     // A record the owner hides (rowsVisibleIf, templateVisibleIf) is not shown after Apply either: the
     // owner's predicate or the membership's own flags say which, as they do for the view.
     const isShown = isRecordShown || ((index: number): boolean => this.isRecordVisible(index));
-    const indexes = applyFilters(this.records, [this.view.filterRunner, runner], this.getFields(), this.getSurveySettings());
+    const indexes = applyFilters(this.records, [this.view.filterRunner, runner], this.getFields(), this.getSurveyRuntimeSettings());
     return Promise.resolve(indexes.filter(isShown).length);
   }
-  private getSurveySettings(): ISurveySettings {
-    return getSettingsOfSurvey(!!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined);
+  private getSurveyRuntimeSettings(): ISurveyRuntimeSettings {
+    return getRuntimeSettingsOfSurvey(!!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined);
   }
   private countAtSource(filter: string): Promise<number | undefined> {
     return new Promise((resolve: (count: number | undefined) => void): void => {

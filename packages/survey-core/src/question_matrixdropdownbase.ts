@@ -13,7 +13,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { FunctionFactory } from "./functionsfactory";
 import { PanelModel, PanelModelBase } from "./panel";
 import { settings } from "./settings";
-import { getSurveySetting } from "./survey-settings";
+import { getRuntimeSetting } from "./survey-settings";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -1483,7 +1483,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @since 2.0.0
    */
   public get useCaseSensitiveComparison(): boolean {
-    return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : getSurveySetting(this.getSurveySettings(), "comparator", "caseSensitive");
+    return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : getRuntimeSetting(this.getSurveyRuntimeSettings(), "comparator", "caseSensitive");
   }
   public set useCaseSensitiveComparison(val: boolean) {
     this.useCaseSensitiveComparisonValue = val;
@@ -3368,7 +3368,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     panel.readOnly = this.isMatrixReadOnly() || !row.isRowEnabled();
     const json = this.isRecordCleanupBuilding ? this.getRecordCleanupJson((): any => removeRecordCleanupSkipped(this.detailPanel.toJSON(),
       this.detailPanel.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name))) : this.detailPanel.toJSON();
-    new JsonObject().toObject(json, panel);
+    new JsonObject().toObject(json, panel, this.getLoadOptionsForCopy());
     // Attached to the row only after the json is loaded: a question attached earlier takes the row value
     // while its properties still have default values (a file question loads its preview as text, #12024).
     panel.setSurveyImpl(row);

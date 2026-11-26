@@ -102,7 +102,7 @@ function checkEquality(record: ElementRecord, constValue: any): Mismatch | undef
       suggestionReason: SurveyLintSuggestionReasons.useContainsOrAnyof,
     };
   }
-  // the runtime comparison converts "true" and 1 to a boolean, unless comparator.strictEquality is on
+  // the runtime comparison converts "true" and 1 to a boolean
   if (valueType.scalarType === "boolean" && typeof constValue !== "boolean" &&
     constValue !== null && constValue !== undefined && constValue !== "" &&
     !runtimeEquals(true, constValue) && !runtimeEquals(false, constValue)) {

@@ -461,7 +461,7 @@ export class QuestionTextModel extends QuestionTextBase {
         value = this.maskInstance.getUnmaskedValue(val);
         if (value === undefined || value === null || value === "") {
           keepEnteredText = true;
-          // An erased input is the respondent's clear that data.keepEmptyValues keeps as "".
+          // An erased input is the respondent's clear that keepEmptyValues keeps as "".
           // An incomplete entry has no value.
           value = this.isKeepingEmptyValues() && this.isMaskInputErased(val) ? "" : undefined;
         } else {

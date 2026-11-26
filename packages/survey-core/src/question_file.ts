@@ -855,7 +855,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public clear(doneCallback?: () => void) {
     this.clearCore(doneCallback, false);
   }
-  // isByRespondent: the Clear button. With data.keepEmptyValues on it keeps [] in the data; clear() in code
+  // isByRespondent: the Clear button. With keepEmptyValues on it keeps [] in the data; clear() in code
   // removes the key.
   private clearCore(doneCallback: () => void, isByRespondent: boolean) {
     if (!this.fileCallbacks) return;
@@ -920,7 +920,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public removeFile(name: string) {
     this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
   }
-  // isByRespondent: the remove button. With data.keepEmptyValues on, removing the last file keeps [] in the data;
+  // isByRespondent: the remove button. With keepEmptyValues on, removing the last file keeps [] in the data;
   // removeFile() in code removes the key, as without the setting.
   protected removeFileByContent(content: any, isByRespondent: boolean = false) {
     if (!this.fileCallbacks) return;

@@ -14,7 +14,7 @@ import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { settings } from "./settings";
-import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
+import { ISurveyRuntimeSettings, getRuntimeSettingsOfSurvey } from "./survey-settings";
 import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -121,15 +121,15 @@ export class DropdownListModel extends Base {
     }
   }
 
-  private getQuestionSurveySettings(): ISurveySettings {
-    return getSettingsOfSurvey(!!this.question ? this.question.survey : undefined);
+  private getQuestionRuntimeSettings(): ISurveyRuntimeSettings {
+    return getRuntimeSettingsOfSurvey(!!this.question ? this.question.survey : undefined);
   }
   private processCustomValue(newValue?: string) {
     if (!this.allowCustomChoices) return;
 
     const value = newValue || this.filterString;
-    const surveySettings = this.getQuestionSurveySettings();
-    const item = this.listModel.getVisibleActions().filter(action => Helpers.checkIfValuesEqual(action.text, value, { ignoreOrder: false, caseSensitive: false, settings: surveySettings }))[0];
+    const runtimeSettings = this.getQuestionRuntimeSettings();
+    const item = this.listModel.getVisibleActions().filter(action => Helpers.checkIfValuesEqual(action.text, value, { ignoreOrder: false, caseSensitive: false, settings: runtimeSettings }))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {

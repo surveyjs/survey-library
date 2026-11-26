@@ -70,6 +70,7 @@ product: Form Library
 - [`IDialogOptions`](https://surveyjs.io/form-library/documentation/api-reference/idialogoptions.md) — An interface used to configure the content and behavior of a modal dialog displayed via the `showDialog()` method.
 - [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/iexpressionvalidationresult.md) — An interface that describes the result returned by the `validateExpressions` method.
 - [`ISaveToJSONOptions`](https://surveyjs.io/form-library/documentation/api-reference/isavetojsonoptions.md) — An interface with configuration options that control how a `SurveyModel` instance is serialized by the `toJSON()` method.
+- [`ISurveyOptions`](https://surveyjs.io/form-library/documentation/api-reference/isurveyoptions.md) — Options passed as the second argument to the `SurveyModel` constructor.
 
 ## Variables
 

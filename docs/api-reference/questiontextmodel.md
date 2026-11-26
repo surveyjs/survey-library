@@ -44,7 +44,7 @@ A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/H
 
 ### `inputTextAlignment`
 
-**Type**: `"auto" | "left" | "right"`
+**Type**: `"left" | "right" | "auto"`
 
 Specifies text alignment within the input field.
 

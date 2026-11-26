@@ -1041,28 +1041,6 @@
             "view"
           ]
         },
-        "allowFiltering": {
-          "type": "boolean"
-        },
-        "filterOperators": {
-          "type": "string",
-          "enum": [
-            "empty",
-            "notempty",
-            "equal",
-            "notequal",
-            "contains",
-            "notcontains",
-            "anyof",
-            "noneof",
-            "allof",
-            "greater",
-            "less",
-            "greaterorequal",
-            "lessorequal"
-          ],
-          "$ref": "string"
-        },
         "validators": {
           "type": "array",
           "items": {
@@ -2143,28 +2121,6 @@
         },
         "allowSort": {
           "type": "boolean"
-        },
-        "allowFiltering": {
-          "type": "boolean"
-        },
-        "filterOperators": {
-          "type": "string",
-          "enum": [
-            "empty",
-            "notempty",
-            "equal",
-            "notequal",
-            "contains",
-            "notcontains",
-            "anyof",
-            "noneof",
-            "allof",
-            "greater",
-            "less",
-            "greaterorequal",
-            "lessorequal"
-          ],
-          "$ref": "string"
         },
         "defaultDisplayValue": {
           "oneOf": [
@@ -3748,7 +3704,7 @@
         },
         {
           "properties": {
-            "source": {
+            "targetQuestion": {
               "type": "string"
             },
             "fields": {
@@ -3757,38 +3713,50 @@
                 "$ref": "filterfield"
               }
             },
-            "items": {
+            "presets": {
               "type": "array",
               "items": {
-                "$ref": "filteritem"
+                "$ref": "filterpreset"
               }
             },
-            "defaultItem": {
+            "defaultPreset": {
               "type": "string"
             },
-            "allowMultipleItems": {
+            "showPresets": {
               "type": "boolean"
             },
-            "allowAddItems": {
+            "allowAddPresets": {
               "type": "boolean"
             },
-            "allowReorderItems": {
+            "allowEditPresets": {
               "type": "boolean"
             },
-            "showSearch": {
+            "allowDeletePresets": {
+              "type": "boolean"
+            },
+            "showSearchBar": {
               "type": "boolean"
             },
             "searchFields": {
-              "type": "string",
-              "$ref": "string"
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
-            "allowChangeSearchFields": {
+            "searchPlaceholder": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
+            "showQuickFilters": {
               "type": "boolean"
             },
-            "allowFastMode": {
-              "type": "boolean"
-            },
-            "allowAdvancedMode": {
+            "showAllFiltersButton": {
               "type": "boolean"
             }
           }
@@ -3855,21 +3823,38 @@
             "text"
           ]
         },
-        "showInFastMode": {
-          "type": "boolean"
+        "operators": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "empty",
+              "notempty",
+              "equal",
+              "notequal",
+              "contains",
+              "notcontains",
+              "anyof",
+              "noneof",
+              "allof",
+              "greater",
+              "less",
+              "greaterorequal",
+              "lessorequal"
+            ]
+          }
         },
-        "filterOperators": {
-          "type": "string",
-          "$ref": "string"
+        "showInQuickFilters": {
+          "type": "boolean"
         }
       },
       "required": [
         "name"
       ]
     },
-    "filteritem": {
+    "filterpreset": {
       "type": "object",
-      "$id": "filteritem",
+      "$id": "filterpreset",
       "properties": {
         "name": {
           "type": "string"

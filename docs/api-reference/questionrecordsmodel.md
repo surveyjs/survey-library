@@ -30,6 +30,10 @@ Sorting in code is available regardless of this property's value.
 
 In matrix questions, you can set an individual column's [`allowSort`](/form-library/documentation/api-reference/multi-select-matrix-column-values#allowSort) property to `false` to disable sorting by that column.
 
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
+[Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
+
 **Related APIs:** [`maxSortLevel`](#maxSortLevel), [`sortCriteria`](#sortCriteria), [`sort`](#sort)
 
 ### `maxSortLevel`
@@ -44,6 +48,10 @@ Each field defines a sorting level. Set this property to a value greater than 1 
 
 This limit applies only to respondent sorting. You can specify more fields in code using [`sortCriteria`](#sortCriteria) or the [`sort()`](#sort) method.
 
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
+[Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
+
 **Related APIs:** [`allowSort`](#allowSort)
 
 ### `pageCount`
@@ -51,6 +59,10 @@ This limit applies only to respondent sorting. You can specify more fields in co
 **Type**: `number`
 
 Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
+
+[Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+
+[Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
 
 Available since: v3.2.2
 
@@ -61,6 +73,10 @@ Available since: v3.2.2
 **Type**: `number`
 
 Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
+
+[Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+
+[Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
 
 Available since: v3.2.2
 
@@ -75,6 +91,10 @@ Specifies the number of rows or panels per data page.
 Default value: 0 (pagination is disabled)
 
 The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
+
+[Demo: Paging in Matrices](https://surveyjs.io/form-library/examples/paging-in-matrices/ (linkStyle))
+
+[Demo: Paging in Dynamic Panel](https://surveyjs.io/form-library/examples/paging-in-dynamic-panel/ (linkStyle))
 
 Available since: v3.2.2
 
@@ -99,6 +119,10 @@ Assigning an array, adding or removing criteria, or changing an item's `field` o
 
 Sorting changes the display order while preserving the record order in the question's `value`.
 
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
+[Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
+
 **Related APIs:** [`sort`](#sort), [`clearSort`](#clearSort), [`allowSort`](#allowSort), [`maxSortLevel`](#maxSortLevel)
 
 ## Methods
@@ -109,6 +133,10 @@ Clears all sorting criteria and displays data in the original order.
 
 Equivalent to setting [`sortCriteria`](#sortCriteria) to an empty array.
 
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
+[Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
+
 **Related APIs:** [`sort`](#sort)
 
 ### `sort()`
@@ -118,6 +146,10 @@ Sorts data by the specified field or criteria.
 Updates [`sortCriteria`](#sortCriteria) and applies sorting without validating the current data page. Available regardless of the [`allowSort`](#allowSort) and [`maxSortLevel`](#maxSortLevel) settings.
 
 When an array of sorting criteria is passed, it replaces all existing criteria, and the `direction` and `append` parameters are ignored.
+
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
+[Demo: Sorting in Dynamic Panel](https://surveyjs.io/form-library/examples/sorting-in-dynamic-panel/ (linkStyle))
 
 **Parameters:**
 

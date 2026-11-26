@@ -95,7 +95,7 @@ Set the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference
 
 ### `rateDescriptionLocation`
 
-**Type**: `"top" | "bottom" | "topBottom" | "leftRight"`
+**Type**: `"bottom" | "top" | "topBottom" | "leftRight"`
 
 Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.
 

@@ -30,6 +30,8 @@ Columns whose cells hold multiple values (`"checkbox"` and `"tagbox"` [cell type
 
 Sorting configured in code remains available regardless of this property's value.
 
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
 ### `cellType`
 
 **Type**: `string`

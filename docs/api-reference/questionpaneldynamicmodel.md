@@ -136,7 +136,7 @@ If it is not empty, then this value is set to every new panel, including panels 
 
 ### `displayMode`
 
-**Type**: `"tab" | "list" | "carousel"`
+**Type**: `"list" | "carousel" | "tab"`
 
 Specifies how to display panels.
 
@@ -320,7 +320,7 @@ Available since: v2.0.0
 
 ### `progressBarLocation`
 
-**Type**: `"top" | "bottom" | "topBottom"`
+**Type**: `"bottom" | "top" | "topBottom"`
 
 Specifies the alignment of the [progress bar](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) relative to the currently displayed panel. Applies only if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"carousel"`.
 

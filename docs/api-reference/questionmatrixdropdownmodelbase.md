@@ -289,6 +289,8 @@ Displays the sort bar when column headers cannot be used for sorting: on mobile 
 - `"always"`\
 Displays the sort bar even when column headers support sorting.
 
+[Demo: Sorting in Matrices](https://surveyjs.io/form-library/examples/sorting-in-matrices/ (linkStyle))
+
 **Related APIs:** [`maxSortLevel`](#maxSortLevel)
 
 ### `singleInputTitleTemplate`

@@ -38,13 +38,18 @@ describe("LocalizationsTests", () => {
     surveyLocalization.defaultLocale = "en";
   });
   test("add new localization", () => {
-    var newLoc = { pageNextText: "Mynext" };
-    surveyLocalization.locales["myen"] = newLoc;
-    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
-    surveyLocalization.currentLocale = "myen";
-    expect(surveyLocalization.getString("pageNextText")).toBe("Mynext");
-    expect(surveyLocalization.getString("pagePrevText")).toBe("Previous");
-    surveyLocalization.currentLocale = "";
+    const savedCurrentLocale = surveyLocalization.currentLocale;
+    try {
+      var newLoc = { pageNextText: "Mynext" };
+      surveyLocalization.locales["myen"] = newLoc;
+      expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+      surveyLocalization.currentLocale = "myen";
+      expect(surveyLocalization.getString("pageNextText")).toBe("Mynext");
+      expect(surveyLocalization.getString("pagePrevText")).toBe("Previous");
+    } finally {
+      delete surveyLocalization.locales["myen"];
+      surveyLocalization.currentLocale = savedCurrentLocale;
+    }
   });
   test("make german as a default location", () => {
     expect(surveyLocalization.getString("pagePrevText"), "Get English string").toBe("Previous");
@@ -90,13 +95,18 @@ describe("LocalizationsTests", () => {
     surveyLocalization.currentLocale = "";
   });
   test("Supported locales + removeDefaultLoc", () => {
-    var localesCounts = surveyLocalization.getLocales().length;
-    surveyLocalization.supportedLocales = ["en", "de"];
-    expect(surveyLocalization.getLocales().length, "We support only two locales now").toBe(2 + 1);
-    expect(surveyLocalization.getLocales(true), "We remove 'en' locales").toEqual(["", "de"]);
-    surveyLocalization.supportedLocales = null;
-    expect(surveyLocalization.getLocales().length, "Support all locales").toBe(localesCounts);
-    expect(surveyLocalization.getLocales(true).length, "Support all locales, but without en").toBe(localesCounts - 1);
+    const savedSupportedLocales = surveyLocalization.supportedLocales;
+    try {
+      var localesCounts = surveyLocalization.getLocales().length;
+      surveyLocalization.supportedLocales = ["en", "de"];
+      expect(surveyLocalization.getLocales().length, "We support only two locales now").toBe(2 + 1);
+      expect(surveyLocalization.getLocales(true), "We remove 'en' locales").toEqual(["", "de"]);
+      surveyLocalization.supportedLocales = null;
+      expect(surveyLocalization.getLocales().length, "Support all locales").toBe(localesCounts);
+      expect(surveyLocalization.getLocales(true).length, "Support all locales, but without en").toBe(localesCounts - 1);
+    } finally {
+      surveyLocalization.supportedLocales = savedSupportedLocales;
+    }
   });
   test("getLocales & showNamesInEnglish, #8694", () => {
     expect(surveyLocalization.getLocaleName("de", false), "#1").toBe("deutsch");
@@ -165,11 +175,15 @@ describe("LocalizationsTests", () => {
     surveyLocalization.locales["en"]["custom_test_key"] = "item";
     var oldDl = surveyLocalization.defaultLocale;
     var oldCl = surveyLocalization.currentLocale;
-    surveyLocalization.defaultLocale = "de";
-    surveyLocalization.currentLocale = "de";
-    expect(surveyLocalization.getString("custom_test_key")).toBe("item");
-    surveyLocalization.defaultLocale = oldDl;
-    surveyLocalization.currentLocale = oldCl;
+    try {
+      surveyLocalization.defaultLocale = "de";
+      surveyLocalization.currentLocale = "de";
+      expect(surveyLocalization.getString("custom_test_key")).toBe("item");
+    } finally {
+      delete surveyLocalization.locales["en"]["custom_test_key"];
+      surveyLocalization.defaultLocale = oldDl;
+      surveyLocalization.currentLocale = oldCl;
+    }
   });
 
   test("Czech locale is 'cs', but support the old one 'cz', Bug #2004", () => {
@@ -286,33 +300,39 @@ describe("LocalizationsTests", () => {
       prop6: "Prop5 EFTest",
       prop7: "Prop7 EFTest",
     };
-    englishStrings["prop7"] = "Prop7 EnTest";
-    englishStrings["prop8"] = "Prop8 EnTest";
-    surveyLocalization.locales["ab-AB"] = locABABTest;
-    surveyLocalization.locales["ab"] = locABTest;
-    surveyLocalization.locales["cd-CD"] = locCDCDTest;
-    surveyLocalization.locales["cd"] = locCDTest;
-    surveyLocalization.locales["ef-EF"] = locEFEFTest;
-    surveyLocalization.locales["ef"] = locEFTest;
-    surveyLocalization.defaultLocale = "ef-EF";
-    surveyLocalization.currentLocale = "cd-CD";
-    expect(surveyLocalization.getString("prop1", "ab-AB"), "prop1").toBe("Prop1 ABABTest");
-    expect(surveyLocalization.getString("prop2", "ab-AB"), "prop2").toBe("Prop2 ABABTest");
-    expect(surveyLocalization.getString("prop3", "ab-AB"), "prop3").toBe("Prop3 ABTest");
-    expect(surveyLocalization.getString("prop4", "ab-AB"), "prop4").toBe("Prop4 CDCDTest");
-    expect(surveyLocalization.getString("prop5", "ab-AB"), "prop5").toBe("Prop5 CDTest");
-    expect(surveyLocalization.getString("prop6", "ab-AB"), "prop6").toBe("Prop6 EFEFTest");
-    expect(surveyLocalization.getString("prop7", "ab-AB"), "prop7").toBe("Prop7 EFTest");
-    expect(surveyLocalization.getString("prop8", "ab-AB"), "prop8").toBe("Prop8 EnTest");
-
-    surveyLocalization.defaultLocale = "en";
-    surveyLocalization.currentLocale = "";
-    delete surveyLocalization.locales["ab-AB"];
-    delete surveyLocalization.locales["ab"];
-    delete surveyLocalization.locales["cd-CD"];
-    delete surveyLocalization.locales["cd"];
-    delete surveyLocalization.locales["ef-EF"];
-    delete surveyLocalization.locales["ef"];
+    const savedDefaultLocale = surveyLocalization.defaultLocale;
+    const savedCurrentLocale = surveyLocalization.currentLocale;
+    try {
+      englishStrings["prop7"] = "Prop7 EnTest";
+      englishStrings["prop8"] = "Prop8 EnTest";
+      surveyLocalization.locales["ab-AB"] = locABABTest;
+      surveyLocalization.locales["ab"] = locABTest;
+      surveyLocalization.locales["cd-CD"] = locCDCDTest;
+      surveyLocalization.locales["cd"] = locCDTest;
+      surveyLocalization.locales["ef-EF"] = locEFEFTest;
+      surveyLocalization.locales["ef"] = locEFTest;
+      surveyLocalization.defaultLocale = "ef-EF";
+      surveyLocalization.currentLocale = "cd-CD";
+      expect(surveyLocalization.getString("prop1", "ab-AB"), "prop1").toBe("Prop1 ABABTest");
+      expect(surveyLocalization.getString("prop2", "ab-AB"), "prop2").toBe("Prop2 ABABTest");
+      expect(surveyLocalization.getString("prop3", "ab-AB"), "prop3").toBe("Prop3 ABTest");
+      expect(surveyLocalization.getString("prop4", "ab-AB"), "prop4").toBe("Prop4 CDCDTest");
+      expect(surveyLocalization.getString("prop5", "ab-AB"), "prop5").toBe("Prop5 CDTest");
+      expect(surveyLocalization.getString("prop6", "ab-AB"), "prop6").toBe("Prop6 EFEFTest");
+      expect(surveyLocalization.getString("prop7", "ab-AB"), "prop7").toBe("Prop7 EFTest");
+      expect(surveyLocalization.getString("prop8", "ab-AB"), "prop8").toBe("Prop8 EnTest");
+    } finally {
+      surveyLocalization.defaultLocale = savedDefaultLocale;
+      surveyLocalization.currentLocale = savedCurrentLocale;
+      delete englishStrings["prop7"];
+      delete englishStrings["prop8"];
+      delete surveyLocalization.locales["ab-AB"];
+      delete surveyLocalization.locales["ab"];
+      delete surveyLocalization.locales["cd-CD"];
+      delete surveyLocalization.locales["cd"];
+      delete surveyLocalization.locales["ef-EF"];
+      delete surveyLocalization.locales["ef"];
+    }
   });
   test("Bug#11912: rootLang returns the locale in use when the survey uses the default locale", () => {
     const survey = new SurveyModel({ elements: [{ type: "boolean", name: "q1" }] });

@@ -108,11 +108,15 @@ describe("Helpers", () => {
   });
   test("isTwoValueEquals, strings: settings.normalizeTextCallback", () => {
     expect(Helpers.isTwoValueEquals("Brouillé", "Brouille"), "#1").toBe(false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-    settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-      return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
-    };
-    expect(Helpers.isTwoValueEquals("Brouillé", "Brouille"), "#2").toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-    settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
+    const savedNormalizeTextCallback = settings.comparator.normalizeTextCallback;
+    try {
+      settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
+        return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
+      };
+      expect(Helpers.isTwoValueEquals("Brouillé", "Brouille"), "#2").toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    } finally {
+      settings.comparator.normalizeTextCallback = savedNormalizeTextCallback;
+    }
   });
   test("normalizeTextForSearch supports ASCII and Turkish dotted i search", () => {
     expect(normalizeTextForSearch("ADIYAMAN"), "#1").toBe("adiyaman");
@@ -373,11 +377,15 @@ describe("Helpers", () => {
     expect(Helpers.compareStrings("401", "60"), "#15").toBe(1);
     expect(Helpers.compareStrings("60", "401"), "#16").toBe(-1);
 
-    settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-      return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
-    };
-    expect(Helpers.compareStrings("Brouillé", "Brouille"), "#17").toBe(0); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-    settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
+    const savedNormalizeTextCallback = settings.comparator.normalizeTextCallback;
+    try {
+      settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
+        return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
+      };
+      expect(Helpers.compareStrings("Brouillé", "Brouille"), "#17").toBe(0); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    } finally {
+      settings.comparator.normalizeTextCallback = savedNormalizeTextCallback;
+    }
   });
   test("getUnbindValue function", () => {
     expect(Helpers.getUnbindValue(1), "do not convert number").toEqual(1);
@@ -451,41 +459,48 @@ describe("Helpers", () => {
     expect(createDate("#1", "2024-10-10").getDate(), "#1").toBe(10);
     let func_val: any = "";
     let func_reason = "";
-    settings.onDateCreated = (newDate, reason, val) => {
-      func_val = val;
-      func_reason = reason;
-      newDate.setDate(newDate.getDate() + 1);
-      return newDate;
-    };
-    expect(createDate("#2", "2024-10-10").getDate(), "#2").toBe(11);
-    expect(func_val, "val").toBe("2024-10-10T00:00:00");
-    expect(func_reason, "reason").toBe("#2");
-    settings.onDateCreated = (date, reason, val) => {
-      return date;
-    };
-    expect(createDate("#3", "2024-10-10").getDate(), "#3").toBe(10);
+    const savedOnDateCreated = settings.onDateCreated;
+    try {
+      settings.onDateCreated = (newDate, reason, val) => {
+        func_val = val;
+        func_reason = reason;
+        newDate.setDate(newDate.getDate() + 1);
+        return newDate;
+      };
+      expect(createDate("#2", "2024-10-10").getDate(), "#2").toBe(11);
+      expect(func_val, "val").toBe("2024-10-10T00:00:00");
+      expect(func_reason, "reason").toBe("#2");
+      settings.onDateCreated = (date, reason, val) => {
+        return date;
+      };
+      expect(createDate("#3", "2024-10-10").getDate(), "#3").toBe(10);
+    } finally {
+      settings.onDateCreated = savedOnDateCreated;
+    }
   });
   test("createDate & T00:00:00 & settings.storeUtcDates", () => {
     let func_val: any = "";
-    settings.onDateCreated = (newDate, reason, val) => {
-      func_val = val;
-      return newDate;
-    };
-    createDate("#1", "2024-10-10");
-    expect(func_val, "#1").toBe("2024-10-10T00:00:00");
-    createDate("#2", "2024-10-10T02:00:00");
-    expect(func_val, "#2").toBe("2024-10-10T02:00:00");
-    createDate("#3", "10/10/2024");
-    expect(func_val, "#3").toBe("10/10/2024");
+    const savedOnDateCreated = settings.onDateCreated;
+    const savedStoreUtcDates = settings.storeUtcDates;
+    try {
+      settings.onDateCreated = (newDate, reason, val) => {
+        func_val = val;
+        return newDate;
+      };
+      createDate("#1", "2024-10-10");
+      expect(func_val, "#1").toBe("2024-10-10T00:00:00");
+      createDate("#2", "2024-10-10T02:00:00");
+      expect(func_val, "#2").toBe("2024-10-10T02:00:00");
+      createDate("#3", "10/10/2024");
+      expect(func_val, "#3").toBe("10/10/2024");
 
-    settings.storeUtcDates = true;
-    createDate("#4", "2024-10-10");
-    expect(func_val, "#4").toBe("2024-10-10");
-    settings.storeUtcDates = false;
-
-    settings.onDateCreated = (date, reason, val) => {
-      return date;
-    };
+      settings.storeUtcDates = true;
+      createDate("#4", "2024-10-10");
+      expect(func_val, "#4").toBe("2024-10-10");
+    } finally {
+      settings.storeUtcDates = savedStoreUtcDates;
+      settings.onDateCreated = savedOnDateCreated;
+    }
   });
 
   test("randomizeArray with seed", () => {

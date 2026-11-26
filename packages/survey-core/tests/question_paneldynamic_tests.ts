@@ -6185,60 +6185,63 @@ describe("Survey_QuestionPanelDynamic", () => {
         this.updateCallback && this.updateCallback(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
       }
     };
-    const survey = new SurveyModel({
-      elements: [
-        {
-          type: "paneldynamic",
-          name: "relatives",
-          title: "Panel Dynamic",
-          displayMode: "tab",
-          templateTitle: "Information about: {panel.relativeType}",
-          templateElements: [
-            {
-              type: "text",
-              name: "q1"
-            }
-          ],
-          panelCount: 2,
-          addPanelText: "Add a blood relative",
-          removePanelText: "Remove the relative"
-        }
-      ],
-    });
-    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-    expect(panelTabToolbar.actions[0].disableHide).toBe(true);
-    expect(panelTabToolbar.actions[1].disableHide).toBe(false);
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "relatives",
+            title: "Panel Dynamic",
+            displayMode: "tab",
+            templateTitle: "Information about: {panel.relativeType}",
+            templateElements: [
+              {
+                type: "text",
+                name: "q1"
+              }
+            ],
+            panelCount: 2,
+            addPanelText: "Add a blood relative",
+            removePanelText: "Remove the relative"
+          }
+        ],
+      });
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+      const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+      expect(panelTabToolbar.actions[0].disableHide).toBe(true);
+      expect(panelTabToolbar.actions[1].disableHide).toBe(false);
 
-    panel.addPanel(2);
-    expect(panel.currentIndex, "currentIndex is 2").toBe(2);
-    expect(panelTabToolbar.actions[0].disableHide).toBe(false);
-    expect(panelTabToolbar.actions[1].disableHide).toBe(false);
-    expect(panelTabToolbar.actions[2].disableHide).toBe(true);
+      panel.addPanel(2);
+      expect(panel.currentIndex, "currentIndex is 2").toBe(2);
+      expect(panelTabToolbar.actions[0].disableHide).toBe(false);
+      expect(panelTabToolbar.actions[1].disableHide).toBe(false);
+      expect(panelTabToolbar.actions[2].disableHide).toBe(true);
 
-    let log = "";
-    (panelTabToolbar as any).updateCallback = () => {
-      log += "->raised";
-    };
-    panelTabToolbar.actions[1].mode = "popup";
-    expect(log).toBe("");
-    panel.currentIndex = 1;
-    panelTabToolbar.flushUpdates();
-    expect(panelTabToolbar.actions[1].disableHide).toBeTruthy();
-    expect(log).toBe("->raised");
-    panel.currentIndex = 0;
-    panelTabToolbar.flushUpdates();
-    expect(panelTabToolbar.actions[1].disableHide).toBeFalsy();
-    expect(panelTabToolbar.actions[0].disableHide).toBeTruthy();
-    expect(log).toBe("->raised");
-    panelTabToolbar.actions[2].mode = "popup";
-    panel.currentIndex = 2;
-    panelTabToolbar.flushUpdates();
-    expect(panelTabToolbar.actions[0].disableHide).toBeFalsy();
-    expect(panelTabToolbar.actions[1].disableHide).toBeFalsy();
-    expect(panelTabToolbar.actions[2].disableHide).toBeTruthy();
-    expect(log).toBe("->raised->raised");
-    AdaptiveActionContainer.prototype["update"] = oldUpdate;
+      let log = "";
+      (panelTabToolbar as any).updateCallback = () => {
+        log += "->raised";
+      };
+      panelTabToolbar.actions[1].mode = "popup";
+      expect(log).toBe("");
+      panel.currentIndex = 1;
+      panelTabToolbar.flushUpdates();
+      expect(panelTabToolbar.actions[1].disableHide).toBeTruthy();
+      expect(log).toBe("->raised");
+      panel.currentIndex = 0;
+      panelTabToolbar.flushUpdates();
+      expect(panelTabToolbar.actions[1].disableHide).toBeFalsy();
+      expect(panelTabToolbar.actions[0].disableHide).toBeTruthy();
+      expect(log).toBe("->raised");
+      panelTabToolbar.actions[2].mode = "popup";
+      panel.currentIndex = 2;
+      panelTabToolbar.flushUpdates();
+      expect(panelTabToolbar.actions[0].disableHide).toBeFalsy();
+      expect(panelTabToolbar.actions[1].disableHide).toBeFalsy();
+      expect(panelTabToolbar.actions[2].disableHide).toBeTruthy();
+      expect(log).toBe("->raised->raised");
+    } finally {
+      AdaptiveActionContainer.prototype["update"] = oldUpdate;
+    }
   });
 
   test("displayMode: tab check hasTabbedMenu property", () => {
@@ -9008,37 +9011,41 @@ describe("Survey_QuestionPanelDynamic", () => {
       return 1;
     }
     FunctionFactory.Instance.register("customFunc", customFunc);
-    const survey = new SurveyModel({
-      "elements": [
-        {
-          "type": "paneldynamic",
-          "name": "d1",
-          "panelCount": 1,
-          "templateElements": [
-            {
-              "type": "expression",
-              "name": "q1",
-              "expression": "customFunc()"
-            }
-          ]
-        }
-      ]
-    });
-    expect(notParentCalls, "notParentCalls").toBe(0);
-    expect(parentCalls > 0, "parentCalls #1").toBe(true);
-    //expect(parentCalls, "parentCalls #1").toBe(1);
-    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
-    const prevCalls = parentCalls;
+    try {
+      const survey = new SurveyModel({
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "d1",
+            "panelCount": 1,
+            "templateElements": [
+              {
+                "type": "expression",
+                "name": "q1",
+                "expression": "customFunc()"
+              }
+            ]
+          }
+        ]
+      });
+      expect(notParentCalls, "notParentCalls").toBe(0);
+      expect(parentCalls > 0, "parentCalls #1").toBe(true);
+      //expect(parentCalls, "parentCalls #1").toBe(1);
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
+      const prevCalls = parentCalls;
+      panel.addPanel();
+      expect(notParentCalls, "notParentCalls").toBe(0);
+      expect(parentCalls > prevCalls, "parentCalls #2").toBe(true);
+    /*
+    expect(parentCalls, "parentCalls #2").toBe(2);
     panel.addPanel();
-    expect(notParentCalls, "notParentCalls").toBe(0);
-    expect(parentCalls > prevCalls, "parentCalls #2").toBe(true);
-  /*
-  expect(parentCalls, "parentCalls #2").toBe(2);
-  panel.addPanel();
-  expect(parentCalls, "parentCalls #3").toBe(3);
-  panel.addPanel();
-  expect(parentCalls, "parentCalls #4").toBe(4);
-  */
+    expect(parentCalls, "parentCalls #3").toBe(3);
+    panel.addPanel();
+    expect(parentCalls, "parentCalls #4").toBe(4);
+    */
+    } finally {
+      FunctionFactory.Instance.unregister("customFunc");
+    }
   });
   test("SurveyError.notificationType & validate in panel dynamic,Issue#9085", () => {
     const survey = new SurveyModel({

@@ -12,7 +12,13 @@ import { QuestionRankingModel } from "../src/question_ranking";
 import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
+// The DOM adapter sets user-select and touch-action on <body> during a drag, and the tests
+// append drag shortcuts to <body> that a drop does not always remove.
+afterEach(() => {
+  document.body.removeAttribute("style");
+  document.body.replaceChildren();
+});
 describe("DragDropHelper Tests", () => {
   function getNewQuestion(choices?: string[]) {
     const json = {

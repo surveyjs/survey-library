@@ -50,21 +50,17 @@ describe("SvgRegistryTests", () => {
       svgMountContainer,
     };
 
+    const savedEnvironment = settings.environment;
     settings.environment = environment as any;
-
-    let svg = new SvgIconRegistry();
-    svg.registerIconFromSvgViaElement("a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>", "sprite-");
-    expect(svg.iconsRenderedHtml()).toBe("<symbol viewBox=\"0 0 100 100\" id=\"sprite-a\"><circle></circle></symbol>");
-
-    svgMountContainer.remove();
-    shadowRootWrapper.remove();
-
-    settings.environment = {
-      ...settings.environment,
-      root: document,
-      rootElement: document.body,
-      svgMountContainer: document.head
-    };
+    try {
+      let svg = new SvgIconRegistry();
+      svg.registerIconFromSvgViaElement("a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>", "sprite-");
+      expect(svg.iconsRenderedHtml()).toBe("<symbol viewBox=\"0 0 100 100\" id=\"sprite-a\"><circle></circle></symbol>");
+    } finally {
+      svgMountContainer.remove();
+      shadowRootWrapper.remove();
+      settings.environment = savedEnvironment;
+    }
   });
 
   test("svg import from svg via element - use prefix", () => {

@@ -13,7 +13,7 @@ import { ListModel } from "../../src/list";
 import { Action, IAction } from "../../src/actions/action";
 import { activateLazyRenderingChecks } from "../../src/utils/dom-utils";
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, afterEach, afterAll } from "vitest";
 // const popupTemplate = require("html-loader?interpolate!val-loader!../../../../src/knockout/components/popup/popup.html");
 
 const popupTemplate = `<div>
@@ -106,9 +106,22 @@ describe("Popup", () => {
     (<any>window).setTimeout = function (callback: any) {
       callback();
     };
-    toggleVisibility.apply(this, arguments);
-    window.setTimeout = prevSetTimeout;
+    try {
+      toggleVisibility.apply(this, arguments);
+    } finally {
+      window.setTimeout = prevSetTimeout;
+    }
   };
+  // The patch above is made at collect time, and src classes stay in the worker after this file.
+  afterAll(() => {
+    PopupModel.prototype.toggleVisibility = toggleVisibility;
+  });
+  // addElementIntoBody and the RTL and overlay tests write dir and styles on <html> and <body>.
+  afterEach(() => {
+    document.documentElement.removeAttribute("dir");
+    document.documentElement.removeAttribute("style");
+    document.body.removeAttribute("style");
+  });
   //
 
   test("PopupModel defaults", () => {
@@ -212,27 +225,27 @@ describe("Popup", () => {
     stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
-    viewModel.initializePopupContainer();
-    viewModel.container.innerHTML = popupTemplate;
-    let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
-    popupContainer.style.width = "200px";
-    popupContainer.style.height = "400px";
-    popupContainer.style.margin = "8px";
-    stubElementLayout(popupContainer, { width: 200, height: 400 });
-    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
-    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = popupTemplate;
+      let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
+      popupContainer.style.width = "200px";
+      popupContainer.style.height = "400px";
+      popupContainer.style.margin = "8px";
+      stubElementLayout(popupContainer, { width: 200, height: 400 });
+      const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+      if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
-    (<any>window).innerHeight = 2000;
-    (<any>window).innerWidth = 2000;
-    viewModel.updateOnShowing();
+      (<any>window).innerHeight = 2000;
+      (<any>window).innerWidth = 2000;
+      viewModel.updateOnShowing();
 
-    viewModel.updatePosition(false, false);
-    expect(viewModel.popupDirection).toBe("left");
-
-    viewModel.dispose();
-    targetElement.remove();
-    document.dir = "";
-    document.body.style.direction = "";
+      viewModel.updatePosition(false, false);
+      expect(viewModel.popupDirection).toBe("left");
+    } finally {
+      viewModel.dispose();
+      targetElement.remove();
+    }
   });
 
   test("PopupDropdownViewModel custom environment", () => {
@@ -253,32 +266,29 @@ describe("Popup", () => {
       popupMountContainer
     };
 
+    const savedEnvironment = settings.environment;
     settings.environment = environment as any;
 
     const targetElement: HTMLElement = document.createElement("div");
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
-    viewModel.initializePopupContainer();
-    viewModel.container.innerHTML = popupTemplate;
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = popupTemplate;
 
-    const container: HTMLElement = viewModel.container;
-    expect(!!container).toBe(true);
-    expect(container.tagName).toBe("DIV");
-    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toBe(0);
+      const container: HTMLElement = viewModel.container;
+      expect(!!container).toBe(true);
+      expect(container.tagName).toBe("DIV");
+      expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toBe(0);
 
-    expect(container.parentElement?.tagName).toBe("DIV");
-    expect(container.parentElement?.id).toBe("shadowElement");
-
-    viewModel.dispose();
-    targetElement.remove();
-    popupMountContainer.remove();
-    shadowRootWrapper.remove();
-
-    settings.environment = {
-      ...settings.environment,
-      root: document,
-      rootElement: document.body,
-      popupMountContainer: document.body,
-    };
+      expect(container.parentElement?.tagName).toBe("DIV");
+      expect(container.parentElement?.id).toBe("shadowElement");
+    } finally {
+      viewModel.dispose();
+      targetElement.remove();
+      popupMountContainer.remove();
+      shadowRootWrapper.remove();
+      settings.environment = savedEnvironment;
+    }
   });
 
   test("PopupModalViewModel defaults", () => {
@@ -1179,32 +1189,32 @@ describe("Popup", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { displayMode: "overlay" });
     const targetElement: HTMLElement = document.createElement("div");
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
-    viewModel.initializePopupContainer();
-    viewModel.container.innerHTML = popupTemplate;
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = popupTemplate;
 
-    const visualViewport: any = new EventTarget();
-    visualViewport.height = 800;
-    visualViewport.offsetTop = 0;
-    visualViewport.scale = 1;
-    Object.defineProperty(window, "visualViewport", { configurable: true, value: visualViewport });
+      const visualViewport: any = new EventTarget();
+      visualViewport.height = 800;
+      visualViewport.offsetTop = 0;
+      visualViewport.scale = 1;
+      Object.defineProperty(window, "visualViewport", { configurable: true, value: visualViewport });
 
-    const documentStyle = document.documentElement.style;
-    viewModel.updateOnShowing();
-    expect(documentStyle.getPropertyValue("--sv-popup-overlay-height")).toBe("800px");
-    expect(documentStyle.getPropertyValue("--sv-popup-overlay-top")).toBe("0px");
+      const documentStyle = document.documentElement.style;
+      viewModel.updateOnShowing();
+      expect(documentStyle.getPropertyValue("--sv-popup-overlay-height")).toBe("800px");
+      expect(documentStyle.getPropertyValue("--sv-popup-overlay-top")).toBe("0px");
 
-    // the on-screen keyboard shrinks the visual viewport and shifts it within the layout viewport
-    visualViewport.height = 400;
-    visualViewport.offsetTop = 150;
-    visualViewport.dispatchEvent(new Event("scroll"));
-    expect(documentStyle.getPropertyValue("--sv-popup-overlay-height")).toBe("400px");
-    expect(documentStyle.getPropertyValue("--sv-popup-overlay-top")).toBe("150px");
-
-    viewModel.dispose();
-    documentStyle.removeProperty("--sv-popup-overlay-height");
-    documentStyle.removeProperty("--sv-popup-overlay-top");
-    delete (<any>window).visualViewport;
-    targetElement.remove();
+      // the on-screen keyboard shrinks the visual viewport and shifts it within the layout viewport
+      visualViewport.height = 400;
+      visualViewport.offsetTop = 150;
+      visualViewport.dispatchEvent(new Event("scroll"));
+      expect(documentStyle.getPropertyValue("--sv-popup-overlay-height")).toBe("400px");
+      expect(documentStyle.getPropertyValue("--sv-popup-overlay-top")).toBe("150px");
+    } finally {
+      viewModel.dispose();
+      delete (<any>window).visualViewport;
+      targetElement.remove();
+    }
   });
 
   test("PopupDropdownViewModel is not closed by a scroll event dispatched by script", () => {
@@ -2006,29 +2016,32 @@ describe("Popup", () => {
     settings.animationEnabled = true;
     const oldQueueMicrotask = window.queueMicrotask;
     window.queueMicrotask = (cb) => cb();
-    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
-    model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
-      logger.log += `->model:isVisible:${options.isVisible}`;
-    });
-    const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
-    viewModel.setComponentElement(document.createElement("div"));
-    viewModel.logger = logger;
-    viewModel.initializePopupContainer();
-    viewModel.container.innerHTML = popupTemplate;
-    viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
-      logger.log += `->viewModel:isVisible:${options.isVisible}`;
-    });
-    viewModel.enableOnElementRerenderedEvent();
-    model.isVisible = true;
-    viewModel.afterRerender();
-    expect(logger.log, "correct order of updates when entering").toBe("->model:isVisible:true->viewModel:isVisible:true->onEnter");
-    expect(viewModel.getAnimation().passedEnterClass, "correct css classes passed to animation's onEnter").toEqual("sv-popup--enter");
-    logger.log = "";
-    model.isVisible = false;
-    expect(logger.log, "correct order of updates when leaving").toBe("->model:isVisible:false->onLeave->viewModel:isVisible:false");
-    expect(viewModel.getAnimation().passedLeaveClass, "correct css classes passed to animation's onLeave").toEqual("sv-popup--leave");
-    settings.animationEnabled = false;
-    window.queueMicrotask = oldQueueMicrotask;
+    try {
+      const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
+      model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
+        logger.log += `->model:isVisible:${options.isVisible}`;
+      });
+      const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
+      viewModel.setComponentElement(document.createElement("div"));
+      viewModel.logger = logger;
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = popupTemplate;
+      viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
+        logger.log += `->viewModel:isVisible:${options.isVisible}`;
+      });
+      viewModel.enableOnElementRerenderedEvent();
+      model.isVisible = true;
+      viewModel.afterRerender();
+      expect(logger.log, "correct order of updates when entering").toBe("->model:isVisible:true->viewModel:isVisible:true->onEnter");
+      expect(viewModel.getAnimation().passedEnterClass, "correct css classes passed to animation's onEnter").toEqual("sv-popup--enter");
+      logger.log = "";
+      model.isVisible = false;
+      expect(logger.log, "correct order of updates when leaving").toBe("->model:isVisible:false->onLeave->viewModel:isVisible:false");
+      expect(viewModel.getAnimation().passedLeaveClass, "correct css classes passed to animation's onLeave").toEqual("sv-popup--leave");
+    } finally {
+      settings.animationEnabled = false;
+      window.queueMicrotask = oldQueueMicrotask;
+    }
   });
 
   test("PopupViewModel: check popupViewModel without container is working correctly", () => {
@@ -2038,15 +2051,19 @@ describe("Popup", () => {
       logger.log += `->model:isVisible:${options.isVisible}`;
     });
     const viewModel: PopupDropdownViewModel = new PopupDropdownViewModel(model);
-    viewModel.initializePopupContainer();
-    viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
-      logger.log += `->viewModel:isVisible:${options.isVisible}`;
-    });
-    model.isVisible = true;
-    expect(logger.log, "correct order of updates when entering without animation").toBe("->model:isVisible:true->viewModel:isVisible:true");
-    logger.log = "";
-    model.isVisible = false;
-    expect(logger.log, "correct order of updates when leaving without animation").toBe("->model:isVisible:false->viewModel:isVisible:false");
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
+        logger.log += `->viewModel:isVisible:${options.isVisible}`;
+      });
+      model.isVisible = true;
+      expect(logger.log, "correct order of updates when entering without animation").toBe("->model:isVisible:true->viewModel:isVisible:true");
+      logger.log = "";
+      model.isVisible = false;
+      expect(logger.log, "correct order of updates when leaving without animation").toBe("->model:isVisible:false->viewModel:isVisible:false");
+    } finally {
+      viewModel.dispose();
+    }
   });
 
   test("PopupViewModel: check popupViewModel is working correctly when shouldRunAnimation is false", () => {

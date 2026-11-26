@@ -19,12 +19,20 @@ import { FunctionFactory } from "../src/functionsfactory";
 
 import { DragDropChoices } from "../src/dragdrop/choices";
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { PanelModel } from "../src/panel";
 describe("baseselect", () => {
   function getValuesInColumns(question: QuestionSelectBase) {
     return question.columns.map((column) => column.map((choice) => choice.id));
   }
+  // Several tests set settings.itemFlowDirection (showItemsInOrder is its alias).
+  let savedItemFlowDirection: string;
+  beforeEach(() => {
+    savedItemFlowDirection = settings.itemFlowDirection;
+  });
+  afterEach(() => {
+    settings.itemFlowDirection = savedItemFlowDirection;
+  });
 
   test("Check QuestionSelectBase columns property", () => {
     const json = {
@@ -170,6 +178,8 @@ describe("baseselect", () => {
     expect(question.hasHeadItems).toBeFalsy();
     expect(question.hasFootItems).toBeFalsy();
 
+    // The expected columns below are the row layout.
+    settings.itemFlowDirection = "row";
     let columns = getValuesInColumns(question);
     settings.itemFlowDirection = "column";
     expect(columns, "check columns with no separateSpecialChoices").toEqual([["selectall", "Item2", "other"], ["Item1", "none"]]);
@@ -6128,16 +6138,21 @@ describe("A visible-choices update renders the choices once", () => {
       ddHelper["parentElement"] = <any>q1;
       ddHelper["draggedElement"] = <any>q1.choices[0];
       ddHelper["dropTarget"] = <any>q1.choices[2];
-      ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(document.createElement("div"));
-      ddHelper["isBottom"] = true;
-      ddHelper["afterDragOver"](dropTargetNode);
-      const expected = ["item2", "item3", "item1", "item4"];
-      expect(renderedAndVisible(q1), "dragged over").toEqual([expected, expected]);
-      ddHelper["allowDropHere"] = true;
-      ddHelper["drop"]();
-      expect(values(q1.choices), "dropped: choices").toEqual(expected);
-      expect(renderedAndVisible(q1), "dropped").toEqual([expected, expected]);
-      dropTargetNode.remove();
+      const shortcut = document.body.appendChild(document.createElement("div"));
+      ddHelper["domAdapter"]["draggedElementShortcut"] = shortcut;
+      try {
+        ddHelper["isBottom"] = true;
+        ddHelper["afterDragOver"](dropTargetNode);
+        const expected = ["item2", "item3", "item1", "item4"];
+        expect(renderedAndVisible(q1), "dragged over").toEqual([expected, expected]);
+        ddHelper["allowDropHere"] = true;
+        ddHelper["drop"]();
+        expect(values(q1.choices), "dropped: choices").toEqual(expected);
+        expect(renderedAndVisible(q1), "dropped").toEqual([expected, expected]);
+      } finally {
+        shortcut.remove();
+        dropTargetNode.remove();
+      }
     });
   });
 });

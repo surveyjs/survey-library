@@ -1,6 +1,6 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterAll, afterEach, chai, expect, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, chai, expect, vi } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
@@ -10,6 +10,10 @@ import { Base } from "../src/base";
 import { QuestionRecordItem } from "../src/question_records";
 import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
+import { FunctionFactory } from "../src/functionsfactory";
+import { ElementFactory } from "../src/questionfactory";
+import { RendererFactory } from "../src/rendererFactory";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { _setIsTouch } from "../src/utils/devices";
 import { reducedMotionMediaQuery } from "../src/utils/reduced-motion";
 import { mediaQueries, restoreSettings, windowSize } from "./test-baseline";
@@ -746,6 +750,48 @@ function __sv_reanchorEnvironment() {
 }
 // Now for the first test of this file, and after each test for the swaps above.
 __sv_reanchorEnvironment();
+
+// A test file must leave the module registries as it found them: the worker keeps them for its
+// later files. beforeAll runs after the test file is imported, so registrations made at import
+// time are in the snapshot. This afterAll is registered first, and with sequence.hooks "stack"
+// afterAll hooks run in reverse order, so it runs last: its error fails the file and skips
+// neither restoreSettings() nor the cache drop below.
+function getRegistries(): { [name: string]: Array<string> } {
+  const renderersHash = (RendererFactory.Instance as any).renderersHash;
+  const renderers: Array<string> = [];
+  Object.keys(renderersHash).forEach(type => Object.keys(renderersHash[type]).forEach(renderAs => renderers.push(type + "." + renderAs)));
+  const locales = surveyLocalization.locales;
+  return {
+    "FunctionFactory": FunctionFactory.Instance.getAll(),
+    "ElementFactory": ElementFactory.Instance.getAllTypes(),
+    "RendererFactory": renderers,
+    "CustomWidgetCollection": CustomWidgetCollection.Instance.widgets.map(widget => widget.name),
+    "surveyLocalization.locales": Object.keys(locales).map(loc => loc + " (" + Object.keys(locales[loc]).length + " strings)"),
+    "surveyLocalization.supportedLocales": [JSON.stringify(surveyLocalization.supportedLocales)],
+    "surveyLocalization.currentLocale": [JSON.stringify(surveyLocalization.currentLocale)],
+  };
+}
+let __registriesAtStart: { [name: string]: Array<string> };
+let __resizeObserverAtStart: any;
+beforeAll(() => {
+  __registriesAtStart = getRegistries();
+  __resizeObserverAtStart = window.ResizeObserver;
+});
+afterAll(() => {
+  const registries = getRegistries();
+  const errors: Array<string> = [];
+  Object.keys(__registriesAtStart).forEach(name => {
+    const extra = registries[name].filter(entry => __registriesAtStart[name].indexOf(entry) < 0);
+    const missing = __registriesAtStart[name].filter(entry => registries[name].indexOf(entry) < 0);
+    if (extra.length > 0 || missing.length > 0) {
+      errors.push(name + ": extra [" + extra.join(", ") + "], missing [" + missing.join(", ") + "]");
+    }
+  });
+  if (window.ResizeObserver !== __resizeObserverAtStart) errors.push("window.ResizeObserver: replaced");
+  if (errors.length > 0) {
+    throw new Error("The test file changed state that the next test files share. Restore it in the test:\n" + errors.join("\n"));
+  }
+});
 
 const __defaultLocale = surveyLocalization.defaultLocale;
 afterAll(() => restoreSettings());

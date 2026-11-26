@@ -322,18 +322,23 @@ test("Action locTitleName doesn't work correctly, bug#8093", () => {
   const survey = new SurveyModel({ locale: "fr", elements: [{ type: "text", name: "q1" }] });
   const enTranslations = surveyLocalization.getLocaleStrings("en");
   const frTranslations = surveyLocalization.getLocaleStrings("fr");
-  enTranslations.clearPage = "Clear page";
-  frTranslations.clearPage = "Effacer la page";
+  try {
+    enTranslations.clearPage = "Clear page";
+    frTranslations.clearPage = "Effacer la page";
 
-  const action1 = survey.addNavigationItem({
-    id: "clearPage",
-    locTitleName: "clearPage"
-  });
-  expect(action1.title, "Clear page fr#1").toBe("Effacer la page");
-  survey.locale = "";
-  expect(action1.title, "Clear page en#1").toBe("Clear page");
-  survey.locale = "fr";
-  expect(action1.title, "Clear page fr#2").toBe("Effacer la page");
+    const action1 = survey.addNavigationItem({
+      id: "clearPage",
+      locTitleName: "clearPage"
+    });
+    expect(action1.title, "Clear page fr#1").toBe("Effacer la page");
+    survey.locale = "";
+    expect(action1.title, "Clear page en#1").toBe("Clear page");
+    survey.locale = "fr";
+    expect(action1.title, "Clear page fr#2").toBe("Effacer la page");
+  } finally {
+    delete enTranslations.clearPage;
+    delete frTranslations.clearPage;
+  }
 });
 test("Action setSubItems popup canShrink property", () => {
   const action = new Action({ id: "test2", title: "test2" });

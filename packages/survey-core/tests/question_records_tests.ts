@@ -830,14 +830,18 @@ describe("Records questions: writes through an item", () => {
       const survey = createSurvey(kind, [{ name: "a", validators: [{ type: "regex", regex: "^x" }] }], { checkErrorsMode: "onValueChanging" });
       const q = survey.getQuestionByName("q");
       const log = logEvents(survey);
-      const a = kind.question(q, 0, "a");
-      a.value = "bad";
-      expect(log, "#1: only the cell-changing callback").toEqual(["cellChanging:a=bad"]);
-      // The matrix holds the empty records of its untouched rows (Bug#12147), not the rejected edit.
-      expect(q.value, "#2: nothing is stored").toEqual(kind.type === "matrixdynamic" ? [{}, {}] : undefined);
-      expect([a.value, a.errors.length], "#3: the cell keeps the value and shows the error").toEqual(["bad", 1]);
-      a.value = "x1";
-      expect(kind.record(q, 0), "#4: a valid edit is stored").toEqual({ a: "x1" });
+      try {
+        const a = kind.question(q, 0, "a");
+        a.value = "bad";
+        expect(log, "#1: only the cell-changing callback").toEqual(["cellChanging:a=bad"]);
+        // The matrix holds the empty records of its untouched rows (Bug#12147), not the rejected edit.
+        expect(q.value, "#2: nothing is stored").toEqual(kind.type === "matrixdynamic" ? [{}, {}] : undefined);
+        expect([a.value, a.errors.length], "#3: the cell keeps the value and shows the error").toEqual(["bad", 1]);
+        a.value = "x1";
+        expect(kind.record(q, 0), "#4: a valid edit is stored").toEqual({ a: "x1" });
+      } finally {
+        FunctionFactory.Instance.unregister("logRecordTrigger");
+      }
     });
     test("two questions on one value name in a row: either one writes the record and the other follows, " + kind.type, () => {
       const survey = createSurvey(kind, [{ name: "a" }], undefined, {

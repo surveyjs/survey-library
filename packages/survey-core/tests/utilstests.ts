@@ -220,11 +220,15 @@ test("Test animation utils: getAnimationsCount", () => {
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);
-  expect(animationUtils["getAnimationsCount"](element)).toBe(0);
-  element.style.animationName = "animation1, animation2";
-  expect(animationUtils["getAnimationsCount"](element)).toBe(2);
-  element.style.animationName = "animation1";
-  expect(animationUtils["getAnimationsCount"](element)).toBe(1);
+  try {
+    expect(animationUtils["getAnimationsCount"](element)).toBe(0);
+    element.style.animationName = "animation1, animation2";
+    expect(animationUtils["getAnimationsCount"](element)).toBe(2);
+    element.style.animationName = "animation1";
+    expect(animationUtils["getAnimationsCount"](element)).toBe(1);
+  } finally {
+    element.remove();
+  }
 });
 
 test("Test animation utils: getAnimationDuration", () => {
@@ -333,24 +337,28 @@ test("Test animation utils: check cancel animation works correctly when mutliple
   element.style.animationName = "animation1, animation2";
   element.style.animationDuration = "1s";
   document.body.appendChild(element);
-  let log = "";
+  try {
+    let log = "";
 
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated1";
-  }, { } as any);
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated1";
+    }, { } as any);
 
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated2";
-  }, { } as any);
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated2";
+    }, { } as any);
 
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated3";
-  }, { } as any);
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated3";
+    }, { } as any);
 
-  expect(log).toBe("");
-  animationUtils.cancel();
-  expect(log).toBe("->updated1->updated2->updated3");
-  expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
+    expect(log).toBe("");
+    animationUtils.cancel();
+    expect(log).toBe("->updated1->updated2->updated3");
+    expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
+  } finally {
+    element.remove();
+  }
 });
 
 test("Test animation utils: enter animation", () => {
@@ -361,39 +369,43 @@ test("Test animation utils: enter animation", () => {
   htmlElement.style.animationName = "animation1";
   htmlElement.style.animationDuration = "1s";
   document.body.appendChild(htmlElement);
-  let log = "";
-  const animationOptions: IAnimationConsumer = {
-    getRerenderEvent: () => new EventBase(),
-    getLeaveOptions() {
-      return {} as any;
-    },
-    isAnimationEnabled() {
-      return true;
-    },
-    getAnimatedElement() {
-      return htmlElement;
-    },
-    getEnterOptions() {
-      return {
-        onAfterRunAnimation: (element) => {
-          expect(element).toBe(element);
-          log += "->afterRunAnimation";
-        },
-        onBeforeRunAnimation: (element) => {
-          expect(element).toBe(element);
-          log += "->beforeRunAnimation";
-        },
-        cssClass: "enter"
-      };
-    }
-  };
-  animationUtils.onEnter(animationOptions);
-  expect(log).toBe("->beforeRunAnimation");
-  expect(htmlElement.classList.contains("enter")).toBeTruthy();
-  htmlElement.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->beforeRunAnimation->afterRunAnimation");
-  expect(htmlElement.classList.contains("enter")).toBeFalsy();
-  window.requestAnimationFrame = oldRequestAnimationFrame;
+  try {
+    let log = "";
+    const animationOptions: IAnimationConsumer = {
+      getRerenderEvent: () => new EventBase(),
+      getLeaveOptions() {
+        return {} as any;
+      },
+      isAnimationEnabled() {
+        return true;
+      },
+      getAnimatedElement() {
+        return htmlElement;
+      },
+      getEnterOptions() {
+        return {
+          onAfterRunAnimation: (element) => {
+            expect(element).toBe(element);
+            log += "->afterRunAnimation";
+          },
+          onBeforeRunAnimation: (element) => {
+            expect(element).toBe(element);
+            log += "->beforeRunAnimation";
+          },
+          cssClass: "enter"
+        };
+      }
+    };
+    animationUtils.onEnter(animationOptions);
+    expect(log).toBe("->beforeRunAnimation");
+    expect(htmlElement.classList.contains("enter")).toBeTruthy();
+    htmlElement.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->beforeRunAnimation->afterRunAnimation");
+    expect(htmlElement.classList.contains("enter")).toBeFalsy();
+  } finally {
+    htmlElement.remove();
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+  }
 });
 
 test("Test animation utils: leave animation", () => {
@@ -585,53 +597,56 @@ test("Test animation property: boolean", () => {
   element.style.animationName = "animation1";
   element.style.animationDuration = "1s";
   document.body.appendChild(element);
-  let log = "";
-  const rerenderEvent = new EventBase();
-  const animation = new AnimationBoolean({
-    getRerenderEvent: () => rerenderEvent as any,
-    getEnterOptions: () => {
-      return {
-        onBeforeRunAnimation: () => {
-          log += "->before-enter";
-        },
-        onAfterRunAnimation: () => {
-          log += "->after-enter";
-        },
-        cssClass: "enter",
-      };
-    },
-    isAnimationEnabled: () => {
-      return true;
-    },
-    getAnimatedElement: () => {
-      return element;
-    },
-    getLeaveOptions: () => {
-      return {
-        onBeforeRunAnimation: () => {
-          log += "->before-leave";
-        },
-        onAfterRunAnimation: () => {
-          log += "->after-leave";
-        },
-        cssClass: "leave"
-      };
-    }
-  }, (val: boolean) => {
-    value = val;
-    log += `->updated: ${val}`;
-  }, () => value);
-  animation["_sync"](true);
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
-  element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->updated: true->before-enter->after-enter");
+  try {
+    let log = "";
+    const rerenderEvent = new EventBase();
+    const animation = new AnimationBoolean({
+      getRerenderEvent: () => rerenderEvent as any,
+      getEnterOptions: () => {
+        return {
+          onBeforeRunAnimation: () => {
+            log += "->before-enter";
+          },
+          onAfterRunAnimation: () => {
+            log += "->after-enter";
+          },
+          cssClass: "enter",
+        };
+      },
+      isAnimationEnabled: () => {
+        return true;
+      },
+      getAnimatedElement: () => {
+        return element;
+      },
+      getLeaveOptions: () => {
+        return {
+          onBeforeRunAnimation: () => {
+            log += "->before-leave";
+          },
+          onAfterRunAnimation: () => {
+            log += "->after-leave";
+          },
+          cssClass: "leave"
+        };
+      }
+    }, (val: boolean) => {
+      value = val;
+      log += `->updated: ${val}`;
+    }, () => value);
+    animation["_sync"](true);
+    animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
+    element.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->updated: true->before-enter->after-enter");
 
-  log = "";
-  animation["_sync"](false);
-  element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->before-leave->updated: false->after-leave");
-
-  window.requestAnimationFrame = oldRequestAnimationFrame;
+    log = "";
+    animation["_sync"](false);
+    element.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->before-leave->updated: false->after-leave");
+  } finally {
+    element.remove();
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+  }
 });
 test("Test animation property: array", () => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
@@ -644,55 +659,58 @@ test("Test animation property: array", () => {
     document.body.appendChild(element);
     return element;
   });
-  let log = "";
-  const rerenderEvent = new EventBase();
-  const animation = new AnimationGroup<number>({
-    getRerenderEvent: () => rerenderEvent as any,
-    getEnterOptions: (i) => {
-      return {
-        onBeforeRunAnimation: () => {
-          log += `->before-enter_${i}`;
-        },
-        onAfterRunAnimation: () => {
-          log += `->after-enter_${i}`;
-        },
-        cssClass: "enter"
-      };
-    },
-    isAnimationEnabled: () => {
-      return true;
-    },
-    getAnimatedElement: (i) => {
-      return htmlElements[i];
-    },
-    getLeaveOptions: (i) => {
-      return {
-        onBeforeRunAnimation: () => {
-          log += `->before-leave_${i}`;
-        },
-        onAfterRunAnimation: () => {
-          log += `->after-leave_${i}`;
-        },
-        cssClass: "leave"
-      };
-    }
-  }, (val: Array<number>) => {
-    elements = val;
-    log += `->updated: ${val}`;
-  }, () => elements);
-  animation["_sync"]([0, 1, 2, 3]);
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
-  htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
+  try {
+    let log = "";
+    const rerenderEvent = new EventBase();
+    const animation = new AnimationGroup<number>({
+      getRerenderEvent: () => rerenderEvent as any,
+      getEnterOptions: (i) => {
+        return {
+          onBeforeRunAnimation: () => {
+            log += `->before-enter_${i}`;
+          },
+          onAfterRunAnimation: () => {
+            log += `->after-enter_${i}`;
+          },
+          cssClass: "enter"
+        };
+      },
+      isAnimationEnabled: () => {
+        return true;
+      },
+      getAnimatedElement: (i) => {
+        return htmlElements[i];
+      },
+      getLeaveOptions: (i) => {
+        return {
+          onBeforeRunAnimation: () => {
+            log += `->before-leave_${i}`;
+          },
+          onAfterRunAnimation: () => {
+            log += `->after-leave_${i}`;
+          },
+          cssClass: "leave"
+        };
+      }
+    }, (val: Array<number>) => {
+      elements = val;
+      log += `->updated: ${val}`;
+    }, () => elements);
+    animation["_sync"]([0, 1, 2, 3]);
+    animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
+    htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
+    htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
 
-  log = "";
-  animation["_sync"]([1, 2]);
-  htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
-  htmlElements[3].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->before-leave_0->before-leave_3->updated: 1,2->after-leave_0->after-leave_3");
-
-  window.requestAnimationFrame = oldRequestAnimationFrame;
+    log = "";
+    animation["_sync"]([1, 2]);
+    htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
+    htmlElements[3].dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->before-leave_0->before-leave_3->updated: 1,2->after-leave_0->after-leave_3");
+  } finally {
+    htmlElements.forEach(el => el.remove());
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+  }
 });
 
 test("Test animation tab", () => {
@@ -706,65 +724,68 @@ test("Test animation tab", () => {
     document.body.appendChild(element);
     return element;
   });
-  let log = "";
-  const rerenderEvent = new EventBase();
-  const animation = new AnimationTab<number>({
-    getRerenderEvent: () => rerenderEvent as any,
-    getEnterOptions: (i) => {
-      return {
-        onBeforeRunAnimation: () => {
-          log += `->before-enter_${i}`;
-        },
-        onAfterRunAnimation: () => {
-          log += `->after-enter_${i}`;
-        },
-        cssClass: "enter"
-      };
-    },
-    isAnimationEnabled: () => {
-      return true;
-    },
-    getAnimatedElement: (i) => {
-      return htmlElements[i];
-    },
-    getLeaveOptions: (i) => {
-      return {
-        onBeforeRunAnimation: () => {
-          log += `->before-leave_${i}`;
-        },
-        onAfterRunAnimation: () => {
-          log += `->after-leave_${i}`;
-        },
-        cssClass: "leave"
-      };
-    }
-  }, (val: Array<number>) => {
-    elements = val;
-    log += `->updated: ${val}`;
-  }, () => elements, (newValue: number[], oldValue: number[]) => {
-    return ([] as number[]).concat(newValue, oldValue);
-  },);
-  animation["_sync"]([1]);
-  expect(elements).toEqual([1, 0]);
-  expect(log).toBe("->updated: 1,0");
-  log = "";
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
-  htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
-  htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->before-enter_1->before-leave_0->updated: 1->after-enter_1->after-leave_0");
-  expect(elements).toEqual([1]);
-  log = "";
-  animation["_sync"]([0]);
-  expect(elements).toEqual([0, 1]);
-  expect(log).toBe("->updated: 0,1");
-  log = "";
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
-  htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
-  htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toBe("->before-enter_0->before-leave_1->updated: 0->after-enter_0->after-leave_1");
-  expect(elements).toEqual([0]);
-
-  window.requestAnimationFrame = oldRequestAnimationFrame;
+  try {
+    let log = "";
+    const rerenderEvent = new EventBase();
+    const animation = new AnimationTab<number>({
+      getRerenderEvent: () => rerenderEvent as any,
+      getEnterOptions: (i) => {
+        return {
+          onBeforeRunAnimation: () => {
+            log += `->before-enter_${i}`;
+          },
+          onAfterRunAnimation: () => {
+            log += `->after-enter_${i}`;
+          },
+          cssClass: "enter"
+        };
+      },
+      isAnimationEnabled: () => {
+        return true;
+      },
+      getAnimatedElement: (i) => {
+        return htmlElements[i];
+      },
+      getLeaveOptions: (i) => {
+        return {
+          onBeforeRunAnimation: () => {
+            log += `->before-leave_${i}`;
+          },
+          onAfterRunAnimation: () => {
+            log += `->after-leave_${i}`;
+          },
+          cssClass: "leave"
+        };
+      }
+    }, (val: Array<number>) => {
+      elements = val;
+      log += `->updated: ${val}`;
+    }, () => elements, (newValue: number[], oldValue: number[]) => {
+      return ([] as number[]).concat(newValue, oldValue);
+    },);
+    animation["_sync"]([1]);
+    expect(elements).toEqual([1, 0]);
+    expect(log).toBe("->updated: 1,0");
+    log = "";
+    animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
+    htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
+    htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->before-enter_1->before-leave_0->updated: 1->after-enter_1->after-leave_0");
+    expect(elements).toEqual([1]);
+    log = "";
+    animation["_sync"]([0]);
+    expect(elements).toEqual([0, 1]);
+    expect(log).toBe("->updated: 0,1");
+    log = "";
+    animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
+    htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
+    htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toBe("->before-enter_0->before-leave_1->updated: 0->after-enter_0->after-leave_1");
+    expect(elements).toEqual([0]);
+  } finally {
+    htmlElements.forEach(el => el.remove());
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+  }
 });
 
 test("Check onNextRender and cancel", () => {

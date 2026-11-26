@@ -95,6 +95,7 @@ test("check rating initResponsiveness", () => {
 });
 
 test("check rating resize observer behavior", () => {
+  const requestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const getComputedStyle = window.getComputedStyle;
@@ -106,58 +107,62 @@ test("check rating resize observer behavior", () => {
   });
   const rootElement = document.createElement("div");
   const contentElement = document.createElement("div");
-  contentElement.className = "sd-scrollable-container";
-  rootElement.append(contentElement);
+  try {
+    contentElement.className = "sd-scrollable-container";
+    rootElement.append(contentElement);
 
-  Object.defineProperty(rootElement, "isConnected", {
-    get: () => true
-  });
-  Object.defineProperties(contentElement, {
-    "scrollWidth": {
-      get: () => currentScrollWidth,
-    },
-    "offsetWidth": {
-      get: () => currentOffsetWidth,
-    }
-  }
-  );
-  var json = {
-    elements: [
-      {
-        type: "rating",
-        name: "q1",
+    Object.defineProperty(rootElement, "isConnected", {
+      get: () => true
+    });
+    Object.defineProperties(contentElement, {
+      "scrollWidth": {
+        get: () => currentScrollWidth,
       },
-    ],
-  };
-  const survey = new SurveyModel(json);
-  survey.css = defaultCss;
-  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  q1.afterRender(rootElement);
-  expect(q1["resizeObserver"]).toBeTruthy();
-  expect(q1.renderAs).toBe("default");
-  currentOffsetWidth = 300;
-  currentScrollWidth = 300;
-  (<any>q1["resizeObserver"]).call();
-  expect(q1.renderAs).toBe("default");
-  currentOffsetWidth = 200;
-  (<any>q1["resizeObserver"]).call();
-  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toBe("dropdown");
-  currentOffsetWidth = 400;
-  (<any>q1["resizeObserver"]).call();
-  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toBe("default");
-  currentOffsetWidth = 200;
-  (<any>q1["resizeObserver"]).call();
-  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toBe("dropdown");
-  q1["destroyResizeObserver"]();
-  expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toBe("default");
-  window.getComputedStyle = getComputedStyle;
-  window.ResizeObserver = ResizeObserver;
+      "offsetWidth": {
+        get: () => currentOffsetWidth,
+      }
+    }
+    );
+    var json = {
+      elements: [
+        {
+          type: "rating",
+          name: "q1",
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.css = defaultCss;
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    q1.afterRender(rootElement);
+    expect(q1["resizeObserver"]).toBeTruthy();
+    expect(q1.renderAs).toBe("default");
+    currentOffsetWidth = 300;
+    currentScrollWidth = 300;
+    (<any>q1["resizeObserver"]).call();
+    expect(q1.renderAs).toBe("default");
+    currentOffsetWidth = 200;
+    (<any>q1["resizeObserver"]).call();
+    (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+    expect(q1.renderAs).toBe("dropdown");
+    currentOffsetWidth = 400;
+    (<any>q1["resizeObserver"]).call();
+    (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+    expect(q1.renderAs).toBe("default");
+    currentOffsetWidth = 200;
+    (<any>q1["resizeObserver"]).call();
+    (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+    expect(q1.renderAs).toBe("dropdown");
+    q1["destroyResizeObserver"]();
+    expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toBe("default");
+  } finally {
+    window.requestAnimationFrame = requestAnimationFrame;
+    window.getComputedStyle = getComputedStyle;
+    window.ResizeObserver = ResizeObserver;
 
-  contentElement.remove();
-  rootElement.remove();
+    contentElement.remove();
+    rootElement.remove();
+  }
 });
 
 test("check rating in case of state 'collapsed'", () => {
@@ -235,33 +240,36 @@ test("do not process reponsiveness when required width differs from avalailable 
 });
 test("Do not process responsiveness if displayMode: 'dropdown' and set renderAs 'dropdown'", () => {
   RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
-  var json = {
-    elements: [
-      {
-        type: "rating",
-        name: "q1",
-        displayMode: "dropdown"
-      },
-    ],
-  };
-  let survey = new SurveyModel(json);
-  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.renderAs).toBe("dropdown");
-  expect(q1.isDefaultRendering()).toBe(false);
-  const container = document.createElement("div");
-  container.innerHTML = "<div class='sd-scrollable-container'></div>";
-  q1["initResponsiveness"](container);
-  expect(q1["resizeObserver"]).toBeUndefined();
+  try {
+    var json = {
+      elements: [
+        {
+          type: "rating",
+          name: "q1",
+          displayMode: "dropdown"
+        },
+      ],
+    };
+    let survey = new SurveyModel(json);
+    let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(q1.renderAs).toBe("dropdown");
+    expect(q1.isDefaultRendering()).toBe(false);
+    const container = document.createElement("div");
+    container.innerHTML = "<div class='sd-scrollable-container'></div>";
+    q1["initResponsiveness"](container);
+    expect(q1["resizeObserver"]).toBeUndefined();
 
-  survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.setJsonObject(json);
-  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.renderAs).toBe("default");
-  expect(q1.isDefaultRendering()).toBe(true);
-  RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+    survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.setJsonObject(json);
+    q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.isDefaultRendering()).toBe(true);
 
-  container.remove();
+    container.remove();
+  } finally {
+    RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+  }
 });
 test("check getItemClass in display mode", () => {
   var json = {
@@ -1374,7 +1382,16 @@ test.skip("rating colors without css vars", () => { //need to check without css 
   (QuestionRatingModel as any)["colorsCalculated"] = false;
 });
 
+// The rating colors tests set CSS variables on <html>: put its style attribute back as it was.
+function restoreHtmlStyle(style: string | null): void {
+  if (style === null) {
+    document.documentElement.removeAttribute("style");
+  } else {
+    document.documentElement.setAttribute("style", style);
+  }
+}
 test("rating colors", () => {
+  const htmlStyle = document.documentElement.getAttribute("style");
   var json = {
     elements: [
       {
@@ -1396,82 +1413,79 @@ test("rating colors", () => {
   (QuestionRatingModel as any)["colorsCalculated"] = false;
   const rootElement = document.createElement("div");
   document.body.appendChild(rootElement);
-  q1.afterRenderQuestionElement(rootElement);
-  q1.value = 4;
-  q1.scaleColorMode = "colored";
-  q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  try {
+    q1.afterRenderQuestionElement(rootElement);
+    q1.value = 4;
+    q1.scaleColorMode = "colored";
+    q1.rateColorMode = "scale";
+    expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+    expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+    expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+    expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+    expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
-  q1.readOnly = true;
-  expect(q1.visibleRateValues[0].style, "ro 1").toEqual({});
-  expect(q1.visibleRateValues[1].style, "ro 2").toEqual({});
-  expect(q1.visibleRateValues[2].style, "ro 3").toEqual({});
-  expect(q1.visibleRateValues[3].style, "ro 4").toEqual({});
-  expect(q1.visibleRateValues[4].style, "ro 5").toEqual({});
+    q1.readOnly = true;
+    expect(q1.visibleRateValues[0].style, "ro 1").toEqual({});
+    expect(q1.visibleRateValues[1].style, "ro 2").toEqual({});
+    expect(q1.visibleRateValues[2].style, "ro 3").toEqual({});
+    expect(q1.visibleRateValues[3].style, "ro 4").toEqual({});
+    expect(q1.visibleRateValues[4].style, "ro 5").toEqual({});
 
-  q1.readOnly = false;
-  expect(q1.visibleRateValues[0].style, "ro 1 after").toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style, "ro 2 after").toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style, "ro 3 after").toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style, "ro 4 after").toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style, "ro 5 after").toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+    q1.readOnly = false;
+    expect(q1.visibleRateValues[0].style, "ro 1 after").toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+    expect(q1.visibleRateValues[1].style, "ro 2 after").toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+    expect(q1.visibleRateValues[2].style, "ro 3 after").toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+    expect(q1.visibleRateValues[3].style, "ro 4 after").toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+    expect(q1.visibleRateValues[4].style, "ro 5 after").toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
-  survey.showPreview();
-  let qp = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(qp.visibleRateValues[0].style, "pv 1").toEqual({});
-  expect(qp.visibleRateValues[1].style, "pv 2").toEqual({});
-  expect(qp.visibleRateValues[2].style, "pv 3").toEqual({});
-  expect(qp.visibleRateValues[3].style, "pv 4").toEqual({});
-  expect(qp.visibleRateValues[4].style, "pv 5").toEqual({});
-  survey.cancelPreview();
+    survey.showPreview();
+    let qp = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(qp.visibleRateValues[0].style, "pv 1").toEqual({});
+    expect(qp.visibleRateValues[1].style, "pv 2").toEqual({});
+    expect(qp.visibleRateValues[2].style, "pv 3").toEqual({});
+    expect(qp.visibleRateValues[3].style, "pv 4").toEqual({});
+    expect(qp.visibleRateValues[4].style, "pv 5").toEqual({});
+    survey.cancelPreview();
 
-  q1.onItemMouseIn(q1.visibleChoices[1]);
-  expect(q1.visibleRateValues[1].style, "onItemMouseIn").toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)", "--sd-rating-item-color-light": "rgba(227, 117, 5, 0.2)" });
-  q1.onItemMouseOut(q1.visibleChoices[1]);
+    q1.onItemMouseIn(q1.visibleChoices[1]);
+    expect(q1.visibleRateValues[1].style, "onItemMouseIn").toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)", "--sd-rating-item-color-light": "rgba(227, 117, 5, 0.2)" });
+    q1.onItemMouseOut(q1.visibleChoices[1]);
 
-  q1.scaleColorMode = "monochrome";
-  q1.onItemMouseIn(q1.visibleChoices[1]);
-  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  q1.onItemMouseOut(q1.visibleChoices[1]);
+    q1.scaleColorMode = "monochrome";
+    q1.onItemMouseIn(q1.visibleChoices[1]);
+    expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+    q1.onItemMouseOut(q1.visibleChoices[1]);
 
-  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+    expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+    expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+    expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+    expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+    expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
-  q1.scaleColorMode = "monochrome";
-  q1.rateColorMode = "default";
+    q1.scaleColorMode = "monochrome";
+    q1.rateColorMode = "default";
 
-  expect(q1.visibleRateValues[0].style).toEqual({});
-  expect(q1.visibleRateValues[1].style).toEqual({});
-  expect(q1.visibleRateValues[2].style).toEqual({});
-  expect(q1.visibleRateValues[3].style).toEqual({});
-  expect(q1.visibleRateValues[4].style).toEqual({});
-  q1.value = null;
-  q1.scaleColorMode = "colored";
-  q1.rateColorMode = "scale";
-  q1.isRequired = true;
-  q1.validate();
-  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+    expect(q1.visibleRateValues[0].style).toEqual({});
+    expect(q1.visibleRateValues[1].style).toEqual({});
+    expect(q1.visibleRateValues[2].style).toEqual({});
+    expect(q1.visibleRateValues[3].style).toEqual({});
+    expect(q1.visibleRateValues[4].style).toEqual({});
+    q1.value = null;
+    q1.scaleColorMode = "colored";
+    q1.rateColorMode = "scale";
+    q1.isRequired = true;
+    q1.validate();
+    expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  } finally {
+    restoreHtmlStyle(htmlStyle);
+    (QuestionRatingModel as any)["colorsCalculated"] = false;
 
-  document.documentElement.style.setProperty("--sd-rating-bad-color", null);
-  document.documentElement.style.setProperty("--sd-rating-normal-color", null);
-  document.documentElement.style.setProperty("--sd-rating-good-color", null);
-
-  document.documentElement.style.setProperty("--sd-rating-bad-color-light", null);
-  document.documentElement.style.setProperty("--sd-rating-normal-color-light", null);
-  document.documentElement.style.setProperty("--sd-rating-good-color-light", null);
-  (QuestionRatingModel as any)["colorsCalculated"] = false;
-
-  rootElement.remove();
+    rootElement.remove();
+  }
 });
 
 test("rating colors when vars used", () => {
+  const htmlStyle = document.documentElement.getAttribute("style");
   var json = {
     elements: [
       {
@@ -1503,49 +1517,54 @@ test("rating colors when vars used", () => {
   (QuestionRatingModel as any)["colorsCalculated"] = false;
   const rootElement = document.createElement("div");
   document.body.appendChild(rootElement);
-  q1.afterRenderQuestionElement(rootElement);
-  q1.value = 4;
-  q1.scaleColorMode = "colored";
-  q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  try {
+    q1.afterRenderQuestionElement(rootElement);
+    q1.value = 4;
+    q1.scaleColorMode = "colored";
+    q1.rateColorMode = "scale";
+    expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+    expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+    expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+    expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+    expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
-  document.documentElement.style.setProperty("--stest-rating-bad-color", "rgb(10,200,20)");
-  document.documentElement.style.setProperty("--stest-rating-normal-color", "gold");
-  document.documentElement.style.setProperty("--stest-rating-good-color", "#c8140a");
+    document.documentElement.style.setProperty("--stest-rating-bad-color", "rgb(10,200,20)");
+    document.documentElement.style.setProperty("--stest-rating-normal-color", "gold");
+    document.documentElement.style.setProperty("--stest-rating-good-color", "#c8140a");
 
-  document.documentElement.style.setProperty("--stest-rating-bad-color-light", "rgba(10,200,20, 0.2)");
-  document.documentElement.style.setProperty("--stest-rating-normal-color-light", "rgba(255, 215, 0, 0.2)");
-  document.documentElement.style.setProperty("--stest-rating-good-color-light", "rgba(200, 20, 10, 0.2)");
+    document.documentElement.style.setProperty("--stest-rating-bad-color-light", "rgba(10,200,20, 0.2)");
+    document.documentElement.style.setProperty("--stest-rating-normal-color-light", "rgba(255, 215, 0, 0.2)");
+    document.documentElement.style.setProperty("--stest-rating-good-color-light", "rgba(200, 20, 10, 0.2)");
 
-  survey.applyTheme({
-    cssVariables: {
-      "--sjs-special-red": "var(--stest-rating-bad-color)",
-      "--sjs-special-yellow": "var(--stest-rating-normal-color)",
-      "--sjs-special-green": "var(--stest-rating-good-color)",
-      "--sjs-special-red-light": "var(--stest-rating-bad-color-light)",
-      "--sjs-special-yellow-light": "var(--stest-rating-normal-color-light)",
-      "--sjs-special-green-light": "var(--stest-rating-good-color-light)"
-    }
-  });
-  q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
-  q1.value = 4;
-  q1.scaleColorMode = "colored";
-  q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
-  (QuestionRatingModel as any)["colorsCalculated"] = false;
+    survey.applyTheme({
+      cssVariables: {
+        "--sjs-special-red": "var(--stest-rating-bad-color)",
+        "--sjs-special-yellow": "var(--stest-rating-normal-color)",
+        "--sjs-special-green": "var(--stest-rating-good-color)",
+        "--sjs-special-red-light": "var(--stest-rating-bad-color-light)",
+        "--sjs-special-yellow-light": "var(--stest-rating-normal-color-light)",
+        "--sjs-special-green-light": "var(--stest-rating-good-color-light)"
+      }
+    });
+    q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+    q1.value = 4;
+    q1.scaleColorMode = "colored";
+    q1.rateColorMode = "scale";
+    expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+    expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+    expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+    expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+    expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  } finally {
+    restoreHtmlStyle(htmlStyle);
+    (QuestionRatingModel as any)["colorsCalculated"] = false;
 
-  rootElement.remove();
+    rootElement.remove();
+  }
 });
 
 test("rating colors for one item when rateMin is greater than rateMax, Bug#11832", () => {
+  const htmlStyle = document.documentElement.getAttribute("style");
   document.documentElement.style.setProperty("--sd-rating-bad-color", "#c8140a");
   document.documentElement.style.setProperty("--sd-rating-normal-color", "gold");
   document.documentElement.style.setProperty("--sd-rating-good-color", "rgb(10,200,20)");
@@ -1555,18 +1574,18 @@ test("rating colors for one item when rateMin is greater than rateMax, Bug#11832
   (QuestionRatingModel as any)["colorsCalculated"] = false;
   const rootElement = document.createElement("div");
   document.body.appendChild(rootElement);
-  q1.afterRenderQuestionElement(rootElement);
-  q1.scaleColorMode = "colored";
-  q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues.length).toBe(1);
-  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  try {
+    q1.afterRenderQuestionElement(rootElement);
+    q1.scaleColorMode = "colored";
+    q1.rateColorMode = "scale";
+    expect(q1.visibleRateValues.length).toBe(1);
+    expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  } finally {
+    restoreHtmlStyle(htmlStyle);
+    (QuestionRatingModel as any)["colorsCalculated"] = false;
 
-  document.documentElement.style.setProperty("--sd-rating-bad-color", null);
-  document.documentElement.style.setProperty("--sd-rating-normal-color", null);
-  document.documentElement.style.setProperty("--sd-rating-good-color", null);
-  (QuestionRatingModel as any)["colorsCalculated"] = false;
-
-  rootElement.remove();
+    rootElement.remove();
+  }
 });
 
 test("check rating in-matrix mode styles", () => {

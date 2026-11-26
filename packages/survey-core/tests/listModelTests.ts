@@ -46,23 +46,28 @@ describe("List Model", () => {
 
   test("ListModel batches updates once the container is mounted", () => {
     ListModel.MINELEMENTCOUNT = 5;
-    const items = createIActionArray(7);
-    const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
-    list.flushUpdates();
-    expect(list.renderedActions.length).toBe(7);
+    let element: HTMLElement;
+    try {
+      const items = createIActionArray(7);
+      const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+      list.flushUpdates();
+      expect(list.renderedActions.length).toBe(7);
 
-    // Before mount updates are synchronous (SSR/initial render): the recomputed list reflects the change immediately.
-    list.actions[0].visible = false;
-    expect(list.renderedActions.length).toBe(6);
+      // Before mount updates are synchronous (SSR/initial render): the recomputed list reflects the change immediately.
+      list.actions[0].visible = false;
+      expect(list.renderedActions.length).toBe(6);
 
-    // After mount updates are debounced/batched, so the recomputed list is not refreshed until flushUpdates().
-    list.initListContainerHtmlElement(createListContainerHtmlElement());
-    list.actions[1].visible = false;
-    expect(list.renderedActions.length).toBe(6);
-    list.flushUpdates();
-    expect(list.renderedActions.length).toBe(5);
-
-    ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+      // After mount updates are debounced/batched, so the recomputed list is not refreshed until flushUpdates().
+      element = createListContainerHtmlElement();
+      list.initListContainerHtmlElement(element);
+      list.actions[1].visible = false;
+      expect(list.renderedActions.length).toBe(6);
+      list.flushUpdates();
+      expect(list.renderedActions.length).toBe(5);
+    } finally {
+      ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+      element?.remove();
+    }
   });
 
   test("ListModel reassign items", () => {
@@ -749,23 +754,28 @@ describe("List Model", () => {
     });
     test("a mounted list updates in one microtask after a bulk assignment", async () => {
       const list = new ListModel(createItems(5, "a"));
-      list.initListContainerHtmlElement(createListContainerHtmlElement());
-      const update = vi.spyOn(list as any, "update");
-      list.setItems(createItems(1000, "b"));
-      expect(update).toHaveBeenCalledTimes(0);
-      expect(list.visibleActions.length).toBe(5);
-      await Promise.resolve();
-      expect(update).toHaveBeenCalledTimes(1);
-      expect(list.visibleActions.length).toBe(1000);
-      expect(list.visibleActions[0].id).toBe("btest0");
+      const element = createListContainerHtmlElement();
+      list.initListContainerHtmlElement(element);
+      try {
+        const update = vi.spyOn(list as any, "update");
+        list.setItems(createItems(1000, "b"));
+        expect(update).toHaveBeenCalledTimes(0);
+        expect(list.visibleActions.length).toBe(5);
+        await Promise.resolve();
+        expect(update).toHaveBeenCalledTimes(1);
+        expect(list.visibleActions.length).toBe(1000);
+        expect(list.visibleActions[0].id).toBe("btest0");
 
-      list.actions = createItems(10, "c").map(item => new Action(item));
-      expect(update).toHaveBeenCalledTimes(1);
-      expect(list.visibleActions.length).toBe(1000);
-      await Promise.resolve();
-      expect(update).toHaveBeenCalledTimes(2);
-      expect(list.visibleActions.length).toBe(10);
-      list.initListContainerHtmlElement(undefined as any);
+        list.actions = createItems(10, "c").map(item => new Action(item));
+        expect(update).toHaveBeenCalledTimes(1);
+        expect(list.visibleActions.length).toBe(1000);
+        await Promise.resolve();
+        expect(update).toHaveBeenCalledTimes(2);
+        expect(list.visibleActions.length).toBe(10);
+      } finally {
+        list.initListContainerHtmlElement(undefined as any);
+        element.remove();
+      }
     });
   });
 });

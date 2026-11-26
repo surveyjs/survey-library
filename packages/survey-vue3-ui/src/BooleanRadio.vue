@@ -1,6 +1,15 @@
 <template>
   <div :class="question.cssClasses.rootRadio" ref="root" @keydown="(e) => question.onKeyDownCore(e)">
-    <fieldset role="presentation" :class="question.cssClasses.radioFieldset">
+    <fieldset
+      role="radiogroup"
+      :class="question.cssClasses.radioFieldset"
+      :aria-required="question.a11y_input_ariaRequired"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :aria-invalid="question.a11y_input_ariaInvalid"
+      :aria-errormessage="question.a11y_input_ariaErrormessage"
+    >
       <SvComponent
         :is="'sv-boolean-radio-item'"
         v-if="question.swapOrder"

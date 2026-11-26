@@ -34,6 +34,7 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     //                  pattern-match it - and expect more requests: every change a control
 //     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
+//     // The same filter and sort, the view in force, are question.getDataView() at any time.
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
 //     // "hasMore", or from a window that came back shorter than "take".

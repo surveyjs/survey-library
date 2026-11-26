@@ -863,6 +863,10 @@ export class DynamicDataList {
   public set sort(v: Array<ISortCriterion>) {
     this.setView(this.view.filter, v);
   }
+  // The filter a paged read carries: the two slots combined, each one bracketed (DynamicDataView).
+  public get sourceFilter(): string {
+    return this.view.sourceFilter;
+  }
   /* How many records the authored filter and this control filter would leave, without applying it:
      the number a Filter Control shows before its edits are applied. Nothing in the view changes and
      nothing is reported - a count that cannot be had is undefined:

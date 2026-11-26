@@ -9,7 +9,7 @@ import { sampleLoop, scenarioDriver } from "./sample.ts";
 import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
 import { cdpMetricNames, pickMetrics, renderCounters, durationInfo, leakCounters, untilQuiet, pickHeapUsage, heapInfo, heapGrowthCounters } from "./cdp.ts";
-import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, RENDER_SUBSET } from "./ids.ts";
+import { SCENARIO_IDS, FIXTURE_KEYS, LOCAL_IDS, idsOfSuite, splitOnly, suitesOf, isLocalId, RENDER_SUBSET } from "./ids.ts";
 import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
 import { allScenarios, PAGE_REV } from "../scenarios/index.ts";
 import { suiteOf, resolveUrl, uiPackage, cacheDir } from "../browser/paths.ts";
@@ -135,7 +135,15 @@ describe("ids", () => {
     expect(idsOfSuite("react").filter((id: string) => id !== "manyPages/pages/preview")).toEqual(idsOfSuite("survey-js-ui"));
     expect(idsOfSuite("react").length).toBe(24);
     expect(suitesOf("manyPages/pages/preview")).toEqual(["core", "react"]);
-    expect(idsOfSuite("core").length).toBe(55);
+    expect(idsOfSuite("core").length).toBe(68);
+    // The slot form: thirteen core ids, none in a browser suite; its full size only in LOCAL_IDS, which no suite runs.
+    expect(idsOfSuite("core").filter((id: string) => id.indexOf("slotForm/") === 0).length).toBe(13);
+    expect(SCENARIO_IDS.filter((s: any) => s.id.indexOf("slotForm") === 0).every((s: any) => s.suites.join() === "core")).toBe(true);
+    expect(LOCAL_IDS.length).toBe(13);
+    LOCAL_IDS.forEach((id: string) => {
+      expect(suitesOf(id)).toEqual([]);
+      expect(fixtureOfId(id)).toBe("slotForm-full");
+    });
     expect(idsOfSuite("core").filter((id: string) => id.indexOf("records-1k/records/") === 0 && /@orders$/.test(id)))
       .toEqual(["records-1k/records/filter-set@orders", "records-1k/records/next@orders", "records-1k/records/sort-1@orders"]);
     // vue3 and angular run RENDER_SUBSET: browser ids that React runs.
@@ -159,6 +167,10 @@ describe("ids", () => {
     expect(splitOnly(["large/load/model"], "react")).toEqual({ run: [], notInSuite: ["large/load/model"] });
     expect(splitOnly(["large/load/paint", "large/load/model"], "core")).toEqual({ run: ["large/load/model"], notInSuite: ["large/load/paint"] });
     expect(suitesOf("records-10k/records/next@orders")).toEqual(["core", "react", "survey-js-ui"]);
+    // A local id runs in core when PERF_ONLY names it, never by default.
+    expect(splitOnly(["slotForm-full/load/data", "slotForm/load/data"], "core")).toEqual({ run: ["slotForm-full/load/data", "slotForm/load/data"], notInSuite: [] });
+    expect(splitOnly(["slotForm-full/load/data"], "react")).toEqual({ run: [], notInSuite: ["slotForm-full/load/data"] });
+    expect(splitOnly(null, "core").run.filter((id: string) => isLocalId(id))).toEqual([]);
   });
 });
 

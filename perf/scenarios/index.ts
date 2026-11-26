@@ -1,6 +1,6 @@
 import type { PerfScenario } from "../harness/scenario.ts";
 import { defineScenarios } from "../harness/scenario.ts";
-import { suitesOf } from "../harness/ids.ts";
+import { suitesOf, isLocalId } from "../harness/ids.ts";
 import * as helpers from "./helpers.ts";
 import * as common from "./common.ts";
 import * as large from "./large.ts";
@@ -10,6 +10,7 @@ import * as complexLogic from "./complex-logic.ts";
 import * as manyPages from "./many-pages.ts";
 import * as records from "./records.ts";
 import * as extra from "./extra.ts";
+import * as slotForm from "./slot-form.ts";
 import * as browser from "./browser.ts";
 import type { ExtraOp } from "./extra.ts";
 import type { ExtraOp } from "./extra.ts";
@@ -32,6 +33,7 @@ export function allScenarios(): Array<PerfScenario> {
     complexLogic.complexLogicScenarios(),
     manyPages.manyPagesScenarios(),
     records.recordsScenarios(),
+    slotForm.slotFormScenarios("slotForm"),
     browser.browserScenarios()
   ).map(withPageRev));
 }
@@ -42,6 +44,8 @@ export function scenarioById(id: string, extraOps?: Array<ExtraOp>): PerfScenari
     const key = id.split("/").slice(0, 2).join("/");
     return defineScenarios(extra.extraScenarios(key, extraOps)).filter((s: PerfScenario) => s.id === id)[0];
   }
+  // The local ids (ids.ts LOCAL_IDS): in no suite, so not in allScenarios() or revs.json.
+  if (isLocalId(id)) return defineScenarios(slotForm.slotFormFullScenarios()).filter((s: PerfScenario) => s.id === id)[0];
   return allScenarios().filter((s: PerfScenario) => s.id === id)[0];
 }
 
@@ -53,7 +57,7 @@ export function extraScenarioIds(key: string, ops?: Array<ExtraOp>): Array<strin
 // perf/scenarios.
 export function helperFunctions(): { [name: string]: any } {
   const res: { [name: string]: any } = {};
-  [helpers, common, large, expressions, calculations, complexLogic, manyPages, records, extra, browser].forEach((mod: any) => {
+  [helpers, common, large, expressions, calculations, complexLogic, manyPages, records, extra, slotForm, browser].forEach((mod: any) => {
     for (const key of Object.keys(mod)) res[key] = mod[key];
   });
   return res;

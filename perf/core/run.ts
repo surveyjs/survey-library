@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { splitOnly } from "../harness/ids.ts";
+import { splitOnly, isExtraId, isLocalId } from "../harness/ids.ts";
 import { fixtureOfId } from "../harness/scenario.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { getExtraFixtures } from "../fixtures/extra.ts";
@@ -104,9 +104,10 @@ const stop = (reason: "timeout" | "killed"): void => {
 process.on("SIGTERM", () => stop("timeout"));
 process.on("SIGINT", () => stop("killed"));
 
-// The hang guard: scenarioTimeoutMs, or PERF_EXTRA_TIMEOUT_MS for an extra/ id (a local form may take minutes a sample).
+// The hang guard: scenarioTimeoutMs, or PERF_EXTRA_TIMEOUT_MS for an extra/ id or a local id (a local form, or the
+// full-size slot form, may take minutes a sample).
 function timeoutOf(id: string): number {
-  return id.indexOf("extra/") === 0 && env.extraTimeoutMs ? env.extraTimeoutMs : scenarioTimeoutMs;
+  return (isExtraId(id) || isLocalId(id)) && env.extraTimeoutMs ? env.extraTimeoutMs : scenarioTimeoutMs;
 }
 
 function runOne(id: string): Promise<any> {

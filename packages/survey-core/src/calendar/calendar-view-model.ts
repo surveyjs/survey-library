@@ -8,7 +8,7 @@ import { CalendarMonth } from "./interfaces";
 import { calendarCssClasses } from "./css-classes";
 import { CalendarModel, yearsInRange } from "./calendar";
 import { clampDate, getToday, isPeriodOutside, isSameDay, shiftMonth, toMonthStart } from "./date-utils";
-import { getLocaleString } from "../surveyStrings";
+import { getCalendarMonthNames, getCalendarWeekdayShortNames } from "./calendar-locale";
 
 const daysInGrid = 42;
 const listMonthsBefore = 12;
@@ -201,10 +201,10 @@ export class CalendarViewModel extends Base {
     }
   }
   private get monthNames(): Array<string> {
-    return getLocaleString("calendarMonths", this.locale) as any;
+    return getCalendarMonthNames(this.locale);
   }
   private get weekDayNames(): Array<string> {
-    return getLocaleString("calendarWeekdays", this.locale) as any;
+    return getCalendarWeekdayShortNames(this.locale);
   }
   private updateWeekDays(): void {
     const res: Array<string> = [];

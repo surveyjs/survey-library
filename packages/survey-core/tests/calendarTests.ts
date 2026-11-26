@@ -54,8 +54,12 @@ describe("CalendarModel", () => {
     setupLocale({
       localeCode: "xx",
       strings: {
-        calendarMonths: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"],
-        calendarWeekdays: ["D0", "D1", "D2", "D3", "D4", "D5", "D6"]
+        calendarJanuary: "M1", calendarFebruary: "M2", calendarMarch: "M3", calendarApril: "M4",
+        calendarMay: "M5", calendarJune: "M6", calendarJuly: "M7", calendarAugust: "M8",
+        calendarSeptember: "M9", calendarOctober: "M10", calendarNovember: "M11", calendarDecember: "M12",
+        calendarSundayShort: "D0", calendarMondayShort: "D1", calendarTuesdayShort: "D2",
+        calendarWednesdayShort: "D3", calendarThursdayShort: "D4", calendarFridayShort: "D5",
+        calendarSaturdayShort: "D6"
       },
       nativeName: "xx",
       englishName: "xx"

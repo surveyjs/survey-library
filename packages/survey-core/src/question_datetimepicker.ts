@@ -14,6 +14,7 @@ import { ActionContainer } from "./actions/container";
 import { CalendarModel } from "./calendar/calendar";
 import { CalendarViewModel } from "./calendar/calendar-view-model";
 import { getFirstDayOfWeek, parseISODate } from "./calendar/date-utils";
+import { getFirstDayOfWeekChoices } from "./regional-format";
 import { toCssClasses } from "./utils/cssClassBuilder";
 
 function toISODate(val: any): Date {
@@ -77,7 +78,17 @@ export class QuestionDateTimePickerModel extends Question {
   @property({ localizable: true }) placeholder: string;
   @property({ localizable: true }) startPlaceholder: string;
   @property({ localizable: true }) endPlaceholder: string;
-  @property() pattern: string;
+  @property() datePattern: string;
+  public get firstDayOfWeek(): number {
+    return this.getPropertyValue("firstDayOfWeek");
+  }
+  public set firstDayOfWeek(val: number) {
+    const day = normalizeFirstDay(val);
+    const stored = normalizeFirstDay(this.getPropertyValueWithoutDefault("firstDayOfWeek"));
+    if (day === stored) return;
+    this.setPropertyValueDirectly("firstDayOfWeek", day);
+    this.propertyValueChanged("firstDayOfWeek", stored, day);
+  }
   @property() minValueExpression: string;
   @property() maxValueExpression: string;
   @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
@@ -136,12 +147,15 @@ export class QuestionDateTimePickerModel extends Question {
     return this.endMaskValue;
   }
   private applyPattern(): void {
-    (<any>this.maskSettings).pattern = this.pattern || undefined;
+    (<any>this.maskSettings).pattern = this.datePattern || undefined;
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.applyPattern();
     this.onMaskFormatChanged();
+    // The question joins the survey before its own properties are read, and a change during
+    // loading does not notify, so the calendar still has the survey's week start here.
+    this.updateFirstDayOfWeek();
   }
   private disposeEndMask(): void {
     if (!!this.endMaskValue) {
@@ -541,12 +555,20 @@ export class QuestionDateTimePickerModel extends Question {
     super.onSetData();
     this.updateFirstDayOfWeek();
   }
-  // The mask resolves datePattern from the survey format locale (regionalFormat.locale, then the
-  // survey locale, then an explicit regionalFormat.datePattern). The week starts in that same locale.
-  private updateFirstDayOfWeek(): void {
+  // A stored question value wins, including when it equals the current survey day.
+  // Otherwise an explicit regionalFormat.firstDayOfWeek, then the format locale. 0 is Sunday.
+  public getInheritedFirstDayOfWeek(): number {
     const survey = this.getSurvey() as any;
+    const explicit = !!survey && !!survey.getRegionalFormatValue ? survey.getRegionalFormatValue("firstDayOfWeek") : undefined;
+    if (typeof explicit === "number" && explicit >= 0 && explicit <= 6) return explicit;
     const locale = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : "";
-    this.calendar.firstDayOfWeek = getFirstDayOfWeek(locale);
+    return getFirstDayOfWeek(locale);
+  }
+  public getStoredFirstDayOfWeek(): any {
+    return this.getPropertyValueWithoutDefault("firstDayOfWeek");
+  }
+  private updateFirstDayOfWeek(): void {
+    this.calendar.firstDayOfWeek = this.firstDayOfWeek;
   }
   public localeChanged(): void {
     // The drafts are read in the current format before the mask switches to the new one.
@@ -581,9 +603,12 @@ export class QuestionDateTimePickerModel extends Question {
     if (name === "range") {
       this.onRangeChanged();
     }
-    if (name === "pattern") {
+    if (name === "datePattern") {
       this.applyPattern();
       this.onMaskFormatChanged();
+    }
+    if (name === "firstDayOfWeek") {
+      this.updateFirstDayOfWeek();
     }
     if (["value", "allowClear"].indexOf(name) > -1) {
       this.updateEditorButtons();
@@ -774,6 +799,11 @@ function getCorrectMinMax(min: any, max: any, isMax: boolean): any {
   return val;
 }
 const isRangeMode = (obj: any): boolean => !!obj && !!obj.range;
+function normalizeFirstDay(val: any): number | undefined {
+  if (val === null || val === undefined || val === "") return undefined;
+  const day = typeof val === "number" ? val : parseInt(val, 10);
+  return day >= 0 && day <= 6 ? day : undefined;
+}
 
 Serializer.addClass(
   "datetimepicker",
@@ -797,7 +827,13 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "startPlaceholder", serializationProperty: "locStartPlaceholder", dependsOn: "range", visibleIf: isRangeMode },
     { name: "endPlaceholder", serializationProperty: "locEndPlaceholder", dependsOn: "range", visibleIf: isRangeMode },
-    "pattern",
+    "datePattern",
+    {
+      name: "firstDayOfWeek:number",
+      choices: getFirstDayOfWeekChoices,
+      defaultFunc: (obj: QuestionDateTimePickerModel) => !!obj ? obj.getInheritedFirstDayOfWeek() : getFirstDayOfWeek(""),
+      onSerializeValue: (obj: QuestionDateTimePickerModel) => obj.getStoredFirstDayOfWeek()
+    },
     { name: "allowClear:boolean", default: true }
   ],
   () => new QuestionDateTimePickerModel(""),

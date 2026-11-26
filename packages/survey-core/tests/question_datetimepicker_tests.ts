@@ -44,9 +44,13 @@ describe("QuestionDateTimePickerModel", () => {
     const survey = new SurveyModel({ elements: [{ type: "datetimepicker", name: "q1" }] });
     const q = <QuestionDateTimePickerModel>survey.getQuestionByName("q1");
     expect(q.inputValue).toBe("mm/dd/yyyy");
+    expect(q.firstDayOfWeek).toBe(0);
     expect(q.calendar.firstDayOfWeek).toBe(0);
+    expect(q.toJSON().firstDayOfWeek).toBeUndefined();
     survey.regionalFormat.locale = "de";
     expect(q.inputValue).toBe("dd.mm.yyyy");
+    expect(survey.regionalFormat.firstDayOfWeek).toBe(1);
+    expect(q.firstDayOfWeek).toBe(1);
     expect(q.calendar.firstDayOfWeek).toBe(1);
     survey.regionalFormat.datePattern = "yyyy-mm-dd";
     expect(q.inputValue).toBe("yyyy-mm-dd");
@@ -54,9 +58,37 @@ describe("QuestionDateTimePickerModel", () => {
     survey.regionalFormat.locale = "en-US";
     expect(q.inputValue).toBe("yyyy-mm-dd");
     expect(q.calendar.firstDayOfWeek).toBe(0);
-    q.pattern = "dd/mm/yyyy";
+    survey.regionalFormat.locale = "en-GB";
+    expect(q.calendar.firstDayOfWeek).toBe(1);
+    survey.regionalFormat.firstDayOfWeek = 0;
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+    q.datePattern = "dd/mm/yyyy";
     expect(q.inputValue).toBe("dd/mm/yyyy");
     expect(q.calendar.firstDayOfWeek).toBe(0);
+    q.firstDayOfWeek = 6;
+    expect(q.firstDayOfWeek).toBe(6);
+    expect(q.calendar.firstDayOfWeek).toBe(6);
+    expect(q.toJSON().firstDayOfWeek).toBe(6);
+    q.firstDayOfWeek = 0;
+    expect(q.getStoredFirstDayOfWeek()).toBe(0);
+    survey.regionalFormat.firstDayOfWeek = 1;
+    expect(q.firstDayOfWeek).toBe(0);
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+  });
+
+  test("A question week start overrides the survey and the calendar grid", () => {
+    const q = createQuestion({ firstDayOfWeek: 0 }, { locale: "de" });
+    expect(q.getStoredFirstDayOfWeek()).toBe(0);
+    expect(q.firstDayOfWeek).toBe(0);
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+    expect(q.calendarViewModel.weekDays[0]).toBe("Su");
+    q.survey.regionalFormat.firstDayOfWeek = 6;
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+    expect(q.calendarViewModel.weekDays[0]).toBe("Su");
+    Serializer.setObjPropertyValue(q, "firstDayOfWeek", 1);
+    expect(q.getStoredFirstDayOfWeek()).toBe(1);
+    expect(q.calendar.firstDayOfWeek).toBe(1);
+    expect(q.calendarViewModel.weekDays[0]).toBe("Mo");
   });
 
   test("The mask is a localeDate datetime mask", () => {
@@ -91,7 +123,7 @@ describe("QuestionDateTimePickerModel", () => {
       maxValueExpression: "today(30)",
       placeholder: "Pick a date",
       allowClear: false,
-      pattern: "dd.mm.yyyy"
+      datePattern: "dd.mm.yyyy"
     };
     const q = new QuestionDateTimePickerModel("q1");
     q.fromJSON(json);
@@ -99,19 +131,19 @@ describe("QuestionDateTimePickerModel", () => {
     expect(q.max).toBe("2026-12-31");
     expect(q.placeholder).toBe("Pick a date");
     expect(q.allowClear).toBe(false);
-    expect(q.pattern).toBe("dd.mm.yyyy");
+    expect(q.datePattern).toBe("dd.mm.yyyy");
     expect((<InputMaskDateTime>q.maskSettings).pattern).toBe("dd.mm.yyyy");
     expect(q.toJSON()).toEqual(json);
   });
 
   test("The mask settings are not serializable, only the pattern is", () => {
     expect(Serializer.findProperty("datetimepicker", "maskSettings")).toBeFalsy();
-    expect(Serializer.findProperty("datetimepicker", "pattern")).toBeTruthy();
-    const q = createQuestion({ pattern: "yyyy-mm-dd", min: "2026-01-01" });
+    expect(Serializer.findProperty("datetimepicker", "datePattern")).toBeTruthy();
+    const q = createQuestion({ datePattern: "yyyy-mm-dd", min: "2026-01-01" });
     q.value = "2026-11-09";
     expect(q.inputValue).toBe("2026-11-09");
-    expect(q.toJSON()).toEqual({ name: "q1", pattern: "yyyy-mm-dd", min: "2026-01-01" });
-    q.pattern = "";
+    expect(q.toJSON()).toEqual({ name: "q1", datePattern: "yyyy-mm-dd", min: "2026-01-01" });
+    q.datePattern = "";
     expect(q.inputValue).toBe("11/09/2026");
     expect(q.toJSON()).toEqual({ name: "q1", min: "2026-01-01" });
   });
@@ -154,7 +186,7 @@ describe("QuestionDateTimePickerModel", () => {
     q.min = "2026-01-01";
     q.maxValueExpression = "today(30)";
     expect((<any>q).maskInputAdapters).toEqual(adapters);
-    q.pattern = "dd.mm.yyyy";
+    q.datePattern = "dd.mm.yyyy";
     expect((<any>q).maskInputAdapters[0]).not.toBe(adapters[0]);
     expect(root.querySelector("input").value).toBe("dd.mm.yyyy");
     q.beforeDestroyQuestionElement(root);
@@ -426,7 +458,7 @@ describe("QuestionDateTimePickerModel", () => {
   test("Mask pattern change updates the input", () => {
     const q = createQuestion();
     q.value = "2026-11-09";
-    q.pattern = "yyyy/mm/dd";
+    q.datePattern = "yyyy/mm/dd";
     expect(q.inputValue).toBe("2026/11/09");
   });
 });
@@ -493,7 +525,7 @@ describe("QuestionDateTimePickerModel range", () => {
     root.appendChild(document.createElement("input"));
     root.appendChild(document.createElement("input"));
     q.afterRenderQuestionElement(root);
-    q.pattern = "dd.mm.yyyy";
+    q.datePattern = "dd.mm.yyyy";
     expect(q.startInputValue).toBe("05.11.2026");
     expect(q.endInputValue).toBe("09.11.2026");
     const inputs = root.querySelectorAll("input");

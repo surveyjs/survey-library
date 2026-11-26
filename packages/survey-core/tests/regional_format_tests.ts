@@ -556,9 +556,9 @@ describe("RegionalFormat: metadata for the Creator", () => {
   test("The serializer reports the type, category and length limits the property grid relies on", () => {
     const maxLengths: { [name: string]: number } = { decimalSeparator: 1, thousandsSeparator: 1 };
     const props = Serializer.getProperties("regionalformat");
-    expect(props.map(p => p.name), "the seven properties in order").toEqual(["locale", "datePattern", "timePattern", "decimalSeparator", "thousandsSeparator", "currencySymbol", "currencyPattern"]);
+    expect(props.map(p => p.name), "the properties in order").toEqual(["locale", "datePattern", "firstDayOfWeek", "timePattern", "decimalSeparator", "thousandsSeparator", "currencySymbol", "currencyPattern"]);
     props.forEach(prop => {
-      expect(prop.type, prop.name + " type").toBe("string");
+      expect(prop.type, prop.name + " type").toBe(prop.name === "firstDayOfWeek" ? "number" : "string");
       expect(prop.category, prop.name + " category").toBe(regionalFormatCategory);
       expect(prop.visible, prop.name + " visible").toBe(true);
       expect(prop.maxLength, prop.name + " maxLength").toBe(maxLengths[prop.name] !== undefined ? maxLengths[prop.name] : -1);
@@ -566,6 +566,9 @@ describe("RegionalFormat: metadata for the Creator", () => {
     const surveyProp = Serializer.findProperty("survey", "regionalFormat");
     expect(surveyProp.visible, "the survey property is visible").toBe(true);
     expect(surveyProp.className, "its class").toBe("regionalformat");
+    expect(Serializer.findProperty("regionalformat", "firstDayOfWeek").getChoices(null)).toEqual([
+      { value: 0, text: "Su" }, { value: 1, text: "Mo" }, { value: 6, text: "Sa" }
+    ]);
     expect(Serializer.createClass("regionalformat"), "creatable by name").toBeInstanceOf(RegionalFormat);
   });
 

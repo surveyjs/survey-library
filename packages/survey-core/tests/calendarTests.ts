@@ -2,6 +2,7 @@ import { CalendarModel } from "../src/calendar/calendar";
 import { CalendarViewModel } from "../src/calendar/calendar-view-model";
 import { CalendarItem } from "../src/calendar/calendar-item";
 import { ICalendarOptions } from "../src/calendar/interfaces";
+import { setupLocale, surveyLocalization } from "../src/surveyStrings";
 
 import { describe, test, expect, vi, afterEach } from "vitest";
 
@@ -47,6 +48,26 @@ describe("CalendarModel", () => {
   test("value is stored without time", () => {
     const calendar = createCalendar({ value: new Date(2025, 2, 17, 23, 59) });
     expect(calendar.model.value.getTime()).toBe(d(2025, 3, 17).getTime());
+  });
+
+  test("month and weekday names come from the locale", () => {
+    setupLocale({
+      localeCode: "xx",
+      strings: {
+        calendarMonths: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"],
+        calendarWeekdays: ["D0", "D1", "D2", "D3", "D4", "D5", "D6"]
+      },
+      nativeName: "xx",
+      englishName: "xx"
+    });
+    const calendar = createCalendar({ viewDate: d(2026, 11, 1) });
+    calendar.model.firstDayOfWeek = 0;
+    calendar.locale = "xx";
+    expect(calendar.months[0].title).toBe("M11 2026");
+    expect(calendar.weekDays).toEqual(["D0", "D1", "D2", "D3", "D4", "D5", "D6"]);
+    calendar.model.zoom = "month";
+    expect(calendar.items.map(item => item.text)[10]).toBe("M11");
+    delete surveyLocalization.locales["xx"];
   });
 
   test("weekDays start from Monday", () => {

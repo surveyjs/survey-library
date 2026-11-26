@@ -8,10 +8,8 @@ import { CalendarMonth } from "./interfaces";
 import { calendarCssClasses } from "./css-classes";
 import { CalendarModel, yearsInRange } from "./calendar";
 import { clampDate, getToday, isPeriodOutside, isSameDay, shiftMonth, toMonthStart } from "./date-utils";
+import { getLocaleString } from "../surveyStrings";
 
-// Localization is out of scope for now: the names are english.
-const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const weekDayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const daysInGrid = 42;
 const listMonthsBefore = 12;
 const listMonthsAfter = 12;
@@ -74,6 +72,7 @@ export class CalendarViewModel extends Base {
   @property() weekDays: Array<string>;
   @property({ defaultValue: false }) footerVisible: boolean;
   @property({ defaultValue: false }) isMobile: boolean;
+  @property() locale: string;
   @property() anchorMonthKey: string;
 
   constructor(public readonly model: CalendarModel) {
@@ -194,14 +193,23 @@ export class CalendarViewModel extends Base {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "isMobile") {
+    if (name === "isMobile" || name === "locale") {
+      if (name === "locale") {
+        this.updateWeekDays();
+      }
       this.updateView();
     }
+  }
+  private get monthNames(): Array<string> {
+    return getLocaleString("calendarMonths", this.locale) as any;
+  }
+  private get weekDayNames(): Array<string> {
+    return getLocaleString("calendarWeekdays", this.locale) as any;
   }
   private updateWeekDays(): void {
     const res: Array<string> = [];
     for (let i = 0; i < 7; i++) {
-      res.push(weekDayNames[(this.model.firstDayOfWeek + i) % 7]);
+      res.push(this.weekDayNames[(this.model.firstDayOfWeek + i) % 7]);
     }
     this.weekDays = res;
   }
@@ -328,7 +336,7 @@ export class CalendarViewModel extends Base {
     if (hideOutside) {
       this.trimHiddenWeeks(days);
     }
-    return { date: monthStart, title: monthNames[month] + " " + year, days: days };
+    return { date: monthStart, title: this.monthNames[month] + " " + year, days: days };
   }
   // Neighbour days are not drawn, so a trailing week that contains none of the month is only empty space.
   private trimHiddenWeeks(days: Array<CalendarItem>): void {
@@ -364,9 +372,9 @@ export class CalendarViewModel extends Base {
     return res;
   }
   private createMonthItems(year: number, selectedRange: Array<Date>): Array<CalendarItem> {
-    return this.createPeriodItems("month", monthNames.length,
+    return this.createPeriodItems("month", this.monthNames.length,
       month => new Date(year, month, 1),
-      month => monthNames[month],
+      month => this.monthNames[month],
       selectedRange);
   }
   private createYearItems(startYear: number, selectedRange: Array<Date>): Array<CalendarItem> {

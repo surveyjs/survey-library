@@ -178,6 +178,7 @@ export class QuestionDateTimePickerModel extends Question {
   public get calendarViewModel(): CalendarViewModel {
     if (!this.calendarViewModelValue) {
       this.calendarViewModelValue = new CalendarViewModel(this.calendar);
+      this.calendarViewModelValue.locale = this.getLocale();
     }
     return this.calendarViewModelValue;
   }
@@ -548,6 +549,9 @@ export class QuestionDateTimePickerModel extends Question {
     if (this.range) {
       this._startInputValue = !!drafts[0] ? this.maskSettings.getMaskedValue(drafts[0]) : undefined;
       this._endInputValue = !!drafts[1] ? this.maskSettings.getMaskedValue(drafts[1]) : undefined;
+    }
+    if (!!this.calendarViewModelValue) {
+      this.calendarViewModelValue.locale = this.getLocale();
     }
     if (!!this.popupModelValue) {
       this.popupModelValue.locale = this.getLocale();

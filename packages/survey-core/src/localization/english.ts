@@ -126,6 +126,8 @@ export var englishStrings = {
   selectCaption: "Select",
   openCalendarCaption: "Open calendar",
   dateRangeError: "The start date cannot be later than the end date.",
+  calendarMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  calendarWeekdays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
   signaturePlaceHolder: "Sign here",
   signaturePlaceHolderReadOnly: "No signature",
   chooseFileCaption: "Select File",

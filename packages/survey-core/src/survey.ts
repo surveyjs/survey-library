@@ -128,11 +128,12 @@ function createHash(): HashTable<any> {
 }
 // Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
 // key that can answer a name ignoring letter case is the name's lower-case form: no key scan
+function getVariableByName(variablesHash: HashTable<any>, name: string): any {
+  const key = name.toLowerCase();
+  return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
+}
 function createVariablesContext(variablesHash: HashTable<any>): VariableGetterContext {
-  return new VariableGetterContext(variablesHash, (name: string): any => {
-    const key = name.toLowerCase();
-    return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
-  });
+  return new VariableGetterContext(variablesHash, (name: string): any => getVariableByName(variablesHash, name));
 }
 // The stored answers only, by name ignoring letter case, the way expressions read the values hash
 function createDataContext(valuesHash: HashTable<any>, valuesKeyIndex: HashKeyIndex): VariableGetterContext {
@@ -175,11 +176,19 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
         return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
       }
     }
-    let res = createVariablesContext(this.variablesHash).getValue(params);
+    // A one-part name is a key of the hash: it is read directly, with no context built over the hash
+    const isKey = path.length === 1 && path[0].index === undefined;
+    let res = isKey ? this.getKeyValue(getVariableByName(this.variablesHash, path[0].name)) :
+      createVariablesContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
+    return isKey ? this.getKeyValue(this.valuesKeyIndex.getValue(this.valuesHash, path[0].name)) :
+      createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
+  }
+  // A context over the hash answers undefined as not found
+  private getKeyValue(value: any): IValueGetterInfo {
+    return value !== undefined ? { isFound: true, value: value, context: this } : undefined;
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;

@@ -90,19 +90,30 @@ export class ValueGetter {
     }
     return res;
   }
+  // The context answers the name, or each root after it up to the survey: the first one that finds it wins.
+  // The name is parsed once. A context may change the path it reads ({prevRow.x} is read as {row.x},
+  // {panel.x} loses its first part), so each context gets a copy and the next one reads the name as written.
   private getValueInfoCore(params: IValueInfoParams): IReturnValue {
     const name = params.name;
-    const cxt = params.context;
-    let info = this.run(params.name, cxt, params.createObjects, params.isOriginalValue);
-    if ((!info || !info.isFound) && cxt && cxt.getRootObj) {
+    const path = this.getPath(name);
+    const propPrefix = settings.expressionElementPropertyPrefix;
+    const isProperty = !!propPrefix && path.length > 0 && path[0].name[0] === propPrefix;
+    if (isProperty) {
+      path[0].name = path[0].name.substring(1);
+    }
+    let cxt = params.context;
+    let info: IValueGetterInfo;
+    while(!!cxt) {
+      // The last context, the one without a root, reads the parsed path itself
+      const cxtPath = !!cxt.getRootObj ? this.copyPath(path) : path;
+      info = this.run(cxtPath, cxt, isProperty, params.createObjects, params.isOriginalValue);
+      if (!!info || !cxt.getRootObj) break;
       const obj = cxt.getRootObj();
-      if (!!obj) {
-        params.context = obj.getValueGetterContext();
-        return this.getValueInfo(params);
-      }
+      if (!obj) break;
+      cxt = obj.getValueGetterContext();
     }
     const res: IReturnValue = { isFound: false, value: undefined };
-    if (!info || !info.isFound) return res;
+    if (!info) return res;
     res.isFound = true;
     res.value = info.value;
     res.strictCompare = info.requireStrictCompare;
@@ -132,7 +143,7 @@ export class ValueGetter {
     return new ChangedKeys(keys, sharedNamesInfo).isAnyChanged(usedNames, isClearedKeyChanged, namesInfo);
   }
   // The parts of a name that the key check reads and that depend on the name only. The parsed path
-  // itself is not kept: run() changes the path it parses ({$q.isVisible}), so a kept one must never reach it.
+  // itself is not kept: a lookup changes the path it parses ({$q.isVisible}), so a kept one must never reach it.
   // A runner keeps one per variable (~90,000 on a large survey), so the arrays get their exact size and
   // the full-length prefix shares the lower-case name's string.
   public getNameInfo(name: string): IValueGetterNameInfo {
@@ -155,16 +166,12 @@ export class ValueGetter {
       lowerPrefixes: lowerPrefixes
     };
   }
-  private run(name: string, context: IValueGetterContext, createObjects: boolean, isOriginalValue?: boolean): any {
-    if (!context) return undefined;
-    let path = this.getPath(name);
-    const propPrefix = settings.expressionElementPropertyPrefix;
-    const isProperty = !!propPrefix && path.length > 0 && path[0].name[0] === propPrefix;
-    if (isProperty) {
-      path[0].name = path[0].name.substring(1);
-    }
+  private run(path: Array<IValueGetterItem>, context: IValueGetterContext, isProperty: boolean, createObjects: boolean, isOriginalValue?: boolean): IValueGetterInfo {
     const info = context.getValue({ path, isRoot: true, index: -1, createObjects, isProperty, isOriginalValue });
     return info?.isFound ? info : undefined;
+  }
+  private copyPath(path: Array<IValueGetterItem>): Array<IValueGetterItem> {
+    return path.map(item => Object.assign({}, item));
   }
   public getPath(name: string): Array<IValueGetterItem> {
     return parseValuePath(name);

@@ -9,6 +9,7 @@ import { computeChainStep } from "./calculations.ts";
 import type { ChainStep } from "./calculations.ts";
 import { runnerRoot } from "../harness/node/build.ts";
 import { loadQuietly, countsOf, plannedCounts, choiceCounts } from "./fixture-checks.ts";
+import { lostAnswers } from "../scenarios/slot-form.ts";
 
 // The fixture checks of 01 on the runner's build. fixtures-old.test.ts runs check 7 on an older one.
 const sha1 = (text: string): string => createHash("sha1").update(text).digest("hex");
@@ -272,19 +273,17 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
     // M8: every keystroke is a value change.
     expect(json.textUpdateMode).toBe(m.textUpdateMode);
   });
-  test("10. slotForm: a data load overwrites the planned \"who\" answers (02 removes the overwrite)", () => {
+  test("10. slotForm: a data load keeps every loaded answer", () => {
     const fixture = getFixture("slotForm");
     const meta = fixture.meta;
     const { survey } = loadQuietly(Survey, fixture.json);
     survey.data = JSON.parse(JSON.stringify(fixture.data));
     expect(survey.getVariable(meta.count), "the slots on after the load").toBe(meta.activeSlots);
-    // In a cycle that a nested item's write-back starts during the load, the count of slots is still 1, so the
-    // setValueIf of a "who" whose screening choice the data selects writes ['k0'] over its loaded answer. 02 turns this
-    // into "every loaded answer is there" and removes the skip in the load/data check (scenarios/slot-form.ts).
-    expect(meta.overwrittenBefore02.length).toBe(18);
-    meta.overwrittenBefore02.forEach((name: string) => expect(survey.getValue(name), name).toEqual(["k0"]));
-    meta.whos.filter((name: string) => meta.overwrittenBefore02.indexOf(name) < 0).forEach((name: string) =>
-      expect(survey.getValue(name), name).toEqual(fixture.data[name]));
+    // A nested item's write-back during the load used to run a pass of its own while one slot was counted, and the
+    // setValueIf of a "who" whose screen choice the data selects wrote ['k0'] over its loaded answer.
+    expect(meta.whosSetOnOneSlot.length).toBe(18);
+    meta.whos.forEach((name: string) => expect(survey.getValue(name), name).toEqual(fixture.data[name]));
+    expect(lostAnswers(<any>{ Survey: Survey, fixture: fixture }, survey), "the loaded answers that the survey does not hold").toEqual([]);
   });
   test("8. TypeScript loading: node runs the smoke entry, esbuild bundles the fixtures for the browser", async() => {
     const res = spawnSync(process.execPath, [path.join(runnerRoot, "perf", "fixtures", "smoke.ts")], { encoding: "utf8" });

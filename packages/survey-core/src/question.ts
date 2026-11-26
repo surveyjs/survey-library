@@ -1278,6 +1278,10 @@ export class Question extends SurveyElement<Question>
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    // survey.data and mergeData run no question triggers: the loaded answers win. A write into a record while they
+    // run (a nested item writing its record back, an expression of an item their pass computes) reaches the triggers
+    // of its item's questions directly.
+    if (this.survey?.isAssigningData()) return;
     if (!keys) {
       keys = {};
       keys[name] = value;

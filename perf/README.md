@@ -107,8 +107,8 @@ their hang guard, as `extra/` ids do:
 PERF_EXTRA_TIMEOUT_MS=3600000 PERF_ONLY=slotForm-full/load/data,slotForm-full/answer/type npm run perf
 ```
 
-A data load of the slot form writes `['k0']` over some loaded "who" answers (`meta.overwrittenBefore02`); the
-`load/data` checks skip those answers until that is fixed.
+The `load/data` checks compare every loaded answer. The "who" answers whose `setValueIf` is true while one slot is
+counted (`meta.whosSetOnOneSlot`) are the ones a write-back during the load used to overwrite with `['k0']`.
 
 ## The browser suites
 

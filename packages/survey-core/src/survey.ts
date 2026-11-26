@@ -3840,10 +3840,19 @@ export class SurveyModel extends SurveyElementCore
       // The previous data is gone (assignData resets it first), so which names changed is unknown
       this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
     });
-    this.runConditions();
-    this.updateAllQuestionsValue(clearData);
+    this.settingDataPassScope.run(() => {
+      this.runConditions();
+      this.updateAllQuestionsValue(clearData);
+    });
   }
   public isSettingData(): boolean { return this.settingDataScope.isActive; }
+  private settingDataPassScope = new Scope();
+  // survey.data and mergeData run no question triggers: true while setDataCore updates the questions and during its
+  // conditions pass after that (Question.runTriggers checks it). A write into a record during the assignment runs the
+  // triggers of its item's questions directly, outside the survey's value-changed pass.
+  public isAssigningData(): boolean {
+    return this.settingDataScope.isActive || this.settingDataPassScope.isActive;
+  }
   private resetValuesHash(): void {
     this.valuesHash = createHash();
     this.valuesKeyIndex.reset();
@@ -7749,6 +7758,11 @@ export class SurveyModel extends SurveyElementCore
       if (!isCalculatedValueAtLoad) {
         this.isValueChangedOnRunningCondition = true;
       }
+    } else if (this.isSettingData()) {
+      // A write while the data is assigned (a nested container writing its value back) starts no pass of its
+      // own: setDataCore runs a full pass right after, with every value loaded. A pass now would read
+      // calculated values that are not recalculated yet, and its question triggers would overwrite loaded answers.
+      this.valueChangedKeys = undefined;
     } else {
       this.conditionOnValueChangedScope.run(() => this.runConditions());
       this.runQuestionsTriggers(name, !!name ? values[name] : undefined);

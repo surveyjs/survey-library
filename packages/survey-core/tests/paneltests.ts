@@ -1241,6 +1241,7 @@ describe("Panel", () => {
         if (this.targets.indexOf(el) < 0) return;
         this.callback([{ target: el, isIntersecting: isIntersecting, ...rects }]);
       }
+      deliver(entries: Array<any>): void { this.callback(entries); }
       intersectAll(entries: Array<{ el: Element, top: number }>): void {
         this.callback(entries.map(e => ({ target: e.el, isIntersecting: true, boundingClientRect: { top: e.top, bottom: e.top + 10 } })));
       }
@@ -1379,6 +1380,29 @@ describe("Panel", () => {
         expect(rows[3].isNeedRender, "pushed below the view").toBe(false);
         observer.intersect(divs[3], false, { rootBounds, boundingClientRect: rect(-300) });
         expect(rows[3].isNeedRender, "a row not seen in view since it was pushed below does not render above").toBe(false);
+        survey.dispose();
+      });
+    });
+    test("a batch with a stale entry for a row already scrolled past renders it once and does not break", () => {
+      runWithObserver(() => {
+        const survey = createSurvey();
+        const rows = survey.currentPage.rows;
+        const divs = renderPage(survey);
+        const observer = MockIntersectionObserver.instances[0];
+        const rootBounds = { top: 0, bottom: 500, left: 0, right: 800 };
+        const rect = (top: number) => ({ top: top, bottom: top + 50, left: 0, right: 300 });
+
+        observer.intersectAll([{ el: divs[1], top: 0 }, { el: divs[2], top: 100 }, { el: divs[3], top: 200 }]);
+        expect(rows.map(row => row.isNeedRender), "row 2 is seen and rechecked").toEqual([true, true, false, false]);
+        // The re-observe queues an "in view" entry, then the row scrolls above the view before the batch is delivered.
+        expect(() => observer.deliver([
+          { target: divs[2], isIntersecting: true, rootBounds, boundingClientRect: rect(100) },
+          { target: divs[3], isIntersecting: true, rootBounds, boundingClientRect: rect(200) },
+          { target: divs[2], isIntersecting: false, rootBounds, boundingClientRect: rect(-300) }
+        ])).not.toThrow();
+        expect(rows.map(row => row.isNeedRender), "row 2 renders as scrolled past, row 3 waits for its recheck").toEqual([true, true, true, false]);
+        observer.intersect(divs[3]);
+        expect(rows[3].isNeedRender, "row 3 renders on its recheck").toBe(true);
         survey.dispose();
       });
     });

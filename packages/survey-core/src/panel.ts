@@ -96,10 +96,16 @@ class LazyRowsObserver {
     this.waitForRelease();
     if (visibleEntries.length === 0) return;
     visibleEntries.sort((a, b) => (a.boundingClientRect?.top ?? 0) - (b.boundingClientRect?.top ?? 0));
-    this.renderRow(this.rowsByElement.get(visibleEntries.shift().target));
+    const firstRowToRender = this.rowsByElement.get(visibleEntries.shift().target);
+    if (firstRowToRender) {
+      this.renderRow(firstRowToRender);
+    }
     for (const entry of visibleEntries) {
-      this.seenRows.add(this.rowsByElement.get(entry.target));
-      this.recheck(entry.target);
+      const row = this.rowsByElement.get(entry.target);
+      if (row) {
+        this.seenRows.add(row);
+        this.recheck(entry.target);
+      }
     }
   }
   private recheck(el: Element): void {

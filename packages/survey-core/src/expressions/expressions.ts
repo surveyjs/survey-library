@@ -259,7 +259,18 @@ export class BinaryOperand extends Operand {
       const isPositive = textCompareOperators[this.operatorName] === "positive";
       if (textRes === isPositive) return textRes;
     }
+    // "{q} || 'fallback'": a variable's text that converts to 0 or false ("0", "false") is an entered value,
+    // so the fallback does not replace it. Against a boolean the operator stays a logical or.
+    if (this.operatorName === "or" && (left === 0 || left === false) && typeof right !== "boolean" &&
+      BinaryOperand.isConvertedText(this.left)) return left;
     return this.consumer.call(this, left, right, strictCompare, runtimeSettings);
+  }
+  // Read right after the operand's evaluate. In a chain ("{a} || {b} || 'none'") the inner or's 0 or false
+  // comes from one of its sides.
+  private static isConvertedText(op: Operand): boolean {
+    if (op instanceof Variable) return getTextBeforeConversion(op) !== undefined;
+    if (!(op instanceof BinaryOperand) || op.operatorName !== "or") return false;
+    return BinaryOperand.isConvertedText(op.left) || BinaryOperand.isConvertedText(op.right);
   }
 
   protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {

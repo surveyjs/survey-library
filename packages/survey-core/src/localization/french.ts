@@ -335,12 +335,20 @@ export var frenchSurveyStrings = {
   conditionOperatorGreaterorequal: "Supérieur ou égal à",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Inférieur ou égal à",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Tous les filtres",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Tous les filtres : {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtres",
   // [Auto-translated] "Search"
   filterSearchLabel: "Recherche",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Rechercher par {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} ou {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, ou {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Afficher plus",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var frenchSurveyStrings = {
   filterClearAll: "Tout effacer",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clair {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Préréglages de filtre",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Sauvez comme...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Enregistrer",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Ajouter « {0} »...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Préréglages de filtre",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Afficher {0} éléments",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var frenchSurveyStrings = {
   filterShowResults: "Afficher les résultats",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nouveau préréglage",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Nom prédéfini",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Champs par lesquels filtrer",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Expression du filtre",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Un préréglage portant ce nom existe déjà.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var frenchSurveyStrings = {
   filterPresetNoExpression: "Entrez une expression.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "L’expression n’est pas valide.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Passer à l’expression",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Passer aux champs",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Tapez une expression ici...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var frenchSurveyStrings = {
   filterPresetExpression: "{0} Expression",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Édit...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Recherche dans les filtres et les préréglages",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Rien trouvé, essayez différents mots-clés",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Générer un filtre avec l’IA",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Modifier le préréglage avec l’IA",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Décrivez le filtre que vous voulez...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Générer un filtre",
   // [Auto-translated] "Edit"
   filterAiEdit: "Modifier",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Génération...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Édition...",
   // [Auto-translated] "AI could not make a filter. Try again."

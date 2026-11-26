@@ -38,9 +38,12 @@ function renderNumber(survey: SurveyModel, name: string = "num"): string {
   q.value = 1234.56;
   return q.inputValue;
 }
+// The tests that mount an input remove it in an afterEach.
+const mountedInputs: Array<HTMLInputElement> = [];
 function createInput(): HTMLInputElement {
   const input = document.createElement("input");
   document.body.appendChild(input);
+  mountedInputs.push(input);
   return input;
 }
 
@@ -275,6 +278,7 @@ describe("RegionalFormat: the format locale", () => {
 describe("RegionalFormat: propagation", () => {
   afterEach(() => {
     surveyLocalization.currentLocale = "";
+    mountedInputs.splice(0).forEach(input => input.remove());
   });
 
   test("Changing a field rerenders an existing masked question and its input element without a locale event", () => {

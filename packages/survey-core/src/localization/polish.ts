@@ -335,12 +335,20 @@ export var polishSurveyStrings = {
   conditionOperatorGreaterorequal: "Większe lub równe",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mniejsze lub równe",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Wszystkie filtry",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Wszystkie filtry: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtry",
   // [Auto-translated] "Search"
   filterSearchLabel: "Szukaj",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Wyszukaj według {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} czy {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, albo {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Pokaż więcej",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var polishSurveyStrings = {
   filterClearAll: "Wyczyść wszystko",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Oczyść {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Presety filtrów",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Zapisz jako...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Zapisz",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Dodaj \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Presety filtrów",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Pokaż {0} elementy",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var polishSurveyStrings = {
   filterShowResults: "Pokaż wyniki",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nowy preset",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Nazwa presetu",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Pola do filtrowania",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Wyrażenie filtra",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Preset o tej nazwie już istnieje.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var polishSurveyStrings = {
   filterPresetNoExpression: "Wprowadź wyrażenie.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Wyrażenie jest nieprawidłowe.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Przełącz na Wyrażenie",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Przełącz się na Pola",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Wpisz tutaj wyrażenie...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var polishSurveyStrings = {
   filterPresetExpression: "{0} Wyrażenie",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edycja...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Wyszukuj filtry i presety",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nic nie znaleziono, spróbuj różnych słów kluczowych",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Generuj filtr za pomocą AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Edytuj preset za pomocą AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Opisz filtr, który chcesz...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generuj filtr",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edycja",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Generowanie...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Edycja...",
   // [Auto-translated] "AI could not make a filter. Try again."

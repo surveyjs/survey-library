@@ -187,6 +187,7 @@ test("check isResponsive getter after end of loading json", () => {
 import { CustomResizeObserver } from "./test-helpers";
 
 test("check resizeObserver behavior", () => {
+  const requestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const setTimeout = window.setTimeout;
@@ -194,102 +195,111 @@ test("check resizeObserver behavior", () => {
   window.setTimeout = <any>((f) => f());
   const rootEl = document.createElement("div");
   const contentEl = document.createElement("div");
-  contentEl.className = "sd-selectbase sd-imagepicker";
-  rootEl.appendChild(contentEl);
+  try {
+    contentEl.className = "sd-selectbase sd-imagepicker";
+    rootEl.appendChild(contentEl);
 
-  window.document.body.appendChild(rootEl);
-  // jsdom does not perform layout, so isContainerVisible() always returns false.
-  // Stub offsetWidth on the element queried by the responsive logic (contentEl).
-  Object.defineProperty(contentEl, "offsetWidth", { configurable: true, value: 100 });
+    window.document.body.appendChild(rootEl);
+    // jsdom does not perform layout, so isContainerVisible() always returns false.
+    // Stub offsetWidth on the element queried by the responsive logic (contentEl).
+    Object.defineProperty(contentEl, "offsetWidth", { configurable: true, value: 100 });
 
-  const survey = new SurveyModel(
-    {
-      "elements": [
-        {
-          "type": "imagepicker",
-          "name": "question2",
-          "choices": [
-            {
-              "value": "lion",
-              "imageLink": "test"
-            },
-          ],
-        }
-      ]
-    }
-  );
-  survey.css = defaultCss;
-  const q = survey.getAllQuestions()[0];
-  let trace = "";
-  q["processResponsiveness"] = () => {
-    trace += "->processed";
-    return true;
-  };
-  q.afterRender(rootEl);
-  expect(trace).toBe("->processed");
-  (<any>q["resizeObserver"]).call();
-  expect(trace, "prevent from double call").toBe("->processed");
-  (<any>q["resizeObserver"]).call();
-  expect(trace).toBe("->processed->processed");
-  survey.setIsMobile(true);
-  expect(trace, "always process when isMobile changed").toBe("->processed->processed->processed");
-  window.ResizeObserver = ResizeObserver;
-  window.setTimeout = setTimeout;
+    const survey = new SurveyModel(
+      {
+        "elements": [
+          {
+            "type": "imagepicker",
+            "name": "question2",
+            "choices": [
+              {
+                "value": "lion",
+                "imageLink": "test"
+              },
+            ],
+          }
+        ]
+      }
+    );
+    survey.css = defaultCss;
+    const q = survey.getAllQuestions()[0];
+    let trace = "";
+    q["processResponsiveness"] = () => {
+      trace += "->processed";
+      return true;
+    };
+    q.afterRender(rootEl);
+    expect(trace).toBe("->processed");
+    (<any>q["resizeObserver"]).call();
+    expect(trace, "prevent from double call").toBe("->processed");
+    (<any>q["resizeObserver"]).call();
+    expect(trace).toBe("->processed->processed");
+    survey.setIsMobile(true);
+    expect(trace, "always process when isMobile changed").toBe("->processed->processed->processed");
+  } finally {
+    window.requestAnimationFrame = requestAnimationFrame;
+    window.ResizeObserver = ResizeObserver;
+    window.setTimeout = setTimeout;
 
-  contentEl.remove();
-  rootEl.remove();
+    contentEl.remove();
+    rootEl.remove();
+  }
 });
 
 test("check resizeObserver not process if container is not visible", () => {
+  const requestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
   const rootEl = document.createElement("div");
   const contentEl = document.createElement("div");
-  contentEl.className = "sd-selectbase sd-imagepicker";
-  rootEl.appendChild(contentEl);
+  try {
+    contentEl.className = "sd-selectbase sd-imagepicker";
+    rootEl.appendChild(contentEl);
 
-  window.document.body.appendChild(rootEl);
-  // jsdom does not perform layout. Make contentEl.offsetWidth reflect rootEl's display style
-  // so isContainerVisible() correctly reports visible/invisible based on display:none/block.
-  Object.defineProperty(contentEl, "offsetWidth", {
-    configurable: true,
-    get() { return rootEl.style.display === "none" ? 0 : 100; },
-  });
+    window.document.body.appendChild(rootEl);
+    // jsdom does not perform layout. Make contentEl.offsetWidth reflect rootEl's display style
+    // so isContainerVisible() correctly reports visible/invisible based on display:none/block.
+    Object.defineProperty(contentEl, "offsetWidth", {
+      configurable: true,
+      get() { return rootEl.style.display === "none" ? 0 : 100; },
+    });
 
-  const survey = new SurveyModel(
-    {
-      "elements": [
-        {
-          "type": "imagepicker",
-          "name": "question2",
-          "choices": [
-            {
-              "value": "lion",
-              "imageLink": "test"
-            },
-          ],
-        }
-      ]
-    }
-  );
-  survey.css = defaultCss;
-  const q = survey.getAllQuestions()[0];
-  let trace = "";
-  q["processResponsiveness"] = () => {
-    trace += "->processed";
-    return true;
-  };
-  rootEl.style.display = "none";
-  q.afterRender(rootEl);
-  expect(trace, "do not process responsivness on invisible container").toBe("");
-  rootEl.style.display = "block";
-  (<any>q["resizeObserver"]).call();
-  expect(trace, "process responsivness on visible container").toBe("->processed");
-  window.ResizeObserver = ResizeObserver;
+    const survey = new SurveyModel(
+      {
+        "elements": [
+          {
+            "type": "imagepicker",
+            "name": "question2",
+            "choices": [
+              {
+                "value": "lion",
+                "imageLink": "test"
+              },
+            ],
+          }
+        ]
+      }
+    );
+    survey.css = defaultCss;
+    const q = survey.getAllQuestions()[0];
+    let trace = "";
+    q["processResponsiveness"] = () => {
+      trace += "->processed";
+      return true;
+    };
+    rootEl.style.display = "none";
+    q.afterRender(rootEl);
+    expect(trace, "do not process responsivness on invisible container").toBe("");
+    rootEl.style.display = "block";
+    (<any>q["resizeObserver"]).call();
+    expect(trace, "process responsivness on visible container").toBe("->processed");
+  } finally {
+    window.requestAnimationFrame = requestAnimationFrame;
+    window.ResizeObserver = ResizeObserver;
 
-  contentEl.remove();
-  rootEl.remove();
+    contentEl.remove();
+    rootEl.remove();
+  }
 });
 
 test("check contentNotLoaded and contentMode flags behavior", () => {

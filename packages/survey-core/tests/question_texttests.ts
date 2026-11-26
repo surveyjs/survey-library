@@ -564,21 +564,25 @@ describe("question text tests", () => {
       return new Date("2024-09-04T12:34:00");
     }
     FunctionFactory.Instance.register("currentDateMock", currentDateMock);
-    const survey = new SurveyModel({
-      elements: [
-        {
-          "type": "text",
-          "name": "q1",
-          "defaultValueExpression": "currentDateMock()",
-          "maskType": "datetime",
-          "maskSettings": {
-            "pattern": "yyyy-mm-d HH:MM"
-          }
-        },
-      ]
-    });
-    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
-    expect(q1.inputValue).toBe("2024-09-4 12:34");
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            "type": "text",
+            "name": "q1",
+            "defaultValueExpression": "currentDateMock()",
+            "maskType": "datetime",
+            "maskSettings": {
+              "pattern": "yyyy-mm-d HH:MM"
+            }
+          },
+        ]
+      });
+      const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+      expect(q1.inputValue).toBe("2024-09-4 12:34");
+    } finally {
+      FunctionFactory.Instance.unregister("currentDateMock");
+    }
   });
   test("Mask datetime with defaultValue as date", () => {
     const survey = new SurveyModel({

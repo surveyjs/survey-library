@@ -335,12 +335,20 @@ export var ukrainianSurveyStrings = {
   conditionOperatorGreaterorequal: "Більше або дорівнює",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Менше або дорівнює",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Всі фільтри",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Всі фільтри: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Фільтри",
   // [Auto-translated] "Search"
   filterSearchLabel: "Пошук",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Пошук за {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} чи {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, або {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Показати більше",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var ukrainianSurveyStrings = {
   filterClearAll: "Очистити все",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Очистити {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Пресети фільтрів",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Зберегти як...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Зберегти",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Додайте «{0}»...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Пресети фільтрів",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Показати {0} товари",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var ukrainianSurveyStrings = {
   filterShowResults: "Показати результати",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Новий пресет",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Назва пресетів",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Поля для фільтрації",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Вираз фільтра",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Пресет із такою назвою вже існує.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var ukrainianSurveyStrings = {
   filterPresetNoExpression: "Вводьте вираз.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Цей вираз не є дійсним.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Переключитися на вираз",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Переключитися на поля",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Введіть тут вираз...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var ukrainianSurveyStrings = {
   filterPresetExpression: "{0} Вираз",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Редагування...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Пошук у фільтрах і пресетах",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Нічого не знайшли, спробуйте різні ключові слова",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Згенеруйте фільтр за допомогою штучного інтелекту",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Редагувати пресет за допомогою штучного інтелекту",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Опишіть фільтр, який ви хочете...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Згенерувати фільтр",
   // [Auto-translated] "Edit"
   filterAiEdit: "Редагувати",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Генерую...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Редагування...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -1527,26 +1527,36 @@ describe("Survey", () => {
   });
   test("Question Creator", () => {
     var inst = QuestionFactory.Instance;
-    inst.registerQuestion("question1", (name: string) => {
-      return new Question(name);
-    });
-    inst.registerQuestion("question2", (name: string) => {
-      return new Question(name);
-    });
-    expect(inst.createQuestion("question1", "Q1").name, "Create first type of question").toBe("Q1");
-    expect(inst.createQuestion("question2", "Q2").name, "Create second type of question").toBe("Q2");
-    expect(inst.createQuestion("question3", "Q3"), "Create unexisting type of question").toBeNull();
+    try {
+      inst.registerQuestion("question1", (name: string) => {
+        return new Question(name);
+      });
+      inst.registerQuestion("question2", (name: string) => {
+        return new Question(name);
+      });
+      expect(inst.createQuestion("question1", "Q1").name, "Create first type of question").toBe("Q1");
+      expect(inst.createQuestion("question2", "Q2").name, "Create second type of question").toBe("Q2");
+      expect(inst.createQuestion("question3", "Q3"), "Create unexisting type of question").toBeNull();
+    } finally {
+      inst.unregisterElement("question1");
+      inst.unregisterElement("question2");
+    }
   });
   test("Question Creator getAllQuestions", () => {
     var inst = QuestionFactory.Instance;
-    inst.registerQuestion("question3", (name: string) => {
-      return new Question(name);
-    });
-    inst.registerQuestion("question4", (name: string) => {
-      return new Question(name);
-    });
-    var names = inst.getAllTypes();
-    expect(names.indexOf("question3") > -1, "contains a new type").toBeTruthy();
+    try {
+      inst.registerQuestion("question3", (name: string) => {
+        return new Question(name);
+      });
+      inst.registerQuestion("question4", (name: string) => {
+        return new Question(name);
+      });
+      var names = inst.getAllTypes();
+      expect(names.indexOf("question3") > -1, "contains a new type").toBeTruthy();
+    } finally {
+      inst.unregisterElement("question3");
+      inst.unregisterElement("question4");
+    }
   });
   test("Add questions to page", () => {
     var page = new PageModel("Page 1");
@@ -13353,30 +13363,34 @@ describe("Survey", () => {
       return false;
     }
     FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
-    var survey = new SurveyModel({
-      elements: [
-        { type: "text", name: "q1", isRequired: true },
-        {
-          type: "text", name: "q2",
-          validators: [
-            {
-              type: "expression",
-              text: "Error!!!",
-              expression: "asyncFunc() = 1",
-            },
-          ],
-        },
-      ],
-    });
-    survey.tryComplete();
-    returnResult(0);
-    expect(survey.getQuestionByName("q1").inputId, "q1 is required").toBe(focusedQuestionId);
-    survey.setValue("q1", "val1");
-    focusedQuestionId = "";
-    survey.tryComplete();
-    returnResult(0);
-    expect(survey.getQuestionByName("q2").inputId, "q2 has error").toBe(focusedQuestionId);
-    SurveyElement.FocusElement = oldFunc;
+    try {
+      var survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1", isRequired: true },
+          {
+            type: "text", name: "q2",
+            validators: [
+              {
+                type: "expression",
+                text: "Error!!!",
+                expression: "asyncFunc() = 1",
+              },
+            ],
+          },
+        ],
+      });
+      survey.tryComplete();
+      returnResult(0);
+      expect(survey.getQuestionByName("q1").inputId, "q1 is required").toBe(focusedQuestionId);
+      survey.setValue("q1", "val1");
+      focusedQuestionId = "";
+      survey.tryComplete();
+      returnResult(0);
+      expect(survey.getQuestionByName("q2").inputId, "q2 has error").toBe(focusedQuestionId);
+    } finally {
+      FunctionFactory.Instance.unregister("asyncFunc");
+      SurveyElement.FocusElement = oldFunc;
+    }
   });
   test("Async function with negative result, Bug#7268", () => {
     let returnResult: (res: any) => void = (res: any): void => {
@@ -15871,6 +15885,7 @@ describe("Survey", () => {
   }
 
   test("Check survey resize observer double process", () => {
+    const requestAnimationFrame = window.requestAnimationFrame;
     window.requestAnimationFrame = (func: any) => !!func && func();
     const getComputedStyle = window.getComputedStyle;
     window.getComputedStyle = <any>((el: HTMLElement) => {
@@ -15879,37 +15894,44 @@ describe("Survey", () => {
     const ResizeObserver = window.ResizeObserver;
     window.ResizeObserver = <any>CustomResizeObserver;
     const rootEl = document.createElement("div");
-    // jsdom does not perform layout; mark the element as visible for isContainerVisible().
-    Object.defineProperty(rootEl, "offsetWidth", { configurable: true, value: 800 });
-    Object.defineProperty(rootEl, "offsetHeight", { configurable: true, value: 600 });
-    window.document.body.appendChild(rootEl);
-    const survey = new SurveyModel({
-      "elements": [
-        {
-          type: "text",
-          name: "q1",
-        }
-      ]
-    });
-    survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
-    window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
-    let trace: string = "";
-    survey["processResponsiveness"] = () => {
-      trace += "->processed";
-      return true;
-    };
-    survey.afterRenderSurvey(rootEl);
-    expect(trace).toBe("->processed");
-    (<any>survey["resizeObserver"]).call();
-    expect(trace, "prevent double process").toBe("->processed");
-    (<any>survey["resizeObserver"]).call();
-    expect(trace).toBe("->processed->processed");
-    window.ResizeObserver = ResizeObserver;
-    window.getComputedStyle = getComputedStyle;
-    rootEl.remove();
+    try {
+      // jsdom does not perform layout; mark the element as visible for isContainerVisible().
+      Object.defineProperty(rootEl, "offsetWidth", { configurable: true, value: 800 });
+      Object.defineProperty(rootEl, "offsetHeight", { configurable: true, value: 600 });
+      window.document.body.appendChild(rootEl);
+      const survey = new SurveyModel({
+        "elements": [
+          {
+            type: "text",
+            name: "q1",
+          }
+        ]
+      });
+      survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+      window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+      let trace: string = "";
+      survey["processResponsiveness"] = () => {
+        trace += "->processed";
+        return true;
+      };
+      survey.afterRenderSurvey(rootEl);
+      expect(trace).toBe("->processed");
+      (<any>survey["resizeObserver"]).call();
+      expect(trace, "prevent double process").toBe("->processed");
+      (<any>survey["resizeObserver"]).call();
+      expect(trace).toBe("->processed->processed");
+    } finally {
+      window.requestAnimationFrame = requestAnimationFrame;
+      window.ResizeObserver = ResizeObserver;
+      window.getComputedStyle = getComputedStyle;
+      rootEl.remove();
+    }
   });
 
   test("Check survey resize observer do not process if container is not visible", () => {
+    // The resize observer callback runs in an animation frame: run it at once.
+    const requestAnimationFrame = window.requestAnimationFrame;
+    window.requestAnimationFrame = (func: any) => !!func && func();
     const getComputedStyle = window.getComputedStyle;
     window.getComputedStyle = <any>((el: HTMLElement) => {
       return el.style;
@@ -15917,36 +15939,40 @@ describe("Survey", () => {
     const ResizeObserver = window.ResizeObserver;
     window.ResizeObserver = <any>CustomResizeObserver;
     const rootEl = document.createElement("div");
-    window.document.body.appendChild(rootEl);
-    const survey = new SurveyModel({
-      "elements": [
-        {
-          type: "text",
-          name: "q1",
-        }
-      ]
-    });
-    survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
-    window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
-    let trace: string = "";
-    survey["processResponsiveness"] = () => {
-      trace += "->processed";
-      return true;
-    };
-    rootEl.style.display = "none";
-    // jsdom does not honor display:none for offset metrics; toggle the stub instead.
-    let __visible = false;
-    Object.defineProperty(rootEl, "offsetWidth", { configurable: true, get: () => __visible ? 800 : 0 });
-    Object.defineProperty(rootEl, "offsetHeight", { configurable: true, get: () => __visible ? 600 : 0 });
-    survey.afterRenderSurvey(rootEl);
-    expect(trace, "do not process responsivness on invisible container").toBe("");
-    rootEl.style.display = "block";
-    __visible = true;
-    (<any>survey["resizeObserver"]).call();
-    expect(trace, "process responsivness on visible container").toBe("->processed");
-    window.ResizeObserver = ResizeObserver;
-    window.getComputedStyle = getComputedStyle;
-    rootEl.remove();
+    try {
+      window.document.body.appendChild(rootEl);
+      const survey = new SurveyModel({
+        "elements": [
+          {
+            type: "text",
+            name: "q1",
+          }
+        ]
+      });
+      survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+      window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+      let trace: string = "";
+      survey["processResponsiveness"] = () => {
+        trace += "->processed";
+        return true;
+      };
+      rootEl.style.display = "none";
+      // jsdom does not honor display:none for offset metrics; toggle the stub instead.
+      let __visible = false;
+      Object.defineProperty(rootEl, "offsetWidth", { configurable: true, get: () => __visible ? 800 : 0 });
+      Object.defineProperty(rootEl, "offsetHeight", { configurable: true, get: () => __visible ? 600 : 0 });
+      survey.afterRenderSurvey(rootEl);
+      expect(trace, "do not process responsivness on invisible container").toBe("");
+      rootEl.style.display = "block";
+      __visible = true;
+      (<any>survey["resizeObserver"]).call();
+      expect(trace, "process responsivness on visible container").toBe("->processed");
+    } finally {
+      window.requestAnimationFrame = requestAnimationFrame;
+      window.ResizeObserver = ResizeObserver;
+      window.getComputedStyle = getComputedStyle;
+      rootEl.remove();
+    }
   });
 
   // Renders a survey with a 600px mobile width into a root whose size comes from getSize.

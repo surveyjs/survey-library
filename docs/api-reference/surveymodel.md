@@ -290,6 +290,8 @@ Gets or sets an object in which keys are UI elements and values are CSS classes 
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
 
+**Related APIs:** [`onUpdateQuestionCssClasses`](#onUpdateQuestionCssClasses), [`onUpdatePanelCssClasses`](#onUpdatePanelCssClasses), [`onUpdatePageCssClasses`](#onUpdatePageCssClasses), [`onUpdateChoiceItemCss`](#onUpdateChoiceItemCss), [`onUpdateMatrixRowCss`](#onUpdateMatrixRowCss), [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss)
+
 ### `currentElement`
 
 **Type**: `ISurveyElement`
@@ -826,7 +828,7 @@ Possible values:
 
 ### `progressBarNavigationTextLocation`
 
-**Type**: `"top" | "bottom" | "inline"`
+**Type**: `"bottom" | "top" | "inline"`
 
 Specifies the placement of [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription) in the progress bar relative to the step buttons. Applies only when [`showProgressBar`](#showProgressBar) is `true`, [`progressBarType`](#progressBarType) is `"pages"`, and [`progressBarShowNavigationText`](#progressBarShowNavigationText) is `true`.
 
@@ -2386,12 +2388,12 @@ A survey instance that raised the event.
 A Question instance for which the event is raised.
 - `options.htmlElement`: `HTMLElement`  
 A rendered HTML element.
+- `options.row`: `MatrixDropdownRowModelBase`  
+A matrix row to which the cell belongs.
 - `options.cell`: `MatrixDropdownCell`  
 A matrix cell for which the event is raised.
 - `options.cellQuestion`: `Question`  
 A Question instance within the matrix cell.
-- `options.row`: `MatrixDropdownRowModelBase`  
-A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn | MatrixDropdownCell`  
 A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
 
@@ -2933,14 +2935,14 @@ Parameters:
 A survey instance that raised the event.
 - `options.question`: `QuestionPanelDynamicModel`  
 A Dynamic Panel question instance for which the event is raised.
+- `options.panel`: `PanelModel`  
+A panel that nests the item with a changed value.
 - `options.panelData`: `{ [index: string]: any; }`  
 The panel's data object that includes all item values.
 - `options.panelIndex`: `number`  
 The panel's index within Dynamic Panel.
 - `options.name`: `string`  
 The item's name.
-- `options.panel`: `PanelModel`  
-A panel that nests the item with a changed value.
 - `options.value`: `any`  
 The item's new value.
 
@@ -2956,14 +2958,14 @@ Parameters:
 A survey instance that raised the event.
 - `options.question`: `QuestionPanelDynamicModel`  
 A Dynamic Panel question instance for which the event is raised.
+- `options.panel`: `PanelModel`  
+A panel that nests the item with a changed value.
 - `options.panelData`: `{ [index: string]: any; }`  
 The panel's data object that includes all item values.
 - `options.panelIndex`: `number`  
 The panel's index within Dynamic Panel.
 - `options.name`: `string`  
 The item's name.
-- `options.panel`: `PanelModel`  
-A panel that nests the item with a changed value.
 - `options.value`: `any`  
 The item's new value.
 - `options.oldValue`: `any`  
@@ -3292,13 +3294,13 @@ Parameters:
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
 - `options.question`: `QuestionMatrixDropdownModelBase`  
-A Multi-Select Matrix question instance for which the event is raised.
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
+- `options.row`: `MatrixDropdownRowModelBase`  
+A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn`  
 A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
 - `options.columnName`: `string`  
 The name of the matrix column to which the cell belongs.
-- `options.row`: `MatrixDropdownRowModelBase`  
-A matrix row to which the cell belongs.
 - `options.rowValue`: `any`  
 The values of this matrix row.\
 To access a particular column's value, use the following code: `options.rowValue["columnName"]`
@@ -3318,13 +3320,13 @@ Parameters:
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
 - `options.question`: `QuestionMatrixDropdownModelBase`  
-A Multi-Select Matrix question instance for which the event is raised.
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
+- `options.row`: `MatrixDropdownRowModelBase`  
+A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn`  
 A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
 - `options.columnName`: `string`  
 The name of the matrix column to which the cell belongs.
-- `options.row`: `MatrixDropdownRowModelBase`  
-A matrix row to which the cell belongs.
 - `options.rowValue`: `any`  
 The values of this matrix row.\
 To access a particular column's value, use the following code: `options.rowValue["columnName"]`
@@ -3342,7 +3344,7 @@ Parameters:
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
 - `options.question`: `QuestionMatrixDropdownModelBase`  
-A Multi-Select Matrix question instance for which the event is raised.
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
 - `options.row`: `MatrixDropdownRowModelBase`  
 A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn`  
@@ -3369,7 +3371,7 @@ Parameters:
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
 - `options.question`: `QuestionMatrixDropdownModelBase`  
-A Multi-Select Matrix question instance for which the event is raised.
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
 - `options.row`: `MatrixDropdownRowModelBase`  
 A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn`  
@@ -3396,7 +3398,7 @@ Parameters:
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
 - `options.question`: `QuestionMatrixDropdownModelBase`  
-A Multi-Select Matrix question instance for which the event is raised.
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
 - `options.row`: `MatrixDropdownRowModelBase`  
 A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn`  
@@ -3436,7 +3438,7 @@ Parameters:
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
 - `options.question`: `QuestionMatrixDropdownModelBase`  
-A Multi-Select Matrix question instance for which the event is raised.
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
 - `options.row`: `MatrixDropdownRowModelBase`  
 A matrix row to which the detail section belongs.
 - `options.rowIndex`: `number`  
@@ -3758,7 +3760,7 @@ The element's index within the parent container (panel or page).
 - `options.name`: `string`  
 The question's name.
 
-To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
 
 ```js
 import { Model } from "survey-core";
@@ -3766,14 +3768,13 @@ import { Model } from "survey-core";
 const surveyJson = {
    // ...
 };
-// Create an empty model
-const survey = new Model();
-// Add an event handler
-survey.onQuestionAdded.add((sender, options) => {
-  //...
+const survey = new Model(surveyJson, {
+  events: {
+    onQuestionAdded: (sender, options) => {
+      // Handle the added question
+    }
+  }
 });
-// Load the survey JSON schema
-survey.fromJSON(surveyJson);
 ```
 
 **Related APIs:** [`onQuestionCreated`](#onQuestionCreated)
@@ -3792,7 +3793,7 @@ A survey instance that raised the event.
 - `options.question`: `Question`  
 A Question instance for which the event is raised.
 
-To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
+To handle this event while the survey loads its JSON, pass a handler in the constructor's `events` object:
 
 ```js
 import { Model } from "survey-core";
@@ -3800,14 +3801,13 @@ import { Model } from "survey-core";
 const surveyJson = {
    // ...
 };
-// Create an empty model
-const survey = new Model();
-// Add an event handler
-survey.onQuestionCreated.add((sender, options) => {
-  //...
+const survey = new Model(surveyJson, {
+  events: {
+    onQuestionCreated: (sender, options) => {
+      // Customize the new question
+    }
+  }
 });
-// Load the survey JSON schema
-survey.fromJSON(surveyJson);
 ```
 
 **Related APIs:** [`onQuestionAdded`](#onQuestionAdded)
@@ -3986,7 +3986,7 @@ Parameters:
 A survey instance that raised the event.
 - `options.element`: `ISurveyElement`  
 A survey element whose state change triggered the event.
-- `options.changedProperty`: `"filter" | "collapsed" | "activeElementName" | "activePanelIndex" | "shown"`  
+- `options.changedProperty`: `"collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter"`  
 The name of the UI state property that changed.
 
 To access the current UI state, use the [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) property:
@@ -4025,6 +4025,47 @@ A string with CSS classes applied to the choice item. The CSS classes are separa
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
 
 **Related APIs:** [`css`](#css)
+
+### `onUpdateMatrixCellCss`
+
+An event that is raised when a cell in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its row's data changes. Use it to override the default CSS classes applied to the cell's `<td>` element.
+
+Parameters:
+
+ - `sender`: `SurveyModel`  
+A survey instance that raised the event.
+- `options.question`: `QuestionMatrixDropdownModelBase`  
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
+- `options.row`: `MatrixDropdownRowModelBase`  
+The matrix row being styled or the row that contains the cell.
+- `options.css`: `string`  
+A space-separated string of default CSS classes for the cell or row. You can modify this string to apply custom CSS classes.
+- `options.column`: `MatrixDropdownColumn`  
+The matrix column that contains the cell.
+- `options.cellQuestion`: `Question`  
+The question instance for the cell. Use `options.cellQuestion.value` to read the cell's value.
+
+**Related APIs:** [`css`](#css), [`onUpdateMatrixRowCss`](#onUpdateMatrixRowCss)
+
+### `onUpdateMatrixRowCss`
+
+An event that is raised when a row in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) or [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) is prepared for rendering or when its data changes. Use it to override the default CSS classes applied to the row's `<tr>` element.
+
+
+Parameters:
+
+ - `sender`: `SurveyModel`  
+A survey instance that raised the event.
+- `options.question`: `QuestionMatrixDropdownModelBase`  
+The [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question for which the event is raised.
+- `options.row`: `MatrixDropdownRowModelBase`  
+The matrix row being styled or the row that contains the cell.
+- `options.css`: `string`  
+A space-separated string of default CSS classes for the cell or row. You can modify this string to apply custom CSS classes.
+
+> This event is raised only in the horizontal layout, where each rendered matrix row represents one record. When [`transposeData`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#transposeData) switches the matrix to the vertical layout, each rendered row represents a matrix column. Use [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss) to style individual matrix cells in that layout.
+
+**Related APIs:** [`css`](#css), [`onUpdateMatrixCellCss`](#onUpdateMatrixCellCss)
 
 ### `onUpdatePageCssClasses`
 
@@ -4183,7 +4224,7 @@ A survey instance that raised the event.
 A Question instance for which the event is raised.
 - `options.name`: `string`  
 The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
-- `options.reason`: `"expression" | "trigger"`  
+- `options.reason`: `"trigger" | "expression"`  
 A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
 - `options.value`: `any`  
 A new value.
@@ -4206,7 +4247,7 @@ A survey instance that raised the event.
 A Question instance for which the event is raised.
 - `options.name`: `string`  
 The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
-- `options.reason`: `"expression" | "trigger"`  
+- `options.reason`: `"trigger" | "expression"`  
 A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
 - `options.value`: `any`  
 A new value. You can change it if required.

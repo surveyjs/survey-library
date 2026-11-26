@@ -335,12 +335,20 @@ export var swedishSurveyStrings = {
   conditionOperatorGreaterorequal: "Större än eller lika med",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre än eller lika med",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Alla filter",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Alla filter: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filter",
   // [Auto-translated] "Search"
   filterSearchLabel: "Sök",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Sök efter {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} eller {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, eller {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Visa mer",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var swedishSurveyStrings = {
   filterClearAll: "Rensa allt",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Klart {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filterförinställningar",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Spara som...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Spara",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Lägg till \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filterförinställningar",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Visa {0} objekt",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var swedishSurveyStrings = {
   filterShowResults: "Resultat",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Ny förinställning",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Förinställt namn",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Fält att filtrera efter",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filteruttryck",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "En förinställning med detta namn finns redan.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var swedishSurveyStrings = {
   filterPresetNoExpression: "Skriv in ett uttryck.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Uttrycket är inte giltigt.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Byt till uttryck",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Byt till fält",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Skriv ett uttryck här...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var swedishSurveyStrings = {
   filterPresetExpression: "{0} Uttryck",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Sök i filter och förinställningar",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Inget hittats, prova olika nyckelord",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Generera ett filter med AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Redigera förinställning med AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Beskriv filtret du vill ha...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generera filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "Redigera",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Genererar...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redigering...",
   // [Auto-translated] "AI could not make a filter. Try again."

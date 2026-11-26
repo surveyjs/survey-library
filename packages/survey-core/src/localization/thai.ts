@@ -335,12 +335,20 @@ export var thaiStrings = {
   conditionOperatorGreaterorequal: "มากกว่าหรือเท่ากับ",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "น้อยกว่าหรือเท่ากับ",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "ตัวกรองทั้งหมด",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "ตัวกรองทั้งหมด: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "ตัวกรอง",
   // [Auto-translated] "Search"
   filterSearchLabel: "ค้นหา",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "ค้นหาตาม{0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0}หรือ{1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0} หรือ{1}",
   // [Auto-translated] "Show More"
   filterShowMore: "แสดงเพิ่มเติม",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var thaiStrings = {
   filterClearAll: "ล้างทั้งหมด",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "เคลียร์{0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "ตัวกรองที่ตั้งไว้ล่วงหน้า",
   // [Auto-translated] "Save as..."
   filterSaveAs: "บันทึกเป็น...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "บันทึก",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "เพิ่ม \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "ตัวกรองที่ตั้งไว้ล่วงหน้า",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "แสดงรายการ{0}",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var thaiStrings = {
   filterShowResults: "แสดงผลลัพธ์",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "พรีเซ็ตใหม่",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "ชื่อที่ตั้งไว้ล่วงหน้า",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "ฟิลด์ที่จะกรองตาม",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "นิพจน์กรอง",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "มีพรีเซ็ตที่ใช้ชื่อนี้อยู่แล้ว",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var thaiStrings = {
   filterPresetNoExpression: "กรอกนิพจน์",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "นิพจน์นี้ไม่ถูกต้อง",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "เปลี่ยนไปยังนิพจน์",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "สลับไปยังฟิลด์",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "พิมพ์นิพจน์ที่นี่...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var thaiStrings = {
   filterPresetExpression: "{0} การแสดงออก",
   // [Auto-translated] "Edit..."
   filterEditExpression: "แก้ไข...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "ค้นหาในตัวกรองและการตั้งค่าล่วงหน้า",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "ไม่พบอะไรเลย ลองใช้คีย์เวิร์ดต่าง ๆ ดู",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "สร้างตัวกรองด้วย AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "แก้ไขพรีเซ็ตด้วย AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "อธิบายฟิลเตอร์ที่คุณต้องการ...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "สร้างตัวกรอง",
   // [Auto-translated] "Edit"
   filterAiEdit: "แก้ไข",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "กําลังสร้าง...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "กําลังตัดต่อ...",
   // [Auto-translated] "AI could not make a filter. Try again."

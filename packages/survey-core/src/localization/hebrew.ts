@@ -335,12 +335,20 @@ export var hebrewSurveyStrings = {
   conditionOperatorGreaterorequal: "גדול או שווה ל-",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "קטן או שווה ל-",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "כל המסננים",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "כל המסננים: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "מסננים",
   // [Auto-translated] "Search"
   filterSearchLabel: "חיפוש",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "חיפוש לפי {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} או {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, או {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "הצג עוד",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var hebrewSurveyStrings = {
   filterClearAll: "נקה הכל",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "נקה {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "הגדרות מסנן מראש",
   // [Auto-translated] "Save as..."
   filterSaveAs: "חסוך כ...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "שמור",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "הוסף \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "הגדרות מסנן מראש",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "הצג פריטים {0}",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var hebrewSurveyStrings = {
   filterShowResults: "הצג תוצאות",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "פריסט חדש",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "שם פריסט",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "שדות לסינון לפי",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "ביטוי מסנן",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "פריסט בשם זה כבר קיים.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var hebrewSurveyStrings = {
   filterPresetNoExpression: "הזן ביטוי.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "הביטוי אינו תקף.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "מעבר לביטוי",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "החלף לשדות",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "הקלד כאן ביטוי...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var hebrewSurveyStrings = {
   filterPresetExpression: "ביטוי {0}",
   // [Auto-translated] "Edit..."
   filterEditExpression: "עריכה...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "חיפוש במסננים והגדרות מראש",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "לא נמצא כלום, נסה מילות מפתח שונות",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "צור מסנן עם בינה מלאכותית",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "ערוך פריסט עם בינה מלאכותית",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "תאר את המסנן שאתה רוצה...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "צור מסנן",
   // [Auto-translated] "Edit"
   filterAiEdit: "עריכה",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "מייצר...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "עריכה...",
   // [Auto-translated] "AI could not make a filter. Try again."

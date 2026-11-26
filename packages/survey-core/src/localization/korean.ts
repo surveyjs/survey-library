@@ -335,12 +335,20 @@ export var koreanStrings = {
   conditionOperatorGreaterorequal: "크거나 같음",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "이하",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "모든 필터",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "모든 필터: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "필터",
   // [Auto-translated] "Search"
   filterSearchLabel: "검색",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "{0}별 검색",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} 아니면 {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, 혹은 {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "더 보기",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var koreanStrings = {
   filterClearAll: "모두 지우기",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "클리어{0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "필터 프리셋",
   // [Auto-translated] "Save as..."
   filterSaveAs: "다른 이름으로 저장...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "저장",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\"를 추가하세요...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "필터 프리셋",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} 항목 보기",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var koreanStrings = {
   filterShowResults: "결과 보기",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "새로운 프리셋",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "프리셋 이름",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "필터링할 필드",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "필터 표현식",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "이 이름을 가진 프리셋이 이미 존재합니다.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var koreanStrings = {
   filterPresetNoExpression: "식을 입력하세요.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "해당 표현식은 유효하지 않습니다.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "표현식으로 전환",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "필드로 전환",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "여기에 식을 입력하세요...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var koreanStrings = {
   filterPresetExpression: "{0} 표현",
   // [Auto-translated] "Edit..."
   filterEditExpression: "수정...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "필터 및 프리셋에서 검색",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "아무것도 찾지 못했으니 다른 키워드를 시도해 보세요",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "AI로 필터 생성하기",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AI로 프리셋 편집하기",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "원하는 필터를 설명해 주세요...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "필터 생성",
   // [Auto-translated] "Edit"
   filterAiEdit: "수정",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "생성 중...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "편집 중...",
   // [Auto-translated] "AI could not make a filter. Try again."

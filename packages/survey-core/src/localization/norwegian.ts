@@ -335,12 +335,20 @@ export var norwegianSurveyStrings = {
   conditionOperatorGreaterorequal: "Større enn eller lik",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mindre enn eller lik",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Alle filtre",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Alle filtre: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtre",
   // [Auto-translated] "Search"
   filterSearchLabel: "Søk",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Søk etter {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} eller {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, eller {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Vis mer",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var norwegianSurveyStrings = {
   filterClearAll: "Fjern alt",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Klar {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filterforhåndsinnstillinger",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Lagre som...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Lagre",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Legg til «{0}»...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filterforhåndsinnstillinger",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Vis {0} elementer",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var norwegianSurveyStrings = {
   filterShowResults: "Vise resultater",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Ny forhåndsinnstilling",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Forhåndsinnstilt navn",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Felt som skal filtreres etter",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filteruttrykk",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "En forhåndsinnstilling med dette navnet eksisterer allerede.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var norwegianSurveyStrings = {
   filterPresetNoExpression: "Skriv inn et uttrykk.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Uttrykket er ikke gyldig.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Bytt til uttrykk",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Bytt til felter",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Skriv inn et uttrykk her...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var norwegianSurveyStrings = {
   filterPresetExpression: "{0} Uttrykk",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Søk i filtre og forhåndsinnstillinger",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ingenting funnet, prøv forskjellige nøkkelord",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Generer et filter med AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Rediger forhåndsinnstilling med AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Beskriv filteret du vil ha...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generer filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "Rediger",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Genererer...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redigering...",
   // [Auto-translated] "AI could not make a filter. Try again."

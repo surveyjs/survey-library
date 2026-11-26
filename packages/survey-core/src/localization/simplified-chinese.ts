@@ -335,12 +335,20 @@ export var simplifiedChineseSurveyStrings = {
   conditionOperatorGreaterorequal: "大于或等于",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "小于或等于",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "所有筛选器",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "所有筛选条件：{0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "筛选器",
   // [Auto-translated] "Search"
   filterSearchLabel: "搜索",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "按{0}搜索",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0}还是{1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}，或者{1}",
   // [Auto-translated] "Show More"
   filterShowMore: "显示更多",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var simplifiedChineseSurveyStrings = {
   filterClearAll: "清除所有",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "清{0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "滤镜预设",
   // [Auto-translated] "Save as..."
   filterSaveAs: "另存为......",
   // [Auto-translated] "Save"
   filterSaveAsSave: "保存",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "加上“{0}”......",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "滤镜预设",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "显示{0}项",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var simplifiedChineseSurveyStrings = {
   filterShowResults: "显示结果",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "新预设",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "预设名称",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "可筛选的字段",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "过滤器表达式",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "已有同名预设存在。",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var simplifiedChineseSurveyStrings = {
   filterPresetNoExpression: "输入一个表达式。",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "该表达式无效。",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "切换到表达式",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "切换到字段",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "在此输入表达式...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var simplifiedChineseSurveyStrings = {
   filterPresetExpression: "{0}表达式",
   // [Auto-translated] "Edit..."
   filterEditExpression: "编辑......",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "在筛选器和预设中搜索",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "没找到什么，试试不同关键词",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "用 AI 生成过滤器",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "使用 AI 编辑预设",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "描述你想要的过滤器......",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "生成过滤器",
   // [Auto-translated] "Edit"
   filterAiEdit: "编辑",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "正在生成......",
   // [Auto-translated] "Editing..."
   filterAiEditing: "编辑中......",
   // [Auto-translated] "AI could not make a filter. Try again."

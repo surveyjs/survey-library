@@ -335,12 +335,20 @@ export var bulgarianStrings = {
   conditionOperatorGreaterorequal: "По-голямо или равно на",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "По-малко или равно на",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Всички филтри",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Всички филтри: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Филтри",
   // [Auto-translated] "Search"
   filterSearchLabel: "Търсене",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Търсене по {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} или {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, или {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Покажи още",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var bulgarianStrings = {
   filterClearAll: "Изчисти всичко",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Изчисти {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Филтърни предварителни настройки",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Запази като...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Запази",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Добавете \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Филтърни предварителни настройки",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Покажи {0} елемента",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var bulgarianStrings = {
   filterShowResults: "Покажи резултати",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Нова предварителна настройка",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Име на предварителна настройка",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Полета за филтриране",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Израз за филтър",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Вече съществува предварителна настройка с това име.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var bulgarianStrings = {
   filterPresetNoExpression: "Въведете израз.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Изразът не е валиден.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Превключване към Изразяване",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Превключване към полета",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Напишете израз тук...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var bulgarianStrings = {
   filterPresetExpression: "{0} Израз",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Редакция...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Търсене във филтри и предварителни настройки",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Нищо не намери, пробвай различни ключови думи",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Генерирайте филтър с AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Редактиране на предварителна настройка с AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Опишете филтъра, който искате...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Генериране на филтър",
   // [Auto-translated] "Edit"
   filterAiEdit: "Редакция",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Генериране...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Монтаж...",
   // [Auto-translated] "AI could not make a filter. Try again."

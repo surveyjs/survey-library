@@ -335,12 +335,20 @@ export var philippinesStrings = {
   conditionOperatorGreaterorequal: "Mas malaki o katumbas ng",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mas mababa o katumbas ng",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Lahat ng Filter",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Lahat ng Filter: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Mga Filter",
   // [Auto-translated] "Search"
   filterSearchLabel: "Maghanap",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Maghanap ayon sa {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} o {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, o {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Ipakita Pa",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var philippinesStrings = {
   filterClearAll: "Linisin Lahat",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Linisin ang {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filter Presets",
   // [Auto-translated] "Save as..."
   filterSaveAs: "I-save bilang...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "I-save",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Idagdag ang \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filter Presets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Ipakita ang mga {0} item",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var philippinesStrings = {
   filterShowResults: "Ipakita ang mga resulta",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Bagong Preset",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Pangalan ng preset",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Mga patlang na i-filter",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "I-filter ang ekspresyon",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "May preset na may ganitong pangalan na.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var philippinesStrings = {
   filterPresetNoExpression: "Ipasok ang isang ekspresyon.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Hindi wasto ang ekspresyon.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Lumipat sa Expression",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Lumipat sa Fields",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Mag-type ng ekspresyon dito...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var philippinesStrings = {
   filterPresetExpression: "{0} Pagpapahayag",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Maghanap sa mga filter at preset",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Walang nahanap, subukan ang iba't ibang keywords",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Gumawa ng filter gamit ang AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "I-edit ang preset gamit ang AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Ilarawan ang filter na gusto mo...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Gumawa ng Filter",
   // [Auto-translated] "Edit"
   filterAiEdit: "I-edit",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Pagbuo...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editing...",
   // [Auto-translated] "AI could not make a filter. Try again."

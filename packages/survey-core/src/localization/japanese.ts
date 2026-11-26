@@ -335,12 +335,20 @@ export var japaneseSurveyStrings = {
   conditionOperatorGreaterorequal: "以下以上",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "以下",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "すべてのフィルター",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "すべてのフィルター:{0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "フィルター",
   // [Auto-translated] "Search"
   filterSearchLabel: "検索",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "{0}で検索",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0}か{1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}、あるいは{1}",
   // [Auto-translated] "Show More"
   filterShowMore: "もっと見る",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var japaneseSurveyStrings = {
   filterClearAll: "すべてクリア",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "クリア{0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "フィルタープリセット",
   // [Auto-translated] "Save as..."
   filterSaveAs: "名前を付けて保存...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "保存",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "「{0}」を加えて...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "フィルタープリセット",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0}アイテムを表示",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var japaneseSurveyStrings = {
   filterShowResults: "結果を表示",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "新しいプリセット",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "プリセット名",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "フィルター対象のフィールド",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "フィルター式",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "この名前のプリセットはすでに存在します。",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var japaneseSurveyStrings = {
   filterPresetNoExpression: "式を入力してください。",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "この式は有効ではありません。",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "エクスプレッションに切り替える",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "フィールドへ切り替え",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "ここに式を入力してください...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var japaneseSurveyStrings = {
   filterPresetExpression: "{0}表現",
   // [Auto-translated] "Edit..."
   filterEditExpression: "編集...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "フィルターとプリセットで検索",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "何も見つからない。別のキーワードを試してみてください。",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "AIでフィルターを生成する",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AIでプリセットを編集",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "欲しいフィルターを説明してください...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "フィルター生成",
   // [Auto-translated] "Edit"
   filterAiEdit: "編集",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "生成中...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "編集中...",
   // [Auto-translated] "AI could not make a filter. Try again."

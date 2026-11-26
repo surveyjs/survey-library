@@ -3,7 +3,11 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
 import { ComputedUpdater } from "../src/base";
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, afterEach } from "vitest";
+// The DOM adapter sets user-select and touch-action on <body> during a drag.
+afterEach(() => {
+  document.body.removeAttribute("style");
+});
 describe("Drag and Drop Matrix Row Tests", () => {
   test("Clear the isGhostRow marker", () => {
     const survey = new SurveyModel({

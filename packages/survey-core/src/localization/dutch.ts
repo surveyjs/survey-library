@@ -335,12 +335,20 @@ export var dutchSurveyStrings = {
   conditionOperatorGreaterorequal: "Groter dan of gelijk aan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Minder dan of gelijk aan",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Alle filters",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Alle filters: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filters",
   // [Auto-translated] "Search"
   filterSearchLabel: "Zoeken",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Zoeken op {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} of {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, of {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Meer weergeven",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var dutchSurveyStrings = {
   filterClearAll: "Alles schoonmaken",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clear {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filterpresets",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Opgeslagen als...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Opslaan",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Voeg \"{0}\" toe...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filterpresets",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Toon {0} items",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var dutchSurveyStrings = {
   filterShowResults: "Resultaten tonen",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Nieuwe Preset",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Vooraf ingestelde naam",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Velden waarop gefilterd moet worden",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filterexpressie",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Er bestaat al een preset met deze naam.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var dutchSurveyStrings = {
   filterPresetNoExpression: "Voer een uitdrukking in.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "De uitdrukking is niet geldig.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Overschakelen naar Expressie",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Overschakelen naar velden",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Typ hier een uitdrukking...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var dutchSurveyStrings = {
   filterPresetExpression: "{0} Uiting",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Zoeken in filters en presets",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Niets gevonden, probeer verschillende zoekwoorden",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Genereer een filter met AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Preset bewerken met AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Beschrijf het filter dat je wilt...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Filter genereren",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Genereren...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Bewerken...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -335,12 +335,20 @@ export var persianSurveyStrings = {
   conditionOperatorGreaterorequal: "بزرگ تر یا مساوی",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "کمتر یا مساوی",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "تمام فیلترها",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "تمام فیلترها: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "فیلترها",
   // [Auto-translated] "Search"
   filterSearchLabel: "جستجو",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "جستجو بر اساس {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} یا {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}، یا {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "نمایش بیشتر",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var persianSurveyStrings = {
   filterClearAll: "پاک کردن همه",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "پاک کردن {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "پیش تنظیم های فیلتر",
   // [Auto-translated] "Save as..."
   filterSaveAs: "فقط به عنوان...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "ذخیره",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "«{0}» را اضافه کنید...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "پیش تنظیم های فیلتر",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "نمایش آیتم های {0}",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var persianSurveyStrings = {
   filterShowResults: "نمایش نتایج",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "پیش تنظیم جدید",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "نام پیش تنظیم",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "فیلدهایی که باید بر اساس آن ها فیلتر شوند",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "عبارت فیلتر",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "پیش تنظیمی با این نام قبلا وجود دارد.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var persianSurveyStrings = {
   filterPresetNoExpression: "یک عبارت وارد کنید.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "این عبارت معتبر نیست.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "تغییر به حالت expression",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "تغییر به فیلدها",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "اینجا یک عبارت تایپ کنید...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var persianSurveyStrings = {
   filterPresetExpression: "عبارت {0}",
   // [Auto-translated] "Edit..."
   filterEditExpression: "ویرایش...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "جستجو در فیلترها و پیش تنظیم ها",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "چیزی پیدا نکردم، کلمات کلیدی مختلف را امتحان کن",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "تولید فیلتر با هوش مصنوعی",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "ویرایش پیش تنظیم با هوش مصنوعی",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "فیلتر مورد نظرتان را توضیح دهید...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "تولید فیلتر",
   // [Auto-translated] "Edit"
   filterAiEdit: "ویرایش",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "در حال تولید...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "در حال ویرایش...",
   // [Auto-translated] "AI could not make a filter. Try again."

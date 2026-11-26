@@ -111,13 +111,15 @@ describe("Survey_QuestionFile", () => {
     expect(fileQuestion1.allowMultiple, "default is false").toBe(false);
 
     const prop1 = Serializer.getProperty("file", "allowMultiple");
-    prop1.defaultValue = true;
+    const savedDefaultValue = prop1.defaultValue;
+    try {
+      prop1.defaultValue = true;
 
-    const fileQuestion2 = new QuestionFileModel("q2");
-    expect(fileQuestion2.allowMultiple, "default is true").toBe(true);
-
-    const prop2 = Serializer.getProperty("file", "allowMultiple");
-    prop2.defaultValue = false;
+      const fileQuestion2 = new QuestionFileModel("q2");
+      expect(fileQuestion2.allowMultiple, "default is true").toBe(true);
+    } finally {
+      prop1.defaultValue = savedDefaultValue;
+    }
   });
 
   test("QuestionFile value initialization array of objects", () => {

@@ -335,12 +335,20 @@ export var kazakhStrings = {
   conditionOperatorGreaterorequal: "Үлкен немесе тең",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Кем немесе тең",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Барлық сүзгілер",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Барлық сүзгілер: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Сүзгілер",
   // [Auto-translated] "Search"
   filterSearchLabel: "Іздеу",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Іздеу {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} немесе {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, немесе {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Толығырақ көрсету",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var kazakhStrings = {
   filterClearAll: "Барлығын жою",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Таза {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Сүзгі алдын ала орнатулар",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Сақтаңыз...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Сақтау",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "\"{0}\" қосыңыз...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Сүзгі алдын ала орнатулар",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "{0} элементтерді көрсету",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var kazakhStrings = {
   filterShowResults: "Нәтижелерді көрсету",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Жаңа алдын ала орнатылған",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Алдын ала орнату атауы",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Сүзгілеу үшін өрістер",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Сүзгі өрнегі",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Осы атаумен алдын ала орнату қазірдің өзінде бар.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var kazakhStrings = {
   filterPresetNoExpression: "Өрнекті енгізіңіз.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Бұл тіркес жарамсыз.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Өрнекке ауысу",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Өрістерге ауысу",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Мұнда өрнек теріңіз...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var kazakhStrings = {
   filterPresetExpression: "{0} Өрнек",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Өзгерту...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Сүзгілер мен алдын ала орнатулар бойынша іздеу",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ештеңе табылмады, әртүрлі кілт сөздерді қолданып көріңіз",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "AI көмегімен сүзгіні жасаңыз",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "AI көмегімен алдын ала орнатуды өңдеу",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Қандай сүзгі керек екенін сипаттаңыз...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Сүзгіні жасау",
   // [Auto-translated] "Edit"
   filterAiEdit: "Өңдеу",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Генерациялау...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Монтаж...",
   // [Auto-translated] "AI could not make a filter. Try again."

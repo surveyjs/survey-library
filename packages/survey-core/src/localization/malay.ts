@@ -335,12 +335,20 @@ export var malaySurveyStrings = {
   conditionOperatorGreaterorequal: "Lebih besar atau sama dengan",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Kurang daripada atau sama dengan",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Semua Penapis",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Semua Penapis: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Penapis",
   // [Auto-translated] "Search"
   filterSearchLabel: "Carian",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Cari mengikut {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} atau {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, atau {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Tunjukkan Lebih Banyak",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var malaySurveyStrings = {
   filterClearAll: "Kosongkan semua",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Bersihkan {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Pratetap Penapis",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Simpan sebagai...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Simpan",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Tambah \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Pratetap Penapis",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Tunjukkan item {0}",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var malaySurveyStrings = {
   filterShowResults: "Tunjukkan keputusan",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Pratetap Baru",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Nama pratetap",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Medan untuk ditapis mengikut",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Ekspresi penapis",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Pratetap dengan nama ini sudah wujud.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var malaySurveyStrings = {
   filterPresetNoExpression: "Masukkan satu ungkapan.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Ungkapan ini tidak sah.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Beralih ke Ekspresi",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Beralih ke Medan",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Taip ungkapan di sini...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var malaySurveyStrings = {
   filterPresetExpression: "{0} Ekspresi",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Sunting...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Cari dalam penapis dan pratetap",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Tiada apa-apa ditemui, cuba kata kunci yang berbeza",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Jana penapis dengan AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Edit pratetap dengan AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Terangkan penapis yang anda mahu...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Jana Penapis",
   // [Auto-translated] "Edit"
   filterAiEdit: "Edit",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Menghasilkan...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Menyunting...",
   // [Auto-translated] "AI could not make a filter. Try again."

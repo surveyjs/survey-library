@@ -335,12 +335,20 @@ export var lithuaniaSurveyStrings = {
   conditionOperatorGreaterorequal: "Didesnis arba lygus",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Mažiau arba lygu",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Visi filtrai",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Visi filtrai: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Filtrai",
   // [Auto-translated] "Search"
   filterSearchLabel: "Paieška",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Paieška pagal {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} ar {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, arba {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Rodyti daugiau",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var lithuaniaSurveyStrings = {
   filterClearAll: "Išvalyti viską",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Aiškus {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Filtrų išankstiniai nustatymai",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Išskyrus kaip...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Išsaugoti",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Pridėk \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Filtrų išankstiniai nustatymai",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Rodyti {0} daiktus",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var lithuaniaSurveyStrings = {
   filterShowResults: "Parodos rezultatai",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Naujas išankstinis nustatymas",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Iš anksto nustatytas pavadinimas",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Laukai, kuriais galima filtruoti",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Filtro išraiška",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Jau egzistuoja išankstinis nustatymas su šiuo pavadinimu.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var lithuaniaSurveyStrings = {
   filterPresetNoExpression: "Įeina išraiška.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Šis išsireiškimas nėra galiojantis.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Perėjimas prie ekspresijos",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Perėjimas prie Fields",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Įrašykite išraišką čia...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var lithuaniaSurveyStrings = {
   filterPresetExpression: "{0} Išraiška",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Redagavimas...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Paieška filtruose ir išankstiniuose nustatymuose",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Nieko nerasta, išbandykite kitus raktažodžius",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Sukurkite filtrą su DI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Redaguoti išankstinį nustatymą su dirbtiniu intelektu",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Apibūdinkite norimą filtrą...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Generuoti filtrą",
   // [Auto-translated] "Edit"
   filterAiEdit: "Redagavimas",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Generuoja...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Redagavimas...",
   // [Auto-translated] "AI could not make a filter. Try again."

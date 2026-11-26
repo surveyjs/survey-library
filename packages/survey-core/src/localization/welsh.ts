@@ -335,12 +335,20 @@ export var welshSurveyStrings = {
   conditionOperatorGreaterorequal: "Yn fwy na neu'n hafal i",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Llai na neu'n hafal i",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Pob hidlydd",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Pob hidlydd: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Hidlwyr",
   // [Auto-translated] "Search"
   filterSearchLabel: "Chwilio",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Chwilio yn ôl {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} neu {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, neu {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Dangos Mwy",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var welshSurveyStrings = {
   filterClearAll: "Clirio popeth",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Clir {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Rhagosodiadau hidlo",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Cadw fel...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Cadw",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Ychwanegwch \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Rhagosodiadau hidlo",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Dangos {0} eitemau",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var welshSurveyStrings = {
   filterShowResults: "Dangos canlyniadau",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Rhagosodiad Newydd",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Enw rhagosodedig",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Meysydd i'w hidlo yn ôl",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Mynegiad hidlo",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Mae rhagosodiad gyda'r enw hwn eisoes yn bodoli.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var welshSurveyStrings = {
   filterPresetNoExpression: "Rhowch fynegiad.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Nid yw'r mynegiad yn ddilys.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Newid i Fynegiant",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Newid i Feysydd",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Teipiwch ymadrodd yma...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var welshSurveyStrings = {
   filterPresetExpression: "{0} Mynegiant",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Golygu...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Chwilio mewn hidlwyr a rhagosodiadau",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Dim byd wedi'i ganfod, rhowch gynnig ar allweddeiriau gwahanol",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Cynhyrchu hidlydd gydag AI",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Golygu rhagosodiad gydag AI",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Disgrifiwch yr hidlydd rydych chi ei eisiau...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Cynhyrchu Hidlydd",
   // [Auto-translated] "Edit"
   filterAiEdit: "Golygu",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Yn cynhyrchu...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Golygu...",
   // [Auto-translated] "AI could not make a filter. Try again."

@@ -335,12 +335,20 @@ export var basqueSurveyStrings = {
   conditionOperatorGreaterorequal: "Handiagoa edo berdina",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Txikiagoa edo berdina",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Iragazki guztiak",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Iragazki guztiak: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Iragazkiak",
   // [Auto-translated] "Search"
   filterSearchLabel: "Bilatu",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Bilatu {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} edo {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0}, edo {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Gehiago erakutsi",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var basqueSurveyStrings = {
   filterClearAll: "Denak garbitu",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Garbi {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Iragazki Aurrezarpenak",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Gorde gisa...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Gorde",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Gehitu \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Iragazki Aurrezarpenak",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Erakutsi {0} elementuak",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var basqueSurveyStrings = {
   filterShowResults: "Emaitzak erakutsi",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Aurrezarpen berria",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Aurrez ezarritako izena",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Iragazi beharreko eremuak",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Iragazki adierazpena",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Izen horrekin aurrezarpen bat dagoeneko existitzen da.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var basqueSurveyStrings = {
   filterPresetNoExpression: "Sartu adierazpen bat.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Adierazpena ez da baliozkoa.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Aldatu Adierazpenera",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Aldatu Eremuetara",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Idatzi adierazpen bat hemen...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var basqueSurveyStrings = {
   filterPresetExpression: "{0} Adierazpena",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Editatu...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Bilatu iragazkietan eta aurrezarpenetan",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ez da ezer aurkitu, saiatu gako-hitz desberdinak",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Sortu iragazki bat AI-rekin",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Editatu aurrezarpena AI-rekin",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Deskribatu nahi duzun iragazkia...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Iragazkia sortu",
   // [Auto-translated] "Edit"
   filterAiEdit: "Editatu",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Sortzen...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editatzen...",
   // [Auto-translated] "AI could not make a filter. Try again."

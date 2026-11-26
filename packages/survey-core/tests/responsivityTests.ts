@@ -3,7 +3,7 @@ import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsi
 import { ActionContainer } from "../src/actions/container";
 import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeAll, afterAll } from "vitest";
 class SimpleContainer {
   clientRects = [{ x: 0, y: 0, height: 20, width: 20 }];
   parentElement: any;
@@ -36,7 +36,15 @@ class ResizeObserver {
     this.callback && this.callback();
   }
 }
-window.ResizeObserver = <any>ResizeObserver;
+// ResizeObserver is not a jsdom property: it stays in the worker after this file.
+let savedResizeObserver: any;
+beforeAll(() => {
+  savedResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>ResizeObserver;
+});
+afterAll(() => {
+  window.ResizeObserver = savedResizeObserver;
+});
 
 test("ActionContainer: renderedActions & visibleActions", () => {
   const actions = [new Action({ id: "first" }), new Action({ id: "second", visible: false }), new Action({ id: "third" })];

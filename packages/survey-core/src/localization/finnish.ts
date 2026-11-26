@@ -335,12 +335,20 @@ export var finnishSurveyStrings = {
   conditionOperatorGreaterorequal: "Suurempi tai yhtä suuri kuin",
   // [Auto-translated] "Less than or equal to"
   conditionOperatorLessorequal: "Pienempi tai yhtä suuri kuin",
+  // [Auto-translated] "All Filters"
+  filterAllFilters: "Kaikki suodattimet",
+  // [Auto-translated] "All Filters: {0}"
+  filterAllFiltersCount: "Kaikki suodattimet: {0}",
   // [Auto-translated] "Filters"
   filterDialogTitle: "Suodattimet",
   // [Auto-translated] "Search"
   filterSearchLabel: "Haku",
   // [Auto-translated] "Search by {0}"
   filterSearchPlaceholder: "Hae {0}",
+  // [Auto-translated] "{0} or {1}"
+  filterSearchFieldsOr: "{0} vai {1}",
+  // [Auto-translated] "{0}, or {1}"
+  filterSearchFieldsOrLast: "{0} tai {1}",
   // [Auto-translated] "Show More"
   filterShowMore: "Näytä lisää",
   // [Auto-translated] "Show Less"
@@ -349,12 +357,16 @@ export var finnishSurveyStrings = {
   filterClearAll: "Tyhjennä kaikki",
   // [Auto-translated] "Clear {0}"
   filterClearChip: "Tyhjennä {0}",
+  // [Auto-translated] "Filter Presets"
+  filterPreset: "Suodatinesiasetukset",
   // [Auto-translated] "Save as..."
   filterSaveAs: "Tallenna kuin...",
   // [Auto-translated] "Save"
   filterSaveAsSave: "Tallenna",
   // [Auto-translated] "Add \"{0}\"..."
   filterAddCustomValue: "Lisää \"{0}\"...",
+  // [Auto-translated] "Filter Presets"
+  filterPresetsTitle: "Suodatinesiasetukset",
   // [Auto-translated] "Show {0} items"
   filterShowResultsCount: "Näytä {0} kohteet",
   // [Auto-translated] "Show 1 item"
@@ -363,6 +375,12 @@ export var finnishSurveyStrings = {
   filterShowResults: "Näytä tulokset",
   // [Auto-translated] "New Preset"
   filterAddPresetTitle: "Uusi esiasetus",
+  // [Auto-translated] "Preset name"
+  filterPresetName: "Esiasetuksen nimi",
+  // [Auto-translated] "Fields to filter by"
+  filterPresetFieldsLabel: "Suodattavat kentät",
+  // [Auto-translated] "Filter expression"
+  filterPresetExpressionLabel: "Suodatinlauseke",
   // [Auto-translated] "A preset with this name already exists."
   filterPresetTitleExists: "Esiasetus tällä nimellä on jo olemassa.",
   // [Auto-translated] "Add at least one condition."
@@ -371,6 +389,10 @@ export var finnishSurveyStrings = {
   filterPresetNoExpression: "Syötä lauseke.",
   // [Auto-translated] "The expression is not valid."
   filterPresetInvalidExpression: "Lauseke ei ole kelvollinen.",
+  // [Auto-translated] "Switch to Expression"
+  filterEditAsText: "Vaihda lausekkeeseen",
+  // [Auto-translated] "Switch to Fields"
+  filterEditAsFields: "Vaihda kenttiin",
   // [Auto-translated] "Type an expression here..."
   filterExpressionPlaceholder: "Kirjoita ilmaus tähän...",
   // [Auto-translated] "Edit Preset"
@@ -385,12 +407,22 @@ export var finnishSurveyStrings = {
   filterPresetExpression: "{0} Ilmaisu",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Muokkaus...",
+  // [Auto-translated] "Search in filters and presets"
+  filterSearchInFilters: "Haku suodattimissa ja esiasetuksissa",
   // [Auto-translated] "Nothing found, try different keywords"
   filterNothingFound: "Ei löytynyt mitään, kokeile eri avainsanoja",
+  // [Auto-translated] "Generate a filter with AI"
+  filterAiPromptNew: "Luo suodatin tekoälyllä",
   // [Auto-translated] "Edit preset with AI"
   filterAiPromptEdit: "Muokkaa esiasetusta tekoälyllä",
+  // [Auto-translated] "Describe the filter you want..."
+  filterAiPromptPlaceholder: "Kuvaile haluamasi suodatin...",
+  // [Auto-translated] "Generate Filter"
+  filterAiCreate: "Luo suodatin",
   // [Auto-translated] "Edit"
   filterAiEdit: "Muokkaus",
+  // [Auto-translated] "Generating..."
+  filterAiCreating: "Luodaan...",
   // [Auto-translated] "Editing..."
   filterAiEditing: "Editointi...",
   // [Auto-translated] "AI could not make a filter. Try again."

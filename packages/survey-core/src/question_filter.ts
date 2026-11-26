@@ -1,5 +1,5 @@
 import type { ChangedKeys } from "./conditions/conditionProcessValue";
-import { JsonObject, JsonRequiredArrayPropertyError, Serializer } from "./jsonobject";
+import { JsonError, JsonObject, JsonRequiredArrayPropertyError, JsonRequiredPropertyError, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
@@ -49,20 +49,23 @@ type FilterDeletedPreset = { name: string, preset: FilterPreset, index: number, 
 type FilterTargetQuestion = Question & IDynamicDataFilterTarget;
 const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
 
-// A JSON definition in an array the host assigns, made the object of its class; an object is kept.
-// A fields entry from what an author or a host gives: a FilterField as it is, a name, or a JSON
-// definition (read by jsonConv while a survey loads, so an unknown property is still reported).
+// A fields entry from what an author or a host gives: a FilterField as it is, or a JSON definition (read
+// by jsonConv while a survey loads, so an unknown property is still reported). Anything else - a string
+// among them - is no entry.
+function isFilterFieldItem(item: any): boolean {
+  return !!item && typeof item === "object";
+}
 function toFilterField(item: any, jsonConv?: JsonObject): FilterField {
   if (item instanceof FilterField) return item;
-  if (typeof item === "string") return new FilterField(item);
   const field = <FilterField>Serializer.createClass("filterfield");
   (jsonConv || new JsonObject()).toObject(item, field);
   return field;
 }
 function toFilterFields(val: Array<any>, jsonConv?: JsonObject): Array<FilterField> {
   if (!Array.isArray(val)) return val;
-  return val.filter((item: any): boolean => !!item).map((item: any): FilterField => toFilterField(item, jsonConv));
+  return val.filter(isFilterFieldItem).map((item: any): FilterField => toFilterField(item, jsonConv));
 }
+// A JSON definition in an array the host assigns, made the object of its class; an object is kept.
 function toFilterObjects(val: Array<any>, className: string): Array<any> {
   if (!Array.isArray(val)) return val;
   return val.map((item: any): any => {
@@ -115,8 +118,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     const fields = this.createNewArray("fields",
       (field: FilterField): void => { this.onFieldAdded(field); },
       (field: FilterField): void => { this.onFieldRemoved(field); });
-    // A name or a JSON definition put into fields is an entry, as the setter and the JSON take it: it is made
-    // one before the array's own push (Base.createNewArray) puts it in and hooks it.
+    // A JSON definition put into fields is an entry, as the setter and the JSON take it: it is made one before
+    // the array's own push (Base.createNewArray) puts it in and hooks it. What is no entry is left out.
     const push = fields.push, unshift = fields.unshift, splice = fields.splice;
     fields.push = (...items: Array<any>): number => push.apply(fields, toFilterFields(items));
     fields.unshift = (...items: Array<any>): number => unshift.apply(fields, toFilterFields(items));
@@ -144,24 +147,33 @@ export class QuestionFilterModel extends QuestionNonValue {
   private isFieldsDefinedValue: boolean = false;
   public get isFieldsDefined(): boolean { return this.isFieldsDefinedValue; }
   // Both take JSON definitions as well as instances, as choices take plain values: a definition becomes
-  // a FilterField or a FilterPreset. fields take a name too.
+  // a FilterField or a FilterPreset.
   public get fields(): Array<FilterField> { return this.getPropertyValue("fields"); }
   public set fields(val: Array<FilterField>) {
     this.isFieldsDefinedValue = true;
     this.setPropertyValue("fields", toFilterFields(val));
   }
   // The fields key of the JSON, [] included: an empty array reaches no array hook, so the key is read here.
-  // A value that is no array is one entry - a name is one now - and reported, as the deserializer reports
-  // any array property written without its brackets.
+  // A value that is no array is one entry and reported, as the deserializer reports any array property
+  // written without its brackets. An item that is no object (a name) is no entry and is reported as an
+  // entry without its required name, as the deserializer reported it before.
   public loadFieldsFromJson(value: any, jsonConv: JsonObject): void {
     this.isFieldsDefinedValue = true;
     if (!Array.isArray(value) && !!value) {
-      const error = new JsonRequiredArrayPropertyError("fields", this.getType());
-      error.element = this;
-      jsonConv.errors.push(error);
+      this.addFieldsJsonError(jsonConv, new JsonRequiredArrayPropertyError("fields", this.getType()));
       value = [value];
     }
-    this.setPropertyValue("fields", toFilterFields(Array.isArray(value) ? value : [], jsonConv));
+    const items: Array<any> = Array.isArray(value) ? value : [];
+    items.forEach((item: any): void => {
+      if (!!item && !isFilterFieldItem(item)) {
+        this.addFieldsJsonError(jsonConv, new JsonRequiredPropertyError("name", "filterfield"));
+      }
+    });
+    this.setPropertyValue("fields", toFilterFields(items, jsonConv));
+  }
+  private addFieldsJsonError(jsonConv: JsonObject, error: JsonError): void {
+    error.element = this;
+    jsonConv.errors.push(error);
   }
   // What the JSON keeps: nothing while fields are not set; [] only with a target question - without one,
   // [] and no fields mean the same, no fields at all.
@@ -2211,9 +2223,8 @@ Serializer.addClass("filter", [
   { name: "targetQuestion:question_filtertarget" },
   // The fields of the control, in their order. With a target question an entry names a field of the
   // target (by its valueName, else its name) or is a field of the record the target has no column for;
-  // left out, the visible fields of the target are the fields. An entry with nothing but a name is a
-  // string in the JSON.
-  { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", serializeEmptyArray: true, allowNameItems: true,
+  // left out, the visible fields of the target are the fields.
+  { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", serializeEmptyArray: true,
     onSerializeValue: (obj: any): any => obj.getSerializableFieldsValue(),
     onSetValue: (obj: any, value: any, jsonConv: JsonObject): void => { obj.loadFieldsFromJson(value, jsonConv); } },
   // The live list is the respondent's changes too: the JSON is the authored presets (getSerializablePresetsValue).

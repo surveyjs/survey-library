@@ -51,7 +51,7 @@ describe("Filter fields of a target question", () => {
     expect([names(q), getFilterFieldTitle(q.getFieldByName("price"))]).toEqual([["price"], "Cost"]);
   });
   test("an entry with no column is a field of the record, after the columns; it filters the records", () => {
-    const { q, matrix } = create(["country", { name: "total", valueType: "number" }]);
+    const { q, matrix } = create([{ name: "country" }, { name: "total", valueType: "number" }]);
     expect(names(q), "#1").toEqual(["country", "total"]);
     expect(q.getFieldByName("total").valueType, "#2").toBe("number");
     q.applyFilter("{total} > 10");
@@ -69,11 +69,11 @@ describe("Filter fields of a target question", () => {
     expect(await q.countFilterResults("{total} > 10")).toBe(2);
   });
   test("an entry named after a column the filter cannot compare (a file) is ignored", () => {
-    const { q } = create(["country", { name: "notes" }]);
+    const { q } = create([{ name: "country" }, { name: "notes" }]);
     expect(names(q)).toEqual(["country"]);
   });
   test("an entry naming a path into a column the filter offers is a field of the record; it filters and is counted", async () => {
-    const { q, matrix } = create(["customer", { name: "customer.country", title: "Country" }], [{ name: "customer" }], customers);
+    const { q, matrix } = create([{ name: "customer" }, { name: "customer.country", title: "Country" }], [{ name: "customer" }], customers);
     expect(names(q), "#1").toEqual(["customer", "customer.country"]);
     expect(getFilterFieldTitle(q.getFieldByName("customer.country")), "#2").toBe("Country");
     expect(await q.countFilterResults("{customer.country} = 'de'"), "#3").toBe(2);
@@ -88,7 +88,7 @@ describe("Filter fields of a target question", () => {
   test("an entry naming a path into a Dynamic Panel's record question past its items is a field of the record", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "p", panelCount: 2, templateElements: [{ type: "multipletext", name: "address", items: [{ name: "city" }] }] },
-      { type: "filter", name: "f1", targetQuestion: "p", fields: ["address.city", { name: "address.zip", title: "ZIP" }] }] });
+      { type: "filter", name: "f1", targetQuestion: "p", fields: [{ name: "address.city" }, { name: "address.zip", title: "ZIP" }] }] });
     const panel: any = survey.getQuestionByName("p");
     panel.value = [{ address: { city: "Berlin", zip: "10115" } }, { address: { city: "Paris", zip: "75001" } }];
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
@@ -145,7 +145,7 @@ describe("A matrix detail panel as a source of fields", () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow",
         detailElements: [{ type: "dropdown", name: "project", choices: ["A", "B"] }] },
-      { type: "filter", name: "f1", targetQuestion: "m", fields: ["c1", { name: "project", title: "Proj", showInQuickFilters: false }] }] });
+      { type: "filter", name: "f1", targetQuestion: "m", fields: [{ name: "c1" }, { name: "project", title: "Proj", showInQuickFilters: false }] }] });
     const matrix: any = survey.getQuestionByName("m");
     matrix.value = [{ c1: 1, project: "A" }, { c1: 2, project: "B" }];
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
@@ -160,7 +160,7 @@ describe("A matrix detail panel as a source of fields", () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow",
         detailElements: [{ type: "expression", name: "calc", expression: "1" }] },
-      { type: "filter", name: "f1", targetQuestion: "m", fields: ["c1", { name: "calc", fieldType: "text", inputType: "number" }] }] });
+      { type: "filter", name: "f1", targetQuestion: "m", fields: [{ name: "c1" }, { name: "calc", fieldType: "text", inputType: "number" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     expect(names(q), "#1: the expression is no field of the target, so the entry stands on its own").toEqual(["c1", "calc"]);
   });
@@ -168,7 +168,7 @@ describe("A matrix detail panel as a source of fields", () => {
 
 describe("A target question that has no hasRecordField", () => {
   test("an entry that names no field of its list is a field of the record", () => {
-    const { q, matrix } = create(["country", { name: "total", fieldType: "text", inputType: "number" }]);
+    const { q, matrix } = create([{ name: "country" }, { name: "total", fieldType: "text", inputType: "number" }]);
     matrix.hasRecordField = undefined;
     expect(names(q), "#1").toEqual(["country", "total"]);
     expect(q.getFieldOfEntry(q.fields[1]).name, "#2").toBe("total");
@@ -212,7 +212,7 @@ describe("The designer's fields entries", () => {
     const rows = q.getDesignFieldEntries();
     expect(rows.map(e => e.name), "#1").toEqual(["city", "country"]);
     expect(rows[0] === q.fields[0] && rows[1] === q.fields[1], "#2: the entries themselves").toBe(true);
-    expect(q.toJSON().fields, "#3: the JSON is as it was").toEqual(["city", { name: "country", title: "Land" }]);
+    expect(q.toJSON().fields, "#3: the JSON is as it was").toEqual([{ name: "city" }, { name: "country", title: "Land" }]);
   });
   test("fields left out: a row per visible field of the target, an entry not in fields that knows no survey", () => {
     const { q } = create(undefined, [{ name: "country" }, { name: "price", cellType: "text", inputType: "number" }]);

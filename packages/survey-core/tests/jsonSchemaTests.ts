@@ -232,19 +232,4 @@ describe("JsonSchemaTests", () => {
     checkRefs(schema, "schema");
     expect(unresolved).toEqual([]);
   });
-  test("allowNameItems lets an item of a class array be a string in the schema", () => {
-    Serializer.addClass("nameitempart", [{ name: "name" }, "title"]);
-    Serializer.addClass("nameitemsowner", [
-      { name: "parts:nameitempart[]", className: "nameitempart", allowNameItems: true },
-      { name: "others:nameitempart[]", className: "nameitempart" }]);
-    try {
-      const schema = Serializer.generateSchema("nameitemsowner");
-      expect(schema.properties.parts.items.anyOf.length, "#1").toBe(2);
-      expect(schema.properties.parts.items.anyOf[1], "#2").toEqual({ type: "string" });
-      expect(schema.properties.others.items.anyOf, "#3: no attribute, objects only").toBeUndefined();
-    } finally {
-      Serializer.removeClass("nameitemsowner");
-      Serializer.removeClass("nameitempart");
-    }
-  });
 });

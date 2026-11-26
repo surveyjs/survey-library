@@ -1,6 +1,6 @@
 import type { ChangedKeys } from "../conditions/conditionProcessValue";
 import { Base } from "../base";
-import { ISaveToJSONOptions, ISurvey } from "../base-interfaces";
+import { ISurvey } from "../base-interfaces";
 import { ItemValue } from "../itemvalue";
 import { JsonObject, JsonObjectProperty, Serializer } from "../jsonobject";
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
@@ -102,23 +102,6 @@ export class FilterField extends Base implements ILocalizableOwner, IFilterField
     this.templateQuestion.onGetSurvey = () => this.getSurvey();
   }
   public getOriginalObj(): Base { return this.templateQuestion; }
-  // The whole JSON of the field. Not Base.toJSON: JsonObject writes an object that has getData by
-  // getData, which gives the name alone - here the properties are written one by one, the borrowed
-  // ones of fieldType too (as ItemValue.toJSON does).
-  public toJSON(options?: ISaveToJSONOptions): any {
-    const res: any = {};
-    const jsonObj = new JsonObject();
-    const props = Serializer.getProperties(this.getType()).concat(Serializer.getDynamicPropertiesByObj(this));
-    props.forEach((prop: JsonObjectProperty): void => { jsonObj.valueToJson(this, res, prop, options); });
-    return res;
-  }
-  // A field that says nothing but its name is written as the name: fields: ["country", { name: "amount",
-  // title: "Sum" }] - the way an ItemValue with no text is written as its value.
-  public getData(options?: ISaveToJSONOptions): any {
-    const json = this.toJSON(options);
-    const keys = Object.keys(json);
-    return keys.length === 1 && keys[0] === "name" ? json.name : json;
-  }
   getClassNameProperty(): string { return "fieldType"; }
   getDynamicPropertyName(): string { return "fieldType"; }
   // "" short-circuits Serializer.getDynamicPropertiesByTypes (jsonobject.ts:1060), so a field with

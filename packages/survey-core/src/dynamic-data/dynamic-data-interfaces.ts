@@ -263,4 +263,8 @@ export interface IDynamicDataFilterTarget {
   // of the record the target has no column for, a path into a key the filter offers included
   // ("customer.country" next to a "customer" column).
   hasRecordField?(name: string): boolean;
+  // Optional: the rows of a target whose rows are its records (a matrix with fixed rows) - a record is
+  // one of them, which a filter reads by the row's own variables ({rowValue}, {rowTitle}). The AI of a
+  // Filter Control lists them.
+  getFilterRows?(): Array<{ value: any, text: string }>;
 }

@@ -1,4 +1,5 @@
 import { ItemValue } from "../itemvalue";
+import { settings } from "../settings";
 import { surveyLocalization } from "../surveyStrings";
 import type { Question } from "../question";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
@@ -38,8 +39,9 @@ export function makeFilterAITitle(title: string, fieldTitles: Array<string>, oth
 }
 
 // Raise whenever the guide or the rules of the prompt change: a host that caches a prompt knows it is stale.
-export const filterAIGuideVersion = "2";
-// The choices of one field the context lists; the rest are left out and truncated.choices says so.
+export const filterAIGuideVersion = "3";
+// The choices of one field the context lists, and the rows of a list; the rest are left out and
+// truncated.choices (truncated.rows) says so.
 export const filterAIMaxChoices = 100;
 
 export interface IFilterAIField {
@@ -51,11 +53,39 @@ export interface IFilterAIField {
   operators: Array<string>;
   choices?: Array<{ value: any, text: string }>;
 }
+// A value of a record that is no field: a filter that reads it is in the text form.
+export interface IFilterAIValue {
+  // the variable the expression names: {name}
+  name: string;
+  title: string;
+  valueType: string;
+  choices?: Array<{ value: any, text: string }>;
+}
+// The list a control filters - its target question: the expression runs once for each record of it.
+export interface IFilterAIList {
+  // the target's type: "matrixdynamic", "matrixdropdown", "paneldynamic"...
+  type: string;
+  name: string;
+  title: string;
+  // the rows of a target whose rows are its records (a matrix with fixed rows)
+  rows?: Array<{ value: any, text: string }>;
+  // the values of a record no field reads, a hidden column's too, in the target's order
+  otherValues: Array<IFilterAIValue>;
+}
 export interface IFilterAIContext {
   guideVersion: string;
   fields: Array<IFilterAIField>;
+  // only for a control with a target question
+  list?: IFilterAIList;
   locales: { survey: string };
-  truncated: { choices: boolean };
+  truncated: { choices: boolean, rows: boolean };
+}
+// The target as the context describes it; rows: those of a target whose rows are its records.
+export interface IFilterTargetInfo {
+  type: string;
+  name: string;
+  title: string;
+  rows?: Array<{ value: any, text: string }>;
 }
 // What the context is read from: the control's public API.
 export interface IFilterAIContextOwner {
@@ -64,12 +94,47 @@ export interface IFilterAIContextOwner {
   getFieldOperators(key: string): Array<string>;
   getFieldEditorKind(key: string): FilterFieldEditorKind;
   getLocale(): string;
+  // the target's catalog, a hidden field included; empty with no target
+  getTargetFilterFields(): Array<IDynamicDataFilterField>;
+  // undefined with no target
+  getFilterTargetInfo(): IFilterTargetInfo;
 }
 
-// Every field the Filters dialog shows, in its order.
+function getAIChoices(field: IDynamicDataFilterField, locale: string, truncated: { choices: boolean }): Array<{ value: any, text: string }> {
+  const items = getFilterFieldListItems(field, locale);
+  if (items.length === 0) return undefined;
+  if (items.length > filterAIMaxChoices) truncated.choices = true;
+  return items.slice(0, filterAIMaxChoices).map((item): { value: any, text: string } => ({ value: item.value, text: item.text }));
+}
+// The target of a control: what it is, its rows when they are its records, and every value of its
+// catalog - a hidden one too - that no field reads. undefined with no target.
+function buildFilterAIList(owner: IFilterAIContextOwner, fields: Array<IFilterAIField>, locale: string,
+  truncated: { choices: boolean, rows: boolean }): IFilterAIList {
+  const target = owner.getFilterTargetInfo();
+  if (!target) return undefined;
+  const res = <IFilterAIList>{ type: target.type, name: target.name, title: target.title };
+  if (Array.isArray(target.rows)) {
+    if (target.rows.length > filterAIMaxChoices) truncated.rows = true;
+    res.rows = target.rows.slice(0, filterAIMaxChoices).map((row): { value: any, text: string } => ({ value: row.value, text: row.text }));
+  }
+  res.otherValues = [];
+  const used = fields.map((field: IFilterAIField): string => field.name);
+  owner.getTargetFilterFields().forEach((field: IDynamicDataFilterField): void => {
+    if (used.indexOf(field.valueName) > -1) return;
+    used.push(field.valueName);
+    const value: IFilterAIValue = { name: field.valueName, title: getFilterFieldTitle(field), valueType: field.valueType };
+    const choices = getAIChoices(field, locale, truncated);
+    if (!!choices) value.choices = choices;
+    res.otherValues.push(value);
+  });
+  return res;
+}
+
+// Every field the Filters dialog shows, in its order, and with a target the list it filters.
 export function buildFilterAIContext(owner: IFilterAIContextOwner): IFilterAIContext {
   const locale = owner.getLocale() || surveyLocalization.defaultLocale;
-  const res: IFilterAIContext = { guideVersion: filterAIGuideVersion, fields: [], locales: { survey: locale }, truncated: { choices: false } };
+  const truncated = { choices: false, rows: false };
+  const fields: Array<IFilterAIField> = [];
   owner.getAllFieldKeys().forEach((key: string): void => {
     const field = owner.getFieldByName(key);
     if (!field) return;
@@ -80,13 +145,16 @@ export function buildFilterAIContext(owner: IFilterAIContextOwner): IFilterAICon
       editor: owner.getFieldEditorKind(key),
       operators: owner.getFieldOperators(key)
     };
-    const items = getFilterFieldListItems(field, locale);
-    if (items.length > 0) {
-      if (items.length > filterAIMaxChoices) res.truncated.choices = true;
-      entry.choices = items.slice(0, filterAIMaxChoices).map((item): { value: any, text: string } => ({ value: item.value, text: item.text }));
-    }
-    res.fields.push(entry);
+    const choices = getAIChoices(field, locale, truncated);
+    if (!!choices) entry.choices = choices;
+    fields.push(entry);
   });
+  // the keys in this order: the JSON of the prompt reads fields, then the list
+  const res = <IFilterAIContext>{ guideVersion: filterAIGuideVersion, fields: fields };
+  const list = buildFilterAIList(owner, fields, locale, truncated);
+  if (!!list) res.list = list;
+  res.locales = { survey: locale };
+  res.truncated = truncated;
   return res;
 }
 
@@ -127,26 +195,59 @@ function getFunctionsText(): string {
   return functions.map((f: IExpressionContextFunction): string => "- " + (f.signature || f.name + "()") + (!!f.description ? " - " + f.description : "")).join("\n");
 }
 
+// What a record of a list is, by the target's type: [the record, the target].
+const filterAIListWords: { [type: string]: [string, string] } = {
+  matrixdynamic: ["row", "dynamic matrix"], matrixdropdown: ["row", "matrix"], paneldynamic: ["panel", "dynamic panel"]
+};
+// The expression runs over the whole record, with nothing of the survey around it (see DynamicDataView).
+function getListText(list: IFilterAIList): string {
+  const words = filterAIListWords[list.type] || ["record", "question"];
+  const record = words[0];
+  const vars = settings.expressionVariables;
+  const lines: Array<string> = [];
+  lines.push("## The list");
+  lines.push("The filter runs once for each " + record + " of the " + words[1] + " \"" + list.title + "\" and keeps the " + record + "s it is true for. {name} reads a value of that " +
+    record + ": there is no {" + vars.row + ".} or {" + vars.panel + ".} prefix, and the other questions of the survey cannot be read.");
+  lines.push("\"fields\" are the fields the filter shows; \"list.otherValues\" are the " + record + "'s other values, which have no field: a filter that reads one of them is in the text form.");
+  if (!!list.rows) {
+    lines.push("The rows are listed under \"list.rows\": {" + vars.rowValue + "} is a row's value and {" + vars.rowTitle + "} its text; compare {" +
+      vars.rowValue + "} with the values, never with the texts.");
+  }
+  return lines.join("\n");
+}
+
 // Same context in, byte-identical prompt out: a host may cache it.
 export function buildFilterAISystemPrompt(context: IFilterAIContext): string {
+  const list = context.list;
   const lines: Array<string> = [];
   lines.push("You turn a user's description of the records they need into a SurveyJS filter expression over the fields of a list. The user describes in words what the records must be; you answer with one filter and a short title for it.");
   lines.push("");
   lines.push(getGuideText());
   lines.push("");
+  if (!!list) {
+    lines.push(getListText(list));
+    lines.push("");
+  }
   lines.push(getExpressionGuideText(filterAIGuideSections));
   lines.push("");
   lines.push("## Functions you may call");
   lines.push(getFunctionsText());
   lines.push("");
-  lines.push("## The fields the filter can use (JSON)");
+  lines.push("## The fields and the list the filter reads (JSON)");
   lines.push(JSON.stringify(context, null, 2));
   lines.push("");
   lines.push("## Rules");
-  lines.push("- Use only the names listed under \"fields\", and in a condition of the fields form only the operators listed for its field.");
+  if (!!list) {
+    const rowVars = !!list.rows ? " and {" + settings.expressionVariables.rowValue + "}, {" + settings.expressionVariables.rowTitle + "}" : "";
+    lines.push("- In the fields form, use only the names listed under \"fields\" and only the operators listed for each. A text-form filter may also read the names under \"list.otherValues\"" +
+      rowVars + "; use no other names.");
+  } else {
+    lines.push("- Use only the names listed under \"fields\", and in a condition of the fields form only the operators listed for its field.");
+  }
   lines.push("- Prefer the fields form: conditions joined by \"and\", at most one per field. Use \"or\", functions, arithmetic or \"!\" only when the description cannot be expressed in that form.");
-  lines.push("- Compare a field that lists choices with the values of its choices, never with their texts.");
+  lines.push("- Compare a field or a value that lists choices with the values of its choices, never with their texts.");
   if (context.truncated.choices) lines.push("- Some choice lists are partial: a field may have more values than are shown.");
+  if (context.truncated.rows) lines.push("- The list of rows is partial: the list has more rows than are shown.");
   lines.push("- When the description cannot be expressed with what is listed, return an empty expression and say why in the explanation.");
   lines.push("");
   lines.push("## Answer");

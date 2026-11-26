@@ -19,7 +19,7 @@ import { FilterModal } from "./filter/filter-modal";
 import { FilterEditPresetDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterChip, FilterToolbars, IFilterFieldState } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
-import { FilterAIRequest } from "./filter/filter-ai";
+import { FilterAIRequest, IFilterTargetInfo } from "./filter/filter-ai";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -280,6 +280,15 @@ export class QuestionFilterModel extends QuestionNonValue {
     const target = this.findFilterTarget(targetName === undefined ? this.targetQuestion : targetName);
     const res = !!target ? target.getFilterFields() : [];
     return visibleOnly ? res.filter((field: IDynamicDataFilterField): boolean => field.isVisible !== false) : res;
+  }
+  // The target as the AI context describes it: its type, name and title, and the rows of a target whose
+  // rows are its records - asked by capability, as hasRecordField. undefined with no target.
+  public getFilterTargetInfo(): IFilterTargetInfo {
+    const target = this.filterTarget;
+    if (!target) return undefined;
+    const res: IFilterTargetInfo = { type: target.getType(), name: target.name, title: target.title };
+    if (typeof target.getFilterRows === "function") res.rows = target.getFilterRows();
+    return res;
   }
   // The field of the target an entry names: by the field's valueName - what Creator names an entry by -
   // then by its name.

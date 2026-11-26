@@ -245,6 +245,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const names = virtualFields.map((field: IDynamicDataField): string => field.name);
     return super.getFields().filter((field: IDynamicDataField): boolean => names.indexOf(field.name) < 0).concat(virtualFields);
   }
+  // The rows the records are, every rows item: the AI of a Filter Control lists them.
+  public getFilterRows(): Array<{ value: any, text: string }> {
+    return this.rows.map((item: ItemValue): { value: any, text: string } => ({ value: item.value, text: item.text }));
+  }
   // A column getFields leaves out for a row field of the same name is not a filter field either: a
   // filter by it would read the row, not the cell. The row fields themselves are not offered.
   public getFilterFields(): Array<IDynamicDataFilterField> {

@@ -1551,4 +1551,53 @@ describe("Base", () => {
     obj.disableOnElementRerenderedEvent();
     expect(log, "no cancel event on an extra disable").toEqual([true]);
   });
+  class AssignHolder extends Base {
+  @property() model: SurveyModel;
+  @property() item: ItemValue;
+  }
+  test("Assigning a new Base value notifies without serializing the old and the new value", () => {
+    const json = { elements: [{ type: "text", name: "q1" }] };
+    const s1 = new SurveyModel(json);
+    const s2 = new SurveyModel(json);
+    const h = new AssignHolder();
+    h.model = s1;
+    const log: Array<any> = [];
+    h.onPropertyChanged.add((_: Base, options: any) => log.push(options));
+    const toJSON = vi.spyOn(SurveyModel.prototype, "toJSON");
+    let toJSONCount: number;
+    try {
+      h.model = s2;
+      toJSONCount = toJSON.mock.calls.length;
+    } finally {
+      toJSON.mockRestore();
+    }
+    expect(toJSONCount, "toJSON is not called").toBe(0);
+    expect(log.length, "one notification").toBe(1);
+    expect(log[0].name).toBe("model");
+    expect(log[0].oldValue === s1, "oldValue is the first survey").toBe(true);
+    expect(log[0].newValue === s2, "newValue is the second survey").toBe(true);
+  });
+  test("Assigning the same Base value again does not notify", () => {
+    const s = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const h = new AssignHolder();
+    h.model = s;
+    let counter = 0;
+    h.onPropertyChanged.add(() => counter++);
+    h.model = s;
+    h.setPropertyValue("model", s);
+    expect(counter).toBe(0);
+  });
+  test("Assigning an equal copy of a Base value notifies", () => {
+    const item1 = new ItemValue(1, "a");
+    const item2 = new ItemValue(1, "a");
+    const h = new AssignHolder();
+    h.item = item1;
+    const log: Array<any> = [];
+    h.onPropertyChanged.add((_: Base, options: any) => log.push(options));
+    h.item = item2;
+    expect(log.length, "one notification").toBe(1);
+    expect(log[0].name).toBe("item");
+    expect(log[0].oldValue === item1, "oldValue is the first item").toBe(true);
+    expect(log[0].newValue === item2, "newValue is the copy").toBe(true);
+  });
 });

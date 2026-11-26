@@ -1115,7 +1115,10 @@ export class Base implements IObjectValueContext {
     } else {
       if (val !== oldValue) {
         this.setPropertyValueDirectly(name, val);
-        if (!this.isTwoValueEquals(oldValue, val)) {
+        /* A new Base instance is a change. Comparing two Base objects serializes both of them (equalsCore
+           compares toJSON()), and classes not registered in Serializer (Action, PopupModel) serialize to {},
+           so any two of them compared equal. Other values keep the value comparison. */
+        if ((oldValue instanceof Base && val instanceof Base) || !this.isTwoValueEquals(oldValue, val)) {
           this.propertyValueChanged(name, oldValue, val);
         }
       }

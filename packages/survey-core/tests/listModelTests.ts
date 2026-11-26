@@ -700,6 +700,20 @@ describe("List Model", () => {
     list.flushUpdates();
     expect(list.renderedActions.filter(item => list.isItemVisible(item)).length, "all items are visible when disableSearch is true and filterString is empty").toBe(12);
   });
+  test("selectedItem going from one action to another notifies", () => {
+    const a = new Action({ id: "a" });
+    const b = new Action({ id: "b" });
+    const list = new ListModel({ items: [a, b], onSelectionChanged: () => { }, allowSelection: true } as any);
+    list.selectedItem = a;
+    const log: Array<any> = [];
+    list.onPropertyChanged.add((_: any, options: any) => {
+      if (options.name === "selectedItem") log.push(options);
+    });
+    list.selectedItem = b;
+    expect(log.length, "one notification").toBe(1);
+    expect(log[0].oldValue === a, "oldValue is the first action").toBe(true);
+    expect(log[0].newValue === b, "newValue is the second action").toBe(true);
+  });
 
   describe("bulk assignment of items", () => {
     function createItems(count: number, prefix: string): Array<IAction> {

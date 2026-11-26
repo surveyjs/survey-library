@@ -1484,6 +1484,26 @@ test("Clear choices on changing variables", () => {
     expect([...(question.value)], "question.value").toEqual(["item2", "item3"]);
     expect([...(dropdown.value)], "dropdown.value").toEqual(["item1", "item4"]);
   });
+  test("choicesByUrl & carry-forward: a removed source that is still loading does not keep incorrect values", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    const source = new QuestionCheckboxModelTester("q1");
+    survey.pages[0].addQuestion(source);
+    const q2 = new QuestionCheckboxModel("q2");
+    q2.choices = ["a", "b"];
+    survey.pages[0].addQuestion(q2);
+    q2.choicesFromQuestion = "q1";
+    source.hasItemsCallbackDelay = true;
+    source.choicesByUrl.url = "something";
+    source.choicesByUrl.valueName = "identity";
+    source.restFulTest.items = ["item1", "item2"];
+    source.onSurveyLoad();
+    expect(source.isReady, "#1: the source is loading").toBe(false);
+    q2.choicesFromQuestion = "";
+    q2.value = ["item1"];
+    q2.clearIncorrectValues();
+    expect(q2.value, "#2: item1 is not among q2's own choices").toEqual([]);
+  });
   test("choicesByUrl & carry-forward & showOtherItem: a value is not taken for Other before the source loads, Bug#12245", () => {
     const survey = new SurveyModel({ storeOthersAsComment: false });
     survey.addNewPage("p1");

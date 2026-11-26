@@ -46,6 +46,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   private touchMoveEventCallback = (event: any) => {
     this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
   };
+  private onFooterActionsUpdated = (_: PopupModel, options: { actions: Array<IAction> }): void => {
+    this.footerToolbar.setItems(options.actions);
+  };
 
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
@@ -63,9 +66,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
     footerActions = this.model.updateFooterActions(footerActions);
     this.footerToolbarValue.setItems(footerActions);
-    this.model.onFooterActionsUpdated.add((_, options: { actions: Array<IAction> }) => {
-      this.footerToolbar.setItems(options.actions);
-    });
+    this.model.onFooterActionsUpdated.remove(this.onFooterActionsUpdated);
+    this.model.onFooterActionsUpdated.add(this.onFooterActionsUpdated);
   }
 
   protected getAvailableAreaRect(): Rect {
@@ -406,6 +408,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.updateOnHiding();
     if (!!this.model) {
       this.model.onRecalculatePosition.remove(this.recalculatePositionHandler);
+      this.model.onFooterActionsUpdated.remove(this.onFooterActionsUpdated);
       this.recalculatePositionHandler = undefined;
     }
     this.resetComponentElement();

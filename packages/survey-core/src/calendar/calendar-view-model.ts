@@ -42,6 +42,11 @@ interface IMonthListBinding {
 function getMonthKey(date: Date): string {
   return date.getFullYear() + "-" + date.getMonth();
 }
+function periodEnd(kind: CalendarZoom, date: Date): Date {
+  if (kind === "month") return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  if (kind === "year") return new Date(date.getFullYear(), 11, 31);
+  return date;
+}
 
 // Everything the renderers draw: months and items with their css, toolbars, hover preview and
 // the mobile month list. The rules of the calendar stay in CalendarModel.
@@ -345,29 +350,30 @@ export class CalendarViewModel extends Base {
   private isPeriodSelected(start: Date, end: Date, selectedRange: Array<Date>): boolean {
     return !!selectedRange && !isPeriodOutside(start, end, selectedRange[0], selectedRange[1]);
   }
-  private createMonthItems(year: number, selectedRange: Array<Date>): Array<CalendarItem> {
-    const today = getToday();
-    return monthNames.map((name, month) => {
-      const start = new Date(year, month, 1);
-      const end = new Date(year, month + 1, 0);
-      return this.createItem("month", start, name, {
-        isToday: !isPeriodOutside(start, end, today, today),
-        isDisabled: this.model.isPeriodDisabled(start, end)
-      }, selectedRange);
-    });
-  }
-  private createYearItems(startYear: number, selectedRange: Array<Date>): Array<CalendarItem> {
+  private createPeriodItems(kind: CalendarZoom, count: number, dateAt: (index: number) => Date, textAt: (index: number) => string, selectedRange: Array<Date>): Array<CalendarItem> {
     const today = getToday();
     const res: Array<CalendarItem> = [];
-    for (let year = startYear; year < startYear + yearsInRange; year++) {
-      const start = new Date(year, 0, 1);
-      const end = new Date(year, 11, 31);
-      res.push(this.createItem("year", start, year.toString(), {
+    for (let i = 0; i < count; i++) {
+      const start = dateAt(i);
+      const end = periodEnd(kind, start);
+      res.push(this.createItem(kind, start, textAt(i), {
         isToday: !isPeriodOutside(start, end, today, today),
         isDisabled: this.model.isPeriodDisabled(start, end)
       }, selectedRange));
     }
     return res;
+  }
+  private createMonthItems(year: number, selectedRange: Array<Date>): Array<CalendarItem> {
+    return this.createPeriodItems("month", monthNames.length,
+      month => new Date(year, month, 1),
+      month => monthNames[month],
+      selectedRange);
+  }
+  private createYearItems(startYear: number, selectedRange: Array<Date>): Array<CalendarItem> {
+    return this.createPeriodItems("year", yearsInRange,
+      index => new Date(startYear + index, 0, 1),
+      index => (startYear + index).toString(),
+      selectedRange);
   }
   private createItem(kind: CalendarZoom, date: Date, text: string, state: ICalendarItemState, selectedRange: Array<Date>): CalendarItem {
     const item = new CalendarItem(kind, date, text, {
@@ -394,10 +400,7 @@ export class CalendarViewModel extends Base {
         rangePosition = this.getRangePosition(item.date, selectedRange);
         isSelected = this.model.range ? !!rangePosition : isSameDay(this.model.value, item.date);
       } else {
-        const end = item.kind === "month"
-          ? new Date(item.date.getFullYear(), item.date.getMonth() + 1, 0)
-          : new Date(item.date.getFullYear(), 11, 31);
-        isSelected = this.isPeriodSelected(item.date, end, selectedRange);
+        isSelected = this.isPeriodSelected(item.date, periodEnd(item.kind, item.date), selectedRange);
       }
     }
     const hovered = this.hoveredItem;

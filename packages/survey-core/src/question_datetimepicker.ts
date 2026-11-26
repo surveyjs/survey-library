@@ -591,21 +591,20 @@ export class QuestionDateTimePickerModel extends Question {
       this.setRenderedMinMax(properties);
     }
   }
+  private setRenderedLimit(name: "min" | "max", properties: HashTable<any>): void {
+    const expression = name === "min" ? "minValueExpression" : "maxValueExpression";
+    const rendered = name === "min" ? "renderedMin" : "renderedMax";
+    const set = (val: any): void => {
+      this.setPropertyValue(rendered, Helpers.convertValToQuestionVal(val, "date"));
+      this.calendar[name] = toISODate(this.getPropertyValue(rendered));
+    };
+    if (!this.runExpressionByProperty(expression, properties, set)) {
+      set(this[name]);
+    }
+  }
   private setRenderedMinMax(properties: HashTable<any> = null): void {
-    const setMin = (val: any): void => {
-      this.setPropertyValue("renderedMin", Helpers.convertValToQuestionVal(val, "date"));
-      this.calendar.min = toISODate(this.renderedMin);
-    };
-    const setMax = (val: any): void => {
-      this.setPropertyValue("renderedMax", Helpers.convertValToQuestionVal(val, "date"));
-      this.calendar.max = toISODate(this.renderedMax);
-    };
-    if (!this.runExpressionByProperty("minValueExpression", properties, setMin)) {
-      setMin(this.min);
-    }
-    if (!this.runExpressionByProperty("maxValueExpression", properties, setMax)) {
-      setMax(this.max);
-    }
+    this.setRenderedLimit("min", properties);
+    this.setRenderedLimit("max", properties);
     this.updateMaskLimits();
   }
 

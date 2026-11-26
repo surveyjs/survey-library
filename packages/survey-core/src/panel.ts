@@ -180,6 +180,13 @@ export class QuestionRowModel extends Base {
   public isLazyRendering(): boolean {
     return this.isLazyRenderingValue === true;
   }
+  public updateIsLazyRendering(val: boolean): void {
+    this.setIsLazyRendering(val && !this.hasNestedPanels());
+    this.updateLazyRendering();
+  }
+  private hasNestedPanels(): boolean {
+    return this.elements.some(el => el.isPanel || el.getType() === "paneldynamic");
+  }
   protected getIdPrefix(): string { return "pr"; }
   public getSurvey(isLive: boolean = false): ISurvey {
     return this.panel ? this.panel.getSurvey(isLive) : null;
@@ -250,9 +257,9 @@ export class QuestionRowModel extends Base {
       if (this.elements[i].isVisible) {
         visElements.push(this.elements[i]);
       }
-      if (this.elements[i].isPanel || this.elements[i].getType() === "paneldynamic") {
-        this.setIsLazyRendering(false);
-      }
+    }
+    if (this.hasNestedPanels()) {
+      this.setIsLazyRendering(false);
     }
     this.visibleElements = visElements;
     return;
@@ -2310,6 +2317,21 @@ export class PanelModelBase extends SurveyElement<Question>
       this.lazyRowsObserver = new LazyRowsObserver(this.survey as SurveyModel);
     }
     this.rows.forEach(row => row.updateLazyRendering());
+  }
+  public updateLazyRendering(): void {
+    if (this.isDisposed) return;
+    const isLazyRendering = !!this.survey && this.survey.isLazyRendering;
+    if (!isLazyRendering) {
+      this.destroyLazyRowsObserver();
+    } else if (!!this.rootElement) {
+      this.startLazyRendering();
+    }
+    this.rows.forEach((row, index) => row.updateIsLazyRendering(this.isLazyRenderInRow(index)));
+    this.getElementsForRows().forEach(el => {
+      if (el.isPanel) {
+        (<PanelModelBase><any>el).updateLazyRendering();
+      }
+    });
   }
   public observeLazyRow(row: QuestionRowModel): void {
     if (!this.isLazyRenderingStarted) return;

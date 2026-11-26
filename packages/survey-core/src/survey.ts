@@ -1680,10 +1680,15 @@ export class SurveyModel extends SurveyElementCore
   public set lazyRenderEnabled(val: boolean) {
     if (this.lazyRenderEnabled === val) return;
     this.lazyRenderEnabledValue = val;
-    const page: PageModel = this.currentPage;
-    if (!!page) {
-      page.updateRows();
-    }
+    this.updateLazyRendering();
+  }
+  private updateLazyRendering(): void {
+    this.pageContainerValue?.updateLazyRendering();
+    this.pages.forEach(page => {
+      if (!page.parent) {
+        page.updateLazyRendering();
+      }
+    });
   }
   /**
    * @deprecated Use the [`lazyRenderEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderEnabled) property instead.

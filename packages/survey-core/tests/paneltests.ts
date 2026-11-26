@@ -1417,6 +1417,77 @@ describe("Panel", () => {
         survey.dispose();
       });
     });
+    test("lazyRenderEnabled off and on again keeps the rows, stops and restarts the observer of a rendered page", () => {
+      runWithObserver(() => {
+        const survey = createSurvey();
+        const rows = survey.currentPage.rows;
+        const divs = renderPage(survey);
+        const observer = MockIntersectionObserver.instances[0];
+
+        survey.lazyRenderEnabled = false;
+        expect(survey.currentPage.rows, "the rows are kept").toBe(rows);
+        expect(rows.map(row => row.isLazyRendering()), "no row is lazy").toEqual([false, false, false, false]);
+        expect(rows.map(row => row.isNeedRender), "every row renders").toEqual([true, true, true, true]);
+        expect(observer.isDisconnected, "the observer is disposed").toBe(true);
+
+        survey.lazyRenderEnabled = true;
+        expect(survey.currentPage.rows, "the rows are kept, on").toBe(rows);
+        expect(rows.map(row => row.isLazyRendering()), "the rows after the first batch are lazy").toEqual([false, true, true, true]);
+        expect(rows.map(row => row.isNeedRender), "only the first batch renders").toEqual([true, false, false, false]);
+        expect(MockIntersectionObserver.instances.length, "the rendered page creates a new observer").toBe(2);
+        expect(MockIntersectionObserver.instances[1].targets, "it watches the lazy rows").toEqual([divs[1], divs[2], divs[3]]);
+        survey.dispose();
+      });
+    });
+    test("lazyRenderEnabled on a page that has not rendered sets the rows lazy and waits for the page root to observe", () => {
+      runWithObserver(() => {
+        const survey = new SurveyModel({
+          elements: [1, 2, 3].map(i => ({ type: "text", name: "q" + i }))
+            .concat([{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q4" }] } as any])
+        });
+        const rows = survey.currentPage.rows;
+        const divs = rows.map(row => {
+          const div = document.createElement("div");
+          row.setRootElement(div);
+          return div;
+        });
+        const panelRows = (survey.getPanelByName("panel1") as PanelModel).rows;
+        expect(rows.map(row => row.isNeedRender), "lazy rendering is off").toEqual([true, true, true, true]);
+
+        survey.lazyRenderEnabled = true;
+        expect(survey.currentPage.rows, "the rows are kept").toBe(rows);
+        expect(rows.map(row => row.isLazyRendering()), "a row with a panel is never lazy").toEqual([false, true, true, false]);
+        expect(panelRows[0].isLazyRendering(), "the nested panel's rows are updated").toBe(true);
+        expect(MockIntersectionObserver.instances.length, "no observer without the page root").toBe(0);
+
+        survey.activePage.afterRender(document.createElement("div"));
+        expect(MockIntersectionObserver.instances.length, "the page creates the observer when it renders").toBe(1);
+        expect(MockIntersectionObserver.instances[0].targets, "it watches the lazy rows").toEqual([divs[1], divs[2]]);
+        survey.dispose();
+      });
+    });
+    test("lazyRenderEnabled in single-page mode updates the container page and the pages it holds", () => {
+      runWithObserver(() => {
+        const survey = new SurveyModel({
+          questionsOnPageMode: "singlePage",
+          pages: [1, 2].map(p => ({ name: "page" + p, elements: [1, 2].map(i => ({ type: "text", name: "q" + p + i })) }))
+        });
+        const container = survey.currentPage as PageModel;
+        expect(survey.pages.indexOf(container), "the current page is a container, not one of the pages").toBe(-1);
+        const page1 = survey.pages[0];
+        const pageRows = page1.rows;
+        expect(pageRows.map(row => row.isNeedRender), "lazy rendering is off").toEqual([true, true]);
+
+        survey.lazyRenderEnabled = true;
+        expect(container.rows.map(row => row.isLazyRendering()), "container rows hold pages, so they are not lazy").toEqual([false, false]);
+        expect(page1.rows, "the page rows are kept").toBe(pageRows);
+        expect(pageRows.map(row => row.isLazyRendering()), "a page in the container renders its first batch, the rest is lazy").toEqual([false, true]);
+
+        survey.lazyRenderEnabled = false;
+        expect(pageRows.map(row => row.isNeedRender), "lazy rendering is off again").toEqual([true, true]);
+        survey.dispose();
+      });
+    });
     test("a row that comes into view while lazy rendering is suspended renders when it is released", () => {
       runWithObserver(() => {
         const survey = createSurvey();

@@ -13,7 +13,6 @@ import * as extra from "./extra.ts";
 import * as slotForm from "./slot-form.ts";
 import * as browser from "./browser.ts";
 import type { ExtraOp } from "./extra.ts";
-import type { ExtraOp } from "./extra.ts";
 
 // The rev of the page code a browser sample's time depends on (perf/browser/page-helpers.ts, angular-entry.ts; revs.ts
 // hashes them into every browser id): a browser id's rev is its own rev plus PAGE_REV - 1, so a change of the page

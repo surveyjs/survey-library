@@ -352,6 +352,15 @@ describe("Expressions", () => {
     (<any>values).precision = "test";
     expect(runner.runValues(values), "The precision value passed to the truncated() function is not a number").toEqual(NaN);
   });
+  test("Run trunc() function with a number written in exponent notation", () => {
+    const runner = new ExpressionRunner("trunc({num}, {precision})");
+    expect(runner.runValues({ num: 0.0000001 }), "1e-7 is truncated to 0").toBe(0);
+    expect(runner.runValues({ num: -0.0000005 }), "-5e-7 is truncated to -0").toBe(-0);
+    expect(runner.runValues({ num: 0.00000015, precision: 2 }), "1.5e-7 is truncated to 0 with precision of 2").toBe(0);
+    expect(runner.runValues({ num: 0.00000012345, precision: 9 }), "1.2345e-7 is truncated to 1.23e-7 with precision of 9").toBe(0.000000123);
+    expect(runner.runValues({ num: 1e21 }), "1e21 has no fraction part").toBe(1e21);
+    expect(runner.runValues({ num: -1.5e22, precision: 2 }), "-1.5e22 has no fraction part").toBe(-1.5e22);
+  });
   test("Run age function", () => {
     var runner = new ConditionRunner("age({bithday}) >= 21");
     var values = { bithday: new Date(1974, 1, 1) };

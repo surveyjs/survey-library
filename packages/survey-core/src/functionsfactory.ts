@@ -5,6 +5,7 @@ import { getQuestionErrorText } from "./expressions/expressionError";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IValueGetterContext, IValueGetterItem, ValueGetter, VariableGetterContext, parseValuePath } from "./conditions/conditionProcessValue";
 import type { ExpressionRunner } from "./expressions/expressionRunner";
+import { isNameScopeMode } from "./nested-data/name-scope";
 
 // A function registered without resultDependsOn, or with "elements", may read element state
 export function canFunctionReadElements(name: string): boolean {
@@ -1007,6 +1008,13 @@ FunctionFactory.Instance.register({
   resultDependsOn: "survey",
 });
 
+// In a nesting mode a bare name resolves from the expression's owner outwards: its own scope, then the scopes
+// around it.
+function findQuestionFromOwner(context: any, name: string): any {
+  const data = context.question?.data;
+  if (!!data && typeof data.findQuestionByName === "function" && isNameScopeMode(context.survey)) return data.findQuestionByName(name);
+  return context.survey?.getQuestionByName(name);
+}
 function getQuestionValueByContext(context: any, name: string): any {
   if (!context || !name) return undefined;
   let q = context.question;
@@ -1019,7 +1027,7 @@ function getQuestionValueByContext(context: any, name: string): any {
   for (let i = 0; i < keys.length; i ++) {
     const ctx = context[keys[i]];
     if (ctx && ctx.getQuestionByName) {
-      const res = ctx.getQuestionByName(name);
+      const res = keys[i] === "survey" ? findQuestionFromOwner(context, name) : ctx.getQuestionByName(name);
       if (res) return res;
     }
   }
@@ -1099,7 +1107,7 @@ FunctionFactory.Instance.register({
 
 function getComment(params: any[]): any {
   if (params.length < 1 || !params[0] || !this.survey) return undefined;
-  const question = this.survey.getQuestionByName(params[0]);
+  const question = findQuestionFromOwner(this, params[0]);
   if (!question) return "";
   const val = params.length > 1 ? params[1] : undefined;
   if (val !== undefined && val !== null) {

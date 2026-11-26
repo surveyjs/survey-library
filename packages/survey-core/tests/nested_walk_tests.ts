@@ -476,20 +476,22 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   "clearErrors": {
     reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   },
-  // choice panels: their questions are survey questions and get the change from the survey. multiple text: the editors
+  // choice panels: their questions get the change from the scope that holds the select question: the survey, or the
+  // record of a dynamic panel's item, which reaches the choice panel in it (pd.choicePanel). multiple text: the editors
   // read the item values when the value changes.
   "onAnyValueChanged": {
-    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "cu.content", "cp.content", "cp.nested"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "cu.content", "cp.content", "cp.nested"]
   },
   // hidden rows and hidden item: triggers run on visible items. detail panel, total row: not reached by triggers.
-  // multiple text, custom, composite, select: only records containers forward runTriggers().
+  // multiple text, custom, composite, select: only records containers forward runTriggers(); a dynamic panel's item
+  // reaches the choice panel in it, whose questions are keys of the item's record.
   "runTriggers": {
-    reached: ["md.cell", "mx.cell", "pd.item", "pd.static"]
+    reached: ["md.cell", "mx.cell", "pd.item", "pd.static", "pd.choicePanel"]
   },
   // the dynamic panel runs them on visible panels only, a matrix on all its rows, the detail panel and the total row excluded.
   // multiple text, custom, composite, select: they have no items to build.
   "runTriggersOnFirstBuild": {
-    reached: ["pd.item", "pd.static"],
+    reached: ["pd.item", "pd.static", "pd.choicePanel"],
     builds: ["md.cell", "md.hiddenRowCell", "mx.cell", "mx.hiddenRowCell"]
   },
   // total row: computed. choice panels: their questions are survey questions with their own value.
@@ -646,11 +648,11 @@ describe("Choice panels that are created and empty", () => {
   });
 });
 
-/* The questions of a choice panel are bound to the survey (their panel's survey is the survey), and a
-   select question updates them from its own data. Inside a dynamic panel item its data is the item, so
-   the root key does not reach them and a key in the item's record does. Kept as it is: this only shows it. */
+/* A choice panel takes the select question's survey impl (CH1, CH3): inside a dynamic panel item its questions read
+   and write the item's record, and each item keeps its own value. Before review-04/11 they wrote the root key and
+   every item shared it (a master defect). */
 describe("A select question in a dynamic panel item updates its choice panel from the item", () => {
-  test("the question reads the item's record, not the root key its panel writes to", () => {
+  test("the question reads and writes the item's record, not the root key", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "paneldynamic", name: "pd",
@@ -665,6 +667,14 @@ describe("A select question in a dynamic panel item updates its choice panel fro
     expect(inner().value, "the item's key is read").toBe("fromItem");
     survey.setValue("inner", "w");
     expect(inner().value, "a root change is not seen").toBe("fromItem");
+    inner().value = "written";
+    expect(survey.data, "the write goes to the item's record").toEqual({ pd: [{ pdChoice: ["a"], inner: "written" }], inner: "w" });
+    pd.addPanel();
+    const second: Question = pd.panels[1].getQuestionByName("pdChoice").choices[0].panel.getQuestionByName("inner");
+    expect(second.value, "a new item has its own key").toBeUndefined();
+    second.value = "other";
+    expect(inner().value, "the first item keeps its value").toBe("written");
+    expect(survey.data.pd).toEqual([{ pdChoice: ["a"], inner: "written" }, { inner: "other" }]);
   });
 });
 
@@ -704,11 +714,11 @@ describe("forEachNestedElement(): the instances every container yields", () => {
     expect(yielded(get("cu"), "none")).toEqual(["content " + get("cu").contentQuestion.name + " undefined same visible"]);
     expect(yielded(get("cp"), "none")).toEqual(["content panel(cpInner,cpNested) undefined nested visible"]);
     expect(yielded(get("cb"), "none"), "every created choice panel, empty ones included").toEqual([
-      "choicePanel panel(cbShown) undefined root visible", "choicePanel panel(cbHidden) undefined root hidden",
-      "choicePanel panel() undefined root hidden", "choicePanel panel() undefined root hidden"
+      "choicePanel panel(cbShown) undefined beside visible", "choicePanel panel(cbHidden) undefined beside hidden",
+      "choicePanel panel() undefined beside hidden", "choicePanel panel() undefined beside hidden"
     ]);
     expect(yielded(get("rg"), "none"), "showing a choice reads its panel, which creates it").toEqual([
-      "choicePanel panel(rgInner) undefined root visible", "choicePanel panel() undefined root hidden"
+      "choicePanel panel(rgInner) undefined beside visible", "choicePanel panel() undefined beside hidden"
     ]);
     expect(yielded(get("root"), "all"), "a question without nested instances yields nothing").toEqual([]);
   });

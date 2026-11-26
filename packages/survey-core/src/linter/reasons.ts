@@ -39,6 +39,9 @@ export const SurveyLintReasons = Object.freeze({
     // questions on one data key keeping values of different shapes: an array of objects, an object, a plain value
     valueShapeConflict: "valueShapeConflict",
     variableShadowsQuestion: "variableShadowsQuestion",
+    // nested data: a container key of the survey data spelled like a calculated value, a host variable
+    // or a variable a trigger sets - expressions read the variable first
+    containerKeyShadowed: "containerKeyShadowed",
   }),
   // a member of Object.prototype used as a name: the value objects it keys are plain, so the
   // name reads the prototype member back instead of the value
@@ -49,6 +52,24 @@ export const SurveyLintReasons = Object.freeze({
     itemName: "itemName",
     rowValue: "rowValue",
     calculatedValueName: "calculatedValueName",
+    // nested data: the key a panel or a page stores its elements' values under
+    containerKey: "containerKey",
+  }),
+  // nested data: a container key equal to the data key of a question in the same object - an object
+  // and the question's value under one key
+  "nesting/key-conflict": Object.freeze({
+    questionKey: "questionKey",
+  }),
+  // nested data: a panel valueName inside a composite question's definition stores nothing: the value stays flat.
+  // See "Limitations" in docs/design-survey-nested-data.md.
+  "nesting/ignored-key": Object.freeze({
+    insideComposite: "insideComposite",
+  }),
+  // nested data: a by-name dataNesting mode nests a container under a generated name, or under the
+  // name the runtime generates for an unnamed one - a rename leaves the data under the old key
+  "nesting/generated-key": Object.freeze({
+    generatedName: "generatedName",
+    unnamed: "unnamed",
   }),
   // a key that matches no property of the class the JSON says it belongs to
   "property/unknown": Object.freeze({
@@ -220,6 +241,11 @@ export const SurveyLintReasons = Object.freeze({
     questionShadowed: "questionShadowed",
     calculatedValueShadowed: "calculatedValueShadowed",
   }),
+  // an element of the variable definition whose data key holds a dot, so it declares no variable
+  "variable/dotted-key": Object.freeze({
+    questionKey: "questionKey",
+    containerKey: "containerKey",
+  }),
   // a defect of the variable presets object itself: its structure, or a preset value the
   // variable definition does not accept
   "variable/preset": Object.freeze({
@@ -259,6 +285,12 @@ export const SurveyLintHintReasons = Object.freeze({
   // the name exists in the surrounding container and only needs its prefix
   matrixColumn: "matrixColumn",
   panelQuestion: "panelQuestion",
+  // the name is the valueName of a panel or page that stores no object: dataNesting "none", or a
+  // panel inside a record
+  containerKeyNotNesting: "containerKeyNotNesting",
+  // a nesting mode: the name is a question the reference does not reach by it - one inside another name
+  // scope, or one whose valueName is its data key; the hint's variable reads it from here
+  questionVariableName: "questionVariableName",
 });
 
 // ILintReproduction.reason - what the steps demonstrate.
@@ -332,5 +364,9 @@ export const SurveyLintFixReasons = Object.freeze({
   }),
   "property/required": Object.freeze({
     setName: "setName",
+  }),
+  "nesting/generated-key": Object.freeze({
+    // the container's valueName becomes its name: the key stays whatever the name becomes
+    setValueName: "setValueName",
   }),
 });

@@ -56,7 +56,9 @@ export const nameDuplicateRule: ILintRule = {
       } else {
         seenCalc.set(key, cv);
       }
-      const elements = ctx.index.byName.get(cv.name);
+      // every declaration of the name: inside a container that holds data the question shadows the calculated
+      // value, as the calculated value shadows it outside
+      const elements = ctx.index.flatNames.get(cv.name);
       if (elements.length > 0) {
         ctx.report({
           message: "The calculated value \"" + cv.name + "\" shares its name with a " + elements[0].kind +

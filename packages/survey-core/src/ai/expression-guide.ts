@@ -121,7 +121,7 @@ export const expressionGuideSections: Array<IExpressionGuideSection> = [
   },
   {
     title: "Scopes",
-    text: "Inside a dynamic panel, {panel.name} reads a question of the same panel entry, {prevPanel.name} and {nextPanel.name} of the neighbours, {panelIndex} is the entry's index. Inside a matrix, {row.name} reads a cell of the same row, {rowIndex} is the row's index. In choicesVisibleIf and similar item conditions, {item} is the value of the item being tested. {self} is the element the expression belongs to. A bare {name} inside a panel or a matrix reads the survey-level question, not the one of the same entry.",
+    text: "Inside a dynamic panel, {panel.name} reads a question of the same panel entry, {prevPanel.name} and {nextPanel.name} of the neighbours, {panelIndex} is the entry's index. Inside a matrix, {row.name} reads a cell of the same row, {rowIndex} is the row's index. In choicesVisibleIf and similar item conditions, {item} is the value of the item being tested. {self} is the element the expression belongs to. In an expression of an element inside a panel or page that nests its data (its questions' values are stored in an object, such as {\"address\": {\"street\": ...}}), a bare {name} reads that container's question first, then the one of each container around it, then the survey-level one; from outside the container, the container's own visibleIf and enableIf included, write its data path ({address.street}). A dynamic panel's entry and a matrix row are skipped: a bare {name} there reads the question outside the entry, not the one of the same entry, so use {panel.name} or {row.name}.",
     examples: [
       valid("{panel.hasCar} = true"),
       valid("{prevPanel.total} > 0"),

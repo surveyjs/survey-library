@@ -101,6 +101,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getOwnPropertyDefaults?(): PropertyDefaultsLayer;
   // A system clear: an empty value set while func runs removes the key even with keepEmptyValues on
   runDeletingEmptyValues<T>(func: () => T): T;
+  // keepEmptyValues: whether an empty value written now stays in the data (not undefined, the key on, no
+  // system clear running).
+  isEmptyValueKept(value: any): boolean;
   //#endregion
 
   //#region Locale

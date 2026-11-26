@@ -84,7 +84,7 @@ export function collectAmbiguousNames(index: SurveyIndex): CIMap<boolean> {
     if (!name) return;
     counts.set(name, (counts.get(name) || 0) + 1);
   };
-  index.byName.forEach((values, name) => values.forEach(() => bump(name)));
+  index.flatNames.forEach((values, name) => values.forEach(() => bump(name)));
   index.byValueName.forEach((values, name) => values.forEach(() => bump(name)));
   index.calculatedValueList.forEach(cv => bump(cv.name));
   const res = new CIMap<boolean>();

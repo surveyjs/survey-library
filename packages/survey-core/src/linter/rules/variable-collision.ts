@@ -1,29 +1,20 @@
 import { ILintRule, LintContext } from "../rule";
 import { equalsCI } from "../expression-utils";
 import { CalculatedValueRecord, ElementRecord, SurveyIndex } from "../symbols";
-import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 import { getDataKey } from "../record-fields";
+import { isInNestedObject } from "../data-nesting";
+import { definitionRelated } from "./variable-preset";
 
 const reasons = SurveyLintReasons["variable/collision"];
 
-// The definition is a document of its own, and the companion holds it as a model rather than as
-// JSON paths, so a finding addresses it coarsely: the path names the definition, elementName the
-// question in it. Computing "pages[i].elements[j]" out of the model's structure is not worth the
-// code for a pointer a UI resolves by name anyway - and a host that handed in a model has no JSON
-// document for such a path to address in the first place.
-const DEFINITION_PATH = "variablePresets.definition";
-
-function definitionRelated(questionName: string): Array<ILintRelated> {
-  return [{ path: DEFINITION_PATH, elementName: questionName }];
-}
-
 // Only a root question shares a data key with a host variable: a question inside a dynamic panel
 // template or a matrix cell writes into its container's value, and its name is addressed through
-// that container's scope. Display-only elements have no value to overwrite.
+// that container's scope; a question inside a nesting panel or page writes into the container's
+// object. Display-only elements have no value to overwrite.
 function isRootDataKey(record: ElementRecord, name: string): boolean {
-  return record.kind === "question" && record.scope.length === 0 && record.valueType.shape !== "none" &&
-    equalsCI(getDataKey(record), name);
+  return record.kind === "question" && record.scope.length === 0 && !isInNestedObject(record) &&
+    record.valueType.shape !== "none" && equalsCI(getDataKey(record), name);
 }
 
 // findByDataName's order - a name answers before a valueName - narrowed to the records that
@@ -87,7 +78,8 @@ export const variableCollisionRule: ILintRule = {
     const presets = ctx.variablePresets;
     if (!presets) return;
     ctx.index.definitionVariables.forEach(variable => {
-      const definitionQuestion = presets.getVariableQuestion(variable);
+      // the question, or the panel or page that describes an object variable
+      const definitionQuestion = presets.getVariableElement(variable);
       if (!definitionQuestion) return;
       const question = findRootDataQuestion(ctx.index, variable);
       if (!!question) {

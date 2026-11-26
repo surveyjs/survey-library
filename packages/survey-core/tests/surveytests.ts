@@ -10550,6 +10550,7 @@ describe("Survey", () => {
     var plainData = survey.getPlainData();
     expect(plainData.length).toEqual(1);
     delete plainData[0]["getString"];
+    delete plainData[0]["getQuestion"];
     delete plainData[0]["data"];
     expect(plainData[0], "Question only").toEqual({
       "displayValue": "1",
@@ -10562,6 +10563,7 @@ describe("Survey", () => {
     plainData = survey.getPlainData({ includeValues: true });
     expect(plainData.length).toEqual(2);
     delete plainData[0]["getString"];
+    delete plainData[0]["getQuestion"];
     delete plainData[0]["data"];
     delete plainData[1]["getString"];
     delete plainData[1]["data"];
@@ -24047,12 +24049,13 @@ describe("Survey: questions of a removed panel or page are not found by name", (
     expect(survey.getQuestionByName("q4"), "a question of the page").toBeTruthy();
     survey.dispose();
   });
-  test("a page removed while it is rendered: its questions are found until the page is ready for clean", () => {
+  // The page leaves survey.pages at once: the name lookup drops it then, as the data scopes and the triggers do
+  test("a page removed while it is rendered: its questions are not found, though the page is not ready for clean yet", () => {
     const survey = new SurveyModel(json);
     const page = survey.pages[0];
     page.enableOnElementRerenderedEvent();
     survey.removePage(page);
-    expectFound(survey, true, "the page is still rendered");
+    expectFound(survey, false, "the page is still rendered");
     page.disableOnElementRerenderedEvent();
     expectFound(survey, false, "the page is ready for clean");
     survey.dispose();

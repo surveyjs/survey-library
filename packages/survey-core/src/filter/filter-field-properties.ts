@@ -2,6 +2,7 @@ import type { Question } from "../question";
 import { settings } from "../settings";
 import { IDynamicDataFilterField, collectFilterFields } from "../dynamic-data/dynamic-data-filter-fields";
 import { getFilterFieldOperators } from "./filter-conditions";
+import { isInRecordNestingPanel } from "../nested-data/record-key-level";
 
 // The property grid rules of allowFiltering and filterOperators: a question's and a matrix column's
 // registrations share them.
@@ -12,13 +13,18 @@ import { getFilterFieldOperators } from "./filter-conditions";
 // or in a question whose children are the fields (a composite question, a Multiple Textboxes).
 // A nested Dynamic Panel's template, a matrix cell and a matrix detail panel's question are not
 // fields: getFilterFields doesn't walk into them, and no source is nested. A column has its own rule.
+// A question inside a record's nesting panel is not a field either; a composite's item is decided by its
+// composite, the template's own question.
 export function isFilterFieldInReach(question: Question): boolean {
   if (!question) return false;
+  let field: Question = question;
   let owner: Question = question.parentQuestion;
   while(!!owner && owner.hasNestedFilterFields) {
+    field = owner;
     owner = owner.parentQuestion;
   }
-  return !!owner && owner.isDescendantOf("paneldynamic") && isFilterSourceInReach(owner);
+  return !!owner && owner.isDescendantOf("paneldynamic") && isFilterSourceInReach(owner)
+    && !isInRecordNestingPanel(field, (<any>owner).template);
 }
 // Whether a Filter Control can take the question as its source: it finds the source by name among the
 // survey's questions (findQuestionByName), and no source is nested - not in a Dynamic Panel's template

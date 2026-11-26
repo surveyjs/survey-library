@@ -37,7 +37,7 @@ export { hasLicense, glc, getEmbeddedLicense, IEmbeddedLicense } from "./license
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export type { ISurveyRuntimeSettings, ISurveyRuntimeSettingsComparator, ISurveyOptions, SurveyEventHandlers } from "../../src/survey-settings";
 export type { IPropertyDefaults, PropertyDefaultValue } from "../../src/survey-property-defaults";
-export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
+export { Helpers, HashTable, ISurveyDateProvider, getNameOfSuffixedKey } from "../../src/helpers";
 export {
   SurveyVariablePresets,
   ISurveyVariablePreset,
@@ -295,7 +295,8 @@ export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
-export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
+export { IRunningAsyncOperation, SurveyAsyncOperationType, IExpressionVariableInfo, IExpressionScopePath } from "../../src/survey";
+export { getDataNestingKey } from "../../src/nested-data/data-nesting-key";
 export * from "../../src/survey-events-api";
 export type {
   AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent, FilterAIRequestEvent,

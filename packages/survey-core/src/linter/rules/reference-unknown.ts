@@ -8,7 +8,7 @@ import {
   ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
 } from "../symbols";
 import { didYouMean } from "../message-utils";
-import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintHintReasons, SurveyLintReasons } from "../reasons";
 import { ILintFix, ILintHint } from "../types";
 import { setFix } from "../fix-utils";
 import { ILintResolvedSettings } from "../lint-settings";
@@ -60,8 +60,14 @@ function buildMessage(ref: ParsedRef, context: string): string {
   const reason = getReason(ref);
   if (reason === reasons.scopedUnknown) {
     message = "\"" + segmentName(ref) + "\" is not found in the \"" + ref.scopePrefix + "\" scope of {" + ref.raw + "}.";
+  } else if (reason === reasons.inContainer && ref.resolvedTo.kind === "dataObject") {
+    message = "\"" + segmentName(ref) + "\" is not found in \"" + ref.segments[0].name + "\", the object a " +
+      ref.resolvedTo.type + " stores its questions' values in ({" + ref.raw + "}).";
   } else if (reason === reasons.inContainer) {
     message = "\"" + segmentName(ref) + "\" is not found in " + ref.resolvedTo.type + " \"" + ref.segments[0].name + "\" ({" + ref.raw + "}).";
+  } else if (ref.hintReason === SurveyLintHintReasons.questionVariableName) {
+    // a nesting mode: the question exists, the reference does not reach it by that name (the hint says how)
+    message = "\"" + ref.raw + "\" is not found from here.";
   } else {
     message = "\"" + ref.raw + "\" is not found - no question, panel, page, calculated value, or variable with that name exists.";
   }
@@ -121,7 +127,9 @@ function isUnknown(ref: ParsedRef): boolean {
 
 function getHint(ref: ParsedRef): ILintHint {
   if (!ref.hintReason) return undefined;
-  return { reason: ref.hintReason, name: ref.hintName };
+  const hint: ILintHint = { reason: ref.hintReason, name: ref.hintName };
+  if (!!ref.hintVariable) hint.variable = ref.hintVariable;
+  return hint;
 }
 
 // One report for both forms an unknown reference takes: inside an expression, where the

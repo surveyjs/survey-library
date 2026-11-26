@@ -13,6 +13,7 @@ import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropert
 import { createBoxShadow, parseBoxShadow } from "../src/utils/shadow-effects";
 import { Base } from "../src/base";
 import { EventBase } from "../src/event";
+import { getValueByPath, setValueByPath } from "../src/nested-data/data-object-utils";
 
 import { describe, test, expect, vi, afterEach } from "vitest";
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -1300,5 +1301,33 @@ describe("mergeValues and prototype keys", () => {
     expect(isProtoKey("prototype")).toBe(false);
     expect(isProtoKey("toString")).toBe(false);
     expect(isProtoKey("")).toBe(false);
+  });
+});
+
+describe("the value at a data path of a plain object", () => {
+  test("getValueByPath reads through the objects on the way", () => {
+    const obj = { address: { geo: { lat: 1 }, list: [{ a: 1 }] }, q1: "v" };
+    expect(getValueByPath(obj, ["address", "geo", "lat"]), "#1").toBe(1);
+    expect(getValueByPath(obj, ["address", "geo"]), "#2").toBe(obj.address.geo);
+    expect(getValueByPath(obj, ["q1"]), "#3").toBe("v");
+    expect(getValueByPath(obj, []), "#4: an empty path").toBe(obj);
+    expect(getValueByPath(obj, ["address", "zip", "x"]), "#5: a missing key on the way").toBeUndefined();
+    expect(getValueByPath(obj, ["q1", "length"]), "#6: a string on the way").toBeUndefined();
+    expect(getValueByPath(obj, ["address", "list", "0"]), "#7: an array on the way").toBeUndefined();
+    expect(getValueByPath(undefined, ["a"]), "#8").toBeUndefined();
+  });
+  test("setValueByPath writes into copies of the objects on the way, unless they are the caller's own", () => {
+    const stored = { geo: { lat: 1 } };
+    const obj: any = { address: stored };
+    setValueByPath(obj, ["address", "geo", "lng"], 2);
+    expect(obj, "#1").toEqual({ address: { geo: { lat: 1, lng: 2 } } });
+    expect(stored, "#2: the stored objects are not changed").toEqual({ geo: { lat: 1 } });
+    setValueByPath(obj, ["address", "list", "x"], 3);
+    expect(obj.address.list, "#3: a missing object is created").toEqual({ x: 3 });
+    const own: any = { address: { street: "a" } };
+    const inner = own.address;
+    setValueByPath(own, ["address", "zip"], "z", true);
+    expect(own.address, "#4: isOwnObj writes in place").toBe(inner);
+    expect(inner, "#5").toEqual({ street: "a", zip: "z" });
   });
 });

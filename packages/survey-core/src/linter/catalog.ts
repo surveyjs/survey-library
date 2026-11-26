@@ -50,7 +50,14 @@ export const PROP_KIND_OVERRIDES = new Map<string, ExpressionSiteKind>([
 // "container" walks up from the expression owner the way getQuestionValueByContext does, and
 // "survey" is a survey-level getQuestionByName / getPanelByName / getPageByName.
 export type FunctionArgNameScope = "arrayItem" | "container" | "survey";
-export const FUNCTION_NAME_ARGS = new Map<string, { indexes: Array<number>, scope: FunctionArgNameScope }>([
+// fromOwner: in a nesting mode the runtime asks from the expression's owner outwards (findQuestionFromOwner), not
+// the survey; "container" ends there too.
+export interface FunctionArgDef {
+  indexes: Array<number>;
+  scope: FunctionArgNameScope;
+  fromOwner?: boolean;
+}
+export const FUNCTION_NAME_ARGS = new Map<string, FunctionArgDef>([
   ["suminarray", { indexes: [1, 2], scope: "arrayItem" }],
   ["mininarray", { indexes: [1, 2], scope: "arrayItem" }],
   ["maxinarray", { indexes: [1, 2], scope: "arrayItem" }],
@@ -58,7 +65,7 @@ export const FUNCTION_NAME_ARGS = new Map<string, { indexes: Array<number>, scop
   ["avginarray", { indexes: [1, 2], scope: "arrayItem" }],
   ["displayvalue", { indexes: [0], scope: "container" }],
   ["propertyvalue", { indexes: [0], scope: "container" }],
-  ["getcomment", { indexes: [0], scope: "survey" }],
+  ["getcomment", { indexes: [0], scope: "survey", fromOwner: true }],
   ["iscontainerready", { indexes: [0], scope: "survey" }],
 ]);
 

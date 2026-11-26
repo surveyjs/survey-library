@@ -68,6 +68,8 @@ export interface ILintHint {
   reason: string;
   // the expression variable the hint is about, as configured in settings.expressionVariables
   name: string;
+  // questionVariableName: the variable that reads the question from where the name was written
+  variable?: string;
 }
 
 // A machine-applicable repair of one finding, addressed the way the finding itself is: by a path

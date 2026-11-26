@@ -35,8 +35,10 @@ import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
-import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
+import type { IDataScope } from "./nested-data/data-key-index";
+import { getActiveDataScope, getDataScopeHost } from "./nested-data/panel-data-scope";
 
 // The readOnlyMode serializer property shared by questions and panels; a new object per class.
 export function getReadOnlyModePropertyInfo(): any {
@@ -47,6 +49,14 @@ export function getReadOnlyModePropertyInfo(): any {
     dependsOn: ["readOnly"],
     visibleIf: (obj: any) => !!obj && !!obj.readOnly
   };
+}
+export function makeNameValid(str: string): string {
+  if (!str) return str;
+  str = str.trim().replace(/[\{\}]+/g, "");
+  while(!!str && str[0] === settings.expressionDisableConversionChar) {
+    str = str.substring(1);
+  }
+  return str;
 }
 
 /**
@@ -554,15 +564,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.runWithoutAnimations(() => { this.renderedIsExpanded = !this.isCollapsed; });
   }
   public getValueGetterContext(): IValueGetterContext {
-    const data = <IObjectValueContext><any>this.data;
+    const data = this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
   // The data context adds its own names ({row}, {panel}, {composite}). They are checked next to the
   // keys, not merged into them, and the context reads the raw keys
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
-    const data = <IObjectValueContext><any>this.data;
-    if (!!data && typeof data.getValueGetterContext === "function") {
+    const data = this.data;
+    if (!!data) {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
         const changedKeys = this.getChangedKeys(keys);
@@ -610,6 +620,25 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;
+  }
+  // Nested data. The data scope this element's own value is a key of: the survey, or the nearest active
+  // PanelDataScope above it. A question directly in a record answers the survey.
+  public getValueScope(): IDataScope {
+    return getActiveDataScope(this.data) || getDataScopeHost(this.survey);
+  }
+  // The keys from the survey data down to this element's value: ["q1"], ["page1", "address", "street"].
+  // Empty for an element with no key of its own (a container that does not nest).
+  public getDataPath(): Array<string> {
+    const key = this.getDataKey();
+    const scope = !!key ? this.getValueScope() : null;
+    if (!scope) return [];
+    const res = scope.getDataPath();
+    res.push(key);
+    return res;
+  }
+  // The element's own key in its value scope: a question's value name, a nesting container's key.
+  protected getDataKey(): string {
+    return "";
   }
   /**
    * Returns the survey object.
@@ -823,10 +852,30 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set name(val: string) {
     var oldValue = this.name;
-    this.setPropertyValue("name", this.getValidName(val));
+    val = this.getValidName(val);
+    this.dataKeyChanging("name", val);
+    this.setPropertyValue("name", val);
     if (!this.isLoadingFromJson && !!oldValue) {
       this.onNameChanged(oldValue);
     }
+  }
+  // Calls survey.onDataKeyChangingCallback before propName ("name" or "valueName") becomes val, when the data key
+  // changes. The value is checked as setPropertyValue checks it (makeNameValid), so newKey is the key after the set.
+  protected dataKeyChanging(propName: string, val: any): void {
+    const callback = this.survey?.onDataKeyChangingCallback;
+    if (!callback || this.isLoadingFromJson) return;
+    const prop = this.getPropertyByName(propName);
+    if (!!prop) val = prop.settingValue(this, val);
+    const valueName = this.getPropertyValue("valueName", "");
+    const oldKey = this.getDataKeyFor(valueName, this.name);
+    const newKey = propName === "name" ? this.getDataKeyFor(valueName, val) : this.getDataKeyFor(val, this.name);
+    if (!!oldKey && !!newKey && oldKey !== newKey) {
+      callback(this, oldKey, newKey);
+    }
+  }
+  // The data key the element would have with these valueName and name; "" for an element that has none.
+  protected getDataKeyFor(valueName: string, name: string): string {
+    return "";
   }
   protected getValidName(name: string): string {
     // A number is valid JSON for a name, so it is kept as its string. Any other value that is not a string is not a name.
@@ -1066,12 +1115,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       return;
     }
 
-    if (oldPage === newPage) return;
+    // The same page: nothing moves, and the element's later removals and adds notify the survey again.
+    if (oldPage === newPage) {
+      (<any>this).prevSurvey = undefined;
+      return;
+    }
     if (parent) parent.removeElement(<IElement>(<any>this));
     if (newPage) {
       newPage.addElement(<IElement>(<any>this), -1);
     }
     (<any>this).prevSurvey = undefined;
+    // The move sent no add or remove notification: the data scopes' instances follow the element.
+    getDataScopeHost(this.survey)?.getRootDataScope().elementMoved(<IElement>(<any>this));
   }
   protected getSearchableLocKeys(keys: Array<string>) {
     keys.push("title");

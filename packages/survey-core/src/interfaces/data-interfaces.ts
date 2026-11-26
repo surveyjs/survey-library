@@ -1,5 +1,6 @@
 import type { Base } from "../base";
 import type { IQuestion } from "../base-interfaces";
+import type { IValueGetterContext } from "../conditions/conditionProcessValue";
 
 export interface ISurveyVariables {
   getVariable(name: string): any;
@@ -10,11 +11,13 @@ export interface ISurveyDataGetEditingObj {
 }
 export interface ISurveyData {
   getValue(name: string): any;
-  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, questionName?: string): any;
+  // writer: the question that writes; the survey reports it and does not look it up again.
+  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, writer?: IQuestion): any;
   getComment(name: string): string;
   setComment(name: string, newValue: string, locNotification: boolean | "text"): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
+  getValueGetterContext(): IValueGetterContext;
 }
 export interface ITextProcessorProp {
   text: string;

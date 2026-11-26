@@ -30,6 +30,13 @@ export interface IValueGetterInfo {
   requireStrictCompare?: boolean;
   isFound?: boolean;
   value?: any;
+  // The metadata mode: the walk stops at the first question found (obj); the name step marks a comment key and a
+  // stripped unwrap postfix.
+  isMetadata?: boolean;
+  isComment?: boolean;
+  isUnwrapped?: boolean;
+  // Where the path left after the question starts in the name's text (the question's item "to").
+  restFrom?: number;
 }
 export interface IObjectValueContext {
   getValueGetterContext(): IValueGetterContext;
@@ -43,6 +50,9 @@ export interface IValueGetterContextGetValueParams {
   isOriginalValue?: boolean;
   // The reader holds no object of its own: a records question answers with a row or a panel it already has, and builds none for the read.
   existingObjectsOnly?: boolean;
+  // Which question a name reads: no value is read, and the walk stops at the first question. A context that
+  // rebuilds the params passes it on.
+  isMetadata?: boolean;
 }
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
@@ -101,17 +111,11 @@ export class ValueGetter {
     if (isProperty) {
       path[0].name = path[0].name.substring(1);
     }
-    let cxt = params.context;
-    let info: IValueGetterInfo;
-    while(!!cxt) {
+    const info = this.runInContexts(params.context, (cxt: IValueGetterContext): IValueGetterInfo => {
       // The last context, the one without a root, reads the parsed path itself
       const cxtPath = !!cxt.getRootObj ? this.copyPath(path) : path;
-      info = this.run(cxtPath, cxt, isProperty, params.createObjects, params.isOriginalValue);
-      if (!!info || !cxt.getRootObj) break;
-      const obj = cxt.getRootObj();
-      if (!obj) break;
-      cxt = obj.getValueGetterContext();
-    }
+      return this.run(cxtPath, cxt, isProperty, params.createObjects, params.isOriginalValue);
+    });
     const res: IReturnValue = { isFound: false, value: undefined };
     if (!info) return res;
     res.isFound = true;
@@ -129,6 +133,31 @@ export class ValueGetter {
       }
     }
     return res;
+  }
+  // The question a name reads, as the runtime walk finds it, reading no values. Undefined when the walk ends
+  // without a question, or the name is a property path ({$page1.title}).
+  public getQuestionInfo(name: string, context: IValueGetterContext): IValueGetterInfo {
+    if (!name || !context) return undefined;
+    const propPrefix = settings.expressionElementPropertyPrefix;
+    if (!!propPrefix && name[0] === propPrefix) return undefined;
+    const info = this.runInContexts(context, (cxt: IValueGetterContext): IValueGetterInfo => {
+      const res = cxt.getValue({ path: parseValuePath(name, true), isRoot: true, index: -1, isMetadata: true });
+      return res?.isFound ? res : undefined;
+    });
+    return !!info && !!info.obj ? info : undefined;
+  }
+  // Runs a name in a context and, while it is not found, in the context's root object's context: an element
+  // inside a container falls back outward to the survey (the one fallback of the runtime and the metadata mode).
+  private runInContexts(context: IValueGetterContext, run: (cxt: IValueGetterContext) => IValueGetterInfo): IValueGetterInfo {
+    let cxt = context;
+    while(!!cxt) {
+      const info = run(cxt);
+      if (!!info && info.isFound || !cxt.getRootObj) return info;
+      const obj = cxt.getRootObj();
+      if (!obj) return info;
+      cxt = obj.getValueGetterContext();
+    }
+    return undefined;
   }
   public getValue(name: string, context: IValueGetterContext, isText?: boolean, isDisplayValue?: boolean): any {
     const res = this.getValueInfo({ name: name, context: context, isText: isText, isDisplayValue: isDisplayValue });
@@ -298,7 +327,7 @@ export class ChangedKeys {
   // as the whole name, as the shortest path prefix, or as the base of an unwrapped name.
   private isContextNameChanged(contextKeys: HashTable<any>, info: IValueGetterNameInfo, isClearedKeyChanged: boolean): boolean {
     const first = info.lowerPrefixes[0];
-    const unwrapped = this.getUnwrappedBaseName(info.firstName);
+    const unwrapped = getUnwrappedBaseName(info.firstName);
     const lowerUnwrapped = unwrapped !== undefined ? unwrapped.toLowerCase() : undefined;
     for (const key in contextKeys) {
       if (!hasOwnKey(contextKeys, key)) continue;
@@ -342,14 +371,8 @@ export class ChangedKeys {
     const newValue = this.getValueFromObject(v, name);
     return !Helpers.checkIfValuesEqual(oldValue, newValue, { ignoreOrder: false, caseSensitive: false, trimStrings: false });
   }
-  private getUnwrappedBaseName(first: string): string {
-    const postfix = settings.expressionVariables.unwrapPostfix;
-    if (!postfix) return undefined;
-    if (!first.endsWith(postfix)) return undefined;
-    return first.substring(0, first.length - postfix.length);
-  }
   private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
-    const baseName = this.getUnwrappedBaseName(first);
+    const baseName = getUnwrappedBaseName(first);
     return baseName !== undefined && !!lowerKeys[baseName.toLowerCase()];
   }
   // The shortest path prefix ("m" for "m.row1") that is a key, in lower case. Only it decides.
@@ -435,15 +458,32 @@ export function findNameByPath(path: Array<IValueGetterItem>, start: number, isR
   }
   return -1;
 }
+// The name an unwrapped name ({q-unwrapped}) reads; undefined for any other name.
+function getUnwrappedBaseName(name: string): string {
+  const postfix = settings.expressionVariables.unwrapPostfix;
+  if (!postfix || !name.endsWith(postfix)) return undefined;
+  return name.substring(0, name.length - postfix.length);
+}
+// A name step's first part: the name without the unwrap postfix.
+export function stripUnwrapPostfix(name: string, res: IValueGetterInfo): string {
+  const baseName = getUnwrappedBaseName(name);
+  if (baseName === undefined) return name;
+  if (res.isMetadata) res.isUnwrapped = true;
+  return baseName;
+}
 export class ValueGetterContextCore implements IValueGetterContext {
   constructor() {}
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     let pIndex = 0;
     const path = params.path;
     const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
+    if (params.isMetadata) res.isMetadata = true;
     while(pIndex < path.length) {
       pIndex = this.checkValueByPath(path, pIndex, res);
       if (!res.isFound) return undefined;
+      if (params.isMetadata && !!res.obj && (<any>res.obj).isQuestion) {
+        return { isFound: true, obj: res.obj, isComment: res.isComment, isUnwrapped: res.isUnwrapped, restFrom: path[pIndex].to };
+      }
       if (params.isProperty) {
         if (!!res.obj) return new PropertyGetterContext(res.obj).getValue({ path: path.slice(1), isRoot: false, index: -1, isProperty: true });
         if (!res.context) return undefined;
@@ -451,7 +491,7 @@ export class ValueGetterContextCore implements IValueGetterContext {
       const item = path[pIndex];
       pIndex++;
       if (res.context !== this && !!res.context) {
-        return res.context.getValue({ path: path.slice(pIndex), isRoot: false, index: item.index, createObjects: params.createObjects, isProperty: params.isProperty, isOriginalValue: params.isOriginalValue });
+        return res.context.getValue({ path: path.slice(pIndex), isRoot: false, index: item.index, createObjects: params.createObjects, isProperty: params.isProperty, isOriginalValue: params.isOriginalValue, isMetadata: params.isMetadata });
       }
       if (item.index !== undefined) {
         this.updateItemByIndex(item.index, res);
@@ -464,6 +504,10 @@ export class ValueGetterContextCore implements IValueGetterContext {
   private checkValueByPath(path: Array<IValueGetterItem>, pIndex: number, res: IValueGetterInfo): number {
     res.isFound = false;
     return findNameByPath(path, pIndex, this.isSearchNameRevert(), name => {
+      if (res.isMetadata) {
+        res.isComment = undefined;
+        res.isUnwrapped = undefined;
+      }
       this.updateValueByItem(name, res);
       return res.isFound;
     });

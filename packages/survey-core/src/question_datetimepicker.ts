@@ -13,7 +13,7 @@ import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { CalendarModel } from "./calendar/calendar";
 import { CalendarViewModel } from "./calendar/calendar-view-model";
-import { parseISODate } from "./calendar/date-utils";
+import { getFirstDayOfWeek, parseISODate } from "./calendar/date-utils";
 import { toCssClasses } from "./utils/cssClassBuilder";
 
 function toISODate(val: any): Date {
@@ -539,6 +539,14 @@ export class QuestionDateTimePickerModel extends Question {
       this.onMaskFormatChanged();
     }
     super.onSetData();
+    this.updateFirstDayOfWeek();
+  }
+  // The mask resolves datePattern from the survey format locale (regionalFormat.locale, then the
+  // survey locale, then an explicit regionalFormat.datePattern). The week starts in that same locale.
+  private updateFirstDayOfWeek(): void {
+    const survey = this.getSurvey() as any;
+    const locale = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : "";
+    this.calendar.firstDayOfWeek = getFirstDayOfWeek(locale);
   }
   public localeChanged(): void {
     // The drafts are read in the current format before the mask switches to the new one.
@@ -556,6 +564,7 @@ export class QuestionDateTimePickerModel extends Question {
     if (!!this.popupModelValue) {
       this.popupModelValue.locale = this.getLocale();
     }
+    this.updateFirstDayOfWeek();
   }
   protected onReadOnlyChanged(): void {
     super.onReadOnlyChanged();

@@ -40,6 +40,25 @@ describe("QuestionDateTimePickerModel", () => {
     expect(Serializer.findProperty("datetimepicker", "pickerType").getChoices(q)).toEqual(["date"]);
   });
 
+  test("The input pattern and the week start follow the survey format locale", () => {
+    const survey = new SurveyModel({ elements: [{ type: "datetimepicker", name: "q1" }] });
+    const q = <QuestionDateTimePickerModel>survey.getQuestionByName("q1");
+    expect(q.inputValue).toBe("mm/dd/yyyy");
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+    survey.regionalFormat.locale = "de";
+    expect(q.inputValue).toBe("dd.mm.yyyy");
+    expect(q.calendar.firstDayOfWeek).toBe(1);
+    survey.regionalFormat.datePattern = "yyyy-mm-dd";
+    expect(q.inputValue).toBe("yyyy-mm-dd");
+    expect(q.calendar.firstDayOfWeek).toBe(1);
+    survey.regionalFormat.locale = "en-US";
+    expect(q.inputValue).toBe("yyyy-mm-dd");
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+    q.pattern = "dd/mm/yyyy";
+    expect(q.inputValue).toBe("dd/mm/yyyy");
+    expect(q.calendar.firstDayOfWeek).toBe(0);
+  });
+
   test("The mask is a localeDate datetime mask", () => {
     const q = createQuestion();
     const mask = <InputMaskDateTime>q.maskSettings;

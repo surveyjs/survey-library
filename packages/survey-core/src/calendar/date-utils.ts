@@ -1,4 +1,5 @@
 import { createDate } from "../helpers";
+import { surveyLocalization } from "../surveyStrings";
 
 export function toDateOnly(date: Date): Date {
   return !!date ? new Date(date.getFullYear(), date.getMonth(), date.getDate()) : undefined;
@@ -30,6 +31,17 @@ export function parseISODate(val: any): Date {
   date.setFullYear(year);
   if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) return undefined;
   return date;
+}
+// Same numbering as Date.getDay(): 0 is Sunday. Intl.Locale weekInfo uses 1..7, Sunday is 7.
+// An empty locale is the mask default, English.
+export function getFirstDayOfWeek(locale: string): number {
+  const tag = locale || surveyLocalization.defaultLocale || "en";
+  try {
+    const info = (new Intl.Locale(tag) as Intl.Locale & { weekInfo?: { firstDay: number } }).weekInfo;
+    const first = info && info.firstDay;
+    if (first >= 1 && first <= 7) return first % 7;
+  } catch(e) { }
+  return 1;
 }
 export function clampDate(date: Date, min: Date, max: Date): Date {
   if (!!min && date.getTime() < min.getTime()) return min;

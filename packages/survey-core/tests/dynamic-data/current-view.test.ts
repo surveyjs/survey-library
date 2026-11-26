@@ -27,7 +27,7 @@ function questionJson(type: string, json?: any): any {
   return Object.assign(base, json);
 }
 function createSurvey(type: string, json?: any, controls: Array<string> = []): SurveyModel {
-  const elements = [questionJson(type, json)].concat(controls.map((name: string): any => ({ type: "filter", name: name, source: "q" })));
+  const elements = [questionJson(type, json)].concat(controls.map((name: string): any => ({ type: "filter", name: name, targetQuestion: "q" })));
   return new SurveyModel({ elements: elements });
 }
 const questionOf = (survey: SurveyModel): QuestionRecordsModel => <QuestionRecordsModel>survey.getQuestionByName("q");

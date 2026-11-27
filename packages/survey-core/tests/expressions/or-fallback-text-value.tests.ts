@@ -6,7 +6,8 @@ import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 
 // https://github.com/surveyjs/survey-library/issues/12430
 // A text value is converted before it is used ("0" reads as 0, "false" as false). In "{q} || 'fallback'"
-// that made an entered "0" or "false" look empty, so the fallback replaced the value.
+// that made an entered "0" or "false" look empty, so the fallback replaced the value. The or operator
+// now keeps such a value as its text, the way it keeps any other entered text.
 
 function runExpression(expression: string, values: any): any {
   return new ExpressionRunner(expression).runValues(values);
@@ -38,16 +39,29 @@ describe("|| fallback keeps a text that converts to 0 or false (#12430)", () => 
     expect(tabTitle(), "cleared").toBe("New Vacation");
   });
   test("ExpressionRunner: the fallback applies to an empty value only", () => {
-    expect(runExpression("{q} || 'none'", { q: "0" }), "'0'").toBe(0);
-    expect(runExpression("{q} || 'none'", { q: "false" }), "'false'").toBe(false);
-    expect(runExpression("{q} or 'none'", { q: "0" }), "or keyword").toBe(0);
+    expect(runExpression("{q} || 'none'", { q: "0" }), "'0'").toBe("0");
+    expect(runExpression("{q} || 'none'", { q: "false" }), "'false'").toBe("false");
+    expect(runExpression("{q} or 'none'", { q: "0" }), "or keyword").toBe("0");
     expect(runExpression("{q} || 'none'", { q: "5" }), "'5'").toBe(5);
     expect(runExpression("{q} || 'none'", { q: "abc" }), "'abc'").toBe("abc");
     expect(runExpression("{q} || 'none'", { q: "" }), "empty text").toBe("none");
     expect(runExpression("{q} || 'none'", {}), "no value").toBe("none");
     expect(runExpression("({q} || 10) + 1", { q: "0" }), "arithmetic").toBe(1);
-    expect(runExpression("{a} || {b} || 'none'", { b: "0" }), "chain").toBe(0);
-    expect(runExpression("{a} || {b} || 'none'", { a: "false", b: "x" }), "chain, first value").toBe(false);
+    expect(runExpression("({q} || 10) + 1", { q: "5" }), "arithmetic, '5'").toBe(6);
+    expect(runExpression("({q} || 10) + 1", {}), "arithmetic, no value").toBe(11);
+    expect(runExpression("({a} || {b} || 10) * 2 + 1", { b: "0" }), "arithmetic, chain").toBe(1);
+    expect(runExpression("{a} || {b} || 'none'", { b: "0" }), "chain").toBe("0");
+    expect(runExpression("{a} || {b} || 'none'", { a: "false", b: "x" }), "chain, first value").toBe("false");
+    expect(runExpression("{a} || {b} || 'none'", { a: "0", b: false }), "chain, false next").toBe("0");
+    expect(runExpression("{a} || {b} || 'none'", { b: false }), "chain, false only").toBe("none");
+  });
+  test("ExpressionRunner: an entered 0 or false text satisfies an or condition in iif", () => {
+    const expression = "iif({q} or {r} = 0, 'provided', 'missing')";
+    expect(runExpression(expression, { q: "0", r: "abc" }), "'0'").toBe("provided");
+    expect(runExpression(expression, { q: "false", r: "abc" }), "'false'").toBe("provided");
+    expect(runExpression(expression, { q: "abc", r: "abc" }), "'abc'").toBe("provided");
+    expect(runExpression(expression, { r: "abc" }), "no value").toBe("missing");
+    expect(runExpression(expression, { r: 0 }), "no value, comparison holds").toBe("provided");
   });
   test("ConditionRunner: or against a boolean stays a logical or", () => {
     const run = (expression: string, values: any): boolean => new ConditionRunner(expression).runValues(values);

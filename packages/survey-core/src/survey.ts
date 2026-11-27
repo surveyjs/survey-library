@@ -3834,17 +3834,33 @@ export class SurveyModel extends SurveyElementCore
         this.setDataValueCore(this.valuesHash, dataKey, data[key]);
       }
     }
-    this.settingDataScope.run(() => {
-      this.updateAllQuestionsValue(clearData);
-      this.notifyAllQuestionsOnValueChanged();
-      // The previous data is gone (assignData resets it first), so which names changed is unknown
-      this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
-    });
+    const writes = new Map<string, () => void>();
+    const prevWrites = this.dataWritesToNotify;
+    this.dataWritesToNotify = writes;
+    try {
+      this.settingDataScope.run(() => {
+        this.updateAllQuestionsValue(clearData);
+        this.notifyAllQuestionsOnValueChanged();
+        // The previous data is gone (assignData resets it first), so which names changed is unknown
+        this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
+      });
+    } finally {
+      this.dataWritesToNotify = prevWrites;
+    }
     this.settingDataPassScope.run(() => {
       this.runConditions();
       this.updateAllQuestionsValue(clearData);
     });
+    // The survey triggers and onValueChanged of the writes held above see the values the pass has calculated.
+    // They run while isSettingData() is true, as they did when they ran at the write.
+    if (writes.size > 0) {
+      this.settingDataScope.run(() => writes.forEach(notify => notify()));
+    }
   }
+  // Set while setDataCore updates the questions, keyed by the value name. A value written meanwhile (a nested
+  // container writing its value back) starts no conditions pass, and its survey triggers and onValueChanged wait
+  // here for setDataCore's pass.
+  private dataWritesToNotify: Map<string, () => void>;
   public isSettingData(): boolean { return this.settingDataScope.isActive; }
   private settingDataPassScope = new Scope();
   // survey.data and mergeData run no question triggers: true while setDataCore updates the questions and during its
@@ -7758,10 +7774,11 @@ export class SurveyModel extends SurveyElementCore
       if (!isCalculatedValueAtLoad) {
         this.isValueChangedOnRunningCondition = true;
       }
-    } else if (this.isSettingData()) {
+    } else if (!!this.dataWritesToNotify) {
       // A write while the data is assigned (a nested container writing its value back) starts no pass of its
       // own: setDataCore runs a full pass right after, with every value loaded. A pass now would read
       // calculated values that are not recalculated yet, and its question triggers would overwrite loaded answers.
+      // A value that a survey trigger or a handler sets after that pass, while the held writes notify, gets its own pass.
       this.valueChangedKeys = undefined;
     } else {
       this.conditionOnValueChangedScope.run(() => this.runConditions());
@@ -8527,8 +8544,29 @@ export class SurveyModel extends SurveyElementCore
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     questionName = questionName || name;
+    const heldWrites = this.dataWritesToNotify;
+    if (!!heldWrites) {
+      this.runConditionOnValueChanged(name, newValue);
+      // One notification for a name written several times: the first old value and the value after the pass
+      if (!heldWrites.has(name)) {
+        heldWrites.set(name, () => {
+          this.notifyOnSetValue(name, this.getValue(name), oldValue, locNotification, allowNotifyValueChanged, questionName, false);
+        });
+      }
+      return;
+    }
+    this.notifyOnSetValue(name, newValue, oldValue, locNotification, allowNotifyValueChanged, questionName, true);
+  }
+  private notifyOnSetValue(name: string, newValue: any, oldValue: any, locNotification: any,
+    allowNotifyValueChanged: boolean, questionName: string, runConditions: boolean): void {
     this.nofifyQuesitonHash[name] = true;
-    this.checkTriggersAndRunConditions(name, newValue, oldValue);
+    if (runConditions) {
+      this.checkTriggersAndRunConditions(name, newValue, oldValue);
+    } else {
+      const triggerKeys: { [index: string]: any } = {};
+      triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
+      this.checkTriggers(triggerKeys, false, false, false, name);
+    }
     if (this.nofifyQuesitonHash[name]) {
       if (allowNotifyValueChanged) {
         this.notifyQuestionOnValueChanged(name, newValue, questionName);

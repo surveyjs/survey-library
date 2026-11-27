@@ -1914,8 +1914,9 @@ describe("A data load runs no question triggers, also when a nested item writes 
   });
 });
 describe("Review repro: survey.data write-backs", () => {
-  // Skipped: repro tests from the review of this branch. Each comment states what master and this branch do;
-  // which differences are regressions and which are intended is for the branch author to decide.
+  // Repro tests from the review of this branch. F1-F4b: a write-back's survey triggers and onValueChanged wait for
+  // the pass after the load, and a matrix row's {visibleRowIndex} still runs during it. F3 and F5 stay skipped:
+  // the branch runs no question triggers during the assignment, which is for the branch author to decide.
   const nestedSlots = {
     type: "paneldynamic", name: "slots", valueName: "slotValues",
     templateElements: [
@@ -1927,9 +1928,8 @@ describe("Review repro: survey.data write-backs", () => {
     ]
   };
   const slotData = [{ slot: "k0", nested: [{ text: "x" }] }, { slot: "k1" }];
-  // master: passes. This branch: fails, "b" becomes "by trigger": the trigger runs for the write-back while
-  // "slotCount" still holds its pre-load value (0).
-  test.skip("F1: survey setvalue trigger on a write-back reads a calculated value of the written name", () => {
+  // The trigger must not run for the write-back while "slotCount" still holds its pre-load value (0).
+  test("F1: survey setvalue trigger on a write-back reads a calculated value of the written name", () => {
     const survey = new SurveyModel({
       calculatedValues: [{ name: "slotCount", expression: "countInArray({slotValues}, 'slot')" }],
       elements: [{ type: "text", name: "b" }, nestedSlots],
@@ -1940,19 +1940,23 @@ describe("Review repro: survey.data write-backs", () => {
     expect(survey.getVariable("slotCount")).toBe(2);
     expect(survey.getValue("b")).toBe("loaded");
   });
-  // master and this branch: pass, the runexpression trigger reads "slotCount" = 2.
-  test.skip("F1b: runexpression trigger keyed on the written name reads the calculated value", () => {
+  // The runexpression trigger reads "slotCount" = 2 at once, not 0 first and 2 when "slotCount" changes.
+  test("F1b: runexpression trigger keyed on the written name reads the calculated value", () => {
     const survey = new SurveyModel({
       calculatedValues: [{ name: "slotCount", expression: "countInArray({slotValues}, 'slot')" }],
       elements: [{ type: "text", name: "n" }, nestedSlots],
       triggers: [{ type: "runexpression", expression: "{slotValues} notempty", runExpression: "{slotCount}", setToName: "n" }]
     });
+    const nValues: Array<any> = [];
+    survey.onValueChanged.add((_: SurveyModel, options: any) => {
+      if (options.name === "n") nValues.push(options.value);
+    });
     survey.data = { slotValues: slotData };
     expect(survey.getValue("n")).toBe(2);
+    expect(nValues, "the values the trigger set").toEqual([2]);
   });
-  // rendered before = true: master passes; this branch fails with [undefined, undefined, undefined].
-  // rendered before = false: passes on both.
-  test.skip.each([true, false])("F2: visibleRowIndex setValueExpression for rows a load rebuilds (rendered before: %s)", (renderedBefore: boolean) => {
+  // The rows a load rebuilds get their {visibleRowIndex}, also when they were built before the load.
+  test.each([true, false])("F2: visibleRowIndex setValueExpression for rows a load rebuilds (rendered before: %s)", (renderedBefore: boolean) => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1,
       columns: [{ cellType: "text", name: "no", setValueExpression: "{visibleRowIndex}" }, { cellType: "text", name: "t" }] }] });
     const m: any = survey.getQuestionByName("m");
@@ -1974,8 +1978,8 @@ describe("Review repro: survey.data write-backs", () => {
     expect(survey.getValue("orders")[0].price, "the load recomputed the price").toBe(6);
     expect(survey.getValue("total")).toBe(6);
   });
-  // master: passes. This branch: fails, the handler sees "slotCount" = 0.
-  test.skip("F4: onValueChanged for a write-back sees the calculated value of the written name", () => {
+  // The handler sees the recalculated "slotCount", not its pre-load value (0).
+  test("F4: onValueChanged for a write-back sees the calculated value of the written name", () => {
     const survey = new SurveyModel({
       calculatedValues: [{ name: "slotCount", expression: "countInArray({slotValues}, 'slot')" }],
       elements: [nestedSlots]
@@ -1988,8 +1992,8 @@ describe("Review repro: survey.data write-backs", () => {
     expect(seen.length, "handler fired during the load").toBeGreaterThan(0);
     expect(seen).toEqual(seen.map(() => 2));
   });
-  // master: passes. This branch: fails, the handler sees "dep" as invisible.
-  test.skip("F4b: onValueChanged for a write-back sees the visibility a condition on the written name sets", () => {
+  // The handler sees "dep" visible: the pass after the load has run its visibleIf.
+  test("F4b: onValueChanged for a write-back sees the visibility a condition on the written name sets", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "dep", visibleIf: "{slotValues[1].nested[0].nestedSlot} = 'k1'" }, nestedSlots] });
     const seen: Array<boolean> = [];
     survey.onValueChanged.add((sender: SurveyModel, options: any) => {

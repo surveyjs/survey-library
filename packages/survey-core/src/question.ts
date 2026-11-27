@@ -1140,13 +1140,21 @@ export class Question extends SurveyElement<Question>
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
   }
-  private runTriggerInfo(info: ITriggerExpressionInfo, keys: any, properties: any): void {
+  private runTriggerInfo(info: ITriggerExpressionInfo, keys: any, properties: any, onlyReadingKeys?: boolean): void {
     this.runExpressionByProperty(info.name, properties, (value: any) => {
       info.doComplete(value, properties);
     }, (runner: ExpressionRunner): boolean => {
       if (!info.canRun()) return false;
-      return !keys || this.canExecuteTriggerByKeys(keys, runner, this.getExpressionByProperty(info.secondName));
+      const secondRunner = this.getExpressionByProperty(info.secondName);
+      if (onlyReadingKeys) return this.isTriggerReadingKeys(keys, runner, secondRunner);
+      return !keys || this.canExecuteTriggerByKeys(keys, runner, secondRunner);
     });
+  }
+  // A trigger whose condition or value expression reads one of the keys. Without the condition-or-constant rules
+  // of canExecuteTriggerByKeys: a constant setValueExpression would let any key run its setValueIf.
+  private isTriggerReadingKeys(keys: any, runner: ExpressionRunner, secondRunner: ExpressionRunner): boolean {
+    return !!runner && this.canExecuteTriggerByKeysCore(keys, runner) === "var" ||
+      !!secondRunner && this.canExecuteTriggerByKeysCore(keys, secondRunner) === "var";
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
     if (!runner && !!secondRunner) {
@@ -1280,15 +1288,17 @@ export class Question extends SurveyElement<Question>
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
     // survey.data and mergeData run no question triggers: the loaded answers win. A write into a record while they
     // run (a nested item writing its record back, an expression of an item their pass computes) reaches the triggers
-    // of its item's questions directly.
-    if (this.survey?.isAssigningData()) return;
+    // of its item's questions directly. A matrix row's {visibleRowIndex} still runs the triggers that read it: it is
+    // the row's position, not an answer, and the rows a load rebuilds get their position only here.
+    const isAssigningData = !!this.survey?.isAssigningData();
+    if (isAssigningData && name !== settings.expressionVariables.visibleRowIndex) return;
     if (!keys) {
       keys = {};
       keys[name] = value;
     }
     const properties = this.getDataFilteredProperties();
     this.triggersInfo.forEach(info => {
-      this.runTriggerInfo(info, keys, properties);
+      this.runTriggerInfo(info, keys, properties, isAssigningData);
     });
   }
   private runConditions() {

@@ -115,7 +115,7 @@ frameworks.forEach((framework) => {
     });
 
     test("disables days and navigation outside min and max", async ({ page }) => {
-      await initSurvey(page, framework, singleDateQuestion({ min: "2026-11-10", max: "2026-11-20" }));
+      await initSurvey(page, framework, singleDateQuestion({ min: "2026-11-10", max: "2026-11-20", firstDayOfWeek: 1 }));
       await openCalendar(page);
 
       await expect(calendarDay(page, "9")).toHaveClass(/sv-calendar__day--disabled/);

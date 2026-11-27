@@ -29,7 +29,7 @@ const conditions = [{ field: "age", operator: "greater", value: 18 }, { field: "
 describe("FilterPresetDialog: what it opens with", () => {
   test("the conditions it is given: their fields picked in the tagbox, in the order of the fields, and their editors", () => {
     const dialog = control().createAddPresetDialog(conditions);
-    expect([dialog.title, dialog.form.getValue("presetTitle")], "#1").toEqual(["New Preset", undefined]);
+    expect([dialog.title, dialog.form.getValue("presetTitle")], "#1").toEqual(["New Filter Preset", undefined]);
     expect(picked(dialog), "#2").toEqual(["country", "age"]);
     expect(dialog.editor.fieldNames, "#3").toEqual(["country", "age"]);
     expect(dialog.editor.getConditions(), "#4").toEqual([{ field: "country", operator: "anyof", value: ["de"] },
@@ -93,7 +93,7 @@ describe("FilterPresetDialog: Apply", () => {
   test("a title that is missing, too long or another preset's, and no condition, are errors and add nothing", () => {
     const q = control();
     const dialog = q.createAddPresetDialog([]);
-    expect([dialog.apply(), errors(dialog)], "#1").toEqual([false, ["Response required.", "Add at least one condition."]]);
+    expect([dialog.apply(), errors(dialog)], "#1").toEqual([false, ["Enter a preset name.", "Select at least one field to filter by."]]);
     dialog.form.setValue("presetTitle", "x".repeat(33));
     dialog.apply();
     expect(errors(dialog)[0], "#2").toBe("Please enter no more than 32 character(s).");

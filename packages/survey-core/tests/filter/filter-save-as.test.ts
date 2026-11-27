@@ -76,7 +76,7 @@ describe("FilterToolbars: Save as", () => {
     const popup = openSaveAs(q);
     const save = (): void => { popup.footerToolbar.actions[0].action(); };
     save();
-    expect(errorsOf(popup), "#1").toEqual(["Response required."]);
+    expect(errorsOf(popup), "#1").toEqual(["Enter a preset name."]);
     popup.survey.setValue("presetTitle", "ADULTS ");
     save();
     expect(errorsOf(popup), "#2").toEqual(["A preset with this name already exists."]);

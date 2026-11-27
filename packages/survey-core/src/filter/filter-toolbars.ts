@@ -338,7 +338,7 @@ export class FilterToolbars {
     ]);
   }
   // New Preset, or Edit Preset of the preset picked there, over the Filters dialog that opened it - see
-  // FilterPresetDialog and FilterEditPresetDialog. Its Apply writes the preset into the control and
+  // FilterPresetDialog and FilterEditPresetDialog. Save writes the preset into the control and
   // refreshes that dialog's presets, or keeps it open while the preset has errors; Edit Preset's
   // Delete deletes the preset, refreshes them and closes it; any other way it closes writes nothing.
   // Edit Preset opens only for a preset the respondent may change or delete. One at a time.
@@ -417,8 +417,8 @@ export class FilterToolbars {
       }
     }
   }
-  // Cancel on the left - Delete in its place for a preset Edit Preset may delete - and Apply on the
-  // right, as in the mockup. Apply is off while the dialog cannot apply (canApply).
+  // The footer has Cancel or Delete on the left and Save on the right.
+  // Save is disabled while the dialog cannot apply (canApply).
   private setPresetDialogFooter(dialog: PopupModalViewModel, dialogModel: FilterPresetDialog, onDeleted: () => void): void {
     const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
     if (!footer) return;
@@ -434,7 +434,7 @@ export class FilterToolbars {
       new Action({ id: "sv-filter-preset-cancel", title: getLocaleString("modalCancelButtonText", locale), appearance: { style: "brand", mode: "secondary" },
         action: (): void => { dialog.cancel(); } });
     footer.setItems([left,
-      new Action({ id: "sv-filter-preset-apply", title: getLocaleString("modalApplyButtonText", locale), needSpace: true,
+      new Action({ id: "sv-filter-preset-apply", title: getLocaleString("filterSaveAsSave", locale), needSpace: true,
         appearance: { style: "brand", mode: "primary" }, enabled: <any>new ComputedUpdater<boolean>((): boolean => dialogModel.canApply),
         action: (): void => { dialog.apply(); } })
     ]);

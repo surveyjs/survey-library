@@ -119,16 +119,16 @@ frameworks.forEach(framework => {
     });
 
     test("Check range ends on the outer columns", async ({ page }) => {
-      await initSurvey(page, framework, rangeQuestion({ defaultValue: ["2026-11-01", "2026-11-05"] }));
+      await initSurvey(page, framework, rangeQuestion({ defaultValue: ["2026-11-07", "2026-11-11"] }));
       await openCalendar(page);
-      await expect(calendarDay(page, "1", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-start/);
-      await shoot(page, calendarRoot(page), "calendar-range-start-sunday.png");
+      await expect(calendarDay(page, "7", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-start/);
+      await shoot(page, calendarRoot(page), "calendar-range-start-saturday.png");
 
       await page.evaluate(() => {
-        (window as any).survey.getQuestionByName("date").value = ["2026-11-04", "2026-11-09"];
+        (window as any).survey.getQuestionByName("date").value = ["2026-11-04", "2026-11-08"];
       });
-      await expect(calendarDay(page, "9", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-end/);
-      await shoot(page, calendarRoot(page), "calendar-range-end-monday.png");
+      await expect(calendarDay(page, "8", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-end/);
+      await shoot(page, calendarRoot(page), "calendar-range-end-sunday.png");
     });
 
     test("Check a range clipped by min and max", async ({ page }) => {
@@ -180,11 +180,11 @@ frameworks.forEach(framework => {
       await shoot(page, popupContainer(page), "calendar-mobile-range-selected.png");
 
       await page.evaluate(() => {
-        (window as any).survey.getQuestionByName("date").value = ["2026-11-01", "2026-11-09"];
+        (window as any).survey.getQuestionByName("date").value = ["2026-11-07", "2026-11-15"];
       });
       await waitForMonthList(page, todayMonthKey);
-      await expect(calendarDay(page, "1", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-start/);
-      await expect(calendarDay(page, "9", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-end/);
+      await expect(calendarDay(page, "7", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-start/);
+      await expect(calendarDay(page, "15", undefined, todayMonthKey)).toHaveClass(/sv-calendar__day--range-end/);
       await shoot(page, popupContainer(page), "calendar-mobile-range-start-edge.png");
     });
 

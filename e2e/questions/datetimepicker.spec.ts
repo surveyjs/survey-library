@@ -23,7 +23,7 @@ frameworks.forEach((framework) => {
       await openCalendar(page);
 
       await expect(calendarTitle(page)).toHaveText("November 2026");
-      await expect(calendarRoot(page).locator(".sv-calendar__weekday")).toHaveText(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]);
+      await expect(calendarRoot(page).locator(".sv-calendar__weekday")).toHaveText(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
       await expect(calendarRoot(page).locator("[data-month='" + todayMonthKey + "']")).toBeVisible();
       await expect(calendarRoot(page).locator(".sv-calendar__day--today")).toHaveText("19");
       await expect(calendarDay(page, "19")).toHaveClass(/sv-calendar__day--today/);
@@ -66,16 +66,18 @@ frameworks.forEach((framework) => {
 
       await navButton(page, "next").click();
       await expect(calendarTitle(page)).toHaveText("November 2026");
-      // November starts on Sunday, so Monday the 26th of October is the leading outside day.
-      await calendarDay(page, "26", "outside").click();
+      await navButton(page, "next").click();
+      await expect(calendarTitle(page)).toHaveText("December 2026");
+      // December starts on Tuesday, so Monday the 30th of November is the leading outside day.
+      await calendarDay(page, "30", "outside").click();
 
       await expect(popupContainer(page)).not.toBeVisible();
-      expect(await getDateValue(page)).toBe("2026-10-26");
-      await expect(dateInput(page)).toHaveValue("10/26/2026");
+      expect(await getDateValue(page)).toBe("2026-11-30");
+      await expect(dateInput(page)).toHaveValue("11/30/2026");
 
       await openCalendar(page);
-      await expect(calendarTitle(page)).toHaveText("October 2026");
-      await expect(calendarDay(page, "26")).toHaveClass(/sv-calendar__day--selected/);
+      await expect(calendarTitle(page)).toHaveText("November 2026");
+      await expect(calendarDay(page, "30")).toHaveClass(/sv-calendar__day--selected/);
     });
 
     test("zooms through months and years without changing the value", async ({ page }) => {
@@ -549,7 +551,7 @@ frameworks.forEach((framework) => {
 
       const sheet = page.locator(".sv-popup--sheet");
       await expect(calendarRoot(page)).toHaveClass(/sv-calendar--month-list/);
-      await expect(calendarRoot(page).locator(".sv-calendar__list-header .sv-calendar__weekday")).toHaveText(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]);
+      await expect(calendarRoot(page).locator(".sv-calendar__list-header .sv-calendar__weekday")).toHaveText(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
       await expect(calendarRoot(page).locator(".sv-calendar__toolbar")).toHaveCount(0);
       await expect(calendarRoot(page).locator(".sv-calendar__month-title").filter({ hasText: "November 2026" })).toBeVisible();
       await expect(sheet.locator(".sv-popup__body-footer")).not.toHaveCSS("border-top-style", "none");

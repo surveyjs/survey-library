@@ -424,6 +424,14 @@ FunctionFactory.Instance.register({
   resultDependsOn: "parameters",
 });
 
+// A number as a decimal string: toString() writes a number below 1e-6 in exponent notation (1e-7),
+// and trunc() reads the digits of the string.
+function numberToDecimalString(num: number): string {
+  const str = num.toString();
+  const match = /^(-?)(\d)(?:\.(\d+))?e-(\d+)$/.exec(str);
+  if (!match) return str;
+  return match[1] + "0." + "0".repeat(Number(match[4]) - 1) + match[2] + (match[3] || "");
+}
 function trunc(params: any[]): any {
   var arr: any[] = [];
   getParamsAsArray(params, arr);
@@ -431,8 +439,11 @@ function trunc(params: any[]): any {
     const num = arr[0];
     const precision = arr[1] || -1;
     if (Helpers.isNumber(num) && Helpers.isNumber(precision)) {
+      const value = Helpers.getNumber(num);
+      // a number written as 1e21 or larger has no fraction part
+      if (Math.abs(value) >= 1e21) return value;
       const regexp = new RegExp("^-?\\d+(?:.\\d{0," + precision + "})?");
-      return Number(num.toString().match(regexp)[0]);
+      return Number(numberToDecimalString(value).match(regexp)[0]);
     }
   }
   return NaN;

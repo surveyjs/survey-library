@@ -36,7 +36,7 @@ import {
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
-import { CalculatedValue } from "./calculatedValue";
+import { CalculatedValue, CalculatedValuesIndex } from "./calculatedValue";
 import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
@@ -1743,7 +1743,15 @@ export class SurveyModel extends SurveyElementCore
   public get calculatedValues(): Array<CalculatedValue> {
     return this.getArrayPropertyValue("calculatedValues", (value: any) => {
       value.setOwner(this);
+      this.calculatedValuesIndex.onAdded(value);
     });
+  }
+  private calculatedValuesIndexValue: CalculatedValuesIndex;
+  private get calculatedValuesIndex(): CalculatedValuesIndex {
+    if (!this.calculatedValuesIndexValue) {
+      this.calculatedValuesIndexValue = new CalculatedValuesIndex(this.calculatedValues);
+    }
+    return this.calculatedValuesIndexValue;
   }
   public set calculatedValues(val: Array<CalculatedValue>) {
     this.setArrayPropertyValue("calculatedValues", val);
@@ -7769,7 +7777,7 @@ export class SurveyModel extends SurveyElementCore
     try {
       calculatedRuns = CalculatedValue.collectRuns(() => {
         for (let i = 0; i < this.calculatedValues.length; i++) {
-          this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
+          this.calculatedValues[i].doCalculation(this.calculatedValues, properties, this.calculatedValuesIndex);
         }
         if (!!atLoad) {
           this.repeatCalculatedValuesAtLoad(atLoad, properties);
@@ -7814,7 +7822,7 @@ export class SurveyModel extends SurveyElementCore
         repeated[i].resetCalculation();
       }
       for (let i = 0; i < repeated.length; i++) {
-        repeated[i].doCalculation(this.calculatedValues, properties);
+        repeated[i].doCalculation(this.calculatedValues, properties, this.calculatedValuesIndex);
       }
     }
   }

@@ -1214,6 +1214,150 @@ describe("CalculatedValues: find the calculated values they use", () => {
       FunctionFactory.Instance.unregister("tick");
     }
   });
+  test("two calculated values with the same name both run before their reader, in list order", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c2} + 1)" },
+        { name: "c2", expression: "tick('c2a', {a} + 1)" },
+        { name: "c2", expression: "tick('c2b', 1 + {a})" }
+      ]);
+      reset();
+      survey.setValue("a", 1);
+      expect(survey.getVariable("c1"), "c1 after a = 1").toBe(3);
+      expect(survey.getVariable("c2"), "c2 after a = 1").toBe(2);
+      expect(log.sequence, "sequence after a = 1").toEqual(["c2a", "c2b", "c1", "c2a", "c2b", "c1"]);
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("an indexed reference to a calculated value is not a dependent", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c2[0]})" },
+        { name: "c2", expression: "tick('c2', {a})" }
+      ]);
+      reset();
+      survey.setValue("a", 1);
+      expect(survey.getVariable("c2"), "c2 after a = 1").toBe(1);
+      expect(log.sequence, "sequence after a = 1: in the second pass c1 runs before c2").toEqual(["c2", "c1", "c2"]);
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("a calculated value named like a question is a dependent of the value that reads the name", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {b} + 1)" },
+        { name: "b", expression: "tick('b', {a} * 10)" }
+      ]);
+      reset();
+      survey.setValue("a", 1);
+      expect(survey.getVariable("c1"), "c1 after a = 1").toBe(11);
+      expect(survey.getVariable("b"), "b after a = 1").toBe(10);
+      expect(log.sequence, "sequence after a = 1").toEqual(["b", "c1", "b", "c1"]);
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("one pass reads the names of the calculated values a number of times linear in their count", () => {
+    const count = 1000;
+    const calculatedValues = new Array<any>();
+    for (let i = 0; i < count; i++) {
+      calculatedValues.push({ name: "v" + i, expression: "{a} + " + i });
+    }
+    const survey = createSurvey(calculatedValues);
+    let reads = 0;
+    const getPropertyValue = Base.prototype.getPropertyValue;
+    Base.prototype.getPropertyValue = function (name: string, ...args: Array<any>) {
+      if (name === "name" && this instanceof CalculatedValue) reads++;
+      return (<any>getPropertyValue).call(this, name, ...args);
+    };
+    try {
+      survey.runExpressions();
+    } finally {
+      Base.prototype.getPropertyValue = getPropertyValue;
+    }
+    expect(survey.getVariable("v999"), "the values ran").toBeDefined();
+    expect(reads, "name reads in one pass").toBeLessThan(20 * count);
+  });
+  test("doCalculation called with the list only runs the dependencies found in that list", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c2} + 1)" },
+        { name: "c2", expression: "tick('c2', {a} * 10)" }
+      ]);
+      survey.setValue("a", 1);
+      const reader = survey.calculatedValues[0];
+      survey.calculatedValues.forEach(item => item.resetCalculation());
+      reset();
+      reader.doCalculation(survey.calculatedValues, { survey: survey });
+      expect(log.sequence, "the whole list").toEqual(["c2", "c1"]);
+      survey.calculatedValues.forEach(item => item.resetCalculation());
+      reset();
+      reader.doCalculation([reader], { survey: survey });
+      expect(log.sequence, "the reader alone").toEqual(["c1"]);
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  // A handler of onVariableChanged runs inside the pass, so it can change the list while the pass runs
+  const runWithHandler = (calculatedValues: Array<any>, handler: (survey: SurveyModel, name: string) => boolean): Array<any> => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }], calculatedValues: calculatedValues });
+      const events = new Array<string>();
+      let isDone = false;
+      survey.onVariableChanged.add((_, options) => {
+        events.push(options.name + "=" + options.value);
+        if (!isDone) isDone = handler(survey, options.name);
+      });
+      const results = new Array<any>();
+      for (const value of [1, 2]) {
+        reset();
+        events.length = 0;
+        survey.setValue("q", value);
+        const values = {};
+        survey.getVariableNames().forEach(name => values[name] = survey.getVariable(name));
+        results.push({ values: values, events: events.slice(), sequence: log.sequence.slice() });
+      }
+      return results;
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  };
+  const tickValue = (name: string, expression: string): any => ({ name: name, expression: "tick('" + name + "', " + expression + ")" });
+  test("a handler removes, during a pass, a calculated value that a later one reads", () => {
+    const results = runWithHandler(
+      [tickValue("a", "{q} + 1"), tickValue("b", "{q} + 10"), tickValue("c", "{q} * 2"), tickValue("d", "{e} + {c}"), tickValue("e", "{q} + 100")],
+      (survey, name) => name === "a" && (survey.calculatedValues.splice(4, 1), true));
+    expect(results[0], "after q = 1").toEqual({ values: { a: 2, b: 11, c: 2, d: 102, e: 100 }, events: ["a=2", "b=11", "c=2", "d=102"], sequence: ["a", "b", "c", "d", "a", "b", "c", "d"] });
+    expect(results[1], "after q = 2").toEqual({ values: { a: 3, b: 12, c: 4, d: 104, e: 100 }, events: ["a=3", "b=12", "c=4", "d=104"], sequence: ["a", "b", "c", "d", "a", "b", "c", "d"] });
+  });
+  test("a handler adds, during a pass, a second calculated value with a name a reader reads", () => {
+    const results = runWithHandler(
+      [tickValue("a", "{q} + 1"), tickValue("b", "{q} + 10"), tickValue("c", "{q} * 2"), tickValue("d", "{e} + {c}"), tickValue("e", "{q} + 100")],
+      (survey, name) => name === "a" && (survey.calculatedValues.push(new CalculatedValue("e", "tick('e2', 100 + {q})")), true));
+    expect(results[0], "after q = 1").toEqual({ values: { a: 2, b: 11, c: 2, d: 103, e: 101 }, events: ["a=2", "e=101", "b=11", "c=2", "d=103"], sequence: ["a", "e2", "b", "c", "e", "e2", "d", "a", "b", "c", "e", "e2", "d"] });
+    expect(results[1], "after q = 2").toEqual({ values: { a: 3, b: 12, c: 4, d: 106, e: 102 }, events: ["a=3", "b=12", "c=4", "e=102", "d=106"], sequence: ["a", "b", "c", "e", "e2", "d", "a", "b", "c", "e", "e2", "d"] });
+  });
+  test("a handler renames, while a reader runs its dependencies, the next one", () => {
+    const results = runWithHandler(
+      [tickValue("a", "{q} + 1"), tickValue("d", "{e} + {f}"), tickValue("e", "{q} + 100"), tickValue("f", "{q} + 1000")],
+      (survey, name) => name === "e" && (survey.getCalculatedValueByName("f").name = "f2", true));
+    expect(results[0], "after q = 1").toEqual({ values: { a: 2, d: 1101, e: 101, f: 1000, f2: 1001 }, events: ["a=2", "e=101", "d=1101", "f2=1001"], sequence: ["a", "e", "d", "f", "a", "e", "d", "f"] });
+    expect(results[1], "after q = 2").toEqual({ values: { a: 3, d: 1102, e: 102, f: 1000, f2: 1002 }, events: ["a=3", "e=102", "d=1102", "f2=1002"], sequence: ["a", "e", "d", "f", "a", "e", "d", "f"] });
+  });
+  test("a handler removes, while a reader runs its dependencies, the first value of the list", () => {
+    const results = runWithHandler(
+      [tickValue("a", "{q} + 1"), tickValue("d", "{e} + {f}"), tickValue("e", "{q} + 100"), tickValue("f", "{q} + 1000")],
+      (survey, name) => name === "e" && (survey.calculatedValues.splice(0, 1), true));
+    expect(results[0], "after q = 1").toEqual({ values: { a: 2, d: 1102, e: 101, f: 1001 }, events: ["a=2", "e=101", "d=1101", "f=1001", "d=1102"], sequence: ["a", "e", "d", "f", "e", "f", "d", "e", "f", "d"] });
+    expect(results[1], "after q = 2").toEqual({ values: { a: 2, d: 1104, e: 102, f: 1002 }, events: ["e=102", "f=1002", "d=1104"], sequence: ["e", "f", "d", "e", "f", "d"] });
+  });
 });
 describe("CalculatedValues at load: only the calculated values of a cycle run again", () => {
   const registerLoadCounter = () => {

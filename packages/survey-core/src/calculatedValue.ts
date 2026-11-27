@@ -17,6 +17,49 @@ function getFirstPathSegment(name: string): string {
   return name;
 }
 
+// The survey's calculated values by name, so a value finds the ones it reads without a scan. The survey owns it
+// and calls onAdded for every value added to its list. The positions are built on the first use after a change.
+export class CalculatedValuesIndex {
+  private changes: number = 0;
+  private length: number = 0;
+  private positions: Map<string, Array<number>>;
+  private positionsVersion: number;
+  constructor(private list: Array<CalculatedValue>) {}
+  public onAdded(item: CalculatedValue): void {
+    // A removed value keeps the handler: its rename only builds the positions once more
+    item.registerPropertyChangedHandlers(["name"], () => this.changes++, "calculatedValuesIndex");
+    this.changes++;
+  }
+  // Grows when a value is added to the list, removed from it or renamed. A removal is not reported: the length tells it
+  public get version(): number {
+    if (this.length !== this.list.length) {
+      this.length = this.list.length;
+      this.changes++;
+    }
+    return this.changes;
+  }
+  // The positions in the list of the values with these names, in the order of the list
+  public getPositions(names: Set<string>): Array<number> {
+    const version = this.version;
+    if (this.positionsVersion !== version) {
+      const map = new Map<string, Array<number>>();
+      for (let i = 0; i < this.list.length; i++) {
+        const name = this.list[i].name;
+        if (!map.has(name)) map.set(name, []);
+        map.get(name).push(i);
+      }
+      this.positions = map;
+      this.positionsVersion = version;
+    }
+    const res = new Array<number>();
+    names.forEach(name => {
+      const positions = this.positions.get(name);
+      if (!!positions) res.push(...positions);
+    });
+    return res.sort((a, b) => a - b);
+  }
+}
+
 export class CalculatedValue extends Base {
   private data: ISurveyVariables;
   private expressionIsRunning: boolean = false;
@@ -92,10 +135,9 @@ export class CalculatedValue extends Base {
     CalculatedValue.runsScope.run(runs, func);
     return runs;
   }
-  public doCalculation(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>
-  ) {
+  public doCalculation(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>, index?: CalculatedValuesIndex) {
     if (this.isCalculated) return;
-    this.runExpressionCore(calculatedValues, properties, true);
+    this.runExpressionCore(calculatedValues, properties, true, index);
     this.isCalculated = true;
   }
   public runExpression(properties: HashTable<any>) {
@@ -133,12 +175,12 @@ export class CalculatedValue extends Base {
   protected override onDependencyValueChanged(obj: Base, propertyName: string): void {
     this.rerunExpression();
   }
-  private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>, canSkip?: boolean) {
+  private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>, canSkip?: boolean, index?: CalculatedValuesIndex) {
     if (!this.canRunExpression || !this.ensureExpression()) return;
     this.locCalculation();
     try {
       if (!!calculatedValues) {
-        this.runDependentExpressions(calculatedValues, properties);
+        this.runDependentExpressions(calculatedValues, properties, index);
       }
       // Decided after the dependents ran: a calculated value this one uses and that changed in
       // this pass is in the survey's changed keys by now
@@ -163,7 +205,8 @@ export class CalculatedValue extends Base {
     // A calculated value reads a path under a cleared value ({m.row1} once m is cleared) again
     return this.canSkipExpressionByKeys(this.expressionRunner, this.getValueChangedKeys(), undefined, true);
   }
-  private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
+  // The values this one reads run first, in the order of the list. The survey passes the index of its list.
+  private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>, index?: CalculatedValuesIndex) {
     var variables = this.expressionRunner.getVariables();
     if (!variables) return;
     // The runner keeps its variables array until the expression changes, then returns a new one.
@@ -174,10 +217,25 @@ export class CalculatedValue extends Base {
       this.dependentNamesSource = variables;
       this.dependentNamesLength = variables.length;
     }
-    for (var i = 0; i < calculatedValues.length; i++) {
-      var calcItem = calculatedValues[i];
+    let start = 0;
+    if (!!index) {
+      const positions = index.getPositions(this.dependentNames);
+      const version = index.version;
+      start = calculatedValues.length;
+      for (let i = 0; i < positions.length; i++) {
+        const item = calculatedValues[positions[i]];
+        if (item !== this) item.doCalculation(calculatedValues, properties, index);
+        if (index.version !== version) {
+          // A handler changed the list or a name during the pass: the scan goes on from where it stood
+          start = positions[i] + 1;
+          break;
+        }
+      }
+    }
+    for (let i = start; i < calculatedValues.length; i++) {
+      const calcItem = calculatedValues[i];
       if (calcItem === this || !this.dependentNames.has(calcItem.name)) continue;
-      calcItem.doCalculation(calculatedValues, properties);
+      calcItem.doCalculation(calculatedValues, properties, index);
     }
   }
   // At load, SurveyModel runs the calculated values once and then repeats only these, in their order,

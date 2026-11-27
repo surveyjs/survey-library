@@ -1,5 +1,5 @@
 <ng-template #template>
-    <label tabindex="0" [class]="model.getActionBarItemCss()"
+    <label tabindex="0" [attr.id]="question.chooseButtonId" [class]="model.getActionBarItemCss()"
         [attr.for]="question.inputId" [attr.aria-label]="question.chooseButtonText" [key2click]
         (click)="question.chooseFile($event)">
         <svg *ngIf="model.iconName" [title]="question.chooseButtonText"

@@ -13,7 +13,7 @@ import { QuestionButtonGroupModel } from "../src/question_buttongroup";
 import { Question } from "../src/question";
 import { Action } from "../src/actions/action";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("DropdownListModel", () => {
   const jsonDropdown = {
     elements: [{
@@ -1787,6 +1787,39 @@ describe("DropdownRenderState, Issue#9014", () => {
     expect(model.locSelectCaption, "locSelectCaption is the question's string").toBe(q1.getDropdownLocCaption("selectCaption"));
     model.clearCaption = "Remove";
     expect(model.editorButtons.getActionById("clear").title, "clear title is changed").toBe("Remove");
+  });
+
+  test("updateItems recalculates the popup position when choices change while it is open", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({
+        elements: [{
+          type: "dropdown",
+          name: "q1",
+          choices: ["item1", "item2"]
+        }]
+      });
+      const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+      const dropdownListModel = question.dropdownListModel;
+      const popup = dropdownListModel.popupModel;
+      const list = dropdownListModel.listModel;
+      const log: Array<boolean> = [];
+      popup.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => log.push(options.isResetHeight));
+
+      question.choices = ["item1", "item2", "item3"];
+      vi.advanceTimersByTime(10);
+      expect(log, "a closed popup is not remeasured").toEqual([]);
+      expect(list.actions.map(item => (item as ItemValue).value), "items are still refreshed while closed").toEqual(["item1", "item2", "item3"]);
+
+      popup.show();
+      question.choices = ["item1", "item2", "item3", "item4"];
+      expect(log, "remeasure waits until the new items are rendered").toEqual([]);
+      expect(list.actions.map(item => (item as ItemValue).value), "items are updated immediately").toEqual(["item1", "item2", "item3", "item4"]);
+      vi.advanceTimersByTime(10);
+      expect(log, "an open popup is remeasured and its height is reset").toEqual([true]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Disposing the question disposes the editor buttons and the model, Issue#9014", () => {

@@ -724,6 +724,11 @@ export class DropdownListModel extends Base {
 
   public updateItems(): void {
     this.listModel.setItems(this.getAvailableItems());
+    // Choices can change while the popup is open. Measure again with the same placement as on open:
+    // flip toward the side that fits, then shrink that side so the list scrolls inside the screen.
+    if (this._popupModel?.isVisible) {
+      this.popupRecalculatePosition(true);
+    }
   }
 
   public onClick(event?: any): void {

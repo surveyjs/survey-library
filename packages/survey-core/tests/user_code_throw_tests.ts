@@ -261,7 +261,8 @@ describe("A throw from user code leaves the survey working", () => {
     throwOnce.arm();
     expect(() => survey.setValue("q1", [{ r: "unknownText" }]), "#1").toThrow("throwOnChoiceComment");
     const r = q1.panels[0].getQuestionByName("r");
-    expect(r.comment, "#2").toBe("unknownText");
+    // The handler throws at the panel's one write, after the assignment: the comment is what the assignment leaves without a throw.
+    expect(r.comment, "#2").toBeUndefined();
     let changes = 0;
     survey.onDynamicPanelValueChanged.add(() => { changes++; });
     r.comment = "c";

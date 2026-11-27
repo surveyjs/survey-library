@@ -2109,3 +2109,305 @@ describe("Records sort: what a respondent can sort", () => {
     });
   });
 });
+
+/* A records question tells the survey about its value once per operation: its assignment and its trigger walk write
+   the value many times inside (the objects normalize their records, every setValueExpression of the walk writes one),
+   and the survey gets one write at the end, with the value the operation left. */
+describe("Records questions: one survey write per operation", () => {
+  interface ICounts { [key: string]: number }
+  function countPasses(func: () => void): number {
+    const spy = vi.spyOn(SurveyModel.prototype as any, "runConditionsCore");
+    try {
+      func();
+      return spy.mock.calls.length;
+    } finally {
+      spy.mockRestore();
+    }
+  }
+  const eventNames = ["onValueChanging", "onValueChanged", "onDynamicPanelValueChanged", "onMatrixCellValueChanged"];
+  // The events fired while func runs: "event:name" -> count.
+  function countEvents(survey: SurveyModel, func: () => void): ICounts {
+    const res: ICounts = {};
+    const removers = eventNames.map((event: string) => {
+      const handler = (_: SurveyModel, options: any): void => {
+        const key = event + ":" + (options.name || options.columnName);
+        res[key] = (res[key] || 0) + 1;
+      };
+      (<any>survey)[event].add(handler);
+      return (): void => (<any>survey)[event].remove(handler);
+    });
+    try {
+      func();
+    } finally {
+      removers.forEach((remove: () => void) => remove());
+    }
+    return res;
+  }
+  const copy = (val: any): any => JSON.parse(JSON.stringify(val));
+  const nestedJson = {
+    calculatedValues: [{ name: "deep", expression: "{outer[0].inner[0].x}" }],
+    elements: [{
+      type: "paneldynamic", name: "outer", templateElements: [
+        { type: "text", name: "a" },
+        { type: "paneldynamic", name: "inner", minPanelCount: 1, templateElements: [
+          { type: "text", name: "x" },
+          { type: "expression", name: "e", expression: "{parentPanel.a}" }] }]
+    }]
+  };
+  const nestedData = { outer: [{ a: 1, inner: [{ x: "x0" }] }, { a: 2 }, { a: 3 }] };
+  const nestedResult = [{ a: 1, inner: [{ x: "x0", e: 1 }] }, { a: 2, inner: [{ e: 2 }] }, { a: 3, inner: [{ e: 3 }] }];
+  // The data's assignment writes the panel once: its nested panels normalize and write their records back inside it.
+  test("survey.data: the write-backs of the nested panels reach the survey once", () => {
+    const survey = new SurveyModel(nestedJson);
+    let events: ICounts = {};
+    const passes = countPasses(() => { events = countEvents(survey, () => { survey.data = copy(nestedData); }); });
+    expect(passes, "#1: the conditions passes").toBe(3);
+    expect(events["onValueChanged:outer"], "#1: onValueChanged for the panel").toBe(1);
+    expect(survey.getValue("outer"), "#1: the normalized records").toEqual(nestedResult);
+    expect(survey.getVariable("deep"), "#1: the calculated value").toBe("x0");
+    const passesAgain = countPasses(() => { events = countEvents(survey, () => { survey.data = copy(nestedData); }); });
+    expect(passesAgain, "#2: the same data again, the conditions passes").toBe(3);
+    expect(events["onValueChanged:outer"], "#2: onValueChanged for the panel").toBe(1);
+    expect(survey.getValue("outer"), "#2: the records").toEqual(nestedResult);
+  });
+  const panelsJson = {
+    elements: [{ type: "text", name: "src" }, {
+      type: "paneldynamic", name: "outer", panelCount: 10, templateElements: [
+        { type: "text", name: "b", setValueIf: "{src} notempty", setValueExpression: "{src} + '-' + {panelIndex}" }]
+    }]
+  };
+  const panelsResult = (src: string): Array<any> => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i: number) => ({ b: src + "-" + i }));
+  test("ten panels: the setValueExpression writes of one trigger walk reach the survey in one cycle", () => {
+    const survey = new SurveyModel(panelsJson);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    let events: ICounts = {};
+    const passes = countPasses(() => { events = countEvents(survey, () => { survey.setValue("src", "v"); }); });
+    expect(passes, "the change's pass and the panel's cycle").toBe(2);
+    expect(events["onValueChanged:outer"], "onValueChanged for the panel").toBe(1);
+    expect(survey.getValue("outer"), "the survey holds every panel's value").toEqual(panelsResult("v"));
+    expect(panel.panels.map((p: any) => p.getQuestionByName("b").value), "every panel holds its value").toEqual(panelsResult("v").map((r: any) => r.b));
+  });
+  const rowNames = ["r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9"];
+  const rowsJson = (rows: Array<string>): any => ({
+    elements: [{ type: "text", name: "src" }, {
+      type: "matrixdropdown", name: "m", rows: rows, columns: [
+        { name: "b", cellType: "text", setValueIf: "{src} notempty", setValueExpression: "{src} + '-' + {rowName}" }]
+    }]
+  });
+  test("ten rows: the column setValueExpression writes of one trigger walk reach the survey in one cycle, matrixdropdown", () => {
+    const survey = new SurveyModel(rowsJson(rowNames));
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "the rows are built").toBe(10);
+    let events: ICounts = {};
+    const passes = countPasses(() => { events = countEvents(survey, () => { survey.setValue("src", "v"); }); });
+    const expected: any = {};
+    rowNames.forEach((r: string) => { expected[r] = { b: "v-" + r }; });
+    expect(passes, "the change's pass and the matrix's cycle").toBe(2);
+    expect(events["onValueChanged:m"], "onValueChanged for the matrix").toBe(1);
+    expect(survey.getValue("m"), "the survey holds every row's value").toEqual(expected);
+    expect(matrix.visibleRows.map((r: any) => r.cells[0].question.value), "every row holds its value").toEqual(rowNames.map((r: string) => "v-" + r));
+  });
+  test("the events of an operation: the item events per item write, the survey's once", () => {
+    const survey = new SurveyModel(panelsJson);
+    expect(countEvents(survey, () => { survey.setValue("src", "v"); }), "#1: ten setValueExpression writes").toEqual({
+      "onValueChanging:src": 1, "onValueChanged:src": 1, "onDynamicPanelValueChanged:b": 10, "onValueChanging:outer": 1, "onValueChanged:outer": 1
+    });
+    const nested = new SurveyModel(nestedJson);
+    expect(countEvents(nested, () => { nested.data = copy(nestedData); }), "#2: a data load of the nested panels").toEqual({
+      "onDynamicPanelValueChanged:e": 6, "onDynamicPanelValueChanged:inner": 15, "onValueChanging:outer": 2, "onValueChanged:outer": 1
+    });
+    const matrix = new SurveyModel(rowsJson(["r0", "r1", "r2"]));
+    matrix.getQuestionByName("m").visibleRows;
+    expect(countEvents(matrix, () => { matrix.setValue("src", "v"); }), "#3: three column setValueExpression writes").toEqual({
+      "onValueChanging:src": 1, "onValueChanged:src": 1, "onMatrixCellValueChanged:b": 3, "onValueChanging:m": 1, "onValueChanged:m": 1
+    });
+  });
+  test("options.reason of the one write is 'expression' when every write of the walk was a setValueExpression", () => {
+    const survey = new SurveyModel(panelsJson);
+    const reasons: Array<any> = [];
+    survey.onValueChanging.add((_: SurveyModel, options: any) => { if (options.name === "outer") reasons.push("changing: " + options.reason); });
+    survey.onValueChanged.add((_: SurveyModel, options: any) => { if (options.name === "outer") reasons.push("changed: " + options.reason); });
+    survey.setValue("src", "v");
+    survey.getQuestionByName("outer").value = [{ b: "typed" }];
+    expect(reasons).toEqual(["changing: expression", "changed: expression", "changing: undefined", "changed: undefined"]);
+  });
+  test("a handler inside the operation reads the value from before it in the survey, and the new one in the question", () => {
+    const survey = new SurveyModel(panelsJson);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const reads: Array<any> = [];
+    survey.onDynamicPanelValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.panelIndex === 2) reads.push({ survey: sender.getValue("outer")[2].b, data: sender.data.outer[2].b, question: panel.value[2].b });
+    });
+    survey.setValue("src", "v");
+    expect(reads, "the survey holds the value from before the operation").toEqual([{ survey: undefined, data: undefined, question: "v-2" }]);
+    expect(survey.getValue("outer"), "after it, the survey holds the new value").toEqual(panelsResult("v"));
+  });
+  test("an expression over a record field no question holds reads the survey: the value from before the operation inside it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "src" }, {
+        type: "paneldynamic", name: "outer", templateElements: [
+          { type: "text", name: "b", setValueIf: "{src} notempty", setValueExpression: "{src}" }]
+      }]
+    });
+    survey.data = { outer: [{ extra: "old" }, { extra: "old" }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const reads: Array<any> = [];
+    survey.onDynamicPanelValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.panelIndex === 1) reads.push(sender.runExpression("{outer[1].extra} + '/' + {outer[0].b}"));
+    });
+    survey.setValue("src", "v");
+    expect(reads, "#1: the field no question holds, and a panel's question").toEqual(["old/v"]);
+    reads.length = 0;
+    survey.setValue("src", "");
+    panel.value = [{ extra: "new" }, { extra: "new" }];
+    expect(survey.getValue("outer"), "#2: the assignment").toEqual([{ extra: "new" }, { extra: "new" }]);
+    survey.setValue("src", "w");
+    expect(reads, "#3").toEqual(["new/w"]);
+    expect(survey.runExpression("{outer[1].extra} + '/' + {outer[1].b}"), "#3: after the operation").toBe("new/w");
+  });
+  [
+    { kind: "survey.setValue", assign: (survey: SurveyModel, val: any): void => survey.setValue("outer", val) },
+    { kind: "question.value", assign: (survey: SurveyModel, val: any): void => { survey.getQuestionByName("outer").value = val; } }
+  ].forEach(({ kind, assign }) => {
+    test("a handler inside the operation assigns the value with " + kind + ": the operation's write does not overwrite it", () => {
+      const survey = new SurveyModel(panelsJson);
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+      let isAssigned = false;
+      survey.onDynamicPanelValueChanged.add((sender: SurveyModel, options: any) => {
+        if (options.panelIndex !== 4 || isAssigned) return;
+        isAssigned = true;
+        assign(sender, [{ b: "by handler" }]);
+      });
+      survey.setValue("src", "v");
+      expect(isAssigned, "the handler ran").toBe(true);
+      expect(panel.panels.length, "the panels follow the handler's assignment").toBe(1);
+      expect(survey.getValue("outer"), "the survey holds the question's value").toEqual(panel.value);
+    });
+  });
+  test("onValueChanging changes the value of the one write: the survey stores it and the question follows", () => {
+    const survey = new SurveyModel(panelsJson);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    let calls = 0;
+    survey.onValueChanging.add((_: SurveyModel, options: any) => {
+      if (options.name !== "outer") return;
+      calls++;
+      options.value = [{ b: "changed" }].concat(options.value.slice(1));
+    });
+    survey.setValue("src", "v");
+    const expected = panelsResult("v");
+    expected[0].b = "changed";
+    expect(calls, "one onValueChanging for the panel").toBe(1);
+    expect(survey.getValue("outer"), "the survey stores the handler's value").toEqual(expected);
+    expect(panel.value, "the question follows it").toEqual(expected);
+    expect(panel.panels[0].getQuestionByName("b").value, "and so does its panel").toBe("changed");
+  });
+  test("checkErrorsMode onValueChanging: a refused write refuses the operation's whole value", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [{ type: "text", name: "src" }, {
+        type: "paneldynamic", name: "outer", panelCount: 3, templateElements: [
+          { type: "text", name: "b", setValueIf: "{src} notempty", setValueExpression: "{src} + '-' + {panelIndex}" }],
+        validators: [{ type: "expression", expression: "{outer[2].b} empty" }]
+      }]
+    });
+    const events = countEvents(survey, () => { survey.setValue("src", "v"); });
+    expect(events["onValueChanged:outer"], "the survey refused the write").toBeUndefined();
+    expect(survey.getValue("outer"), "the survey keeps the value from before the operation").toEqual([{}, {}, {}]);
+    expect(survey.getQuestionByName("outer").value, "the question holds what the operation left").toEqual([{ b: "v-0" }, { b: "v-1" }, { b: "v-2" }]);
+  });
+  test("an exception inside the operation: the value still reaches the survey, and the next write goes at once", () => {
+    const survey = new SurveyModel(panelsJson);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    let isThrown = false;
+    survey.onDynamicPanelValueChanged.add((_: SurveyModel, options: any) => {
+      if (options.panelIndex === 3 && !isThrown) {
+        isThrown = true;
+        throw new Error("handler");
+      }
+    });
+    expect(() => survey.setValue("src", "v"), "the handler's error reaches the caller").toThrow("handler");
+    expect(survey.getValue("outer"), "the survey holds the question's value").toEqual(panel.value);
+    expect(survey.getValue("outer")[3].b, "the write that threw").toBe("v-3");
+    const events = countEvents(survey, () => { panel.panels[9].getQuestionByName("b").value = "typed"; });
+    expect(events["onValueChanged:outer"], "an edit afterwards is written at once").toBe(1);
+    expect(survey.getValue("outer")[9].b).toBe("typed");
+  });
+  test("a value another question shares is written at once: the other question follows each write", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "src" },
+        { type: "paneldynamic", name: "outer", valueName: "shared", panelCount: 3, templateElements: [
+          { type: "text", name: "b", setValueIf: "{src} notempty", setValueExpression: "{src} + '-' + {panelIndex}" }] },
+        { type: "paneldynamic", name: "other", valueName: "shared", templateElements: [{ type: "text", name: "b" }] }]
+    });
+    const other = <QuestionPanelDynamicModel>survey.getQuestionByName("other");
+    const reads: Array<any> = [];
+    survey.onDynamicPanelValueChanged.add((_: SurveyModel, options: any) => {
+      if (options.question.name === "outer" && options.panelIndex === 1) reads.push(copy(other.value));
+    });
+    survey.setValue("src", "v");
+    expect(reads, "the other question holds the first two panels' writes").toEqual([[{ b: "v-0" }, { b: "v-1" }, {}]]);
+    expect(other.value, "the other question").toEqual([{ b: "v-0" }, { b: "v-1" }, { b: "v-2" }]);
+  });
+  [
+    { kind: "resetValueIf", props: { resetValueIf: "{src} = 'clr'" } },
+    { kind: "setValueExpression", props: { setValueIf: "{src} = 'clr'", setValueExpression: "''" } }
+  ].forEach(({ kind, props }) => {
+    test("checkErrorsMode onValueChanged: a " + kind + " that clears a required question of a panel shows its error", () => {
+      const survey = new SurveyModel({
+        checkErrorsMode: "onValueChanged",
+        elements: [{ type: "text", name: "src" }, {
+          type: "paneldynamic", name: "outer", templateElements: [Object.assign({ type: "text", name: "c", isRequired: true }, props)]
+        }]
+      });
+      survey.data = { outer: [{ c: "1" }] };
+      survey.setValue("src", "clr");
+      const c = (<QuestionPanelDynamicModel>survey.getQuestionByName("outer")).panels[0].getQuestionByName("c");
+      expect(c.isEmpty(), "cleared").toBe(true);
+      expect(c.errors.length, "the required error").toBe(1);
+    });
+  });
+  test("the question's own triggers do not run on the one write of its trigger walk, dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "src" }, {
+        type: "paneldynamic", name: "outer", panelCount: 3, resetValueIf: "{outer[0].b} = 'v-0'", templateElements: [
+          { type: "text", name: "b", setValueIf: "{src} notempty", setValueExpression: "{src} + '-' + {panelIndex}" }]
+      }]
+    });
+    survey.setValue("src", "v");
+    expect(survey.getValue("outer"), "the walk's values stay").toEqual([{ b: "v-0" }, { b: "v-1" }, { b: "v-2" }]);
+  });
+  test("the question's own triggers do not run on the one write of its trigger walk, matrixdropdown", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "src" }, {
+        type: "matrixdropdown", name: "m", rows: ["r0", "r1"], resetValueIf: "{m.r0.b} = 'v'", columns: [
+          { name: "b", cellType: "text", setValueIf: "{src} notempty", setValueExpression: "{src}" }]
+      }]
+    });
+    survey.getQuestionByName("m").visibleRows;
+    survey.setValue("src", "v");
+    expect(survey.getValue("m"), "the walk's values stay").toEqual({ r0: { b: "v" }, r1: { b: "v" } });
+  });
+  test("a setValueIf of the panel over its own value that would cut the panels runs no more after its walk", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "src" }, {
+        type: "paneldynamic", name: "outer", panelCount: 2, setValueIf: "{outer[1].b} = 'v-1'", setValueExpression: "[{b: 'self'}]",
+        templateElements: [{ type: "text", name: "b", setValueIf: "{src} notempty", setValueExpression: "{src} + '-' + {panelIndex}" }]
+      }]
+    });
+    expect(() => survey.setValue("src", "v"), "no error").not.toThrow();
+    expect(survey.getValue("outer")).toEqual([{ b: "v-0" }, { b: "v-1" }]);
+  });
+  [false, true].forEach((isKeepOn: boolean) => {
+    test("a resetValueIf clears the panel in its trigger walk: the key goes, keepEmptyValues " + isKeepOn, () => {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "src" }, {
+          type: "paneldynamic", name: "outer", resetValueIf: "{src} = 'clear'", templateElements: [{ type: "text", name: "b" }]
+        }]
+      }, isKeepOn ? { runtimeSettings: { keepEmptyValues: true } } : undefined);
+      survey.setValue("outer", [{ b: "1" }, { b: "2" }]);
+      survey.setValue("src", "clear");
+      expect(survey.getQuestionByName("outer").isEmpty(), "the question is empty").toBe(true);
+      expect("outer" in survey.data, "the key is removed").toBe(false);
+    });
+  });
+});

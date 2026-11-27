@@ -3584,16 +3584,20 @@ export class Question extends SurveyElement<Question>
   protected setValueCore(newValue: any): void {
     this.setQuestionValue(newValue);
     if (this.data != null && this.canSetValueToSurvey()) {
-      newValue = this.valueForSurvey;
-      if (!this.canKeepEmptyValue() && this.isValueEmpty(newValue)) {
-        this.runDeletingEmptyValues((): void => this.setValueToData(newValue));
-      } else {
-        this.setValueToData(newValue);
-      }
+      this.setValueToData(this.valueForSurvey);
     }
     this.isMouseDown = false;
   }
-  private setValueToData(newValue: any): void {
+  // The write of the value to the data (the survey, or the record item that holds the question). A records question
+  // defers it to the end of its operation (QuestionRecordsModel.runOneDataWrite).
+  protected setValueToData(newValue: any): void {
+    if (!this.canKeepEmptyValue() && this.isValueEmpty(newValue)) {
+      this.runDeletingEmptyValues((): void => this.setValueToDataCore(newValue));
+    } else {
+      this.setValueToDataCore(newValue);
+    }
+  }
+  private setValueToDataCore(newValue: any): void {
     this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this.name);
   }
   // keepEmptyValues: false for a question whose empty value is never the respondent's own clear.

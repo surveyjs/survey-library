@@ -1288,17 +1288,29 @@ export class Question extends SurveyElement<Question>
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
     // survey.data and mergeData run no question triggers: the loaded answers win. A write into a record while they
     // run (a nested item writing its record back, an expression of an item their pass computes) reaches the triggers
-    // of its item's questions directly. A matrix row's {visibleRowIndex} still runs the triggers that read it: it is
-    // the row's position, not an answer, and the rows a load rebuilds get their position only here.
-    const isAssigningData = !!this.survey?.isAssigningData();
-    if (isAssigningData && name !== settings.expressionVariables.visibleRowIndex) return;
+    // of its item's questions directly. Two kinds still run then. A matrix row's {visibleRowIndex} runs the triggers
+    // that read it: it is the row's position, not an answer, and the rows a load rebuilds get their position only
+    // here. After the load's pass, a setValueExpression without a setValueIf runs for the names the load itself wrote
+    // (SurveyModel.runQuestionsTriggersOnDataWrites): it holds a value computed from others, not an answer.
+    let onlyInfo: (info: ITriggerExpressionInfo) => boolean;
+    let onlyReadingKeys = false;
+    const survey = this.survey;
+    if (!!survey && survey.isAssigningData()) {
+      if (name === settings.expressionVariables.visibleRowIndex) {
+        onlyReadingKeys = true;
+      } else if (survey.isRunningComputedTriggersOnData()) {
+        onlyInfo = (info: ITriggerExpressionInfo): boolean => info.name === "setValueExpression";
+      } else return;
+    }
     if (!keys) {
       keys = {};
       keys[name] = value;
     }
     const properties = this.getDataFilteredProperties();
     this.triggersInfo.forEach(info => {
-      this.runTriggerInfo(info, keys, properties, isAssigningData);
+      if (!onlyInfo || onlyInfo(info)) {
+        this.runTriggerInfo(info, keys, properties, onlyReadingKeys);
+      }
     });
   }
   private runConditions() {

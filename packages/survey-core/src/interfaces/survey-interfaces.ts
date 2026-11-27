@@ -158,6 +158,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   isEditingSurveyElement: boolean;
   isSettingData(): boolean;
   isAssigningData(): boolean;
+  isRunningComputedTriggersOnData(): boolean;
   areInvisibleElementsShowing: boolean;
   areEmptyElementsHidden: boolean;
   //#endregion

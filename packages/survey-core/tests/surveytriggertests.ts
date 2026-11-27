@@ -1915,8 +1915,9 @@ describe("A data load runs no question triggers, also when a nested item writes 
 });
 describe("Review repro: survey.data write-backs", () => {
   // Repro tests from the review of this branch. F1-F4b: a write-back's survey triggers and onValueChanged wait for
-  // the pass after the load, and a matrix row's {visibleRowIndex} still runs during it. F3 and F5 stay skipped:
-  // the branch runs no question triggers during the assignment, which is for the branch author to decide.
+  // the pass after the load, and a matrix row's {visibleRowIndex} still runs during it. F3, F5: after the pass, the
+  // question triggers that read a name the assignment wrote itself run: survey.data runs a setValueExpression
+  // without a setValueIf, clear() runs all of them.
   const nestedSlots = {
     type: "paneldynamic", name: "slots", valueName: "slotValues",
     templateElements: [
@@ -1964,9 +1965,9 @@ describe("Review repro: survey.data write-backs", () => {
     survey.data = { m: [{ t: "a" }, { t: "b" }, { t: "c" }] };
     expect(m.visibleRows.map((r: any) => r.getQuestionByName("no").value)).toEqual([1, 2, 3]);
   });
-  // nested write-back = true: master passes; this branch fails, "total" stays 5.
-  // nested write-back = false: fails on both, "total" stays 5.
-  test.skip.each([true, false])("F3: setValueExpression aggregate of records after a load (nested write-back: %s)", (nested: boolean) => {
+  // The load recomputes "price", and "total" follows it: a setValueExpression without a setValueIf is a computed
+  // value, not an answer. With or without a nested item that writes its record back.
+  test.each([true, false])("F3: setValueExpression aggregate of records after a load (nested write-back: %s)", (nested: boolean) => {
     const items: Array<any> = [{ type: "text", name: "qty" }, { type: "text", name: "unit" },
       { type: "expression", name: "price", expression: "{panel.qty} * {panel.unit}" }];
     if (nested) items.push({ type: "paneldynamic", name: "nested", panelCount: 1, templateElements: [
@@ -2003,9 +2004,8 @@ describe("Review repro: survey.data write-backs", () => {
     expect(seen.length, "handler fired during the load").toBeGreaterThan(0);
     expect(seen[seen.length - 1]).toBe(true);
   });
-  // master: passes. This branch: fails, "itemQ" stays empty. A fresh survey, and clear() without the nested
-  // panel, leave "itemQ" empty on both.
-  test.skip("F5: clear() with a default panelCount and nested write-back: item setValueIf", () => {
+  // clear() loads no answers: the triggers that read the record the nested item writes back run after its pass.
+  test("F5: clear() with a default panelCount and nested write-back: item setValueIf", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [
       { type: "text", name: "a", defaultValue: "d" },
       { type: "text", name: "itemQ", setValueIf: "{panel.a} = 'd'", setValueExpression: "'set'" },

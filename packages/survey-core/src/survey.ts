@@ -3836,27 +3836,57 @@ export class SurveyModel extends SurveyElementCore
     }
     const writes = new Map<string, () => void>();
     const prevWrites = this.dataWritesToNotify;
-    this.dataWritesToNotify = writes;
+    const writtenNames = new Set<string>();
+    const prevWrittenNames = this.dataWrittenNames;
+    this.dataWrittenNames = writtenNames;
     try {
-      this.settingDataScope.run(() => {
+      this.dataWritesToNotify = writes;
+      try {
+        this.settingDataScope.run(() => {
+          this.updateAllQuestionsValue(clearData);
+          this.notifyAllQuestionsOnValueChanged();
+          // The previous data is gone (assignData resets it first), so which names changed is unknown
+          this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
+        });
+      } finally {
+        this.dataWritesToNotify = prevWrites;
+      }
+      this.settingDataPassScope.run(() => {
+        this.runConditions();
         this.updateAllQuestionsValue(clearData);
-        this.notifyAllQuestionsOnValueChanged();
-        // The previous data is gone (assignData resets it first), so which names changed is unknown
-        this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
       });
     } finally {
-      this.dataWritesToNotify = prevWrites;
+      this.dataWrittenNames = prevWrittenNames;
     }
-    this.settingDataPassScope.run(() => {
-      this.runConditions();
-      this.updateAllQuestionsValue(clearData);
-    });
     // The survey triggers and onValueChanged of the writes held above see the values the pass has calculated.
     // They run while isSettingData() is true, as they did when they ran at the write.
     if (writes.size > 0) {
       this.settingDataScope.run(() => writes.forEach(notify => notify()));
     }
+    this.runQuestionsTriggersOnDataWrites(writtenNames);
   }
+  // The names the survey itself wrote while setDataCore updated the questions and ran its pass: a nested container
+  // writing its value back, an expression question the pass computed. Not the names of the assigned data.
+  private dataWrittenNames: Set<string>;
+  // The question triggers that read a name the assignment wrote run once, on the values after its pass.
+  // survey.data and mergeData run only the setValueExpression triggers without a setValueIf: such a question holds
+  // a value computed from others, not an answer, so it follows a value the load recomputed. clear() loads no answers
+  // and runs all of them.
+  private runQuestionsTriggersOnDataWrites(names: Set<string>): void {
+    if (names.size === 0) return;
+    const keys: HashTable<any> = {};
+    names.forEach((name: string) => { keys[name] = this.getValue(name); });
+    if (this.clearingDataScope.isActive) {
+      this.runQuestionsTriggers(undefined, undefined, keys);
+    } else {
+      this.settingDataScope.run(() => {
+        this.computedTriggersOnDataScope.run(() => this.runQuestionsTriggers(undefined, undefined, keys));
+      });
+    }
+  }
+  private clearingDataScope = new Scope();
+  private computedTriggersOnDataScope = new Scope();
+  public isRunningComputedTriggersOnData(): boolean { return this.computedTriggersOnDataScope.isActive; }
   // Set while setDataCore updates the questions, keyed by the value name. A value written meanwhile (a nested
   // container writing its value back) starts no conditions pass, and its survey triggers and onValueChanged wait
   // here for setDataCore's pass.
@@ -4653,7 +4683,7 @@ export class SurveyModel extends SurveyElementCore
     this.skippedPages = [];
     this.lastActiveQuestion = undefined;
     if (clearData) {
-      this.setDataCore(null, true);
+      this.clearingDataScope.run(() => this.setDataCore(null, true));
     }
     this.timerModel.spent = 0;
     for (var i = 0; i < this.pages.length; i++) {
@@ -7869,12 +7899,12 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.questionTriggersList;
   }
-  private runQuestionsTriggers(name?: string, value?: any): void {
+  private runQuestionsTriggers(name?: string, value?: any, keys?: HashTable<any>): void {
     if (this.isDisplayMode || this.isDesignMode) return;
     let questions = this.getQuestionTriggersList();
     let changeCount = this.questionTriggersChangeCount;
     for (let i = 0; i < questions.length; i++) {
-      questions[i].runTriggers(name, value, this.valueChangedKeys?.keys);
+      questions[i].runTriggers(name, value, keys || this.valueChangedKeys?.keys);
       // A trigger set a value and its handlers changed the list. Walks nest, so the rebuilt list
       // replaces the survey's one and the array this walk iterates is never changed.
       if (changeCount !== this.questionTriggersChangeCount) {
@@ -8544,6 +8574,9 @@ export class SurveyModel extends SurveyElementCore
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     questionName = questionName || name;
+    if (!!this.dataWrittenNames) {
+      this.dataWrittenNames.add(name);
+    }
     const heldWrites = this.dataWritesToNotify;
     if (!!heldWrites) {
       this.runConditionOnValueChanged(name, newValue);

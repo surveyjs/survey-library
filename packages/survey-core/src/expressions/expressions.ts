@@ -259,7 +259,29 @@ export class BinaryOperand extends Operand {
       const isPositive = textCompareOperators[this.operatorName] === "positive";
       if (textRes === isPositive) return textRes;
     }
+    if (this.isArithmetic && !this.isConjunction) {
+      // "({q} || 10) + 1": the "0" text an or returned (see below) is a number again
+      left = BinaryOperand.zeroTextToNumber(this.left, left);
+      right = BinaryOperand.zeroTextToNumber(this.right, right);
+    }
+    // "{q} || 'fallback'", "{q} or {r} = 0": a variable's text that converts to false or 0 ("false", "0") is an
+    // entered value, like any other text, so the operator returns the text. Against true it stays a logical or.
+    if (this.operatorName === "or" && right !== true) {
+      let text = BinaryOperand.getFalsyText(this.left, left);
+      if (text === undefined && !left) text = BinaryOperand.getFalsyText(this.right, right);
+      if (text !== undefined) return text;
+    }
     return this.consumer.call(this, left, right, strictCompare, runtimeSettings);
+  }
+  private static zeroTextToNumber(op: Operand, value: any): any {
+    if (!(op instanceof BinaryOperand) || op.operatorName !== "or" || typeof value !== "string") return value;
+    return Helpers.isNumber(value) && Helpers.getNumber(value) === 0 ? 0 : value;
+  }
+  // Read right after the operand's evaluate: the variable's value was a text before it became false or 0
+  private static getFalsyText(op: Operand, value: any): string | undefined {
+    if (!(op instanceof Variable)) return undefined;
+    if (typeof value === "boolean" && !value || typeof value === "number" && value === 0) return getTextBeforeConversion(op);
+    return undefined;
   }
 
   protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {

@@ -445,6 +445,70 @@ frameworks.forEach(framework => {
       }
     });
 
+    test("Check row css background covers the sticky action and row title cells", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "orders",
+            title: "Order status",
+            detailPanelMode: "underRow",
+            detailElements: [{ type: "comment", name: "notes" }],
+            columns: [
+              { name: "order", cellType: "text" },
+              { name: "status", cellType: "dropdown", choices: ["Draft", "Failed", "Approved"] }
+            ],
+            rowCount: 0,
+            minWidth: "724px",
+            maxWidth: "724px",
+            width: "724px"
+          },
+          {
+            type: "matrixdropdown",
+            name: "statuses",
+            title: "Statuses",
+            columns: [
+              { name: "status", cellType: "dropdown", choices: ["Draft", "Failed", "Approved"] }
+            ],
+            rows: ["Row 1", "Row 2", "Row 3"],
+            minWidth: "724px",
+            maxWidth: "724px",
+            width: "724px"
+          }
+        ]
+      });
+      await page.evaluate(() => {
+        // survey-js-ui renders the survey in a shadow root, which the page's styles do not reach.
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const host = document.getElementById("surveyElement");
+        const style = document.createElement("style");
+        style.textContent = ".row--draft { background-color: #fff4e5; } .row--failed { background-color: #fde7ec; } .row--approved { background-color: #e6f6ef; }";
+        (host?.shadowRoot || document.head).appendChild(style);
+        const survey = window["survey"];
+        survey.onUpdateMatrixRowCss.add((_, options) => {
+          const status = (options.getRecord() || {}).status;
+          if (status) options.css += " row--" + status.toLowerCase();
+        });
+        survey.data = {
+          orders: [
+            { order: "ORD-1042", status: "Draft" },
+            { order: "ORD-1043", status: "Failed" },
+            { order: "ORD-1044", status: "Approved" }
+          ],
+          statuses: {
+            "Row 1": { status: "Draft" },
+            "Row 2": { status: "Failed" },
+            "Row 3": { status: "Approved" }
+          }
+        };
+      });
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question").nth(0), "matrixdynamic-row-css-sticky-cells.png");
+      await compareScreenshot(page, page.locator(".sd-question").nth(1), "matrixdropdown-row-css-sticky-cells.png");
+    });
+
     test("Check Matrixdynamic with allowRowReorder", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {

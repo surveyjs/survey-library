@@ -401,7 +401,20 @@
   &:last-of-type {
     position: sticky;
     background: var(--sd-table-sticky-background-color);
+    // The row's background, for example a class an onUpdateMatrixRowCss handler adds. The opaque layers above
+    // cover it here, so ::before paints it over them: scrolled cells still do not show through the sticky cell.
+    background-color: inherit;
     z-index: 12;
+
+    // Above the cell's background and below its content: the cell's z-index makes it a stacking context.
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: inherit;
+      pointer-events: none;
+    }
   }
 
   &:first-of-type {
@@ -411,6 +424,11 @@
   &:last-of-type {
     right: 0;
   }
+}
+// The sticky background of a drag ghost row already has its dim color: the row's background would add it again.
+.sv-matrix-row--drag-drop-ghost-mod > .sd-table__cell:first-of-type::before,
+.sv-matrix-row--drag-drop-ghost-mod > .sd-table__cell:last-of-type::before {
+  content: none;
 }
 
 .sd-table__row-disabled > .sd-table__cell {

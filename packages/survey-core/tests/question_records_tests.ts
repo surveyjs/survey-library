@@ -2156,19 +2156,18 @@ describe("Records questions: one survey write per operation", () => {
   };
   const nestedData = { outer: [{ a: 1, inner: [{ x: "x0" }] }, { a: 2 }, { a: 3 }] };
   const nestedResult = [{ a: 1, inner: [{ x: "x0", e: 1 }] }, { a: 2, inner: [{ e: 2 }] }, { a: 3, inner: [{ e: 3 }] }];
-  // Two operations write the panel: the data's assignment, whose nested panels normalize and write back, and the data
-  // pass, whose conditions walk computes the nested expressions. One write each.
-  test("survey.data: the write-backs of the nested panels reach the survey once per operation", () => {
+  // The data's assignment writes the panel once: its nested panels normalize and write their records back inside it.
+  test("survey.data: the write-backs of the nested panels reach the survey once", () => {
     const survey = new SurveyModel(nestedJson);
     let events: ICounts = {};
     const passes = countPasses(() => { events = countEvents(survey, () => { survey.data = copy(nestedData); }); });
-    expect(passes, "#1: the conditions passes").toBe(2);
-    expect(events["onValueChanged:outer"], "#1: onValueChanged for the panel").toBe(2);
+    expect(passes, "#1: the conditions passes").toBe(3);
+    expect(events["onValueChanged:outer"], "#1: onValueChanged for the panel").toBe(1);
     expect(survey.getValue("outer"), "#1: the normalized records").toEqual(nestedResult);
     expect(survey.getVariable("deep"), "#1: the calculated value").toBe("x0");
     const passesAgain = countPasses(() => { events = countEvents(survey, () => { survey.data = copy(nestedData); }); });
-    expect(passesAgain, "#2: the same data again, the conditions passes").toBe(2);
-    expect(events["onValueChanged:outer"], "#2: onValueChanged for the panel").toBe(2);
+    expect(passesAgain, "#2: the same data again, the conditions passes").toBe(3);
+    expect(events["onValueChanged:outer"], "#2: onValueChanged for the panel").toBe(1);
     expect(survey.getValue("outer"), "#2: the records").toEqual(nestedResult);
   });
   const panelsJson = {
@@ -2215,7 +2214,7 @@ describe("Records questions: one survey write per operation", () => {
     });
     const nested = new SurveyModel(nestedJson);
     expect(countEvents(nested, () => { nested.data = copy(nestedData); }), "#2: a data load of the nested panels").toEqual({
-      "onDynamicPanelValueChanged:e": 6, "onDynamicPanelValueChanged:inner": 15, "onValueChanging:outer": 2, "onValueChanged:outer": 2
+      "onDynamicPanelValueChanged:e": 6, "onDynamicPanelValueChanged:inner": 15, "onValueChanging:outer": 2, "onValueChanged:outer": 1
     });
     const matrix = new SurveyModel(rowsJson(["r0", "r1", "r2"]));
     matrix.getQuestionByName("m").visibleRows;

@@ -91,5 +91,66 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "mutlipletext-titlewidth.png");
     });
+
+    test("Check multipletext narrow date item", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              {
+                type: "multipletext",
+                name: "question5",
+                width: "65%",
+                minWidth: "256px",
+                maxWidth: "300px",
+                items: [
+                  {
+                    name: "date",
+                    inputType: "date",
+                    title: "Date of birth"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        widthMode: "static",
+        width: "860"
+      });
+
+      await compareScreenshot(page, page.locator(".sd-multipletext__item-container"), "small-multiple-text.png");
+    });
+
+    test("Check multipletext long unbreakable item title", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              {
+                type: "multipletext",
+                name: "question3",
+                maxWidth: "300px",
+                title: "Participant details",
+                items: [
+                  {
+                    name: "item",
+                    title: "LongUnbreakableItem"
+                  }
+                ],
+                itemTitleWidth: "100"
+              }
+            ]
+          }
+        ],
+        widthMode: "static",
+        width: "800px"
+      });
+
+      await compareScreenshot(page, page.locator(".sd-multipletext__item-container"), "long-string-short-space.png");
+    });
   });
 });

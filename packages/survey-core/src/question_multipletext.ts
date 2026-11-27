@@ -892,6 +892,11 @@ export class QuestionMultipleTextModel extends Question
   validateContainerOnly(): void {
     // do nothing
   }
+  public getQuestionRootCss(): string {
+    const columnCount = Math.min(this.colCount, this.items.length);
+    const columnCss = columnCount > 1 ? this.cssClasses.root + "--columns-" + columnCount : undefined;
+    return toCssClasses(super.getQuestionRootCss(), columnCss);
+  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return toCssClasses(
       this.cssClasses.itemLabel,

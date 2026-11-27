@@ -23,9 +23,9 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       }
     }
     return (
-      <table className={this.question.getQuestionRootCss()}>
-        <tbody>{rows}</tbody>
-      </table>
+      <div className={this.question.getQuestionRootCss()}>
+        {rows}
+      </div>
     );
   }
 
@@ -37,7 +37,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     } else {
       cellContent = <SurveyMultipleTextItem question={this.question} item={cell.item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>;
     }
-    return (<td key={cell.item.id} className={cell.className} onFocus={focusIn}>{cellContent}</td>);
+    return (<div key={cell.item.id} className={cell.className} onFocus={focusIn}>{cellContent}</div>);
   }
 
   protected renderRow(
@@ -54,9 +54,9 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       );
     }
     return (
-      <tr key={key} className={cssClasses.row}>
+      <div key={key} className={cssClasses.row}>
         {tds}
-      </tr>
+      </div>
     );
   }
 }

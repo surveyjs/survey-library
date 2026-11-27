@@ -1,14 +1,12 @@
 <template>
-  <table :class="question.getQuestionRootCss()" ref="root">
-    <tbody>
-      <template
-        v-for="(row, rowIndex) in question.getRows()"
-        :key="question.inputId + 'rowkey' + rowIndex"
-      >
-        <SvComponent :is="'sv-multipletext-row'" :question="question" :row="row"></SvComponent>
-      </template>
-    </tbody>
-  </table>
+  <div :class="question.getQuestionRootCss()" ref="root">
+    <template
+      v-for="(row, rowIndex) in question.getRows()"
+      :key="question.inputId + 'rowkey' + rowIndex"
+    >
+      <SvComponent :is="'sv-multipletext-row'" :question="question" :row="row"></SvComponent>
+    </template>
+  </div>
 </template>
 
 <script lang="ts" setup>

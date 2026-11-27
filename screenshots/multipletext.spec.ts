@@ -102,6 +102,7 @@ frameworks.forEach(framework => {
               {
                 type: "multipletext",
                 name: "question5",
+                readOnly: true,
                 width: "65%",
                 minWidth: "256px",
                 maxWidth: "300px",

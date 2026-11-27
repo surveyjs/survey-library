@@ -3211,7 +3211,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    this.runRecordsOperation(this.valueAssignmentScope, (): void => this.setQuestionValueCore(newValue));
+    this.runOneDataWrite((): void => this.runRecordsOperation(this.valueAssignmentScope, (): void => this.setQuestionValueCore(newValue)));
+  }
+  protected setValueCore(newValue: any): void {
+    this.runOneDataWrite((): void => super.setValueCore(newValue));
   }
   // The objects follow the assignment inside it: their condition runs owe the expression-field pass (runOwedExpressionFields).
   private valueAssignmentScope: Scope = new Scope();
@@ -3355,8 +3358,72 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   }
   // The values the objects' setValueExpression and resetValueIf compute are not edits (runComputedWrites).
   public runTriggers(name: string, value: any, keys?: any): void {
-    super.runTriggers(name, value, keys);
-    this.runComputedWrites((): void => { this.runTriggersInObjects(name, value, keys); });
+    this.runOneDataWrite((): void => {
+      // The question's own triggers do not run on its own write, as they do not inside its setNewValue (Question.runTriggers).
+      if (!this.owedWriteScope.isActive) super.runTriggers(name, value, keys);
+      this.runComputedWrites((): void => { this.runTriggersInObjects(name, value, keys); });
+    });
+  }
+  /* The question tells its data (the survey, or the record item that holds it) about its value once per operation:
+     an assignment of the value and a trigger walk. Each of them can write the value many times - the objects
+     normalize and write their records back, every setValueExpression of a walk writes one - and every write to the
+     survey is a conditions cycle with the triggers, onValueChanging, onValueChanged and auto-advance. Inside the
+     operation a write is owed; when the outermost one ends, however it ends, the question writes the value it holds
+     then, through the same path (setValueToData). Meanwhile expressions read the question, not the survey's hash
+     (SurveyValueGetterContext), so only a read of the hash - survey.getValue, survey.data, a record field no question
+     answers - sees the value from before the operation. A value another question shares is written at once: that
+     question follows the survey.
+     The conditions walk (runCondition) writes at once: a write inside the survey's pass starts no cycle of its own,
+     and the item handlers it fires (onMatrixCellValueChanged) may read the survey's value and assign it back.
+     A write that clears an answered question of an object goes at once too (answerClearScope): the survey checks that
+     question for required while it writes. */
+  private dataWriteScope: Scope = new Scope();
+  private owedWriteScope: Scope = new Scope();
+  private answerClearScope: ValueScope<boolean> = new ValueScope<boolean>(false);
+  private owedDataWrite: { isOnExpression: boolean } = undefined;
+  private runOneDataWrite(func: () => void): void {
+    try {
+      this.dataWriteScope.run(func);
+    } finally {
+      if (!this.dataWriteScope.isActive)this.writeOwedValueToData();
+    }
+  }
+  protected setValueToData(newValue: any): void {
+    if (!this.dataWriteScope.isActive || this.answerClearScope.value || this.isValueSharedInSurvey()) {
+      // The value carries every write owed before it.
+      if (this.dataWriteScope.isActive)this.owedDataWrite = undefined;
+      super.setValueToData(newValue);
+      return;
+    }
+    // A write a setValueExpression, a resetValueIf or a default value expression made: the survey tells its handlers
+    // (options.reason) when every owed write was one.
+    const isOnExpression = this.isSurveySettingValueOnExpression();
+    this.owedDataWrite = { isOnExpression: isOnExpression && (!this.owedDataWrite || this.owedDataWrite.isOnExpression) };
+  }
+  private writeOwedValueToData(): void {
+    const owed = this.owedDataWrite;
+    if (!owed) return;
+    this.owedDataWrite = undefined;
+    if (this.isDisposed || !this.data || !this.canSetValueToSurvey()) return;
+    this.owedWriteScope.run((): void => {
+      if (!owed.isOnExpression) {
+        super.setValueToData(this.valueForSurvey);
+        return;
+      }
+      this.startSetValueOnExpression();
+      try {
+        super.setValueToData(this.valueForSurvey);
+      } finally {
+        this.finishSetValueOnExpression();
+      }
+    });
+  }
+  private isValueSharedInSurvey(): boolean {
+    return !!this.survey && this.getQuestionsSharingValue(this.getValueName()).some((question: IQuestion): boolean => question !== this);
+  }
+  private isSurveySettingValueOnExpression(): boolean {
+    const survey: any = this.survey;
+    return !!survey && survey.isSettingValueOnExpression === true;
   }
   // Forwards triggers to the questions of its rows or panels, so the survey always walks it
   public canRunTriggers(): boolean {
@@ -4028,12 +4095,15 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       }
     });
     let record: any;
-    this.writeRecords((): void => {
+    // A question that clears its answer is checked for required on a value change while it writes
+    // (isAnsweredBeforeValueChange): that write goes to the survey at once (setValueToData).
+    const isAnswerCleared = !!question && question.isAnsweredBeforeValueChange && (isDeleting || Helpers.isValueEmpty(val));
+    this.answerClearScope.run(isAnswerCleared, (): void => this.writeRecords((): void => {
       this.dataList.batch((): void => {
         this.ensureItemRecord(recordIndex);
         record = isDefault ? this.runShowingRecords(write) : write();
       });
-    });
+    }));
     return record !== undefined ? { record: record, oldValue: oldValue } : undefined;
   }
   /* The write of one field into a copy of the record. An empty value removes the key; the emptiness

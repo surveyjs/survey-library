@@ -36,6 +36,15 @@ frameworks.forEach(framework => {
       await shoot(page, calendarRoot(page), "calendar-day-selected.png");
     });
 
+    test("Check selected today", async ({ page }) => {
+      await initSurvey(page, framework, singleDateQuestion({ defaultValue: "2026-11-19" }));
+      await openCalendar(page);
+      const today = calendarDay(page, "19");
+      await expect(today).toHaveClass(/sv-calendar__day--today/);
+      await expect(today).toHaveClass(/sv-calendar__day--selected/);
+      await shoot(page, calendarRoot(page), "calendar-day-selected-today.png");
+    });
+
     test("Check hovered day", async ({ page }) => {
       await initSurvey(page, framework, singleDateQuestion());
       await openCalendar(page);
@@ -158,6 +167,20 @@ frameworks.forEach(framework => {
       await calendarDay(page, "9").click();
       await expect(calendarDay(page, "9")).toHaveClass(/sv-calendar__day--selected/);
       await shoot(page, popupContainer(page), "calendar-mobile-single-selected.png");
+    });
+
+    test("Check mobile selected today", async ({ page }) => {
+      await initSurvey(page, framework, singleDateQuestion({
+        title: "Date",
+        description: "Pick a single day.",
+        defaultValue: "2026-11-19"
+      }));
+      await resizeToMobile(page);
+      await openCalendar(page);
+      const today = calendarDay(page, "19");
+      await expect(today).toHaveClass(/sv-calendar__day--today/);
+      await expect(today).toHaveClass(/sv-calendar__day--selected/);
+      await shoot(page, popupContainer(page), "calendar-mobile-single-selected-today.png");
     });
 
     test("Check mobile range list", async ({ page }) => {

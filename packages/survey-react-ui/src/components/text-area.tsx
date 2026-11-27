@@ -82,7 +82,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
           aria-describedby={this.viewModel.ariaDescribedBy}
           aria-invalid={this.viewModel.ariaInvalid}
           aria-errormessage={this.viewModel.ariaErrormessage}
-          style={{ resize: "none" }}
+          style={this.viewModel.getStyle() as React.CSSProperties}
         />
         {this.renderGroup()}
         {this.viewModel.question.resizeStyle !== "none" ?

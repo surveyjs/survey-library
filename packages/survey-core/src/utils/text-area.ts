@@ -1,33 +1,7 @@
 import { ActionContainer } from "../actions/container";
-import { DomDocumentHelper } from "../global_variables_utils";
 import { Question } from "../question";
+import { toCssClasses } from "./cssClassBuilder";
 
-export function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
-  if (!element) return;
-  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
-  const rows = parseFloat(element.getAttribute("rows") || "2");
-  const style = getComputedStyle(element);
-  const oldOverlow = style.overflowY;
-  const lineHeight = parseFloat(style.lineHeight);
-  if (!!element.scrollHeight) {
-    const paddingBorderWidth = (parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) + parseFloat(style.paddingBottom) + parseFloat(style.paddingTop));
-    let currentLinesCount = (element.scrollHeight - paddingBorderWidth) / lineHeight;
-    const setHeight = (linesCount: number) => { element.style.height = linesCount * lineHeight + paddingBorderWidth + "px"; };
-    setHeight(currentLinesCount);
-    element.style.overflowY = "hidden";
-    while(element.scrollHeight <= element.offsetHeight && currentLinesCount > rows) {
-      currentLinesCount--;
-      setHeight(currentLinesCount);
-    }
-    element.style.overflowY = oldOverlow;
-    if (element.scrollHeight > element.offsetHeight) {
-      currentLinesCount++;
-      setHeight(currentLinesCount);
-    }
-  } else {
-    element.style.height = "auto";
-  }
-}
 interface ITextAreaCssClasses {
     root?: string;
     group?: string;
@@ -66,16 +40,9 @@ export interface ITextArea {
 export class TextAreaModel {
   private element: HTMLTextAreaElement;
 
-  public updateElement(): void {
-    if (this.element && this.autoGrow) {
-      setTimeout(() => increaseHeightByContent(this.element), 1);
-    }
-  }
-
   private onPropertyChangedCallback = () => {
     if (this.element) {
       this.element.value = this.getTextValue();
-      this.updateElement();
     }
   };
 
@@ -90,7 +57,6 @@ export class TextAreaModel {
       if (this.element.value !== textValue) {
         this.element.value = textValue;
       }
-      this.updateElement();
     }
   }
   public resetElement(): void {
@@ -109,10 +75,6 @@ export class TextAreaModel {
   public onTextAreaInput(event: any): void {
     if (!!this.options.onTextAreaInput)
       this.options.onTextAreaInput(event);
-
-    if (this.element && this.autoGrow) {
-      increaseHeightByContent(this.element);
-    }
   }
   public onTextAreaKeyDown(event: any): void {
     if (!!this.options.onTextAreaKeyDown)
@@ -140,7 +102,18 @@ export class TextAreaModel {
     return this.options.placeholder();
   }
   getCssClasses(): ITextAreaCssClasses {
-    return this.options.cssClasses();
+    const classes = this.options.cssClasses();
+    if (this.autoGrow) {
+      classes.control = toCssClasses(classes.control, "sd-comment__input--auto-grow");
+    }
+    return classes;
+  }
+  public getStyle(): { resize: "none", "--sd-comment-rows"?: number } {
+    const style: { resize: "none", "--sd-comment-rows"?: number } = { resize: "none" };
+    if (this.autoGrow && this.rows) {
+      style["--sd-comment-rows"] = this.rows;
+    }
+    return style;
   }
   get maxLength(): number {
     if (this.options.maxLength)

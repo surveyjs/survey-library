@@ -30,7 +30,7 @@ export function isFilterPresetTitleTaken(title: string, otherTitles: Array<strin
 // it will: what the preset dialogs and "Save as..." check a title by.
 export function getFilterPresetTitleError(value: any, otherTitles: Array<string>, locale: string): string {
   const title = (value || "").toString().trim();
-  if (!title) return getLocaleString("requiredError", locale);
+  if (!title) return getLocaleString("filterPresetNameRequired", locale);
   if (title.length > filterPresetTitleMaxLength) {
     return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
   }

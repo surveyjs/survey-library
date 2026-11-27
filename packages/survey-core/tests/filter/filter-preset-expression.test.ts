@@ -6,8 +6,8 @@ import { FilterPresetDialog } from "../../src/filter/filter-preset-dialog";
 import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 
-// New Preset and Edit Preset: a preset that does not decompose is edited as text, and any other
-// may be ("Switch to Expression"); a text of the fields' kind goes back to the tagbox ("Switch to Fields").
+// A preset with an expression that cannot be represented by fields opens in the expression editor.
+// "Use an Expression" and "Select Fields" switch between editing modes.
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" },
@@ -52,14 +52,14 @@ describe("New Preset: a preset as text", () => {
     expect((<PanelModel>dialog.form.getPanelByName("expression")).title, "#2").toBe("Filter expression");
     dialog.dispose();
   });
-  test("Switch to Expression shows the fields' conditions as text; Switch to Fields takes a text of their kind back", () => {
+  test("Use an Expression shows the conditions as text and Select Fields restores the fields", () => {
     const dialog = control().createAddPresetDialog([{ field: "age", operator: "greater", value: 18 }]);
     const toText = titleActions(dialog, "contains").filter((a: Action): boolean => a.id === "sv-filter-preset-edit-as-text")[0];
-    expect([toText.title, toText.enabled !== false], "#1").toEqual(["Switch to Expression", true]);
+    expect([toText.title, toText.enabled !== false], "#1").toEqual(["Use an Expression", true]);
     toText.action();
     expect([panels(dialog), text(dialog), dialog.canEditAsFields], "#2").toEqual([["presetName", "expression"], "{age} > 18", true]);
     const toFields = titleActions(dialog, "expression").filter((a: Action): boolean => a.id === "sv-filter-preset-edit-as-fields")[0];
-    expect(toFields.title, "#2a").toBe("Switch to Fields");
+    expect(toFields.title, "#2a").toBe("Select Fields");
     setText(dialog, "{age} > 1 or {age} < 0");
     expect([dialog.canEditAsFields, toFields.enabled], "#3: not while the text is no list of the fields' conditions").toEqual([false, false]);
     dialog.editAsFields();

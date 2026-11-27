@@ -382,12 +382,12 @@ frameworks.forEach((framework) => {
       await expect(dialog.getByRole("checkbox", { name: "Adults" })).toBeVisible();
     });
 
-    test("Add New... opens New Preset", async ({ page }) => {
+    test("Add New... opens New Filter Preset", async ({ page }) => {
       await initSurvey(page, framework, json([], editable));
       const dialog = await openFilters(page);
       await dialog.getByRole("button", { name: "Add New..." }).click();
       const presetDialog = popupWith(page, ".sd-filter-preset-dialog__form");
-      await expect(presetDialog).toContainText("New Preset");
+      await expect(presetDialog).toContainText("New Filter Preset");
       await expect(presetDialog.locator(".sd-filter-preset-dialog__form input").first()).toBeVisible();
     });
 
@@ -404,7 +404,7 @@ frameworks.forEach((framework) => {
       const presetDialog = popupWith(page, ".sd-filter-preset-dialog__form");
       await expect(presetDialog.locator(".sd-filter-preset-dialog__form .sd-tagbox"), "it contains the chip's field").toContainText("Country");
       await type(presetDialog.locator(".sd-filter-preset-dialog__form input").first(), "Germans");
-      await presetDialog.getByRole("button", { name: "Apply" }).click();
+      await presetDialog.getByRole("button", { name: "Save", exact: true }).click();
       await expect(presetDialog).toBeHidden();
       await expect(dialog.getByRole("checkbox", { name: "Germans" }), "the Filters dialog lists the new preset").toBeVisible();
       await dialog.getByRole("button", { name: /^Show/ }).click();
@@ -413,7 +413,7 @@ frameworks.forEach((framework) => {
       expect(await getVisibleRowCount(page)).toBe(1);
     });
 
-    test("Edit Preset: Apply renames the preset picked, Delete takes it away", async ({ page }) => {
+    test("Edit Preset: Save renames the preset picked, Delete takes it away", async ({ page }) => {
       await initSurvey(page, framework, json([], Object.assign({}, twoPresets, editable)));
       const dialog = await openFilters(page);
       const editSelected = dialog.getByRole("button", { name: "Edit Selected..." });
@@ -422,9 +422,10 @@ frameworks.forEach((framework) => {
       await dialog.getByRole("checkbox", { name: "Adults" }).click();
       await editSelected.click();
       let editDialog = popupWith(page, ".sd-filter-preset-dialog__form");
-      await expect(editDialog).toContainText("Edit Preset");
-      await type(editDialog.locator(".sd-filter-preset-dialog__form input").first(), "Grown-ups");
-      await editDialog.getByRole("button", { name: "Apply" }).click();
+      const presetName = editDialog.locator(".sd-filter-preset-dialog__form input").first();
+      await expect(presetName).toHaveValue("Adults");
+      await type(presetName, "Grown-ups");
+      await editDialog.getByRole("button", { name: "Save", exact: true }).click();
       await expect(editDialog).toBeHidden();
       await expect(dialog.getByRole("checkbox", { name: "Grown-ups" })).toBeVisible();
       await dialog.getByRole("checkbox", { name: "Kids" }).click();

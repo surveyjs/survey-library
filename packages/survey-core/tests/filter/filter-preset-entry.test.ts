@@ -103,7 +103,7 @@ describe("FilterModal: Add New and Edit Selected", () => {
 });
 
 describe("FilterToolbars: the preset dialogs", () => {
-  test("Add New opens New Preset over the Filters dialog, with the buffer's conditions; one at a time", () => {
+  test("Add New opens New Filter Preset over the Filters dialog, with the buffer's conditions; one at a time", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
@@ -113,7 +113,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       addPreset(modal).action();
       const o = dialogs.calls[1].options;
       expect([o.componentName, o.title, o.showCloseButton, o.displayMode, o.cssClass], "#1")
-        .toEqual(["sv-filter-preset-dialog", "New Preset", true, "popup", "sd-filter-modal sd-filter-preset-dialog"]);
+        .toEqual(["sv-filter-preset-dialog", "New Filter Preset", true, "popup", "sd-filter-modal sd-filter-preset-dialog"]);
       const dialog: FilterPresetDialog = o.data.holder.presetDialog;
       expect([dialog instanceof FilterEditPresetDialog, dialog.editor.getConditions()], "#2")
         .toEqual([false, [{ field: "age", operator: "greater", value: 18 }]]);
@@ -126,7 +126,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       dialogs.restore();
     }
   });
-  test("its Apply keeps it open while the preset has errors; then adds it and shows its chip in the Filters dialog", () => {
+  test("Save keeps New Preset open while it has errors, then adds the preset to the Filters dialog", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
@@ -135,12 +135,14 @@ describe("FilterToolbars: the preset dialogs", () => {
       q.showPresetDialog(modal, false);
       const host = dialogs.calls[1];
       const dialog: FilterPresetDialog = host.options.data.holder.presetDialog;
-      (<Action>host.footerToolbar.getActionById("sv-filter-preset-apply")).action();
+      const save = <Action>host.footerToolbar.getActionById("sv-filter-preset-apply");
+      expect(save.title).toBe("Save");
+      save.action();
       expect([dialog.isDisposed, q.visiblePresets.length], "#1").toEqual([false, 3]);
       dialog.form.setValue("presetTitle", "Mine");
       dialog.form.getQuestionByName("presetFields").value = ["age"];
       dialog.editor.survey.getQuestionByName("f0_value").value = 3;
-      (<Action>host.footerToolbar.getActionById("sv-filter-preset-apply")).action();
+      save.action();
       expect([dialog.isDisposed, host.options.data.holder.presetDialog, q.visiblePresets[3].expression], "#2").toEqual([true, undefined, "{age} = 3"]);
       expect(chips(modal), "#3").toEqual(["Adults", "germans", "edges", "Mine"]);
       q.showPresetDialog(modal, false);
@@ -173,7 +175,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       dialogs.restore();
     }
   });
-  test("Edit Selected opens on the buffer's preset; the buffer shows what Apply made of it", () => {
+  test("Edit Selected opens on the buffer's preset and Save updates the buffer", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
@@ -183,7 +185,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       editSelected(modal).action();
       const host = dialogs.calls[1];
       const dialog: FilterEditPresetDialog = host.options.data.holder.presetDialog;
-      expect([host.options.title, dialog.preset.name], "#1").toEqual(["Edit Preset", "adults"]);
+      expect([host.options.title, dialog.preset.name], "#1").toEqual(["Edit Filter Preset", "adults"]);
       dialog.editor.survey.getQuestionByName("f0_value").value = 30;
       dialog.form.setValue("presetTitle", "Over 30");
       host.apply();
@@ -198,7 +200,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       dialogs.restore();
     }
   });
-  test("Edit Preset's footer: Delete on the left while the preset may be deleted, Cancel otherwise; Apply on the right", () => {
+  test("Edit Preset's footer: Delete on the left while the preset may be deleted, Cancel otherwise; Save on the right", () => {
     const dialogs = stubDialogs();
     try {
       const q = control({ presets: presets.concat([{ name: "kept", expression: "{age} > 3", allowDelete: false }]) });
@@ -208,6 +210,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       editSelected(modal).action();
       const footer: ActionContainer = dialogs.calls[1].footerToolbar;
       expect(ids(footer), "#1").toEqual(["sv-filter-preset-delete", "sv-filter-preset-apply"]);
+      expect(footer.getActionById("sv-filter-preset-apply").title).toBe("Save");
       const del = <Action>footer.getActionById("sv-filter-preset-delete");
       expect([del.title, del.iconName, Object.assign({}, del.appearance)], "#2: the footer gives its size")
         .toEqual(["Delete", "icon-delete-24x24", { style: "alert", mode: "secondary" }]);

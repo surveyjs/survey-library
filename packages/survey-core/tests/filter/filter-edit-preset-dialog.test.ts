@@ -42,7 +42,7 @@ describe("FilterEditPresetDialog: the preset", () => {
     const q = control();
     const dialog = q.createEditPresetDialog("germans");
     expect([dialog.title, dialog.preset.name, dialog.form.getValue("presetTitle"), picked(dialog)], "#1")
-      .toEqual(["Edit Preset", "germans", "germans", ["country"]]);
+      .toEqual(["Edit Filter Preset", "germans", "germans", ["country"]]);
     expect(dialog.editor.getConditions(), "#2").toEqual(q.getPresetConditions("germans"));
     dialog.dispose();
   });
@@ -122,7 +122,7 @@ describe("FilterEditPresetDialog: Apply", () => {
     setTitle(dialog, "Adults");
     pick(dialog, []);
     expect([dialog.apply(), dialog.form.getQuestionByName("presetTitle").errors.length,
-      dialog.form.getPanelByName("contains").errors.map((e) => e.getText())], "#3").toEqual([false, 0, ["Add at least one condition."]]);
+      dialog.form.getPanelByName("contains").errors.map((e) => e.getText())], "#3").toEqual([false, 0, ["Select at least one field to filter by."]]);
     expect(events, "#4").toEqual({ filter: 0, uiState: 0 });
     dialog.dispose();
   });

@@ -1140,13 +1140,21 @@ export class Question extends SurveyElement<Question>
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
   }
-  private runTriggerInfo(info: ITriggerExpressionInfo, keys: any, properties: any): void {
+  private runTriggerInfo(info: ITriggerExpressionInfo, keys: any, properties: any, onlyReadingKeys?: boolean): void {
     this.runExpressionByProperty(info.name, properties, (value: any) => {
       info.doComplete(value, properties);
     }, (runner: ExpressionRunner): boolean => {
       if (!info.canRun()) return false;
-      return !keys || this.canExecuteTriggerByKeys(keys, runner, this.getExpressionByProperty(info.secondName));
+      const secondRunner = this.getExpressionByProperty(info.secondName);
+      if (onlyReadingKeys) return this.isTriggerReadingKeys(keys, runner, secondRunner);
+      return !keys || this.canExecuteTriggerByKeys(keys, runner, secondRunner);
     });
+  }
+  // A trigger whose condition or value expression reads one of the keys. Without the condition-or-constant rules
+  // of canExecuteTriggerByKeys: a constant setValueExpression would let any key run its setValueIf.
+  private isTriggerReadingKeys(keys: any, runner: ExpressionRunner, secondRunner: ExpressionRunner): boolean {
+    return !!runner && this.canExecuteTriggerByKeysCore(keys, runner) === "var" ||
+      !!secondRunner && this.canExecuteTriggerByKeysCore(keys, secondRunner) === "var";
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
     if (!runner && !!secondRunner) {
@@ -1278,13 +1286,31 @@ export class Question extends SurveyElement<Question>
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    // survey.data and mergeData run no question triggers: the loaded answers win. A write into a record while they
+    // run (a nested item writing its record back, an expression of an item their pass computes) reaches the triggers
+    // of its item's questions directly. Two kinds still run then. A matrix row's {visibleRowIndex} runs the triggers
+    // that read it: it is the row's position, not an answer, and the rows a load rebuilds get their position only
+    // here. After the load's pass, a setValueExpression without a setValueIf runs for the names the load itself wrote
+    // (SurveyModel.runQuestionsTriggersOnDataWrites): it holds a value computed from others, not an answer.
+    let onlyInfo: (info: ITriggerExpressionInfo) => boolean;
+    let onlyReadingKeys = false;
+    const survey = this.survey;
+    if (!!survey && survey.isAssigningData()) {
+      if (name === settings.expressionVariables.visibleRowIndex) {
+        onlyReadingKeys = true;
+      } else if (survey.isRunningComputedTriggersOnData()) {
+        onlyInfo = (info: ITriggerExpressionInfo): boolean => info.name === "setValueExpression";
+      } else return;
+    }
     if (!keys) {
       keys = {};
       keys[name] = value;
     }
     const properties = this.getDataFilteredProperties();
     this.triggersInfo.forEach(info => {
-      this.runTriggerInfo(info, keys, properties);
+      if (!onlyInfo || onlyInfo(info)) {
+        this.runTriggerInfo(info, keys, properties, onlyReadingKeys);
+      }
     });
   }
   private runConditions() {

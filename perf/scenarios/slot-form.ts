@@ -22,16 +22,14 @@ export function holdsValue(ctx: PerfContext, actual: any, expected: any): boolea
   return Object.keys(expected).every((k: string) => holdsValue(ctx, actual[k], expected[k]));
 }
 
-// The top-level data keys whose loaded answer the survey does not hold, except the "who" answers a data load
-// overwrites before 02 (meta.overwrittenBefore02): 02 removes the overwrite, and then the skip.
+// The top-level data keys whose loaded answer the survey does not hold.
 export function lostAnswers(ctx: PerfContext, survey: any): Array<string> {
-  const skip = ctx.fixture.meta.overwrittenBefore02;
-  return Object.keys(ctx.fixture.data).filter((k: string) => skip.indexOf(k) < 0 && !holdsValue(ctx, survey.getValue(k), ctx.fixture.data[k]));
+  return Object.keys(ctx.fixture.data).filter((k: string) => !holdsValue(ctx, survey.getValue(k), ctx.fixture.data[k]));
 }
 
-// A counter: the top-level data keys whose loaded answer differs after the load, the overwritten ones included.
+// A counter: the top-level data keys whose loaded answer differs after the load.
 export function dataDiffs(ctx: PerfContext, survey: any): Counters {
-  return { dataDiffs: work(Object.keys(ctx.fixture.data).filter((k: string) => !holdsValue(ctx, survey.getValue(k), ctx.fixture.data[k])).length) };
+  return { dataDiffs: work(lostAnswers(ctx, survey).length) };
 }
 
 export function slotPanel(survey: any, index: number): any {
@@ -62,7 +60,7 @@ export function assignDataFirst(ctx: PerfContext, survey: any): void {
 
 export function slotDataLoad(fixture: string, op: string, before?: (ctx: PerfContext, survey: any) => void): PerfScenario {
   return {
-    id: fixture + "/load/" + op, rev: 1, fixture: fixture, kind: "load", warmup: before ? 0 : undefined,
+    id: fixture + "/load/" + op, rev: 2, fixture: fixture, kind: "load", warmup: before ? 0 : undefined,
     uses: ["loadSurvey", "releaseSurvey", "copyValue", "lostAnswers", "dataDiffs", "expectSlots"].concat(before ? [before.name] : []),
     setup: async(ctx: PerfContext): Promise<any> => {
       const survey = await loadSurvey(ctx, (s: any) => { if (before) before(ctx, s); });

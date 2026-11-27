@@ -157,6 +157,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   isLoadingFromJson: boolean;
   isEditingSurveyElement: boolean;
   isSettingData(): boolean;
+  isAssigningData(): boolean;
+  isRunningComputedTriggersOnData(): boolean;
   areInvisibleElementsShowing: boolean;
   areEmptyElementsHidden: boolean;
   //#endregion

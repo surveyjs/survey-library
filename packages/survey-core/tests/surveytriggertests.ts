@@ -12,6 +12,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { FunctionFactory } from "../src/functionsfactory";
 import { ExpressionRunner } from "../src/expressions/expressionRunner";
+import { ComponentCollection } from "../src/question_custom";
 
 import { describe, test, expect } from "vitest";
 describe("Triggers", () => {
@@ -1661,5 +1662,357 @@ describe("A nested function with constant parameters runs on any change", () => 
       FunctionFactory.Instance.unregister("readQ");
       FunctionFactory.Instance.unregister("countCalls");
     }
+  });
+});
+describe("A data load runs no question triggers, also when a nested item writes its record back during it", () => {
+  // While survey.data assigns the data, each item of the nested dynamic panel computes its expression question and
+  // writes the slot's record back into "slotValues". The count reads "hasSecond" through a calculated value: 1 before
+  // the load, 2 after it. A trigger that ran on such a write-back read the count of 1 and changed a loaded answer. The
+  // questions of a test come before the panel, so they hold their loaded answers when the panel writes back.
+  const slotsPanel = {
+    type: "paneldynamic", name: "slots", valueName: "slotValues",
+    templateElements: [
+      { type: "text", name: "slot" },
+      { type: "paneldynamic", name: "nested", panelCount: 1, templateElements: [
+        { type: "expression", name: "nestedSlot", expression: "{parentPanel.slot}" },
+        { type: "text", name: "text" }
+      ] }
+    ]
+  };
+  const chosen = { type: "checkbox", name: "chosen", choices: ["k0", "k1"], setValueIf: "{count} = 1 and {flags} contains 'a'", setValueExpression: "['k0']" };
+  const loadedChosen = { chosen: ["k0", "k1"] };
+  function surveyJSON(options: { elements?: Array<any>, triggers?: Array<any>, clearInvisibleValues?: string, slotsDefault?: Array<any>,
+    slotElements?: Array<any>, } = {}): any {
+    const panel: any = { ...slotsPanel };
+    if (options.slotsDefault) panel.defaultValue = options.slotsDefault;
+    if (options.slotElements) panel.templateElements = panel.templateElements.concat(options.slotElements);
+    const json: any = {
+      calculatedValues: [
+        { name: "secondOn", expression: "{hasSecond} = true" },
+        { name: "count", expression: "1 + iif({secondOn} = true, 1, 0)" }
+      ],
+      elements: [
+        { type: "boolean", name: "hasSecond" },
+        { type: "checkbox", name: "flags", choices: ["a", "b"] }
+      ].concat(options.elements || [], [panel])
+    };
+    if (options.triggers) json.triggers = options.triggers;
+    if (options.clearInvisibleValues) json.clearInvisibleValues = options.clearInvisibleValues;
+    return json;
+  }
+  function loadedData(answers: any): any {
+    return { hasSecond: true, flags: ["a"], slotValues: [{ slot: "k0", nested: [{ text: "x" }] }, { slot: "k1" }], ...answers };
+  }
+  function expectLoaded(survey: SurveyModel, answers: any): void {
+    expect(survey.getVariable("count"), "the count after the load").toBe(2);
+    expect(survey.getValue("slotValues")[1].nested[0].nestedSlot, "the nested item wrote its record back").toBe("k1");
+    expect(survey.getValue("slotValues")[0].nested[0].text, "the loaded record").toBe("x");
+    Object.keys(answers).forEach((name: string) => expect(survey.getValue(name), name).toEqual(answers[name]));
+  }
+  const questionTriggers: Array<[string, any, any]> = [
+    ["setValueIf with a constant setValueExpression", chosen, loadedChosen],
+    ["setValueIf that reads the written-back value",
+      { type: "text", name: "q", setValueIf: "{count} = 1 and {slotValues} notempty", setValueExpression: "'one: ' + {count}" }, { q: "loaded" }],
+    ["resetValueIf that reads the written-back value", { type: "text", name: "q", resetValueIf: "{count} = 1 and {slotValues} notempty" }, { q: "loaded" }]
+  ];
+  test.each(questionTriggers)("survey.data keeps an answer that a %s would change", (_: string, question: any, answers: any) => {
+    const survey = new SurveyModel(surveyJSON({ elements: [question] }));
+    survey.data = loadedData(answers);
+    expectLoaded(survey, answers);
+  });
+  test.each(questionTriggers)("mergeData keeps an answer that a %s would change", (_: string, question: any, answers: any) => {
+    const survey = new SurveyModel(surveyJSON({ elements: [question] }));
+    survey.mergeData(loadedData(answers));
+    expectLoaded(survey, answers);
+  });
+  // A write into a record runs the triggers of the questions of its item directly, while the questions are updated
+  // (the count is 1 yet) and in the load's own pass (the count is 2). Neither may change a loaded answer.
+  function loadSlotQuestion(question: any, record: any): SurveyModel {
+    const survey = new SurveyModel(surveyJSON({ slotElements: [question] }));
+    // The items of the nested panel are new, so each one writes its slot's record back.
+    survey.data = loadedData({ slotValues: [{ slot: "k0", ...record }, { slot: "k1" }] });
+    expect(survey.getVariable("count"), "the count after the load").toBe(2);
+    expect(survey.getValue("slotValues")[0].nested[0].nestedSlot, "the nested item wrote its record back").toBe("k0");
+    return survey;
+  }
+  const matrixInSlot = (condition: string): any => ({ type: "matrixdynamic", name: "grid", rowCount: 1, columns: [
+    { name: "copy", cellType: "expression", expression: "{row.cell} + '!'" },
+    { name: "cell", cellType: "text", setValueIf: condition, setValueExpression: "'set'" }] });
+  test.each([
+    ["a question of the panel item", "{count} = 1"],
+    ["a question of the panel item", "{count} = 2"],
+    ["a cell of a matrix row in the panel item", "{count} = 1"],
+    ["a cell of a matrix row in the panel item", "{count} = 2"]
+  ])("survey.data keeps %s that a setValueIf %s would change", (label: string, condition: string) => {
+    const isCell = label.indexOf("matrix") > -1;
+    const survey = loadSlotQuestion(isCell ? matrixInSlot(condition) : { type: "text", name: "itemQ", setValueIf: condition, setValueExpression: "'set'" },
+      isCell ? { grid: [{ cell: "loaded" }] } : { itemQ: "loaded" });
+    const record = survey.getValue("slotValues")[0];
+    expect(isCell ? record.grid[0].cell : record.itemQ, "the loaded answer").toBe("loaded");
+  });
+  test("survey.data keeps a question of a composite in the panel item that a setValueIf would change", () => {
+    ComponentCollection.Instance.add({ name: "loadedPair", elementsJSON: [
+      { type: "text", name: "a" }, { type: "expression", name: "copy", expression: "{composite.a}" },
+      { type: "text", name: "itemQ", setValueIf: "{count} = 1", setValueExpression: "'set'" }] });
+    try {
+      const survey = loadSlotQuestion({ type: "loadedPair", name: "pair" }, { pair: { a: "z", itemQ: "loaded" } });
+      expect(survey.getValue("slotValues")[0].pair.itemQ, "the loaded answer").toBe("loaded");
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+  // An item whose expression the load's pass computes, without a nested panel.
+  const rowsPanel = (question: any): any => ({ type: "paneldynamic", name: "rows", templateElements: [
+    { type: "text", name: "a" }, { type: "expression", name: "copy", expression: "{panel.a} + '!'" }, question] });
+  test("survey.data keeps a question of a dynamic panel item that a setValueIf true after the load would change", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [rowsPanel({ type: "text", name: "itemQ", setValueIf: "{count} = 2", setValueExpression: "'set'" })] }));
+    survey.data = loadedData({ rows: [{ a: "y", itemQ: "loaded" }] });
+    expect(survey.getValue("rows")[0].copy, "the load computed the expression").toBe("y!");
+    expect(survey.getValue("rows")[0].itemQ, "the loaded answer").toBe("loaded");
+  });
+  test("survey.data does not fill an item question that the data leaves out; the next change does", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [rowsPanel({ type: "text", name: "itemQ", setValueIf: "{panel.copy} notempty", setValueExpression: "{panel.copy} + 'set'" })] }));
+    survey.data = loadedData({ rows: [{ a: "y" }] });
+    expect(survey.getValue("rows")[0].itemQ, "after the load").toBeUndefined();
+    survey.getQuestionByName("rows").panels[0].getQuestionByName("a").value = "z";
+    expect(survey.getValue("rows")[0].itemQ, "after a change").toBe("z!set");
+  });
+  test.each(["none", "onComplete"])("survey.data keeps the loaded answers with clearInvisibleValues: %s", (clearInvisibleValues: string) => {
+    const survey = new SurveyModel(surveyJSON({ elements: [chosen], clearInvisibleValues: clearInvisibleValues }));
+    survey.data = loadedData(loadedChosen);
+    expectLoaded(survey, loadedChosen);
+  });
+  test("survey.data assigned in an onValueChanged handler keeps the loaded answers", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [chosen, { type: "text", name: "start" }] }));
+    survey.onValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.name === "start") sender.data = loadedData(loadedChosen);
+    });
+    survey.setValue("start", 1);
+    expectLoaded(survey, loadedChosen);
+  });
+  test("survey.data keeps the loaded records and answers of a dynamic panel with a defaultValue", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [chosen], slotsDefault: [{ slot: "k0" }, { slot: "k1" }, { slot: "k2" }] }));
+    survey.data = loadedData(loadedChosen);
+    expect(survey.getValue("slotValues").length, "the loaded records").toBe(2);
+    expectLoaded(survey, loadedChosen);
+  });
+  test("the values after a load are the same with calculatedValueTrackDependencies on and off", () => {
+    const load = (track: boolean): any => {
+      const prev = settings.calculatedValueTrackDependencies;
+      settings.calculatedValueTrackDependencies = track;
+      try {
+        const survey = new SurveyModel(surveyJSON({ elements: [chosen] }));
+        survey.data = loadedData(loadedChosen);
+        return { data: survey.data, secondOn: survey.getVariable("secondOn"), count: survey.getVariable("count") };
+      } finally {
+        settings.calculatedValueTrackDependencies = prev;
+      }
+    };
+    expect(load(true)).toEqual(load(false));
+  });
+  // The load runs one full pass after it updates the questions, so a write-back then needs no pass of its own.
+  test.each(["data", "mergeData"])("survey.%s runs as many conditions passes with a nested write-back as without one", (method: string) => {
+    const countPasses = (withNested: boolean): number => {
+      const json = surveyJSON({ elements: [chosen] });
+      if (!withNested) json.elements[json.elements.length - 1].templateElements = [{ type: "text", name: "slot" }];
+      const survey = new SurveyModel(json);
+      let passes = 0;
+      const runConditionsCore = survey["runConditionsCore"];
+      survey["runConditionsCore"] = (properties: any): any => { passes++; return runConditionsCore.call(survey, properties); };
+      if (method === "data") survey.data = loadedData(loadedChosen); else survey.mergeData(loadedData(loadedChosen));
+      return passes;
+    };
+    expect(countPasses(true)).toBe(countPasses(false));
+  });
+  // A survey trigger still runs for a value the load's own pass computes, as for a calculated value.
+  test("survey.data runs a survey trigger for a value its pass computes, on the values after the load", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [{ type: "text", name: "b" }, { type: "expression", name: "tenfold", expression: "{count} * 10" }],
+      triggers: [{ type: "setvalue", expression: "{tenfold} = 20", setToName: "b", setValue: "by trigger" }] }));
+    survey.data = loadedData({ b: "loaded" });
+    expect(survey.getValue("tenfold"), "the expression after the load").toBe(20);
+    expect(survey.getValue("b"), "the setvalue trigger ran").toBe("by trigger");
+  });
+  // The survey triggers of a write during the load run as before: a value or a variable that a handler writes then
+  // runs them too.
+  test.each(["a variable", "a value"])("%s that a handler writes during the load runs a survey trigger", (kind: string) => {
+    const survey = new SurveyModel(surveyJSON({ elements: [{ type: "text", name: "b" }],
+      triggers: [{ type: "setvalue", expression: "{flag} = 1 and {hasSecond} = true", setToName: "b", setValue: "by trigger" }] }));
+    survey.onValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.name !== "slotValues" || !sender.isSettingData()) return;
+      if (kind === "a variable") sender.setVariable("flag", 1); else sender.setValue("flag", 1);
+    });
+    survey.data = loadedData({ b: "loaded" });
+    expect(kind === "a variable" ? survey.getVariable("flag") : survey.getValue("flag"), "the handler ran during the load").toBe(1);
+    expectLoaded(survey, { b: "by trigger" });
+  });
+  test("a comment that a handler writes during the load of a completed survey changes no later trigger", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [{ type: "text", name: "c", showCommentArea: true },
+      { type: "text", name: "z", resetValueIf: "{c} notempty" }, { type: "text", name: "y" }] }));
+    survey.doComplete();
+    survey.onValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.name === "slotValues" && sender.isSettingData()) sender.setComment("c", "note");
+    });
+    survey.data = loadedData({ c: "c1", z: "loaded" });
+    expect(survey.getValue("z"), "after the load").toBe("loaded");
+    survey.setValue("y", 1);
+    expect(survey.getValue("z"), "after a change of another value").toBe("loaded");
+  });
+  // The nested panels on another page, built at load because a calculated value reads a nested item.
+  test.each(["data", "mergeData"])("survey.%s keeps the loaded answers when a calculated value reads a nested item on another page", (method: string) => {
+    const survey = new SurveyModel({
+      calculatedValues: [
+        { name: "secondOn", expression: "{hasSecond} = true" },
+        { name: "count", expression: "1 + iif({secondOn} = true, 1, 0)" },
+        { name: "nestedText", expression: "{slotValues[0].nested[0].text}" }
+      ],
+      pages: [
+        { elements: [{ type: "boolean", name: "hasSecond" }, { type: "checkbox", name: "flags", choices: ["a", "b"] }, chosen] },
+        { elements: [slotsPanel] }
+      ]
+    });
+    const changed: Array<string> = [];
+    survey.onValueChanged.add((_: SurveyModel, options: any) => { changed.push(options.name); });
+    const data = loadedData(loadedChosen);
+    if (method === "data") survey.data = data; else survey.mergeData(data);
+    expect(survey.getVariable("nestedText"), "the calculated value read the nested item").toBe("x");
+    expectLoaded(survey, loadedChosen);
+    expect(changed.indexOf("chosen"), "no onValueChanged for the loaded answer during the load").toBe(-1);
+  });
+  test("survey.data leaves empty a question that the data leaves out, although its setValueIf is true after the load", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [{ type: "text", name: "target", setValueIf: "{flags} contains 'a'", setValueExpression: "'v'" }] }));
+    survey.data = loadedData({});
+    expectLoaded(survey, {});
+    expect(survey.getValue("target"), "after the load").toBeUndefined();
+    survey.setValue("flags", ["a", "b"]);
+    expect(survey.getValue("target"), "after a change").toBe("v");
+  });
+  test("a value that a handler sets during the load holds, conditions on it hold, a setValueIf on it waits for the next change", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [{ type: "text", name: "x" },
+      { type: "text", name: "y", setValueIf: "{x} = 5", setValueExpression: "'yes'" },
+      { type: "text", name: "z", visibleIf: "{x} = 5" },
+      { type: "expression", name: "e", expression: "{x} + {count}" }] }));
+    survey.onValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.name === "slotValues" && sender.isSettingData()) sender.setValue("x", 5);
+    });
+    survey.data = loadedData({});
+    expect(survey.getValue("x"), "the handler's value").toBe(5);
+    expect(survey.getQuestionByName("z").isVisible, "visibleIf on it").toBe(true);
+    expect(survey.getValue("e"), "an expression on it").toBe(7);
+    expect(survey.getValue("y"), "setValueIf during the load").toBeUndefined();
+    survey.setValue("x", 4);
+    survey.setValue("x", 5);
+    expect(survey.getValue("y"), "setValueIf after a change").toBe("yes");
+  });
+  test("after the load, a value set by code runs the question and survey triggers", () => {
+    const survey = new SurveyModel(surveyJSON({ elements: [chosen, { type: "text", name: "b" }],
+      triggers: [{ type: "setvalue", expression: "{count} = 1", setToName: "b", setValue: "one" }] }));
+    survey.data = loadedData(loadedChosen);
+    survey.setValue("hasSecond", false);
+    expect(survey.getVariable("count"), "the count").toBe(1);
+    expect(survey.getValue("chosen"), "setValueIf").toEqual(["k0"]);
+    expect(survey.getValue("b"), "the setvalue trigger").toBe("one");
+  });
+});
+describe("Review repro: survey.data write-backs", () => {
+  // Repro tests from the review of this branch. F1-F4b: a write-back's survey triggers and onValueChanged wait for
+  // the pass after the load, and a matrix row's {visibleRowIndex} still runs during it. F3, F5: after the pass, the
+  // question triggers that read a name the assignment wrote itself run: survey.data runs a setValueExpression
+  // without a setValueIf, clear() runs all of them.
+  const nestedSlots = {
+    type: "paneldynamic", name: "slots", valueName: "slotValues",
+    templateElements: [
+      { type: "text", name: "slot" },
+      { type: "paneldynamic", name: "nested", panelCount: 1, templateElements: [
+        { type: "expression", name: "nestedSlot", expression: "{parentPanel.slot}" },
+        { type: "text", name: "text" }
+      ] }
+    ]
+  };
+  const slotData = [{ slot: "k0", nested: [{ text: "x" }] }, { slot: "k1" }];
+  // The trigger must not run for the write-back while "slotCount" still holds its pre-load value (0).
+  test("F1: survey setvalue trigger on a write-back reads a calculated value of the written name", () => {
+    const survey = new SurveyModel({
+      calculatedValues: [{ name: "slotCount", expression: "countInArray({slotValues}, 'slot')" }],
+      elements: [{ type: "text", name: "b" }, nestedSlots],
+      triggers: [{ type: "setvalue", expression: "{slotValues} notempty and {slotCount} < 2", setToName: "b", setValue: "by trigger" }]
+    });
+    survey.data = { b: "loaded", slotValues: slotData };
+    expect(survey.getValue("slotValues")[1].nested[0].nestedSlot, "write-back happened").toBe("k1");
+    expect(survey.getVariable("slotCount")).toBe(2);
+    expect(survey.getValue("b")).toBe("loaded");
+  });
+  // The runexpression trigger reads "slotCount" = 2 at once, not 0 first and 2 when "slotCount" changes.
+  test("F1b: runexpression trigger keyed on the written name reads the calculated value", () => {
+    const survey = new SurveyModel({
+      calculatedValues: [{ name: "slotCount", expression: "countInArray({slotValues}, 'slot')" }],
+      elements: [{ type: "text", name: "n" }, nestedSlots],
+      triggers: [{ type: "runexpression", expression: "{slotValues} notempty", runExpression: "{slotCount}", setToName: "n" }]
+    });
+    const nValues: Array<any> = [];
+    survey.onValueChanged.add((_: SurveyModel, options: any) => {
+      if (options.name === "n") nValues.push(options.value);
+    });
+    survey.data = { slotValues: slotData };
+    expect(survey.getValue("n")).toBe(2);
+    expect(nValues, "the values the trigger set").toEqual([2]);
+  });
+  // The rows a load rebuilds get their {visibleRowIndex}, also when they were built before the load.
+  test.each([true, false])("F2: visibleRowIndex setValueExpression for rows a load rebuilds (rendered before: %s)", (renderedBefore: boolean) => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1,
+      columns: [{ cellType: "text", name: "no", setValueExpression: "{visibleRowIndex}" }, { cellType: "text", name: "t" }] }] });
+    const m: any = survey.getQuestionByName("m");
+    if (renderedBefore) m.visibleRows;
+    survey.data = { m: [{ t: "a" }, { t: "b" }, { t: "c" }] };
+    expect(m.visibleRows.map((r: any) => r.getQuestionByName("no").value)).toEqual([1, 2, 3]);
+  });
+  // The load recomputes "price", and "total" follows it: a setValueExpression without a setValueIf is a computed
+  // value, not an answer. With or without a nested item that writes its record back.
+  test.each([true, false])("F3: setValueExpression aggregate of records after a load (nested write-back: %s)", (nested: boolean) => {
+    const items: Array<any> = [{ type: "text", name: "qty" }, { type: "text", name: "unit" },
+      { type: "expression", name: "price", expression: "{panel.qty} * {panel.unit}" }];
+    if (nested) items.push({ type: "paneldynamic", name: "nested", panelCount: 1, templateElements: [
+      { type: "expression", name: "copy", expression: "{parentPanel.qty}" }] });
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "total", setValueExpression: "sumInArray({orders}, 'price')" },
+      { type: "paneldynamic", name: "orders", templateElements: items }] });
+    survey.data = { total: 5, orders: [{ qty: 2, unit: 3, price: 5 }] };
+    expect(survey.getValue("orders")[0].price, "the load recomputed the price").toBe(6);
+    expect(survey.getValue("total")).toBe(6);
+  });
+  // The handler sees the recalculated "slotCount", not its pre-load value (0).
+  test("F4: onValueChanged for a write-back sees the calculated value of the written name", () => {
+    const survey = new SurveyModel({
+      calculatedValues: [{ name: "slotCount", expression: "countInArray({slotValues}, 'slot')" }],
+      elements: [nestedSlots]
+    });
+    const seen: Array<any> = [];
+    survey.onValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.name === "slotValues" && sender.isSettingData()) seen.push(sender.getVariable("slotCount"));
+    });
+    survey.data = { slotValues: slotData };
+    expect(seen.length, "handler fired during the load").toBeGreaterThan(0);
+    expect(seen).toEqual(seen.map(() => 2));
+  });
+  // The handler sees "dep" visible: the pass after the load has run its visibleIf.
+  test("F4b: onValueChanged for a write-back sees the visibility a condition on the written name sets", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "dep", visibleIf: "{slotValues[1].nested[0].nestedSlot} = 'k1'" }, nestedSlots] });
+    const seen: Array<boolean> = [];
+    survey.onValueChanged.add((sender: SurveyModel, options: any) => {
+      if (options.name === "slotValues" && sender.isSettingData()) seen.push(sender.getQuestionByName("dep").isVisible);
+    });
+    survey.data = { slotValues: slotData };
+    expect(seen.length, "handler fired during the load").toBeGreaterThan(0);
+    expect(seen[seen.length - 1]).toBe(true);
+  });
+  // clear() loads no answers: the triggers that read the record the nested item writes back run after its pass.
+  test("F5: clear() with a default panelCount and nested write-back: item setValueIf", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [
+      { type: "text", name: "a", defaultValue: "d" },
+      { type: "text", name: "itemQ", setValueIf: "{panel.a} = 'd'", setValueExpression: "'set'" },
+      { type: "paneldynamic", name: "nested", panelCount: 1, templateElements: [{ type: "expression", name: "c", expression: "{parentPanel.a}" }] }] }] });
+    survey.data = { p: [{ a: "z" }] };
+    survey.clear();
+    const v = survey.getValue("p");
+    expect(v && v[0] && v[0].itemQ).toBe("set");
   });
 });

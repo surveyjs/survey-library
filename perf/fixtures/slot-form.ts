@@ -184,9 +184,9 @@ export function generateSlotForm(options?: SlotFormOptions): { json: any, data: 
       setValueIf: "{" + cnt + "} = 1 and {" + screen + "} contains " + str(choice), setValueExpression: "['k0']" });
     data[name] = ["k0", "k1"];
   }
-  // A data load writes ['k0'] over the "who" answers whose screen choice the data selects: in a nested cycle of
-  // the load only one slot is counted yet (02 removes the overwrite).
-  const overwrittenBefore02 = whos.filter((w: any) => data[w.screen].indexOf(w.choice) > -1).map((w: any) => w.name);
+  // The "who" answers whose screen choice the data selects: their setValueIf is true while one slot is counted. A data
+  // load wrote ['k0'] over them in a pass that a nested item's write-back ran before the count read the data.
+  const whosSetOnOneSlot = whos.filter((w: any) => data[w.screen].indexOf(w.choice) > -1).map((w: any) => w.name);
   // Two texts copy a part of the shared name when a choice is set.
   const copyFrom = q();
   top.push({ type: "radiogroup", name: copyFrom, title: title(), choices: choiceList(3) });
@@ -610,7 +610,7 @@ export function generateSlotForm(options?: SlotFormOptions): { json: any, data: 
     count: cnt,
     // A screen choice the data does not select, and the "who" it shows.
     screenAdded: { choice: whos[screenCount * selectedPerScreen + 1].choice, who: whos[screenCount * selectedPerScreen + 1].name },
-    overwrittenBefore02: overwrittenBefore02,
+    whosSetOnOneSlot: whosSetOnOneSlot,
     // The counts of the mechanisms (01, M1-M8).
     mechanisms: {
       calculatedValues: calculatedValues.length,

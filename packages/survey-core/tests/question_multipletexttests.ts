@@ -6,6 +6,29 @@ import { SurveyModel } from "../src/survey";
 
 import { describe, test, expect } from "vitest";
 describe("Survey_QuestionMultipleText", () => {
+  test("root css marks the column count used by the grid", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "multipletext",
+        name: "q",
+        colCount: 2,
+        items: [{ name: "a" }, { name: "b" }]
+      }]
+    });
+    const question = <QuestionMultipleTextModel>survey.getQuestionByName("q");
+    expect(question.getQuestionRootCss()).toBe("sd-multipletext sd-multipletext--columns-2");
+    question.colCount = 1;
+    expect(question.getQuestionRootCss()).toBe("sd-multipletext");
+    const singleItem = new SurveyModel({
+      elements: [{
+        type: "multipletext",
+        name: "q",
+        colCount: 2,
+        items: [{ name: "a" }]
+      }]
+    });
+    expect(singleItem.getQuestionByName("q").getQuestionRootCss()).toBe("sd-multipletext");
+  });
   test("Check rows building (errors top)", () => {
     const question = new QuestionMultipleTextModel("multipletext");
     question.addItem("item1", "Item1");

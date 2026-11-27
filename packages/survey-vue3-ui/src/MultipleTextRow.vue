@@ -1,6 +1,6 @@
 <template>
-  <tr :class="question.cssClasses.row" v-if="row.isVisible">
-    <td
+  <div :class="question.cssClasses.row" v-if="row.isVisible">
+    <div
       v-for="cell in row.cells"
       :key="cell.item.editor.id"
       :class="cell.className"
@@ -10,8 +10,8 @@
         :question="question"
         :cell="cell"
       ></SvComponent>
-    </td>
-  </tr>
+    </div>
+  </div>
 </template>
 <script lang="ts" setup>
 import SvComponent from './SvComponent.vue';

@@ -1,4 +1,6 @@
 import { Question } from "../src/question";
+import { QuestionDropdownModel } from "../src/question_dropdown";
+import "../src/localization/german";
 import { ComponentCollection } from "../src/question_custom";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -222,5 +224,36 @@ describe("a11y", () => {
     panel.removePanel(0);
     expect(panel.getShowNoEntriesPlaceholder(), "the placeholder is shown, #3").toBe(true);
     expect(addAction.ariaDescribedBy, "the placeholder is shown, #3").toBe(panel.noEntriesTextId);
+  });
+
+  test("a11y: dropdown clear button has an accessible name, Bug#9735", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        choices: ["Item 1", "Item 2", "Item 3"]
+      }]
+    });
+    const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const clearButton = question.dropdownEditorButtons.getActionById("clear");
+
+    expect(clearButton.showTitle, "the clear button is icon-only").toBe(false);
+    expect(clearButton.ariaLabel, "the clear button has an accessible name").toBe("Clear");
+
+    question.value = "Item 1";
+    expect(clearButton.visible, "the clear button is visible once a value is set").toBe(true);
+    expect(clearButton.ariaLabel, "the clear button keeps its accessible name").toBe("Clear");
+
+    question.clearValue();
+    expect(clearButton.visible, "the clear button is hidden once the value is cleared").toBe(false);
+    expect(clearButton.ariaLabel, "the clear button keeps its accessible name when hidden").toBe("Clear");
+
+    survey.locale = "de";
+    expect(clearButton.ariaLabel, "the accessible name follows the locale").toBe("Auswahl entfernen");
+    survey.locale = "";
+    expect(clearButton.ariaLabel, "the accessible name follows the locale back").toBe("Clear");
+
+    question.dropdownListModel.clearCaption = "Remove the selection";
+    expect(clearButton.ariaLabel, "the accessible name follows a custom clear caption").toBe("Remove the selection");
   });
 });

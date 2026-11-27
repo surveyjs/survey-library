@@ -196,8 +196,11 @@ export class DropdownEditorButtons extends ActionContainer {
       this.updateState();
     }
   };
+  private clearCaptionChangedHandler = () => {
+    this.updateClearButtonAriaLabel();
+  };
 
-  constructor(private question: Question, locSelectCaption: LocalizableString, locClearCaption: LocalizableString,
+  constructor(private question: Question, locSelectCaption: LocalizableString, private locClearCaption: LocalizableString,
     getModel: () => DropdownListModel) {
     super();
     this.locOwner = question;
@@ -235,6 +238,10 @@ export class DropdownEditorButtons extends ActionContainer {
     });
 
     this.setItems([this.clearButton, this.chevronButton]);
+    // The clear button is icon-only, so it has no visible text for a screen reader.
+    // Give it an accessible name from the clear caption and keep it in sync when the locale changes.
+    this.locClearCaption.onStringChanged.add(this.clearCaptionChangedHandler);
+    this.updateClearButtonAriaLabel();
     this.survey = question.survey;
     if (!!this.survey) {
       this.survey.onPropertyChanged.add(this.surveyPropertyChangedHandler);
@@ -251,8 +258,13 @@ export class DropdownEditorButtons extends ActionContainer {
     this.chevronButton.setVisible(!this.question.isPreviewStyle);
     this.clearButton.setEnabled(!this.question.isInputReadOnly);
     this.clearButton.setVisible(this.isClearButtonVisible);
+    this.updateClearButtonAriaLabel();
+  }
+  private updateClearButtonAriaLabel(): void {
+    this.clearButton.ariaLabel = this.locClearCaption.text;
   }
   public dispose(): void {
+    this.locClearCaption.onStringChanged.remove(this.clearCaptionChangedHandler);
     if (!!this.survey) {
       this.survey.onPropertyChanged.remove(this.surveyPropertyChangedHandler);
       this.survey = undefined;

@@ -426,11 +426,9 @@
   }
 }
 // The sticky background of a drag ghost row already has its dim color: the row's background would add it again.
-.sv-matrix-row--drag-drop-ghost-mod > .sd-table__cell {
-  &:first-of-type::before,
-  &:last-of-type::before {
-    content: none;
-  }
+.sv-matrix-row--drag-drop-ghost-mod > .sd-table__cell:first-of-type::before,
+.sv-matrix-row--drag-drop-ghost-mod > .sd-table__cell:last-of-type::before {
+  content: none;
 }
 
 .sd-table__row-disabled > .sd-table__cell {

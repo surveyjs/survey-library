@@ -1,0 +1,32 @@
+<div [class]="model.rootCss" #root>
+  <div *ngIf="model.isMonthList" [class]="model.cssClasses.listHeader">
+    <div [class]="model.cssClasses.weekDays">
+      <div *ngFor="let name of model.weekDays" [class]="model.cssClasses.weekDay">{{ name }}</div>
+    </div>
+  </div>
+  <div *ngIf="model.showTopToolbar" [class]="model.cssClasses.toolbar">
+    <div *ngIf="model.showMonthTitles" [class]="model.cssClasses.monthTitles">
+      <div *ngFor="let month of model.months" [class]="model.cssClasses.monthTitle">{{ month.title }}</div>
+    </div>
+    <sv-ng-action-bar [model]="model.topToolbar"></sv-ng-action-bar>
+  </div>
+  <div *ngIf="model.isDayZoom" [class]="model.cssClasses.months">
+    <div *ngFor="let month of model.months; trackBy: trackMonth" [class]="model.cssClasses.monthView" [attr.data-month]="model.getMonthKey(month)">
+      <div *ngIf="model.isMonthList" [class]="model.cssClasses.monthTitle">{{ month.title }}</div>
+      <div *ngIf="model.showMonthWeekDays" [class]="model.cssClasses.weekDays">
+        <div *ngFor="let name of model.weekDays" [class]="model.cssClasses.weekDay">{{ name }}</div>
+      </div>
+      <div [class]="model.cssClasses.table" (mouseleave)="hoverItem()">
+        <div *ngFor="let item of month.days; trackBy: trackIndex" [class]="model.cssClasses.dayCell">
+          <sv-ng-calendar-item [item]="item" [calendar]="model"></sv-ng-calendar-item>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!model.isDayZoom" [class]="model.cssClasses.table" (mouseleave)="hoverItem()">
+    <sv-ng-calendar-item *ngFor="let item of model.items; trackBy: trackIndex" [item]="item" [calendar]="model"></sv-ng-calendar-item>
+  </div>
+  <div *ngIf="model.footerVisible" [class]="model.cssClasses.footer">
+    <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
+  </div>
+</div>

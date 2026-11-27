@@ -39,7 +39,8 @@
       ></SvComponent>
       <div class="sv-popup__body-content">
         <div class="sv-popup__body-header" v-if="!!model.title">
-          {{ model.title }}
+          <div class="sv-popup__body-header-title">{{ model.title }}</div>
+          <div v-if="!!model.description" class="sv-popup__body-header-description">{{ model.description }}</div>
         </div>
         <div class="sv-popup__scrolling-content">
           <div class="sv-popup__content">

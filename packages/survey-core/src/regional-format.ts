@@ -3,6 +3,8 @@ import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ILocaleData, getLocaleDataLocales, canonicalizeLocale } from "./locale-data";
+import { getCalendarWeekdayShortNames } from "./calendar/calendar-locale";
+import { getFirstDayOfWeek } from "./calendar/date-utils";
 
 // The Creator groups the properties of the object under this category.
 export const regionalFormatCategory = "regionalFormat";
@@ -41,6 +43,8 @@ export class RegionalFormat extends Base implements ILocaleData {
    * @since 3.1.0
    */
   @property() datePattern: string;
+  // 0 is Sunday, the same numbering as Date.getDay(). Unset inherits the format locale.
+  @property() firstDayOfWeek: number;
   /**
    * A time pattern for [date-time input masks](/form-library/documentation/api-reference/inputmaskdatetime).
    *
@@ -203,6 +207,10 @@ export class RegionalFormat extends Base implements ILocaleData {
 // to the locale default: the serializer would otherwise treat "" as a default (no static default
 // exists) and drop it. The single-character limit on the separators mirrors the numeric mask's
 // registration so that the property grid enforces it.
+export function getFirstDayOfWeekChoices(): Array<{ value: number, text: string }> {
+  const names = getCalendarWeekdayShortNames();
+  return [0, 1, 6].map(value => ({ value: value, text: names[value] }));
+}
 function serializeStoredValue(name: string): (obj: RegionalFormat) => any {
   return (obj: RegionalFormat) => obj.getExplicitPropertyValue(name);
 }
@@ -217,6 +225,17 @@ Serializer.addClass(
       onSerializeValue: serializeStoredValue("locale"),
     },
     { name: "datePattern:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("datePattern") },
+    {
+      name: "firstDayOfWeek:number",
+      category: regionalFormatCategory,
+      choices: getFirstDayOfWeekChoices,
+      defaultFunc: (obj: RegionalFormat) => {
+        const survey = !!obj ? <any>obj.getSurvey() : undefined;
+        const locale = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : "";
+        return getFirstDayOfWeek(locale);
+      },
+      onSerializeValue: serializeStoredValue("firstDayOfWeek")
+    },
     { name: "timePattern:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("timePattern") },
     { name: "decimalSeparator:string", category: regionalFormatCategory, maxLength: 1, onSerializeValue: serializeStoredValue("decimalSeparator") },
     { name: "thousandsSeparator:string", category: regionalFormatCategory, maxLength: 1, onSerializeValue: serializeStoredValue("thousandsSeparator") },

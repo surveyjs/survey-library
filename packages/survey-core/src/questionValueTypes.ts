@@ -94,6 +94,9 @@ export function getQuestionValueTypeInfo(type: string, json?: any): IQuestionVal
     case "slider":
       if (json?.sliderType === "range") return { shape: "array" };
       return { shape: "scalar", scalarType: "number" };
+    case "datetimepicker":
+      if (json?.range === true) return { shape: "array" };
+      return { shape: "scalar", scalarType: "string" };
     case "matrix":
     case "matrixdropdown":
     case "multipletext":

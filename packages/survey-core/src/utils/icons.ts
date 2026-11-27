@@ -76,6 +76,7 @@ export const renamedIcons: any = {
   "delete": "delete-24x24",
   "description-hide": "hidehint-16x16",
   "description": "hint-16x16",
+  "datetimepicker": "toolbox-calendar-24x24",
   "device-desktop": "desktop-24x24",
   "device-phone": "phone-24x24",
   "device-rotate": "rotate-24x24",

@@ -123,7 +123,8 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     );
   }
   renderHeaderContent(): React.JSX.Element {
-    return <div className="sv-popup__body-header">{this.model.title}</div>;
+    const description = !!this.model.description ? <div className="sv-popup__body-header-description">{this.model.description}</div> : null;
+    return <div className="sv-popup__body-header"><div className="sv-popup__body-header-title">{this.model.title}</div>{description}</div>;
   }
   renderContent(): React.JSX.Element {
     const contentComponent = ReactElementFactory.Instance.createElement(

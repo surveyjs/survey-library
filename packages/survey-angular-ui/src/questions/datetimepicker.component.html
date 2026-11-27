@@ -1,0 +1,22 @@
+<div #contentElement [class]="model.getRootClass()">
+  <ng-template #field let-id="id" let-placeholder="placeholder" let-index="index">
+    <div [class]="model.getFieldClass()">
+      <input #input type="text" autocomplete="off" [class]="model.getControlClass()" [id]="id"
+        [placeholder]="placeholder" [disabled]="model.isDisabledAttr" [readOnly]="model.isReadOnlyAttr"
+        (blur)="model.onBlur($event)" (focus)="model.onFocus($event)" (keyup)="model.onKeyUp($event)"
+        [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
+        [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" />
+      <sv-ng-action-bar [model]="model.getEditorButtons(index)"></sv-ng-action-bar>
+    </div>
+  </ng-template>
+  <ng-container *ngIf="!model.range">
+    <ng-container *ngTemplateOutlet="field; context: { id: model.inputId, placeholder: model.renderedPlaceholder, index: 0 }"></ng-container>
+  </ng-container>
+  <div *ngIf="model.range" [class]="model.cssClasses.fields">
+    <ng-container *ngTemplateOutlet="field; context: { id: model.startInputId, placeholder: model.renderedStartPlaceholder, index: 0 }"></ng-container>
+    <span [class]="model.cssClasses.rangeSeparator">{{ model.rangeSeparatorText }}</span>
+    <ng-container *ngTemplateOutlet="field; context: { id: model.endInputId, placeholder: model.renderedEndPlaceholder, index: 1 }"></ng-container>
+  </div>
+  <sv-ng-popup *ngIf="!model.isInputReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
+</div>

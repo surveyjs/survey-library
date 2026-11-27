@@ -1512,3 +1512,20 @@ describe("CalculatedValues: custom functions that read element state", () => {
     }
   });
 });
+
+describe("CalculatedValues: a NaN result is not a change", () => {
+  test("A calculated value that gives NaN does not run extra conditions passes", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "t" }],
+      calculatedValues: [{ name: "calc", expression: "round({a})" }]
+    });
+    expect(Number.isNaN(survey.getVariable("calc")), "round() of an empty value is NaN").toBe(true);
+    const runs = vi.spyOn(<any>survey, "runConditionsCore");
+    survey.setValue("t", "x");
+    expect(runs, "one pass for the first change").toHaveBeenCalledTimes(1);
+    runs.mockClear();
+    survey.setValue("t", "y");
+    expect(runs, "one pass for the second change").toHaveBeenCalledTimes(1);
+    runs.mockRestore();
+  });
+});

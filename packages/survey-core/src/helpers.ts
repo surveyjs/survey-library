@@ -191,6 +191,8 @@ export class Helpers {
   }
   public static checkIfValuesEqual(x: any, y: any, params: IEqualValuesParameters): boolean {
     if (x === y) return true;
+    // NaN never equals itself with ===; without this a NaN value counts as changed on every run
+    if (Number.isNaN(x) && Number.isNaN(y)) return true;
 
     if (Array.isArray(x) && x.length === 0 && typeof y === "undefined")
       return true;

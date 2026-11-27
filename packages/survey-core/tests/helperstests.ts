@@ -609,3 +609,22 @@ describe("Helpers", () => {
     expect(Object.keys(removed)).toStrictEqual(["c"]);
   });
 });
+
+describe("Helpers: NaN equality", () => {
+  test("NaN equals NaN, also inside arrays and objects", () => {
+    expect(Helpers.isTwoValueEquals(NaN, NaN), "NaN vs NaN").toBe(true);
+    expect(Helpers.isTwoValueEquals([1, NaN], [1, NaN]), "inside an array").toBe(true);
+    expect(Helpers.isTwoValueEquals([NaN, 1], [1, NaN], true), "inside an array, order ignored").toBe(true);
+    expect(Helpers.isTwoValueEquals({ a: NaN, b: { c: NaN } }, { a: NaN, b: { c: NaN } }), "inside an object").toBe(true);
+    expect(Helpers.checkIfValuesEqual(NaN, NaN, { doNotConvertNumbers: true }), "numbers are not converted").toBe(true);
+  });
+  test("NaN does not equal a number, an empty value or the text 'NaN'", () => {
+    const others = [0, undefined, null, "", "NaN"];
+    for (const other of others) {
+      expect(Helpers.isTwoValueEquals(NaN, other), "NaN vs " + JSON.stringify(other)).toBe(false);
+      expect(Helpers.isTwoValueEquals(other, NaN), JSON.stringify(other) + " vs NaN").toBe(false);
+    }
+    expect(Helpers.isTwoValueEquals([NaN], [0]), "inside an array").toBe(false);
+    expect(Helpers.isValueEmpty(NaN), "NaN is an empty value").toBe(true);
+  });
+});

@@ -2344,3 +2344,14 @@ describe("Expression parser: deep nesting", () => {
     expect(parser.error).toBeUndefined();
   });
 });
+
+describe("Expression parser: NaN operands", () => {
+  test("Two NaN values are equal in expressions", () => {
+    const values = { a: "abc", b: "xyz" };
+    expect(new ConditionRunner("({a} * 1) = ({b} * 1)").runValues(values), "=").toBe(true);
+    expect(new ConditionRunner("({a} * 1) <> ({b} * 1)").runValues(values), "<>").toBe(false);
+    expect(new ConditionRunner("({a} * 1) >= ({b} * 1)").runValues(values), ">=").toBe(true);
+    expect(new ConditionRunner("[({a} * 1)] contains ({b} * 1)").runValues(values), "contains").toBe(true);
+    expect(new ConditionRunner("({a} * 1) = 0").runValues(values), "NaN = 0").toBe(false);
+  });
+});

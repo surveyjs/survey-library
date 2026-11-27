@@ -1771,3 +1771,21 @@ describe("Expression question: custom functions that read element state", () => 
     }
   });
 });
+
+describe("Expression question: a NaN result is not a change", () => {
+  test("An expression question that gives NaN does not run extra conditions passes", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "expression", name: "exp", expression: "{a} * 1" }]
+    });
+    survey.data = { a: "abc" };
+    // A text times 1 is NaN, and NaN is stored as an empty value
+    const exp = <QuestionExpressionModel>survey.getQuestionByName("exp");
+    expect(exp.isEmpty(), "the NaN result is empty").toBe(true);
+    survey.setValue("a", "abcd");
+    const runs = vi.spyOn(<any>survey, "runConditionsCore");
+    survey.setValue("a", "abcde");
+    expect(runs, "one pass when the value stays NaN").toHaveBeenCalledTimes(1);
+    expect(exp.isEmpty(), "the result is still empty").toBe(true);
+    runs.mockRestore();
+  });
+});

@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType, ISurveyData } from "./base-interfaces";
 import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement, getReadOnlyModePropertyInfo } from "./survey-element";
@@ -3711,6 +3711,15 @@ export class Question extends SurveyElement<Question>
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
+  }
+  // Sync step: pulls the value and the comment stored in data into the question. No change notification:
+  // the caller runs onSurveyValueChanged after conditions and triggers, if it needs it.
+  updateFromSurvey(data: ISurveyData, clearData: boolean = false): void {
+    const valName = this.getValueName();
+    this.updateValueFromSurvey(data.getValue(valName), clearData);
+    if (this.requireUpdateCommentValue) {
+      this.updateCommentFromSurvey(data.getComment(valName));
+    }
   }
   protected onChangeQuestionValue(newValue: any): void { }
   // Default values (defaultValue and defaultValueExpression) apply until the value is set or cleared directly

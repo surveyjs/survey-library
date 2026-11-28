@@ -113,6 +113,16 @@ describe("Survey", () => {
     survey.mergeData(null);
     expect(survey.data, "do nothing").toEqual({ strVal: "item1", intVal: 7, boolVal: false });
   });
+  test("survey.data and mergeData sync the comment of a question with a comment area", () => {
+    const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", showCommentArea: true }, { type: "text", name: "q2" }] });
+    const q1 = survey.getQuestionByName("q1");
+    survey.data = { q1: 1, "q1-Comment": "c" };
+    expect(q1.comment, "set by survey.data").toBe("c");
+    survey.mergeData({ q2: 1 });
+    expect(q1.comment, "kept by mergeData").toBe("c");
+    survey.data = { q1: 2 };
+    expect(q1.comment, "cleared by survey.data").toBe("");
+  });
   test("merge data for image question", () => {
     const survey = new SurveyModel({
       elements: [

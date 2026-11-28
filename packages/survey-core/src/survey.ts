@@ -7510,12 +7510,7 @@ export class SurveyModel extends SurveyElementCore
   private updateAllQuestionsValue(clearData: boolean) {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      var q = <Question>questions[i];
-      var valName = q.getValueName();
-      q.updateValueFromSurvey(this.getValue(valName), clearData);
-      if (q.requireUpdateCommentValue) {
-        q.updateCommentFromSurvey(this.getComment(valName));
-      }
+      questions[i].updateFromSurvey(this, clearData);
     }
   }
   private notifyAllQuestionsOnValueChanged() {

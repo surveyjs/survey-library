@@ -42,7 +42,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private savedTargetNodeIndex: any;
   private scrollIntervalId: number = null;
 
-  constructor(private dd: IDragDropEngine, private longTap: boolean = true, private fitToContainer:boolean = false) {}
+  constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
 
   public get documentOrShadowRoot(): Document | ShadowRoot {
     const rootNode = this.rootElement.getRootNode();

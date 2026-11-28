@@ -34,7 +34,7 @@ import { ActionContainer } from "./actions/container";
 import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
-import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";

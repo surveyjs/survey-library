@@ -29,7 +29,6 @@ import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
@@ -2030,10 +2029,9 @@ export class Question extends SurveyElement<Question>
         this.singleInputBehavior.focusSingleInput(onError);
       } else {
         this.expandAllParents();
-        const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] && isAnimationEnabled() ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
           element: this, question: this, id: this.renderedId,
-          scrollIfVisible, scrollIntoViewOptions: scrollOptions,
+          scrollIfVisible,
           onScolledCallback: () => { this.focusInputElement(onError); }
         });
       }
@@ -3346,7 +3344,6 @@ export class Question extends SurveyElement<Question>
     this.validatorRunner = null;
   }
   public allowSpaceAsAnswer: boolean;
-  private isValueChangedInSurvey = false;
   private isOldAnswered: boolean;
   // Internal: true while the value of an answered question is being set, so that a value-change
   // validation can tell the answer being cleared (see PanelModelBase.validateRequired).
@@ -3574,9 +3571,7 @@ export class Question extends SurveyElement<Question>
   }
   private setNewValueInData(newValue: any): void {
     newValue = this.valueToData(newValue);
-    if (!this.isValueChangedInSurvey) {
-      this.setValueCore(newValue);
-    }
+    this.setValueCore(newValue);
   }
   protected getValueCore(): any {
     return this.questionValue;

@@ -41,7 +41,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   protected domAdapter: IDragDropDOMAdapter;
   constructor(private surveyValue?: ISurvey, private creator?: any, longTap?: boolean, domAdapter?: IDragDropDOMAdapter) {
-    this.domAdapter = domAdapter || new DragDropDOMAdapter(this, longTap, this.survey?.fitToContainer);
+    this.domAdapter = domAdapter || new DragDropDOMAdapter(this, longTap);
   }
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {

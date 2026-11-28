@@ -62,3 +62,27 @@ test("The questions of a choice panel that is not showing hold their values, and
   kept.doComplete();
   expect(kept.data, "clearInvisibleValues: none keeps it").toEqual({ q: ["b"], inner: "z" });
 });
+
+test("survey.data and mergeData set the comment of a question in a choice panel", () => {
+  const check = (type: string, q1Value: any) => {
+    const json = { elements: [
+      { type: type, name: "q1", choices: [{ value: "a", elements: [{ type: "rating", name: "nested", showCommentArea: true }] }, "b"] },
+      { type: "text", name: "q2" }
+    ] };
+    const survey = new SurveyModel(json);
+    const nested = (<any>survey.getQuestionByName("q1")).choices[0].panel.getQuestionByName("nested");
+    survey.data = { q1: q1Value, nested: 3, "nested-Comment": "c" };
+    expect(nested.value, type + ", survey.data sets the value").toBe(3);
+    expect(nested.comment, type + ", survey.data sets the comment").toBe("c");
+    survey.data = { q1: q1Value, nested: 3 };
+    expect(nested.comment, type + ", survey.data clears the comment").toBe("");
+
+    const merged = new SurveyModel(json);
+    const mergedNested = (<any>merged.getQuestionByName("q1")).choices[0].panel.getQuestionByName("nested");
+    merged.mergeData({ q1: q1Value, nested: 3, "nested-Comment": "c" });
+    expect(mergedNested.value, type + ", mergeData sets the value").toBe(3);
+    expect(mergedNested.comment, type + ", mergeData sets the comment").toBe("c");
+  };
+  check("checkbox", ["a"]);
+  check("radiogroup", "a");
+});

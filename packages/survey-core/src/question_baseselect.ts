@@ -2238,25 +2238,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
         this.isUpdatingValueFromSurvey = false;
       }
     }
-    this.updateValueForPanels(clearData, false);
+    // Every created panel, showing or not: the questions of a hidden panel hold their values too.
+    if (this.data) {
+      this.forEachNestedElement(info => (<PanelModel>info.element).questions.forEach(q => q.updateFromSurvey(this.data, clearData)), allChoicePanels);
+    }
   }
   updateCommentFromSurvey(newValue: any): any {
     super.updateCommentFromSurvey(newValue);
-    this.updateValueForPanels(false, true);
-  }
-  // Every created panel, showing or not: the questions of a hidden panel hold their values too.
-  private updateValueForPanels(clearData: boolean, isComment: boolean): void {
     if (this.data) {
-      this.forEachNestedElement(info => {
-        (<PanelModel>info.element).questions.forEach(q => {
-          const valName = q.getValueName();
-          if (isComment) {
-            q.updateCommentFromSurvey(this.data.getComment(valName));
-          } else {
-            q.updateValueFromSurvey(this.data.getValue(valName), clearData);
-          }
-        });
-      }, allChoicePanels);
+      this.forEachNestedElement(info => (<PanelModel>info.element).questions.forEach(q => q.updateCommentFromSurvey(this.data.getComment(q.getValueName()))), allChoicePanels);
     }
   }
   protected getCommentFromValue(newValue: any): string {

@@ -106,6 +106,21 @@ frameworks.forEach((framework) => {
       await expect(contentItem).toBeVisible();
     });
 
+    test("expand collapse title by keyboard", async ({ page }) => {
+      const panelTitle = page.locator("div[id$='ariaTitle']").filter({ hasText: "Panel 1" });
+      const contentItem = page.locator("[data-name='question2']");
+
+      await expect(panelTitle).toHaveAttribute("aria-expanded", "true");
+      await panelTitle.focus();
+      await page.keyboard.press("Enter");
+      await expect(panelTitle).toHaveAttribute("aria-expanded", "false");
+      await expect(contentItem).not.toBeVisible();
+
+      await page.keyboard.press("Space");
+      await expect(panelTitle).toHaveAttribute("aria-expanded", "true");
+      await expect(contentItem).toBeVisible();
+    });
+
     test("panel description reactivity", async ({ page }) => {
       await page.evaluate(() => {
         window["survey"].getAllPanels()[0].description = "desc1";
@@ -196,6 +211,26 @@ frameworks.forEach((framework) => {
       await expect(getContainer("q3")).toHaveCSS("padding-left", "40px");
       await expect(getContainer("inner1")).toHaveCSS("padding-left", "0px");
       await expect(getContainer("inner2")).toHaveCSS("padding-left", "20px");
+    });
+
+    test("expand collapse question title by keyboard", async ({ page }) => {
+      await initSurvey(page, framework, { elements: [{ type: "text", name: "q1", state: "collapsed" }] });
+      const questionTitle = page.locator("[data-name='q1'] [id$='ariaTitle']");
+      const input = page.locator("[data-name='q1'] input");
+
+      await expect(questionTitle).toHaveAttribute("aria-expanded", "false");
+      await expect(input).not.toBeVisible();
+      await questionTitle.focus();
+      await page.keyboard.press("Enter");
+      await expect(questionTitle).toHaveAttribute("aria-expanded", "true");
+      await expect(input).toBeVisible();
+      // Expanding a question moves focus to its input
+      await expect(input).toBeFocused();
+
+      await questionTitle.focus();
+      await page.keyboard.press("Space");
+      await expect(questionTitle).toHaveAttribute("aria-expanded", "false");
+      await expect(input).not.toBeVisible();
     });
   });
 });

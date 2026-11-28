@@ -7915,13 +7915,6 @@ export class SurveyModel extends SurveyElementCore
   private reportWarningOnUsingService(): void {
     ConsoleWarnings.warn("Self-hosted Form Library no longer supports integration with SurveyJS Demo Service. Learn more: https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service");
   }
-  private loadSurveyFromServiceJson(json: any) {
-    if (!json) return;
-    this.fromJSON(json);
-    this.notifyAllQuestionsOnValueChanged();
-    this.onLoadSurveyFromService();
-    this.onLoadedSurveyFromService.fire(this, {});
-  }
   protected onLoadingSurveyFromService() { }
   protected onLoadSurveyFromService() { }
   private resetVisibleIndexes() {

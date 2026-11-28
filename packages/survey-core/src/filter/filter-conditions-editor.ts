@@ -166,15 +166,6 @@ export class FilterConditionsEditor {
   public get isDisposed(): boolean { return this.isDisposedValue; }
   public get hasSearch(): boolean { return !!this.options.showSearch; }
   public get isModified(): boolean { return this.isModifiedValue; }
-  // The field whose editors the panel holds; undefined for a panel that is not one of the editor's -
-  // the survey may be shared with other panels (a dialog's description).
-  public getFieldKeyByPanel(panel: PanelModelBase): string {
-    if (!panel || this.isDisposedValue) return undefined;
-    for (let i = 0; i < this.names.length; i++) {
-      if (this.getPanel(i) === panel) return this.names[i];
-    }
-    return undefined;
-  }
   // The condition the editor holds for the field now, or undefined when it holds none. A multi-
   // value answer comes in the field's choice order - see normalizeValue().
   public getCondition(name: string): IFilterCondition {

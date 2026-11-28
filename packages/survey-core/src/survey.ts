@@ -6237,7 +6237,6 @@ export class SurveyModel extends SurveyElementCore
       this.isSingleQuestionLayout && this.css.rootSingleQuestion
     );
   }
-  private isSmoothScrollEnabled = false;
   // Read only after mount: during render the server cannot know the preference,
   // so a class derived from it would break hydration. CSS media query covers the first paint.
   @property({ defaultValue: false }) private isReducedMotion: boolean;
